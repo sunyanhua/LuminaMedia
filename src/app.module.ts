@@ -1,0 +1,37 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { User } from './entities/user.entity';
+import { SocialAccount } from './entities/social-account.entity';
+import { ContentDraft } from './entities/content-draft.entity';
+import { PublishTask } from './entities/publish-task.entity';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'mysql',
+        host: configService.get('DB_HOST', 'localhost'),
+        port: configService.get<number>('DB_PORT', 3306),
+        username: configService.get('DB_USERNAME', 'root'),
+        password: configService.get('DB_PASSWORD', ''),
+        database: configService.get('DB_DATABASE', 'lumina_media'),
+        entities: [User, SocialAccount, ContentDraft, PublishTask],
+        synchronize: configService.get('TYPEORM_SYNCHRONIZE', 'false') === 'true',
+        logging: configService.get('TYPEORM_LOGGING', 'true') === 'true',
+        charset: 'utf8mb4',
+      }),
+    }),
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
