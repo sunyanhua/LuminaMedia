@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  db-lumina:
+    image: mysql:8.0
+    container_name: lumina-media-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: lumina_media
+      MYSQL_USER: lumina_user
+      MYSQL_PASSWORD: lumina_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./scripts/01-init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./scripts/02-analytics-migration.sql:/docker-entrypoint-initdb.d/02-analytics-migration.sql
+      - ./scripts/03-content-generation-migration.sql:/docker-entrypoint-initdb.d/03-content-generation-migration.sql
+      - ./scripts/customer-data-migration.sql:/docker-entrypoint-initdb.d/04-customer-data-migration.sql
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p123456"]
+      timeout: 10s
+      retries: 5
+    networks:
+      - lumina-media-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: lumina-media-app
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=db-lumina
+      - DB_PORT=3306
+      - DB_USERNAME=lumina_user
+      - DB_PASSWORD=lumina_password
+      - DB_DATABASE=lumina_media
+      - APP_PORT=3002
+      - APP_ENV=production
+      - TYPEORM_SYNCHRONIZE=false
+      - TYPEORM_LOGGING=false
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-your_gemini_api_key_here}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-flash}
+      - GEMINI_TEMPERATURE=${GEMINI_TEMPERATURE:-0.7}
+      - GEMINI_MAX_TOKENS=${GEMINI_MAX_TOKENS:-2048}
+      - GEMINI_TOP_P=${GEMINI_TOP_P:-0.95}
+      - GEMINI_TOP_K=${GEMINI_TOP_K:-40}
+    ports:
+      - "3002:3002"
+    depends_on:
+      db-lumina:
+        condition: service_healthy
+    volumes:
+      - ./uploads:/app/uploads
+    networks:
+      - lumina-media-network
+
+  dashboard:
+    build:
+      context: ./dashboard-web
+      dockerfile: Dockerfile.frontend
+      args:
+        - VITE_API_BASE_URL=
+    container_name: lumina-media-dashboard
+    restart: always
+    ports:
+      - "5173:80"
+    depends_on:
+      - app
+    networks:
+      - lumina-media-network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  lumina-media-network:
+    driver: bridge

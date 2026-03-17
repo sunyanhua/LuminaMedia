@@ -1,0 +1,60 @@
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserBehavior } from './entities/user-behavior.entity';
+import { MarketingCampaign } from './entities/marketing-campaign.entity';
+import { MarketingStrategy } from './entities/marketing-strategy.entity';
+import { CustomerProfile } from '../../entities/customer-profile.entity';
+import { CustomerSegment } from '../../entities/customer-segment.entity';
+import { AnalyticsService } from './services/analytics.service';
+import { MarketingStrategyService } from './services/marketing-strategy.service';
+import { MockDataService } from './services/mock-data.service';
+import { ReportService } from './services/report.service';
+import { GeminiService } from './services/gemini.service';
+import { ContentGenerationService } from './services/content-generation.service';
+import { DemoService } from './services/demo.service';
+import { UserBehaviorController } from './controllers/user-behavior.controller';
+import { MarketingCampaignController } from './controllers/marketing-campaign.controller';
+import { MarketingStrategyController } from './controllers/marketing-strategy.controller';
+import { MockDataController } from './controllers/mock-data.controller';
+import { ReportController } from './controllers/report.controller';
+import { ContentGenerationController } from './controllers/content-generation.controller';
+import { DemoController } from './controllers/demo.controller';
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([
+      UserBehavior,
+      MarketingCampaign,
+      MarketingStrategy,
+      CustomerProfile,
+      CustomerSegment,
+    ]),
+  ],
+  controllers: [
+    UserBehaviorController,
+    MarketingCampaignController,
+    MarketingStrategyController,
+    MockDataController,
+    ReportController,
+    ContentGenerationController,
+    DemoController,
+  ],
+  providers: [
+    AnalyticsService,
+    MarketingStrategyService,
+    MockDataService,
+    ReportService,
+    GeminiService,
+    ContentGenerationService,
+    DemoService,
+  ],
+  exports: [
+    AnalyticsService,
+    MarketingStrategyService,
+    MockDataService,
+    ReportService,
+    GeminiService,
+    ContentGenerationService,
+  ],
+})
+export class DataAnalyticsModule {}

@@ -2,8 +2,7 @@
 -- 版本: 1.0
 -- 描述: 创建多租户内容矩阵管理系统的数据库结构
 
--- 1. 创建数据库（如果不存在）
-CREATE DATABASE IF NOT EXISTS lumina_media CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- 1. 使用已创建的数据库
 USE lumina_media;
 
 -- 2. 创建 users 表
@@ -68,7 +67,107 @@ CREATE TABLE IF NOT EXISTS publish_tasks (
     CONSTRAINT fk_publish_tasks_account FOREIGN KEY (account_id) REFERENCES social_accounts (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='发布任务队列';
 
--- 6. 插入测试数据（可选，仅用于开发环境）
+-- 6. 创建客户数据相关表
+
+-- 6.1 创建 customer_profiles 表（客户档案）
+CREATE TABLE IF NOT EXISTS customer_profiles (
+    id CHAR(36) NOT NULL COMMENT 'UUID 主键',
+    user_id CHAR(36) NOT NULL COMMENT '关联用户ID',
+    customer_name VARCHAR(255) NOT NULL COMMENT '客户名称',
+    customer_type ENUM(
+        'ENTERPRISE',
+        'SME',
+        'INDIVIDUAL_BUSINESS',
+        'INDIVIDUAL',
+        'GOVERNMENT',
+        'NON_PROFIT'
+    ) NOT NULL DEFAULT 'ENTERPRISE' COMMENT '客户类型枚举',
+    industry ENUM(
+        'RETAIL',
+        'ECOMMERCE',
+        'RESTAURANT',
+        'EDUCATION',
+        'HEALTHCARE',
+        'FINANCE',
+        'REAL_ESTATE',
+        'TRAVEL_HOTEL',
+        'MANUFACTURING',
+        'TECHNOLOGY',
+        'MEDIA_ENTERTAINMENT',
+        'AUTOMOTIVE',
+        'FASHION_BEAUTY',
+        'SPORTS_FITNESS',
+        'OTHER'
+    ) NOT NULL DEFAULT 'OTHER' COMMENT '行业分类枚举',
+    data_sources JSON COMMENT 'JSON格式的数据源信息',
+    profile_data JSON COMMENT 'JSON格式的客户档案数据',
+    behavior_insights JSON COMMENT 'JSON格式的行为洞察数据',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (id),
+    KEY idx_user_id_customer_type (user_id, customer_type),
+    KEY idx_industry_created_at (industry, created_at),
+    CONSTRAINT fk_customer_profiles_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='客户档案';
+
+-- 6.2 创建 data_import_jobs 表（数据导入任务）
+CREATE TABLE IF NOT EXISTS data_import_jobs (
+    id CHAR(36) NOT NULL COMMENT 'UUID 主键',
+    customer_profile_id CHAR(36) NOT NULL COMMENT '关联客户档案ID',
+    source_type ENUM(
+        'CSV',
+        'EXCEL',
+        'JSON',
+        'DATABASE',
+        'API',
+        'MANUAL',
+        'OTHER'
+    ) NOT NULL DEFAULT 'CSV' COMMENT '数据源类型枚举',
+    file_path VARCHAR(500) NULL COMMENT '文件存储路径',
+    original_filename VARCHAR(255) NULL COMMENT '原始文件名',
+    record_count INT NOT NULL DEFAULT 0 COMMENT '总记录数',
+    success_count INT NOT NULL DEFAULT 0 COMMENT '成功导入记录数',
+    failed_count INT NOT NULL DEFAULT 0 COMMENT '导入失败记录数',
+    status ENUM(
+        'PENDING',
+        'PROCESSING',
+        'SUCCESS',
+        'FAILED',
+        'PARTIAL_SUCCESS',
+        'CANCELLED'
+    ) NOT NULL DEFAULT 'PENDING' COMMENT '导入状态枚举',
+    error_message TEXT NULL COMMENT '错误信息',
+    validation_errors JSON NULL COMMENT 'JSON格式的验证错误列表',
+    summary JSON NULL COMMENT 'JSON格式的导入摘要',
+    notes TEXT NULL COMMENT '备注信息',
+    import_data JSON NULL COMMENT 'JSON格式的导入数据（原始数据或处理后的数据）',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    started_at TIMESTAMP NULL COMMENT '开始处理时间',
+    completed_at TIMESTAMP NULL COMMENT '完成时间',
+    PRIMARY KEY (id),
+    KEY idx_customer_profile_id_status (customer_profile_id, status),
+    KEY idx_created_at (created_at),
+    CONSTRAINT fk_data_import_jobs_customer_profile FOREIGN KEY (customer_profile_id) REFERENCES customer_profiles (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='数据导入任务';
+
+-- 6.3 创建 customer_segments 表（客户分群）
+CREATE TABLE IF NOT EXISTS customer_segments (
+    id CHAR(36) NOT NULL COMMENT 'UUID 主键',
+    customer_profile_id CHAR(36) NOT NULL COMMENT '关联客户档案ID',
+    segment_name VARCHAR(255) NOT NULL COMMENT '分群名称',
+    description TEXT NULL COMMENT '分群描述',
+    criteria JSON NOT NULL COMMENT 'JSON格式的分群规则',
+    member_count INT NOT NULL DEFAULT 0 COMMENT '成员数量',
+    member_ids JSON NULL COMMENT 'JSON格式的成员ID列表',
+    segment_insights JSON NULL COMMENT 'JSON格式的分群洞察数据',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (id),
+    KEY idx_customer_profile_id_segment_name (customer_profile_id, segment_name),
+    CONSTRAINT fk_customer_segments_customer_profile FOREIGN KEY (customer_profile_id) REFERENCES customer_profiles (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='客户分群';
+
+-- 8. 插入测试数据（可选，仅用于开发环境）
 -- 注意：在生产环境中请删除或注释此部分
 INSERT IGNORE INTO users (id, username, password_hash, email) VALUES
 ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'admin', '$2b$10$YourHashedPasswordHere', 'admin@example.com');
@@ -83,5 +182,5 @@ INSERT IGNORE INTO content_drafts (id, user_id, platform_type, title, content, m
 INSERT IGNORE INTO publish_tasks (id, draft_id, account_id, status, scheduled_at) VALUES
 ('e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', 'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', 'PENDING', NOW());
 
--- 7. 完成提示
+-- 9. 完成提示
 SELECT 'Database initialization completed successfully!' AS message;

@@ -7,6 +7,15 @@ import { User } from './entities/user.entity';
 import { SocialAccount } from './entities/social-account.entity';
 import { ContentDraft } from './entities/content-draft.entity';
 import { PublishTask } from './entities/publish-task.entity';
+import { CustomerProfile } from './entities/customer-profile.entity';
+import { DataImportJob } from './entities/data-import-job.entity';
+import { CustomerSegment } from './entities/customer-segment.entity';
+import { UserBehavior } from './modules/data-analytics/entities/user-behavior.entity';
+import { MarketingCampaign } from './modules/data-analytics/entities/marketing-campaign.entity';
+import { MarketingStrategy } from './modules/data-analytics/entities/marketing-strategy.entity';
+import { DataAnalyticsModule } from './modules/data-analytics/data-analytics.module';
+import { CustomerDataModule } from './modules/customer-data/customer-data.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -24,12 +33,27 @@ import { PublishTask } from './entities/publish-task.entity';
         username: configService.get('DB_USERNAME', 'root'),
         password: configService.get('DB_PASSWORD', ''),
         database: configService.get('DB_DATABASE', 'lumina_media'),
-        entities: [User, SocialAccount, ContentDraft, PublishTask],
-        synchronize: configService.get('TYPEORM_SYNCHRONIZE', 'false') === 'true',
+        entities: [
+          User,
+          SocialAccount,
+          ContentDraft,
+          PublishTask,
+          CustomerProfile,
+          DataImportJob,
+          CustomerSegment,
+          UserBehavior,
+          MarketingCampaign,
+          MarketingStrategy,
+        ],
+        synchronize:
+          configService.get('TYPEORM_SYNCHRONIZE', 'false') === 'true',
         logging: configService.get('TYPEORM_LOGGING', 'true') === 'true',
         charset: 'utf8mb4',
       }),
     }),
+    DataAnalyticsModule,
+    CustomerDataModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
