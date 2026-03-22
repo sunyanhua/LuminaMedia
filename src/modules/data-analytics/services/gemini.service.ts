@@ -5,6 +5,21 @@ import {
   HarmCategory,
   HarmBlockThreshold,
 } from '@google/generative-ai';
+
+// 动态加载 undici（代理支持）
+let setGlobalDispatcher: any, ProxyAgent: any;
+try {
+  const undici = require('undici');
+  setGlobalDispatcher = undici.setGlobalDispatcher;
+  ProxyAgent = undici.ProxyAgent;
+  console.log('>>> [DEPLOY CHECK] undici loaded successfully:', { version: undici.version, ProxyAgent: ProxyAgent?.name });
+} catch (error) {
+  // undici 未安装，代理功能将不可用
+  console.error('>>> [DEPLOY CHECK] undici load failed:', error.message);
+  console.warn('>>> [DEPLOY CHECK] Proxy functionality will be disabled. To enable, run: npm install undici');
+  setGlobalDispatcher = () => {};
+  ProxyAgent = class {};
+}
 import {
   GeminiConfig,
   GeminiStrategyResponse,
@@ -25,33 +40,130 @@ import { Platform } from '../../../shared/enums/platform.enum';
 @Injectable()
 export class GeminiService implements OnModuleInit {
   private readonly logger = new Logger(GeminiService.name);
+  private static proxyInitialized = false;
   private genAI: GoogleGenerativeAI | null = null;
   private config: GeminiConfig;
   private isAvailable = false;
 
+  // 多API Key支持
+  private apiKeys: string[] = [];
+  private currentKeyIndex = 0;
+  private keyFailures = new Map<string, number>();
+  private maxFailuresPerKey = 3;
+  private keyRotationMode: 'sequential' | 'random' = 'sequential';
+
   constructor(private configService: ConfigService) {}
 
   async onModuleInit() {
+    console.log('LuminaMedia Proxy active on:', process.env.HTTPS_PROXY);
     await this.initialize();
   }
 
-  private async initialize() {
-    const apiKey = this.configService.get<string>('GEMINI_API_KEY');
-    if (!apiKey || apiKey === 'your_gemini_api_key_here') {
-      this.logger.warn(
-        'GEMINI_API_KEY not configured or using default value. GeminiService will use fallback mode.',
-      );
-      this.isAvailable = false;
+  /**
+   * 解析逗号分隔的API Key字符串为数组
+   */
+  private parseApiKeys(apiKeyString: string): string[] {
+    if (!apiKeyString || apiKeyString.trim() === '') {
+      return [];
+    }
+
+    // 按逗号分隔，严格清洗每个Key
+    const rawKeys = apiKeyString;
+    const keys = rawKeys.split(',')
+      .map(k => k.replace(/['" ]/g, '').trim()) // 强制移除引号、空格
+      .filter(k => k.startsWith('AIza'));    // 只保留以 AIza 开头的合法 Key
+    return keys;
+  }
+
+  /**
+   * 获取下一个可用的API Key（顺序轮询）
+   */
+  private getNextApiKey(): string | null {
+    if (this.apiKeys.length === 0) {
+      return null;
+    }
+
+    let attempts = 0;
+    while (attempts < this.apiKeys.length) {
+      if (this.keyRotationMode === 'random') {
+        this.currentKeyIndex = Math.floor(Math.random() * this.apiKeys.length);
+      }
+
+      const key = this.apiKeys[this.currentKeyIndex];
+      console.log(`[Lumina AI] Using Key: ${key.substring(0, 6)}... (索引: ${this.currentKeyIndex})`);
+      const failures = this.keyFailures.get(key) || 0;
+
+      if (failures < this.maxFailuresPerKey) {
+        return key;
+      }
+
+      // 这个key失败次数太多，尝试下一个
+      this.currentKeyIndex = (this.currentKeyIndex + 1) % this.apiKeys.length;
+      attempts++;
+    }
+
+    // 所有key都超过了最大失败次数
+    return null;
+  }
+
+  /**
+   * 记录API Key失败
+   */
+  private recordKeyFailure(key: string): void {
+    const currentFailures = this.keyFailures.get(key) || 0;
+    this.keyFailures.set(key, currentFailures + 1);
+    this.logger.warn(`API Key失败记录: ${key.substring(0, 8)}... (失败次数: ${currentFailures + 1}/${this.maxFailuresPerKey})`);
+
+    // 如果达到最大失败次数，尝试切换到下一个key
+    if (currentFailures + 1 >= this.maxFailuresPerKey) {
+      this.logger.warn(`API Key ${key.substring(0, 8)}... 已达到最大失败次数，将尝试下一个key`);
+      this.rotateToNextKey();
+    }
+  }
+
+  /**
+   * 重置API Key失败计数（成功时调用）
+   */
+  private resetKeyFailure(key: string): void {
+    if (this.keyFailures.has(key)) {
+      this.keyFailures.delete(key);
+      this.logger.debug(`重置API Key失败计数: ${key.substring(0, 8)}...`);
+    }
+  }
+
+  /**
+   * 轮转到下一个API Key
+   */
+  private rotateToNextKey(): void {
+    if (this.apiKeys.length <= 1) {
       return;
+    }
+
+    const oldIndex = this.currentKeyIndex;
+    this.currentKeyIndex = (this.currentKeyIndex + 1) % this.apiKeys.length;
+
+    this.logger.log(`轮转API Key: 从索引 ${oldIndex} 切换到 ${this.currentKeyIndex}`);
+    this.initializeWithCurrentKey().catch(error => {
+      this.logger.error(`轮转后重新初始化失败: ${error.message}`);
+    });
+  }
+
+  /**
+   * 使用当前选中的API Key初始化GoogleGenerativeAI
+   */
+  private async initializeWithCurrentKey(): Promise<boolean> {
+    const currentKey = this.apiKeys[this.currentKeyIndex];
+    console.log(`[Lumina AI] Initializing with Key: ${currentKey.substring(0, 6)}... (index: ${this.currentKeyIndex})`);
+    if (!currentKey) {
+      this.isAvailable = false;
+      this.genAI = null;
+      return false;
     }
 
     try {
       this.config = {
-        apiKey,
-        model: this.configService.get<string>(
-          'GEMINI_MODEL',
-          'gemini-1.5-flash',
-        ),
+        apiKeys: this.apiKeys,
+        model: 'gemini-2.5-flash', // 固定模型名称
         temperature: this.configService.get<number>('GEMINI_TEMPERATURE', 0.7),
         maxTokens: this.configService.get<number>('GEMINI_MAX_TOKENS', 2048),
         topP: this.configService.get<number>('GEMINI_TOP_P', 0.95),
@@ -59,16 +171,111 @@ export class GeminiService implements OnModuleInit {
         timeout: 30000, // 30秒超时
       };
 
-      this.genAI = new GoogleGenerativeAI(this.config.apiKey);
-      this.isAvailable = true;
+      // 使用当前选中的key初始化GoogleGenerativeAI
+      // 使用类型断言绕过类型检查，传递apiVersion配置
+      console.log('>>> [DEPLOY CHECK] API Version: v1 | Model: gemini-2.5-flash');
+      this.genAI = new (GoogleGenerativeAI as any)({ apiKey: currentKey, apiVersion: 'v1' });
+      console.log(`[Lumina AI] GoogleGenerativeAI initialized with key: ${currentKey.substring(0, 8)}...`);
 
-      this.logger.log(
-        `GeminiService initialized with model: ${this.config.model}`,
-      );
-      this.logger.log('Gemini API is available for use.');
+      // 测试连接
+      const model = this.genAI!.getGenerativeModel({
+        model: this.config.model
+      }, { apiVersion: 'v1' });
+      console.log(`[Lumina AI] getGenerativeModel called with model: ${this.config.model}`);
+      console.log(`[DEBUG] API_VERSION: v1 | MODEL: gemini-2.5-flash | KEY_PREFIX: ${currentKey.substring(0, 6)} | KEY_LEN: ${currentKey.length}`);
+      await model.generateContent('Test');
+
+      this.isAvailable = true;
+      this.resetKeyFailure(currentKey);
+
+      this.logger.log(`GeminiService使用API Key索引 ${this.currentKeyIndex} 初始化成功，模型: ${this.config.model}`);
+      this.logger.debug(`当前可用API Key数量: ${this.apiKeys.length}, 当前索引: ${this.currentKeyIndex}`);
+
+      return true;
     } catch (error) {
-      this.logger.error(`Failed to initialize GeminiService: ${error.message}`);
+      this.logger.error(`使用API Key索引 ${this.currentKeyIndex} 初始化失败: ${error.message}`);
+      this.recordKeyFailure(currentKey);
       this.isAvailable = false;
+      this.genAI = null;
+      return false;
+    }
+  }
+
+  private async initialize() {
+    // 添加环境变量调试日志
+    console.log('>>> [DOCKER ENV DEBUG] Key length:', this.configService.get<string>('GEMINI_API_KEY', '')?.length || 0);
+    console.log('>>> [DOCKER ENV DEBUG] Proxy:', process.env.HTTPS_PROXY);
+    console.log('>>> [DOCKER ENV DEBUG] HTTP_PROXY:', process.env.HTTP_PROXY);
+    console.log('>>> [DOCKER ENV DEBUG] NODE_ENV:', process.env.NODE_ENV);
+
+    // 配置全局 HTTP 代理（如果设置了 HTTPS_PROXY 环境变量）
+    const proxyUrl = process.env.HTTPS_PROXY;
+    console.log('>>> [DEPLOY CHECK] Proxy configuration:', {
+      proxyUrl,
+      ProxyAgentAvailable: ProxyAgent?.name && ProxyAgent.name !== '',
+      ProxyAgentName: ProxyAgent?.name,
+      proxyInitialized: GeminiService.proxyInitialized,
+      undiciLoaded: ProxyAgent?.name !== '' && ProxyAgent?.name !== 'class'
+    });
+    if (proxyUrl && ProxyAgent.name !== '' && !GeminiService.proxyInitialized) {
+      try {
+        const proxyAgent = new ProxyAgent(proxyUrl);
+        setGlobalDispatcher(proxyAgent);
+        GeminiService.proxyInitialized = true;
+        this.logger.log(`已设置全局 HTTP 代理: ${proxyUrl}`);
+        console.log('>>> [DEPLOY CHECK] Global dispatcher set with proxy agent');
+      } catch (proxyError) {
+        this.logger.warn(`设置代理失败: ${proxyError.message}`);
+        console.error('>>> [DEPLOY CHECK] Failed to set proxy:', proxyError.message);
+      }
+    } else if (proxyUrl) {
+      this.logger.warn(`检测到代理配置但 undici 未安装，代理功能不可用`);
+      this.logger.warn(`代理 URL: ${proxyUrl}`);
+      this.logger.warn('如需代理支持，请运行: npm install undici');
+      console.warn('>>> [DEPLOY CHECK] Proxy configuration present but undici not loaded');
+    }
+
+    // 解析多个API Key
+    const apiKeyString = this.configService.get<string>('GEMINI_API_KEY', '');
+    this.apiKeys = this.parseApiKeys(apiKeyString);
+
+    if (this.apiKeys.length === 0) {
+      this.logger.warn(
+        '未配置有效的Gemini API Key。GeminiService将使用回退模式。',
+      );
+      this.logger.warn(`原始API Key字符串: "${apiKeyString}"`);
+      this.isAvailable = false;
+      return;
+    }
+
+    this.logger.log(`解析到 ${this.apiKeys.length} 个Gemini API Key`);
+
+    // 设置轮询模式（可以从环境变量读取，默认为顺序轮询）
+    const rotationMode = this.configService.get<string>('GEMINI_KEY_ROTATION', 'sequential');
+    this.keyRotationMode = (rotationMode === 'random' ? 'random' : 'sequential');
+    this.logger.log(`API Key轮询模式: ${this.keyRotationMode}`);
+
+    // 初始化失败次数记录
+    this.keyFailures.clear();
+    this.currentKeyIndex = 0;
+
+    // 尝试用第一个可用的key初始化
+    let initialized = false;
+    for (let i = 0; i < this.apiKeys.length; i++) {
+      this.currentKeyIndex = i;
+      const key = this.apiKeys[i];
+      this.logger.log(`尝试使用API Key索引 ${i} 初始化...`);
+
+      if (await this.initializeWithCurrentKey()) {
+        initialized = true;
+        break;
+      }
+    }
+
+    if (!initialized) {
+      this.logger.error('所有API Key初始化都失败。GeminiService将使用回退模式。');
+      this.isAvailable = false;
+      this.genAI = null;
     }
   }
 
@@ -77,6 +284,225 @@ export class GeminiService implements OnModuleInit {
    */
   isGeminiAvailable(): boolean {
     return this.isAvailable && this.genAI !== null;
+  }
+
+  /**
+   * 检查 Gemini API 健康状态
+   */
+  async checkGeminiHealth(retryCount = 0): Promise<{
+    available: boolean;
+    error?: string;
+    details?: any;
+    apiKeys?: {
+      total: number;
+      available: number;
+      currentIndex: number;
+      failures: Record<string, number>;
+    };
+  }> {
+    // 添加：如果当前不可用，尝试重新初始化
+    if (!this.isAvailable && retryCount === 0) {
+      this.logger.warn('GeminiService is not available, attempting re-initialization...');
+      try {
+        await this.initialize();
+        // 重新初始化后，如果变为可用，直接返回成功
+        if (this.isAvailable) {
+          this.logger.log('GeminiService re-initialized successfully');
+          return {
+            available: true,
+            details: {
+              reinitialized: true,
+              apiKeys: {
+                total: this.apiKeys.length,
+                available: this.apiKeys.filter(key => {
+                  const failures = this.keyFailures.get(key) || 0;
+                  return failures < this.maxFailuresPerKey;
+                }).length,
+                currentIndex: this.currentKeyIndex,
+                failures: Object.fromEntries(this.keyFailures)
+              }
+            }
+          };
+        }
+      } catch (reinitError) {
+        this.logger.error(`Re-initialization failed: ${reinitError.message}`);
+      }
+    }
+
+    // 防止无限递归重试
+    if (retryCount >= this.apiKeys.length) {
+      return {
+        available: false,
+        error: `健康检查重试次数超过限制 (${this.apiKeys.length})，所有Key可能都无效`,
+        details: {
+          total: this.apiKeys.length,
+          available: 0,
+          currentIndex: this.currentKeyIndex,
+          failures: Object.fromEntries(this.keyFailures)
+        }
+      };
+    }
+
+    // 使用直接 REST API 调用测试 API Key 有效性（避免 SDK 代理问题）
+    const currentKey = this.apiKeys[this.currentKeyIndex];
+    if (!currentKey) {
+      return {
+        available: false,
+        error: 'No API key available',
+        details: {
+          apiKeys: {
+            total: this.apiKeys.length,
+            available: 0,
+            currentIndex: this.currentKeyIndex,
+            failures: Object.fromEntries(this.keyFailures)
+          }
+        }
+      };
+    }
+
+    try {
+      this.logger.log(`Testing Gemini API with direct REST call using key index: ${this.currentKeyIndex}`);
+      console.log(`[Lumina AI] Health check using Key: ${currentKey.substring(0, 6)}... (index: ${this.currentKeyIndex})`);
+
+      // 直接调用 Gemini REST API 模型列表端点（与 list-models.js 相同）
+      const apiUrl = 'https://generativelanguage.googleapis.com/v1/models';
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': currentKey,
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        this.logger.error(`Gemini API health check failed: HTTP ${response.status} ${response.statusText}`);
+
+        // 记录当前key的失败
+        this.recordKeyFailure(currentKey);
+
+        // 检查是否为API Key无效错误
+        const isInvalidKeyError = response.status === 400 || response.status === 403 ||
+                                 errorText.includes('API_KEY_INVALID') || errorText.includes('API key not valid');
+
+        if (isInvalidKeyError) {
+          console.log(`[Lumina AI] Key ${currentKey.substring(0, 6)}... invalid, trying next Key`);
+          // 尝试切换到下一个key
+          this.rotateToNextKey();
+          // 递归调用健康检查（但限制深度避免无限循环）
+          return this.checkGeminiHealth(retryCount + 1);
+        } else {
+          // 非Key无效错误，只轮转不重试
+          this.rotateToNextKey();
+        }
+
+        const apiKeyDetails = {
+          total: this.apiKeys.length,
+          available: this.apiKeys.filter(key => {
+            const failures = this.keyFailures.get(key) || 0;
+            return failures < this.maxFailuresPerKey;
+          }).length,
+          currentIndex: this.currentKeyIndex,
+          failures: Object.fromEntries(this.keyFailures)
+        };
+
+        return {
+          available: false,
+          error: `HTTP ${response.status}: ${errorText.substring(0, 200)}`,
+          details: {
+            code: response.status,
+            status: response.statusText,
+            apiKeys: apiKeyDetails
+          }
+        };
+      }
+
+      const data = await response.json();
+
+      if (!data || !data.models || data.models.length === 0) {
+        this.logger.error('Gemini API health check: No models found in response');
+        this.recordKeyFailure(currentKey);
+        this.rotateToNextKey();
+
+        const apiKeyDetails = {
+          total: this.apiKeys.length,
+          available: this.apiKeys.filter(key => {
+            const failures = this.keyFailures.get(key) || 0;
+            return failures < this.maxFailuresPerKey;
+          }).length,
+          currentIndex: this.currentKeyIndex,
+          failures: Object.fromEntries(this.keyFailures)
+        };
+
+        return {
+          available: false,
+          error: 'No models found in API response',
+          details: { apiKeys: apiKeyDetails }
+        };
+      }
+
+      // 检查当前配置模型是否存在
+      const configuredModel = this.config?.model || 'gemini-2.5-flash';
+      const modelExists = data.models.some((m: any) => m.name === `models/${configuredModel}` || m.name?.includes(configuredModel));
+
+      if (!modelExists) {
+        this.logger.warn(`Configured model ${configuredModel} not found in available models`);
+      }
+
+      // 计算可用的API Key数量（失败次数小于最大限制的）
+      const availableKeys = this.apiKeys.filter(key => {
+        const failures = this.keyFailures.get(key) || 0;
+        return failures < this.maxFailuresPerKey;
+      }).length;
+
+      // 重置当前key的失败计数（因为测试成功）
+      this.resetKeyFailure(currentKey);
+
+      const apiKeyDetails = {
+        total: this.apiKeys.length,
+        available: availableKeys,
+        currentIndex: this.currentKeyIndex,
+        failures: Object.fromEntries(this.keyFailures)
+      };
+
+      return {
+        available: true,
+        details: {
+          apiKeys: apiKeyDetails,
+          modelsCount: data.models.length,
+          configuredModel,
+          modelExists
+        }
+      };
+    } catch (error) {
+      this.logger.error(`Gemini API health check failed with error: ${error.message}`);
+
+      // 记录当前key的失败
+      this.recordKeyFailure(currentKey);
+
+      // 尝试切换到下一个key
+      this.rotateToNextKey();
+
+      const apiKeyDetails = {
+        total: this.apiKeys.length,
+        available: this.apiKeys.filter(key => {
+          const failures = this.keyFailures.get(key) || 0;
+          return failures < this.maxFailuresPerKey;
+        }).length,
+        currentIndex: this.currentKeyIndex,
+        failures: Object.fromEntries(this.keyFailures)
+      };
+
+      return {
+        available: false,
+        error: error.message,
+        details: {
+          code: error.code,
+          status: error.status,
+          apiKeys: apiKeyDetails
+        }
+      };
+    }
   }
 
   /**
@@ -115,6 +541,7 @@ export class GeminiService implements OnModuleInit {
 
     try {
       // this.genAI is guaranteed to be non-null here because isGeminiAvailable() returned true
+      console.log('>>> [DEPLOY CHECK] API Version: v1 | Model: gemini-2.5-flash');
       const model = this.genAI!.getGenerativeModel({
         model: this.config.model,
         generationConfig: {
@@ -141,12 +568,14 @@ export class GeminiService implements OnModuleInit {
             threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
           },
         ],
-      });
+      }, { apiVersion: 'v1' });
 
       // 设置超时
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeout);
 
+      const currentKey = this.apiKeys[this.currentKeyIndex];
+      console.log(`[DEBUG] API_VERSION: v1 | MODEL: gemini-2.5-flash | KEY_PREFIX: ${currentKey.substring(0, 6)} | KEY_LEN: ${currentKey.length}`);
       const result = await model.generateContent(prompt);
       clearTimeout(timeoutId);
 
@@ -191,11 +620,25 @@ export class GeminiService implements OnModuleInit {
           code: 'API_KEY_INVALID',
           message: 'Invalid Gemini API key',
         };
+
+        // 记录当前API Key失败并切换到下一个
+        const currentKey = this.apiKeys[this.currentKeyIndex];
+        if (currentKey) {
+          this.recordKeyFailure(currentKey);
+          this.rotateToNextKey();
+        }
       } else if (error.message?.includes('QUOTA_EXCEEDED')) {
         geminiError = {
           code: 'QUOTA_EXCEEDED',
           message: 'Gemini API quota exceeded',
         };
+
+        // 记录当前API Key失败并切换到下一个（配额限制）
+        const currentKey = this.apiKeys[this.currentKeyIndex];
+        if (currentKey) {
+          this.recordKeyFailure(currentKey);
+          this.rotateToNextKey();
+        }
       } else if (error.message?.includes('SAFETY')) {
         geminiError = {
           code: 'CONTENT_BLOCKED',
@@ -527,6 +970,7 @@ ${insightsText}
       );
 
       // this.genAI is guaranteed to be non-null here because isGeminiAvailable() returned true
+      console.log('>>> [DEPLOY CHECK] API Version: v1 | Model: gemini-2.5-flash');
       const model = this.genAI!.getGenerativeModel({
         model: this.config.model,
         generationConfig: {
@@ -553,11 +997,16 @@ ${insightsText}
             threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
           },
         ],
-      });
+      }, { apiVersion: 'v1' });
 
+      const currentKey = this.apiKeys[this.currentKeyIndex];
+      console.log(`[DEBUG] API_VERSION: v1 | MODEL: gemini-2.5-flash | KEY_PREFIX: ${currentKey.substring(0, 6)} | KEY_LEN: ${currentKey.length}`);
       const result = await model.generateContent(contentPrompt);
       const response = await result.response;
       const text = response.text();
+
+      // 调试日志：记录Gemini API响应
+      this.logger.debug(`Gemini API response for ${platform}: ${text.substring(0, 500)}...`);
 
       // 解析内容响应
       const generatedContent = this.parseContentResponse(
@@ -581,6 +1030,15 @@ ${insightsText}
       };
     } catch (error) {
       this.logger.error(`Content generation failed: ${error.message}`);
+
+      // 检查是否是API Key配额或无效错误
+      if (error.message?.includes('API_KEY_INVALID') || error.message?.includes('QUOTA_EXCEEDED')) {
+        const currentKey = this.apiKeys[this.currentKeyIndex];
+        if (currentKey) {
+          this.recordKeyFailure(currentKey);
+          this.rotateToNextKey();
+        }
+      }
 
       // 使用回退内容
       return this.generateFallbackContent(options);
@@ -633,7 +1091,10 @@ ${insightsText}
 
           const result = await this.generateContent(contentOptions);
           if (result.success && result.content) {
+            this.logger.log(`Successfully generated content for ${platform}, modelUsed: ${result.modelUsed}`);
             contents.push(result.content);
+          } else {
+            this.logger.error(`Failed to generate content for ${platform}: ${result.error?.message || 'Unknown error'}`);
           }
         }
       }
@@ -684,6 +1145,15 @@ ${insightsText}
       this.logger.error(
         `Marketing content generation failed: ${error.message}`,
       );
+
+      // 检查是否是API Key配额或无效错误
+      if (error.message?.includes('API_KEY_INVALID') || error.message?.includes('QUOTA_EXCEEDED')) {
+        const currentKey = this.apiKeys[this.currentKeyIndex];
+        if (currentKey) {
+          this.recordKeyFailure(currentKey);
+          this.rotateToNextKey();
+        }
+      }
 
       // 使用回退营销内容
       return this.generateFallbackMarketingContent(options);
@@ -755,7 +1225,16 @@ ${platformInstructions}
 4. 包含吸引目标受众的关键信息
 5. 符合平台的内容规范和最佳实践
 
-请生成高质量、有吸引力的内容，能够有效促进用户参与和转化。`;
+请生成包含以下内容的 JSON 格式输出：
+1. title：吸引人的标题
+2. content：完整的内容正文
+3. hashtags：相关的话题标签数组
+4. suggestedImages：建议的图片描述数组（可选）
+5. wordCount：字数统计
+6. estimatedReadingTime：预计阅读时间（如 "3分钟"）
+
+请确保内容符合平台特点，风格一致，并且具有吸引力。
+以严格的 JSON 格式返回，不要包含任何额外的文本或解释。`;
   }
 
   /**
@@ -882,6 +1361,18 @@ ${platformInstructions}
         const hasHeadings = /#{1,3}\s/.test(content.content);
         const wordCount = content.wordCount || 0;
         return (hasHeadings ? 10 : 0) + (wordCount > 800 ? 5 : 0);
+      case Platform.DOUYIN:
+        // 抖音：简洁、热门话题、互动引导
+        const hasHotTopic = /#(挑战|热门|话题)/.test(content.content);
+        const isConcise = (content.wordCount || 0) < 200; // 短视频文案应简短
+        const hasInteractionCall = /(关注|点赞|评论|分享)/.test(
+          content.content,
+        );
+        return (
+          (hasHotTopic ? 10 : 0) +
+          (isConcise ? 10 : 0) +
+          (hasInteractionCall ? 5 : 0)
+        );
       default:
         return 50;
     }
@@ -955,6 +1446,8 @@ ${platformInstructions}
         return '平台特点：小红书，以短句、Emoji、高互动性为特点。内容需要亲切、真实、有分享价值。建议使用分段、表情符号和话题标签。';
       case Platform.WECHAT_MP:
         return '平台特点：微信公众号，以长文、结构化、深度内容为特点。内容需要专业、有深度、提供价值。建议使用标题、段落和清晰的逻辑结构。';
+      case Platform.DOUYIN:
+        return '平台特点：抖音，以短视频、强节奏、高视觉冲击力为特点。内容需要简洁有力、吸引眼球、适合15-60秒视频。建议使用热门话题、挑战标签和互动引导。';
       default:
         return '平台特点：通用社交媒体平台。内容需要吸引人、信息清晰、有互动性。';
     }
@@ -987,6 +1480,8 @@ ${platformInstructions}
         return ['09:00-11:00', '19:00-21:00', '周末上午'];
       case Platform.WECHAT_MP:
         return ['08:00-10:00', '12:00-14:00', '20:00-22:00'];
+      case Platform.DOUYIN:
+        return ['12:00-14:00', '18:00-20:00', '21:00-23:00']; // 抖音用户活跃高峰在午休和晚间
       default:
         return ['09:00-11:00', '14:00-16:00', '19:00-21:00'];
     }
@@ -1001,6 +1496,8 @@ ${platformInstructions}
         return '每周3-5次';
       case Platform.WECHAT_MP:
         return '每周2-3次';
+      case Platform.DOUYIN:
+        return '每日1-2次'; // 抖音内容更新快，需要更高频率
       default:
         return '每周3次';
     }
@@ -1061,7 +1558,7 @@ ${platformInstructions}
   private generateFallbackContent(
     options: ContentGenerationOptions,
   ): ContentGenerationResult {
-    this.logger.log('Generating fallback content');
+    this.logger.log(`Generating fallback content for platform: ${options.platform}, prompt: "${options.prompt.substring(0, 50)}..."`);
 
     const { prompt, platform, tone } = options;
 
