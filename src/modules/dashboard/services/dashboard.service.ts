@@ -664,7 +664,7 @@ export class DashboardService {
 
   async getTrafficTimeSeriesData(profileId?: string, days?: number): Promise<any[]> {
     const targetDays = days || 30;
-    const data = [];
+    const data: { date: string; value: number }[] = [];
     const baseDate = new Date();
 
     for (let i = targetDays - 1; i >= 0; i--) {
