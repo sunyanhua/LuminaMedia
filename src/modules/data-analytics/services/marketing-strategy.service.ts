@@ -7,7 +7,8 @@ import { MarketingStrategy } from '../entities/marketing-strategy.entity';
 import { StrategyType } from '../../../shared/enums/strategy-type.enum';
 import { GenerationMethod } from '../../../shared/enums/generation-method.enum';
 import { GeminiService } from './gemini.service';
-import { CampaignSummary } from '../interfaces/gemini.interface';
+import { QwenService } from './qwen.service';
+import { CampaignSummary, AIEngine } from '../interfaces/gemini.interface';
 
 @Injectable()
 export class MarketingStrategyService {
@@ -20,6 +21,7 @@ export class MarketingStrategyService {
     private strategyRepository: Repository<MarketingStrategy>,
     private readonly configService: ConfigService,
     private readonly geminiService: GeminiService,
+    private readonly qwenService: QwenService,
   ) {}
 
   async generateStrategy(
@@ -42,56 +44,94 @@ export class MarketingStrategyService {
         Math.floor(Math.random() * Object.values(StrategyType).length)
       ];
 
-    // 尝试使用 Gemini API 生成策略
-    let geminiResult: any = null;
-    let geminiError: any = null;
+    // 获取活动洞察（如果可用）
+    const insights = await this.getCampaignInsights(campaignId);
+
+    const campaignSummary: CampaignSummary = {
+      id: campaign.id,
+      name: campaign.name,
+      campaignType: campaign.campaignType,
+      targetAudience: campaign.targetAudience || {},
+      budget: campaign.budget,
+      startDate: campaign.startDate,
+      endDate: campaign.endDate,
+      userId: campaign.userId,
+      insights,
+    };
+
+    let aiResult: any = null;
+    let aiError: any = null;
     let fallbackUsed = false;
+    let aiEngine: AIEngine = AIEngine.FALLBACK;
 
+    // 引擎选择逻辑：优先使用 Qwen，其次使用 Gemini，最后使用模拟模板（useGemini参数控制是否尝试使用AI引擎）
     if (useGemini) {
-      try {
-        // 获取活动洞察（如果可用）
-        const insights = await this.getCampaignInsights(campaignId);
-
-        const campaignSummary: CampaignSummary = {
-          id: campaign.id,
-          name: campaign.name,
-          campaignType: campaign.campaignType,
-          targetAudience: campaign.targetAudience || {},
-          budget: campaign.budget,
-          startDate: campaign.startDate,
-          endDate: campaign.endDate,
-          userId: campaign.userId,
-          insights,
-        };
-
-        const geminiResponse =
-          await this.geminiService.generateMarketingStrategy({
+      // 1. 尝试使用 Qwen API
+      if (this.qwenService.isQwenAvailable()) {
+        try {
+          this.logger.log('尝试使用 Qwen API 生成营销策略');
+          const qwenResponse = await this.qwenService.generateMarketingStrategy({
             campaignSummary,
             strategyType: type,
             useFallback: true,
             timeout: 30000,
           });
 
-        if (geminiResponse.success && geminiResponse.data) {
-          geminiResult = geminiResponse.data;
-          fallbackUsed = geminiResponse.fallbackUsed || false;
-        } else {
-          geminiError = geminiResponse.error;
-          this.logger.warn(`Gemini API failed: ${geminiError?.message}`);
-          fallbackUsed = true;
+          if (qwenResponse.success && qwenResponse.data) {
+            aiResult = qwenResponse.data;
+            fallbackUsed = qwenResponse.fallbackUsed || false;
+            aiEngine = AIEngine.QWEN;
+            this.logger.log(`Qwen API 生成成功，引擎: ${aiEngine}`);
+          } else {
+            aiError = qwenResponse.error;
+            this.logger.warn(`Qwen API 失败: ${aiError?.message}`);
+            // Qwen 失败，继续尝试 Gemini
+          }
+        } catch (error) {
+          this.logger.error(
+            `调用 Qwen API 错误: ${error.message}`,
+            error.stack,
+          );
+          aiError = error;
+          // Qwen 失败，继续尝试 Gemini
         }
-      } catch (error) {
-        this.logger.error(
-          `Error calling Gemini API: ${error.message}`,
-          error.stack,
-        );
-        geminiError = error;
-        fallbackUsed = true;
+      }
+
+      // 2. 如果 Qwen 不可用或失败，尝试使用 Gemini API
+      if (!aiResult && this.geminiService.isGeminiAvailable()) {
+        try {
+          this.logger.log('尝试使用 Gemini API 生成营销策略');
+          const geminiResponse = await this.geminiService.generateMarketingStrategy({
+            campaignSummary,
+            strategyType: type,
+            useFallback: true,
+            timeout: 30000,
+          });
+
+          if (geminiResponse.success && geminiResponse.data) {
+            aiResult = geminiResponse.data;
+            fallbackUsed = geminiResponse.fallbackUsed || false;
+            aiEngine = AIEngine.GEMINI;
+            this.logger.log(`Gemini API 生成成功，引擎: ${aiEngine}`);
+          } else {
+            aiError = geminiResponse.error;
+            this.logger.warn(`Gemini API 失败: ${aiError?.message}`);
+            // Gemini 失败，继续使用模拟模板
+          }
+        } catch (error) {
+          this.logger.error(
+            `调用 Gemini API 错误: ${error.message}`,
+            error.stack,
+          );
+          aiError = error;
+          // Gemini 失败，继续使用模拟模板
+        }
       }
     }
 
-    // 如果没有使用 Gemini 或 Gemini 失败，使用模拟模板
-    if (!useGemini || !geminiResult) {
+    // 3. 如果没有使用 AI 或所有 AI 都失败，使用模拟模板
+    if (!useGemini || !aiResult) {
+      this.logger.log('使用模拟模板生成回退策略');
       return this.generateFallbackStrategy(
         campaignId,
         type,
@@ -100,13 +140,14 @@ export class MarketingStrategyService {
       );
     }
 
-    // 基于 Gemini 响应创建策略
-    const strategyData = this.createStrategyFromGeminiResponse(
+    // 基于 AI 响应创建策略
+    const strategyData = this.createStrategyFromAIResponse(
       campaignId,
       type,
       generatedBy,
-      geminiResult,
+      aiResult,
       fallbackUsed,
+      aiEngine,
     );
 
     const strategy = this.strategyRepository.create(strategyData);
@@ -243,7 +284,7 @@ export class MarketingStrategyService {
     if (campaign) {
       strategyData.campaignName = `${campaign.name}（模拟方案）`;
       strategyData.coreIdea = `基于${strategyType}策略模板生成的模拟方案，建议在实际使用中启用 Gemini API 获取更精准的策略。`;
-      strategyData.xhsContent = `【${campaign.name}】营销方案发布！\n\n🎯 目标：提升品牌影响力\n💰 预算：${campaign.budget}元\n📅 周期：${campaign.startDate ? campaign.startDate.toISOString().split('T')[0] : '待定'} - ${campaign.endDate ? campaign.endDate.toISOString().split('T')[0] : '待定'}\n\n#${campaign.name.replace(/\s+/g, '')} #营销方案 #小红书运营`;
+      strategyData.xhsContent = `【${campaign.name}】营销方案发布！\n\n🎯 目标：提升品牌影响力\n💰 预算：${campaign.budget}元\n📅 周期：${campaign.startDate ? new Date(campaign.startDate).toISOString().split('T')[0] : '待定'} - ${campaign.endDate ? new Date(campaign.endDate).toISOString().split('T')[0] : '待定'}\n\n#${campaign.name.replace(/\s+/g, '')} #营销方案 #小红书运营`;
     }
 
     const strategy = this.strategyRepository.create(strategyData);
@@ -291,6 +332,59 @@ export class MarketingStrategyService {
       riskAssessment: geminiResponse.riskAssessment,
       budgetAllocation: geminiResponse.budgetAllocation,
       aiResponseRaw: JSON.stringify(geminiResponse),
+    };
+  }
+
+  /**
+   * 基于 AI 响应创建营销策略实体（支持多引擎）
+   */
+  private createStrategyFromAIResponse(
+    campaignId: string,
+    strategyType: StrategyType,
+    generatedBy: GenerationMethod,
+    aiResponse: any,
+    fallbackUsed: boolean,
+    aiEngine: AIEngine = AIEngine.FALLBACK,
+  ): Partial<MarketingStrategy> {
+    // 计算衍生字段
+    const expectedROI =
+      aiResponse.expectedPerformanceMetrics?.estimatedROI || 30;
+    const confidenceScore = fallbackUsed
+      ? 65
+      : this.calculateConfidenceScore(aiResponse);
+
+    // 从推荐执行时间生成实施计划
+    const implementationPlan = this.generateImplementationPlan(aiResponse);
+
+    // 构建引擎描述
+    const engineDescription = aiEngine === AIEngine.QWEN
+      ? '通义千问生成'
+      : aiEngine === AIEngine.GEMINI
+        ? 'Gemini生成'
+        : '回退方案';
+
+    return {
+      campaignId,
+      strategyType,
+      description: `基于${strategyType}的${engineDescription}营销策略${fallbackUsed ? '（回退方案）' : ''}`,
+      implementationPlan,
+      expectedROI,
+      confidenceScore,
+      generatedBy: fallbackUsed ? GenerationMethod.TEMPLATE : generatedBy,
+      campaignName: aiResponse.campaignName,
+      targetAudienceAnalysis: aiResponse.targetAudienceAnalysis,
+      coreIdea: aiResponse.coreIdea,
+      xhsContent:
+        typeof aiResponse.xhsContent === 'string'
+          ? aiResponse.xhsContent
+          : JSON.stringify(aiResponse.xhsContent),
+      recommendedExecutionTime: aiResponse.recommendedExecutionTime,
+      expectedPerformanceMetrics: aiResponse.expectedPerformanceMetrics,
+      executionSteps: aiResponse.executionSteps,
+      riskAssessment: aiResponse.riskAssessment,
+      budgetAllocation: aiResponse.budgetAllocation,
+      aiResponseRaw: JSON.stringify(aiResponse),
+      aiEngine, // 存储使用的 AI 引擎
     };
   }
 
@@ -435,6 +529,25 @@ export class MarketingStrategyService {
     }
 
     return campaign.strategies || [];
+  }
+
+  /**
+   * 根据用户ID获取所有策略
+   */
+  async getStrategies(userId: string): Promise<MarketingStrategy[]> {
+    const campaigns = await this.campaignRepository.find({
+      where: { userId },
+      relations: ['strategies'],
+    });
+
+    const allStrategies: MarketingStrategy[] = [];
+    campaigns.forEach((campaign) => {
+      if (campaign.strategies) {
+        allStrategies.push(...campaign.strategies);
+      }
+    });
+
+    return allStrategies;
   }
 
   /**

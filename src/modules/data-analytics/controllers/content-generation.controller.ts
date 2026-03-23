@@ -15,7 +15,7 @@ import { GenerateTextDto } from '../dto/generate-text.dto';
 import { GenerateMarketingContentDto } from '../dto/generate-marketing-content.dto';
 import { Platform } from '../../../shared/enums/platform.enum';
 
-@Controller('api/v1/analytics/content-generation')
+@Controller('api/v1/content-generation')
 export class ContentGenerationController {
   constructor(
     private readonly contentGenerationService: ContentGenerationService,
@@ -69,17 +69,28 @@ export class ContentGenerationController {
   async generateMarketingContent(
     @Body() generateMarketingContentDto: GenerateMarketingContentDto,
   ) {
+    console.log('Received DTO:', JSON.stringify(generateMarketingContentDto));
     try {
-      // 这里需要获取 CampaignSummary，暂时使用模拟数据
-      // 实际应用中应该从数据库获取活动信息
+      // 使用前端传递的真实数据构建 CampaignSummary
+      // 注意：DTO 中的 startDate 和 endDate 是字符串，需要转换为 Date 对象
       const campaignSummary = {
         id: generateMarketingContentDto.campaignId,
-        name: '营销活动', // 需要从数据库获取
-        campaignType: 'ONLINE', // 默认值
-        targetAudience: {},
-        budget: 0,
-        userId: 'system',
+        name: generateMarketingContentDto.campaignName,
+        campaignType: generateMarketingContentDto.campaignType,
+        targetAudience: generateMarketingContentDto.targetAudience,
+        budget: generateMarketingContentDto.budget,
+        userId: generateMarketingContentDto.userId,
+        startDate: generateMarketingContentDto.startDate
+          ? new Date(generateMarketingContentDto.startDate)
+          : undefined,
+        endDate: generateMarketingContentDto.endDate
+          ? new Date(generateMarketingContentDto.endDate)
+          : undefined,
       };
+
+      // 调试日志
+      console.log('Generated campaignSummary:', JSON.stringify(campaignSummary));
+      console.log('DTO targetAudience:', generateMarketingContentDto.targetAudience);
 
       const result =
         await this.contentGenerationService.generateMarketingContent({
@@ -148,8 +159,26 @@ export class ContentGenerationController {
       success: true,
       data: {
         geminiAvailable: isAvailable,
-        timestamp: new Date().toISOString(),
+        service: 'content-generation',
+        timestamp: new Date().toISOString()
       },
+    };
+  }
+
+  /**
+   * 检查 Gemini API 健康状态
+   */
+  @Get('health')
+  async getHealth() {
+    const health = await this.geminiService.checkGeminiHealth();
+    return {
+      success: health.available,
+      data: {
+        geminiAvailable: health.available,
+        timestamp: new Date().toISOString(),
+        error: health.error,
+        details: health.details
+      }
     };
   }
 }

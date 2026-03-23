@@ -12,6 +12,7 @@ import { CustomerProfile } from '../../../entities/customer-profile.entity';
 import { StrategyType } from '../../../shared/enums/strategy-type.enum';
 import { GenerationMethod } from '../../../shared/enums/generation-method.enum';
 import { Platform } from '../../../shared/enums/platform.enum';
+import { AIEngine } from '../interfaces/gemini.interface';
 
 @Entity('marketing_strategies')
 @Index(['campaignId'])
@@ -115,6 +116,15 @@ export class MarketingStrategy {
 
   @Column({ name: 'ai_response_raw', type: 'text', nullable: true })
   aiResponseRaw: string;
+
+  @Column({
+    name: 'ai_engine',
+    type: 'enum',
+    enum: AIEngine,
+    nullable: true,
+    default: AIEngine.FALLBACK,
+  })
+  aiEngine: AIEngine;
 
   @Column({
     name: 'generated_content_ids',

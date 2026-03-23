@@ -19,7 +19,8 @@ SET @sql = IF(@table_exists > 0,
     ADD COLUMN IF NOT EXISTS execution_steps JSON NULL,
     ADD COLUMN IF NOT EXISTS risk_assessment JSON NULL,
     ADD COLUMN IF NOT EXISTS budget_allocation JSON NULL,
-    ADD COLUMN IF NOT EXISTS ai_response_raw TEXT NULL;',
+    ADD COLUMN IF NOT EXISTS ai_response_raw TEXT NULL,
+    ADD COLUMN IF NOT EXISTS ai_engine ENUM("QWEN", "GEMINI", "FALLBACK") NULL DEFAULT "FALLBACK";',
     'SELECT "marketing_strategies table does not exist, skipping migration" as status;'
 );
 
@@ -46,6 +47,7 @@ WHERE table_schema = 'lumina_media'
         'execution_steps',
         'risk_assessment',
         'budget_allocation',
-        'ai_response_raw'
+        'ai_response_raw',
+        'ai_engine'
     )
 ORDER BY ORDINAL_POSITION;

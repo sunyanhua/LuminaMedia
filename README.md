@@ -186,16 +186,16 @@
 
 ### 测试现有功能
 1. **测试Gemini API**: `npm run test:gemini`
-2. **访问API文档**: 启动后访问 `http://localhost:3002/api` (如有配置Swagger)
+2. **访问API文档**: 启动后访问 `http://localhost:3003/api` (如有配置Swagger)
 3. **测试数据分析API**:
    ```bash
    # 生成模拟数据
-   curl -X POST http://localhost:3002/api/v1/analytics/mock/generate \
+   curl -X POST http://localhost:3003/api/v1/analytics/mock/generate \
      -H "Content-Type: application/json" \
      -d '{"userId": "test-user-123"}'
 
    # 获取行为分析
-   curl http://localhost:3002/api/v1/analytics/behavior/test-user-123/summary
+   curl http://localhost:3003/api/v1/analytics/behavior/test-user-123/summary
    ```
 
 ### 后续开发任务

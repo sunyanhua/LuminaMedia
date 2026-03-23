@@ -373,7 +373,7 @@ export class DashboardService {
         const distribution =
           customerProfile.behaviorInsights.consumptionDistribution;
         const categories = Object.keys(distribution);
-        const data = Object.values(distribution) as number[];
+        const data = Object.values(distribution);
 
         return {
           labels: categories,
@@ -446,7 +446,7 @@ export class DashboardService {
       if (customerProfile?.profileData?.geographicDistribution) {
         const distribution = customerProfile.profileData.geographicDistribution;
         const cities = Object.keys(distribution);
-        const data = Object.values(distribution) as number[];
+        const data = Object.values(distribution);
 
         return {
           labels: cities,
@@ -649,5 +649,40 @@ export class DashboardService {
     return {
       downloadUrl: `https://api.lumina-media.com/exports/dashboard-${Date.now()}.${format}`,
     };
+  }
+
+  async getParkingSpendingData(profileId?: string): Promise<any[]> {
+    // 模拟停车时长与消费金额关系数据
+    const durations = ['<1小时', '1-2小时', '2-3小时', '3-4小时', '>4小时'];
+    const data = durations.map((duration, index) => ({
+      duration,
+      avgSpending: Math.floor(Math.random() * 500) + 200 + index * 100,
+      userCount: Math.floor(Math.random() * 300) + 100 + index * 50,
+    }));
+    return data;
+  }
+
+  async getTrafficTimeSeriesData(profileId?: string, days?: number): Promise<any[]> {
+    const targetDays = days || 30;
+    const data = [];
+    const baseDate = new Date();
+
+    for (let i = targetDays - 1; i >= 0; i--) {
+      const date = new Date(baseDate);
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+
+      // 模拟数据：周末更高
+      const dayOfWeek = date.getDay();
+      let baseValue = 1000;
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        baseValue = 1500; // 周末
+      }
+
+      const value = Math.floor(Math.random() * 300) + baseValue;
+      data.push({ date: dateStr, value });
+    }
+
+    return data;
   }
 }

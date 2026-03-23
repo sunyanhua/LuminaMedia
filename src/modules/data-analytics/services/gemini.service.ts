@@ -1,26 +1,10 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  GoogleGenerativeAI,
-  HarmCategory,
-  HarmBlockThreshold,
-} from '@google/generative-ai';
+// import { HttpsProxyAgent } from 'https-proxy-agent';
+const HttpsProxyAgent = require('https-proxy-agent').HttpsProxyAgent;
 
-// 动态加载 undici（代理支持）
-let setGlobalDispatcher: any, ProxyAgent: any;
-try {
-  const undici = require('undici');
-  setGlobalDispatcher = undici.setGlobalDispatcher;
-  ProxyAgent = undici.ProxyAgent;
-  console.log('>>> [DEPLOY CHECK] undici loaded successfully:', { version: undici.version, ProxyAgent: ProxyAgent?.name });
-} catch (error) {
-  // undici 未安装，代理功能将不可用
-  console.error('>>> [DEPLOY CHECK] undici load failed:', error.message);
-  console.warn('>>> [DEPLOY CHECK] Proxy functionality will be disabled. To enable, run: npm install undici');
-  setGlobalDispatcher = () => {};
-  ProxyAgent = class {};
-}
 import {
+  AIEngine,
   GeminiConfig,
   GeminiStrategyResponse,
   CampaignSummary,
@@ -40,8 +24,6 @@ import { Platform } from '../../../shared/enums/platform.enum';
 @Injectable()
 export class GeminiService implements OnModuleInit {
   private readonly logger = new Logger(GeminiService.name);
-  private static proxyInitialized = false;
-  private genAI: GoogleGenerativeAI | null = null;
   private config: GeminiConfig;
   private isAvailable = false;
 
@@ -67,10 +49,16 @@ export class GeminiService implements OnModuleInit {
       return [];
     }
 
-    // 按逗号分隔，严格清洗每个Key
+    // 按逗号分隔，物理级清洗每个Key
     const rawKeys = apiKeyString;
     const keys = rawKeys.split(',')
-      .map(k => k.replace(/['" ]/g, '').trim()) // 强制移除引号、空格
+      .map(k => {
+        // 物理级正则表达式清洗：只保留字母、数字、下划线和破折号
+        const cleaned = k.replace(/[^a-zA-Z0-9_-]/g, '');
+        console.log(`正则表达式清洗后Key长度：${cleaned.length}`);
+        return cleaned;
+      })
+      .filter(k => k.length > 30)  // 长度过滤，确保密钥符合标准
       .filter(k => k.startsWith('AIza'));    // 只保留以 AIza 开头的合法 Key
     return keys;
   }
@@ -156,7 +144,6 @@ export class GeminiService implements OnModuleInit {
     console.log(`[Lumina AI] Initializing with Key: ${currentKey.substring(0, 6)}... (index: ${this.currentKeyIndex})`);
     if (!currentKey) {
       this.isAvailable = false;
-      this.genAI = null;
       return false;
     }
 
@@ -171,19 +158,25 @@ export class GeminiService implements OnModuleInit {
         timeout: 30000, // 30秒超时
       };
 
-      // 使用当前选中的key初始化GoogleGenerativeAI
-      // 使用类型断言绕过类型检查，传递apiVersion配置
+      // 测试连接：使用直接 REST API 调用测试 API Key 有效性
       console.log('>>> [DEPLOY CHECK] API Version: v1 | Model: gemini-2.5-flash');
-      this.genAI = new (GoogleGenerativeAI as any)({ apiKey: currentKey, apiVersion: 'v1' });
-      console.log(`[Lumina AI] GoogleGenerativeAI initialized with key: ${currentKey.substring(0, 8)}...`);
+      const apiUrl = 'https://generativelanguage.googleapis.com/v1/models';
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': currentKey,
+        },
+      });
 
-      // 测试连接
-      const model = this.genAI!.getGenerativeModel({
-        model: this.config.model
-      }, { apiVersion: 'v1' });
-      console.log(`[Lumina AI] getGenerativeModel called with model: ${this.config.model}`);
-      console.log(`[DEBUG] API_VERSION: v1 | MODEL: gemini-2.5-flash | KEY_PREFIX: ${currentKey.substring(0, 6)} | KEY_LEN: ${currentKey.length}`);
-      await model.generateContent('Test');
+      if (!response.ok) {
+        throw new Error(`API test failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (!data || !data.models || data.models.length === 0) {
+        throw new Error('No models found in API response');
+      }
 
       this.isAvailable = true;
       this.resetKeyFailure(currentKey);
@@ -196,44 +189,18 @@ export class GeminiService implements OnModuleInit {
       this.logger.error(`使用API Key索引 ${this.currentKeyIndex} 初始化失败: ${error.message}`);
       this.recordKeyFailure(currentKey);
       this.isAvailable = false;
-      this.genAI = null;
       return false;
     }
   }
 
   private async initialize() {
+
     // 添加环境变量调试日志
     console.log('>>> [DOCKER ENV DEBUG] Key length:', this.configService.get<string>('GEMINI_API_KEY', '')?.length || 0);
     console.log('>>> [DOCKER ENV DEBUG] Proxy:', process.env.HTTPS_PROXY);
     console.log('>>> [DOCKER ENV DEBUG] HTTP_PROXY:', process.env.HTTP_PROXY);
     console.log('>>> [DOCKER ENV DEBUG] NODE_ENV:', process.env.NODE_ENV);
 
-    // 配置全局 HTTP 代理（如果设置了 HTTPS_PROXY 环境变量）
-    const proxyUrl = process.env.HTTPS_PROXY;
-    console.log('>>> [DEPLOY CHECK] Proxy configuration:', {
-      proxyUrl,
-      ProxyAgentAvailable: ProxyAgent?.name && ProxyAgent.name !== '',
-      ProxyAgentName: ProxyAgent?.name,
-      proxyInitialized: GeminiService.proxyInitialized,
-      undiciLoaded: ProxyAgent?.name !== '' && ProxyAgent?.name !== 'class'
-    });
-    if (proxyUrl && ProxyAgent.name !== '' && !GeminiService.proxyInitialized) {
-      try {
-        const proxyAgent = new ProxyAgent(proxyUrl);
-        setGlobalDispatcher(proxyAgent);
-        GeminiService.proxyInitialized = true;
-        this.logger.log(`已设置全局 HTTP 代理: ${proxyUrl}`);
-        console.log('>>> [DEPLOY CHECK] Global dispatcher set with proxy agent');
-      } catch (proxyError) {
-        this.logger.warn(`设置代理失败: ${proxyError.message}`);
-        console.error('>>> [DEPLOY CHECK] Failed to set proxy:', proxyError.message);
-      }
-    } else if (proxyUrl) {
-      this.logger.warn(`检测到代理配置但 undici 未安装，代理功能不可用`);
-      this.logger.warn(`代理 URL: ${proxyUrl}`);
-      this.logger.warn('如需代理支持，请运行: npm install undici');
-      console.warn('>>> [DEPLOY CHECK] Proxy configuration present but undici not loaded');
-    }
 
     // 解析多个API Key
     const apiKeyString = this.configService.get<string>('GEMINI_API_KEY', '');
@@ -249,6 +216,39 @@ export class GeminiService implements OnModuleInit {
     }
 
     this.logger.log(`解析到 ${this.apiKeys.length} 个Gemini API Key`);
+
+    // 原生Fetch对比测试（诊断密钥字符串污染问题）
+    if (this.apiKeys.length > 0) {
+      const testKey = this.apiKeys[0];
+      console.log(`>>> [原生Fetch测试] 开始测试Key: ${testKey.substring(0, 8)}...`);
+      console.log(`>>> [原生Fetch测试] 测试URL: https://generativelanguage.googleapis.com/v1/models?key=${testKey.substring(0, 8)}...`);
+
+      try {
+        const testUrl = `https://generativelanguage.googleapis.com/v1/models?key=${testKey}`;
+        const response = await fetch(testUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(`>>> [原生Fetch测试] ✅ 成功！HTTP ${response.status}，返回模型数量: ${data.models?.length || 0}`);
+          console.log(`>>> [原生Fetch测试] 诊断结论: 原生Fetch成功 → 如果SDK失败则为SDK配置问题`);
+        } else {
+          const errorText = await response.text();
+          console.log(`>>> [原生Fetch测试] ❌ 失败！HTTP ${response.status} ${response.statusText}`);
+          console.log(`>>> [原生Fetch测试] 错误响应: ${errorText.substring(0, 200)}`);
+          console.log(`>>> [原生Fetch测试] 诊断结论: 原生Fetch也失败 → 密钥字符串或代理篡改问题`);
+        }
+      } catch (error) {
+        console.log(`>>> [原生Fetch测试] ❌ 异常！${error.message}`);
+        console.log(`>>> [原生Fetch测试] 诊断结论: 网络连接或代理配置问题`);
+      }
+    } else {
+      console.log(`>>> [原生Fetch测试] 跳过：无可用API Key进行测试`);
+    }
 
     // 设置轮询模式（可以从环境变量读取，默认为顺序轮询）
     const rotationMode = this.configService.get<string>('GEMINI_KEY_ROTATION', 'sequential');
@@ -275,7 +275,6 @@ export class GeminiService implements OnModuleInit {
     if (!initialized) {
       this.logger.error('所有API Key初始化都失败。GeminiService将使用回退模式。');
       this.isAvailable = false;
-      this.genAI = null;
     }
   }
 
@@ -283,7 +282,7 @@ export class GeminiService implements OnModuleInit {
    * 检查 Gemini API 是否可用
    */
   isGeminiAvailable(): boolean {
-    return this.isAvailable && this.genAI !== null;
+    return this.isAvailable;
   }
 
   /**
@@ -522,71 +521,42 @@ export class GeminiService implements OnModuleInit {
     } = options;
 
     // 检查 API 可用性
-    if (!this.isGeminiAvailable() || !useFallback) {
-      if (!useFallback) {
-        return {
-          success: false,
-          error: {
-            code: 'API_KEY_INVALID',
-            message: 'Gemini API is not available and fallback is disabled',
-          },
-        };
-      }
-      this.logger.warn('Gemini API not available, using fallback template');
-      return this.generateFallbackStrategy(campaignSummary, strategyType);
+    if (!useFallback && !this.isGeminiAvailable()) {
+      return {
+        success: false,
+        error: {
+          code: 'API_KEY_INVALID',
+          message: 'Gemini API is not available and fallback is disabled',
+        },
+      };
     }
 
     // 构建提示词
     const prompt = this.buildStrategyPrompt(campaignSummary, strategyType);
 
-    try {
-      // this.genAI is guaranteed to be non-null here because isGeminiAvailable() returned true
-      console.log('>>> [DEPLOY CHECK] API Version: v1 | Model: gemini-2.5-flash');
-      const model = this.genAI!.getGenerativeModel({
-        model: this.config.model,
-        generationConfig: {
-          temperature: this.config.temperature,
-          topP: this.config.topP,
-          topK: this.config.topK,
-          maxOutputTokens: this.config.maxTokens,
-        },
-        safetySettings: [
-          {
-            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-          },
-          {
-            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-          },
-          {
-            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-          },
-          {
-            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-          },
-        ],
-      }, { apiVersion: 'v1' });
+    // 使用 REST API 生成内容
+    this.logger.log('Generating marketing strategy via REST API');
+    const result = await this.generateContentViaRest(prompt, {
+      temperature: this.config?.temperature,
+      maxTokens: this.config?.maxTokens,
+      model: this.config?.model
+    });
 
-      // 设置超时
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-      const currentKey = this.apiKeys[this.currentKeyIndex];
-      console.log(`[DEBUG] API_VERSION: v1 | MODEL: gemini-2.5-flash | KEY_PREFIX: ${currentKey.substring(0, 6)} | KEY_LEN: ${currentKey.length}`);
-      const result = await model.generateContent(prompt);
-      clearTimeout(timeoutId);
-
-      const response = await result.response;
-      const text = response.text();
-
-      // 解析 JSON 响应
-      const parsedResponse = this.parseGeminiResponse(text);
-
-      if (!parsedResponse.success) {
-        this.logger.warn('Failed to parse Gemini response, using fallback');
+    if (result.text) {
+      // 解析响应文本
+      const parsedResponse = this.parseGeminiResponse(result.text);
+      if (parsedResponse.success) {
+        // 添加引擎标识
+        const dataWithEngine = {
+          ...parsedResponse.data,
+          engine: AIEngine.GEMINI
+        };
+        return {
+          success: true,
+          data: dataWithEngine,
+        };
+      } else {
+        this.logger.warn('Failed to parse REST API response, trying fallback');
         if (useFallback) {
           return this.generateFallbackStrategy(campaignSummary, strategyType);
         }
@@ -595,74 +565,22 @@ export class GeminiService implements OnModuleInit {
           error: {
             code: 'PARSE_ERROR',
             message: 'Failed to parse Gemini response',
-            details: text.substring(0, 500),
+            details: result.text.substring(0, 500),
           },
         };
       }
-
-      return {
-        success: true,
-        data: parsedResponse.data,
-      };
-    } catch (error) {
-      this.logger.error(`Gemini API call failed: ${error.message}`);
-
-      // 错误分类
-      let geminiError: GeminiError;
-      if (error.name === 'AbortError') {
-        geminiError = {
-          code: 'NETWORK_ERROR',
-          message: 'Gemini API request timeout',
-          details: `Timeout after ${timeout}ms`,
-        };
-      } else if (error.message?.includes('API_KEY_INVALID')) {
-        geminiError = {
-          code: 'API_KEY_INVALID',
-          message: 'Invalid Gemini API key',
-        };
-
-        // 记录当前API Key失败并切换到下一个
-        const currentKey = this.apiKeys[this.currentKeyIndex];
-        if (currentKey) {
-          this.recordKeyFailure(currentKey);
-          this.rotateToNextKey();
-        }
-      } else if (error.message?.includes('QUOTA_EXCEEDED')) {
-        geminiError = {
-          code: 'QUOTA_EXCEEDED',
-          message: 'Gemini API quota exceeded',
-        };
-
-        // 记录当前API Key失败并切换到下一个（配额限制）
-        const currentKey = this.apiKeys[this.currentKeyIndex];
-        if (currentKey) {
-          this.recordKeyFailure(currentKey);
-          this.rotateToNextKey();
-        }
-      } else if (error.message?.includes('SAFETY')) {
-        geminiError = {
-          code: 'CONTENT_BLOCKED',
-          message: 'Content blocked by safety filters',
-        };
-      } else {
-        geminiError = {
-          code: 'UNKNOWN_ERROR',
-          message: 'Unknown error occurred',
-          details: error.message,
-        };
-      }
-
-      // 使用回退策略
+    } else {
+      this.logger.warn(`REST API generation failed: ${result.error}`);
       if (useFallback) {
-        this.logger.warn(
-          `Using fallback strategy due to error: ${geminiError.code}`,
-        );
+        this.logger.warn('Gemini API not available, using fallback template');
         return this.generateFallbackStrategy(campaignSummary, strategyType);
       }
-
       return {
         success: false,
-        error: geminiError,
+        error: {
+          code: 'API_KEY_INVALID',
+          message: `Gemini API generation failed: ${result.error}`,
+        },
       };
     }
   }
@@ -686,7 +604,7 @@ export class GeminiService implements OnModuleInit {
 
     const dateRange =
       startDate && endDate
-        ? `${startDate.toISOString().split('T')[0]} 至 ${endDate.toISOString().split('T')[0]}`
+        ? `${new Date(startDate).toISOString().split('T')[0]} 至 ${new Date(endDate).toISOString().split('T')[0]}`
         : '未指定';
 
     const insightsText = insights
@@ -953,94 +871,75 @@ ${insightsText}
     } = options;
 
     // 检查 API 可用性
+    console.log(`>>> [generateContent] isGeminiAvailable: ${this.isGeminiAvailable()}`);
     if (!this.isGeminiAvailable()) {
       this.logger.warn(
-        'Gemini API not available, using fallback content generation',
+        'Gemini API not available, trying REST API for content generation',
       );
-      return this.generateFallbackContent(options);
+      // 优先尝试直接REST API（绕过SDK问题）
+      const result = await this.generateContentViaRest(prompt, {
+        temperature: options.temperature || this.config?.temperature,
+        maxTokens: options.maxTokens || this.config?.maxTokens,
+        model: this.config?.model
+      });
+
+      console.log(`>>> [generateContent REST] Result: text=${result.text ? 'present' : 'empty'}, error=${result.error || 'none'}`);
+      if (result.text) {
+        // 解析响应文本
+        const generatedContent = this.parseContentResponse(result.text, platform, options);
+        const qualityAssessment = this.assessContentQuality(generatedContent, platform);
+
+        return {
+          success: true,
+          content: generatedContent,
+          qualityAssessment,
+          processingTime: 0,
+          modelUsed: this.config?.model || 'gemini-2.5-flash',
+        };
+      } else {
+        this.logger.warn(`REST API generation failed: ${result.error}, using fallback content`);
+        return this.generateFallbackContent(options);
+      }
     }
 
-    try {
-      // 构建内容生成提示词
-      const contentPrompt = this.buildContentPrompt(
-        prompt,
-        platform,
-        tone,
-        wordCount,
-      );
+    // 构建内容生成提示词
+    const contentPrompt = this.buildContentPrompt(
+      prompt,
+      platform,
+      tone,
+      wordCount,
+    );
 
-      // this.genAI is guaranteed to be non-null here because isGeminiAvailable() returned true
-      console.log('>>> [DEPLOY CHECK] API Version: v1 | Model: gemini-2.5-flash');
-      const model = this.genAI!.getGenerativeModel({
-        model: this.config.model,
-        generationConfig: {
-          temperature: options.temperature || this.config.temperature,
-          topP: this.config.topP,
-          topK: this.config.topK,
-          maxOutputTokens: options.maxTokens || this.config.maxTokens,
-        },
-        safetySettings: [
-          {
-            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-          },
-          {
-            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-          },
-          {
-            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-          },
-          {
-            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-          },
-        ],
-      }, { apiVersion: 'v1' });
+    // 使用 REST API 生成内容
+    this.logger.log(`Generating content for platform ${platform} via REST API`);
+    const result = await this.generateContentViaRest(contentPrompt, {
+      temperature: options.temperature || this.config?.temperature,
+      maxTokens: options.maxTokens || this.config?.maxTokens,
+      model: this.config?.model
+    });
 
-      const currentKey = this.apiKeys[this.currentKeyIndex];
-      console.log(`[DEBUG] API_VERSION: v1 | MODEL: gemini-2.5-flash | KEY_PREFIX: ${currentKey.substring(0, 6)} | KEY_LEN: ${currentKey.length}`);
-      const result = await model.generateContent(contentPrompt);
-      const response = await result.response;
-      const text = response.text();
-
-      // 调试日志：记录Gemini API响应
-      this.logger.debug(`Gemini API response for ${platform}: ${text.substring(0, 500)}...`);
-
-      // 解析内容响应
-      const generatedContent = this.parseContentResponse(
-        text,
-        platform,
-        options,
-      );
-
-      // 评估内容质量
-      const qualityAssessment = this.assessContentQuality(
-        generatedContent,
-        platform,
-      );
+    if (result.text) {
+      // 解析响应文本
+      const generatedContent = this.parseContentResponse(result.text, platform, options);
+      const qualityAssessment = this.assessContentQuality(generatedContent, platform);
 
       return {
         success: true,
         content: generatedContent,
         qualityAssessment,
-        processingTime: 0, // 实际应用中应该计算处理时间
-        modelUsed: this.config.model,
+        processingTime: 0,
+        modelUsed: this.config?.model || 'gemini-2.5-flash',
       };
-    } catch (error) {
-      this.logger.error(`Content generation failed: ${error.message}`);
-
+    } else {
       // 检查是否是API Key配额或无效错误
-      if (error.message?.includes('API_KEY_INVALID') || error.message?.includes('QUOTA_EXCEEDED')) {
+      if (result.error?.includes('API_KEY_INVALID') || result.error?.includes('QUOTA_EXCEEDED')) {
         const currentKey = this.apiKeys[this.currentKeyIndex];
         if (currentKey) {
           this.recordKeyFailure(currentKey);
           this.rotateToNextKey();
         }
       }
-
-      // 使用回退内容
+      this.logger.warn(`REST API generation failed: ${result.error}, using fallback content`);
       return this.generateFallbackContent(options);
     }
   }
@@ -1550,6 +1449,88 @@ ${platformInstructions}
       contents.length;
 
     return `为"${campaignSummary.name}"活动生成了${totalContentCount}条内容，覆盖${platformCount}个平台。平均质量评分：${avgQualityScore.toFixed(1)}/100。内容涵盖多种类型，适配各平台特点，旨在有效触达目标受众并促进活动目标达成。`;
+  }
+
+  /**
+   * 使用直接REST API生成内容
+   */
+  private async generateContentViaRest(prompt: string, options?: {
+    temperature?: number;
+    maxTokens?: number;
+    model?: string;
+  }): Promise<{ text: string; error?: string }> {
+    const currentKey = this.apiKeys[this.currentKeyIndex];
+    if (!currentKey) {
+      return { text: '', error: 'No API key available' };
+    }
+
+    const model = options?.model || this.config?.model || 'gemini-2.5-flash';
+    const temperature = options?.temperature || this.config?.temperature || 0.7;
+    const maxTokens = options?.maxTokens || this.config?.maxTokens || 2048;
+
+    const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent`;
+
+    const payload = {
+      contents: [{
+        parts: [{ text: prompt }]
+      }],
+      generationConfig: {
+        temperature,
+        topP: this.config?.topP || 0.95,
+        topK: this.config?.topK || 40,
+        maxOutputTokens: maxTokens
+      },
+      safetySettings: [
+        {
+          category: 'HARM_CATEGORY_HARASSMENT',
+          threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+        },
+        {
+          category: 'HARM_CATEGORY_HATE_SPEECH',
+          threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+        },
+        {
+          category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+          threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+        },
+        {
+          category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+          threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+        }
+      ]
+    };
+
+    try {
+      this.logger.log(`Generating content via REST API with model: ${model}`);
+      console.log(`>>> [REST API Debug] URL: ${url}, Key: ${currentKey.substring(0, 8)}...`);
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': currentKey
+        },
+        body: JSON.stringify(payload)
+      });
+      console.log(`>>> [REST API Debug] Response status: ${response.status} ${response.statusText}`);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        this.logger.error(`REST API generation failed: HTTP ${response.status} ${response.statusText}`);
+        return { text: '', error: `HTTP ${response.status}: ${errorText.substring(0, 200)}` };
+      }
+
+      const data = await response.json();
+      if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+        const text = data.candidates[0].content.parts[0].text;
+        return { text };
+      } else {
+        this.logger.error('REST API response missing expected content');
+        return { text: '', error: 'Invalid response format' };
+      }
+    } catch (error) {
+      this.logger.error(`REST API generation error: ${error.message}`);
+      return { text: '', error: error.message };
+    }
   }
 
   /**

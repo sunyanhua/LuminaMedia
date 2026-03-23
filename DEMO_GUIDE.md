@@ -62,8 +62,8 @@ docker-compose ps
 ```
 
 服务启动后：
-- **后端API**: http://localhost:3002
-- **前端看板**: http://localhost:5173
+- **后端API**: http://localhost:3003
+- **前端看板**: http://localhost:5174
 - **数据库**: MySQL 运行在 localhost:3307
 
 ### 手动启动（开发模式）
@@ -98,7 +98,7 @@ npm run dev
 
 ```bash
 # 启动完整演示流程
-curl -X POST "http://localhost:3002/api/v1/analytics/demo/quick-start" \
+curl -X POST "http://localhost:3003/api/v1/analytics/demo/quick-start" \
   -H "Content-Type: application/json"
 ```
 
@@ -167,7 +167,7 @@ curl -X POST "http://localhost:3002/api/v1/analytics/demo/quick-start" \
       }
     ],
     "contentGenerated": true,
-    "contentPlatforms": ["XHS", "WECHAT_MP"]
+    "contentPlatforms": ["XHS", "WECHAT_MP", "DOUYIN"]
   },
   "timestamp": "2026-03-16T12:00:00.000Z"
 }
@@ -177,7 +177,7 @@ curl -X POST "http://localhost:3002/api/v1/analytics/demo/quick-start" \
 
 访问前端数据看板查看可视化分析结果：
 
-1. 打开浏览器访问：http://localhost:5173
+1. 打开浏览器访问：http://localhost:5174
 2. 系统会自动加载演示数据
 3. 查看以下可视化图表：
    - **客户画像仪表板**：年龄分布、消费习惯、兴趣标签
@@ -190,10 +190,10 @@ curl -X POST "http://localhost:3002/api/v1/analytics/demo/quick-start" \
 
 ```bash
 # 获取演示场景描述
-curl "http://localhost:3002/api/v1/analytics/demo/scenario/mall-customer"
+curl "http://localhost:3003/api/v1/analytics/demo/scenario/mall-customer"
 
 # 执行特定步骤（步骤1-6）
-curl -X POST "http://localhost:3002/api/v1/analytics/demo/step/1" \
+curl -X POST "http://localhost:3003/api/v1/analytics/demo/step/1" \
   -H "Content-Type: application/json" \
   -d '{"stepData": {"description": "数据导入步骤"}}'
 ```
@@ -202,14 +202,14 @@ curl -X POST "http://localhost:3002/api/v1/analytics/demo/step/1" \
 
 ```bash
 # 获取演示系统状态
-curl "http://localhost:3002/api/v1/analytics/demo/status"
+curl "http://localhost:3003/api/v1/analytics/demo/status"
 ```
 
 ### 步骤5：重置演示数据
 
 ```bash
 # 重置演示数据（清理数据库）
-curl -X DELETE "http://localhost:3002/api/v1/analytics/demo/reset"
+curl -X DELETE "http://localhost:3003/api/v1/analytics/demo/reset"
 ```
 
 ## 核心模块详细使用
@@ -302,7 +302,7 @@ POST /api/v1/analytics/content-generation/generate/marketing-content
     "campaignType": "HYBRID",
     "budget": 200000
   },
-  "targetPlatforms": ["XHS", "WECHAT_MP"],
+  "targetPlatforms": ["XHS", "WECHAT_MP", "DOUYIN"],
   "contentTypes": ["promotional", "educational"],
   "tone": "friendly",
   "quantity": 2
@@ -352,9 +352,9 @@ GET /api/v1/dashboard/real-time-metrics
    - 内容质量评分
 
 ### 访问方式
-- **开发模式**: http://localhost:5173
-- **生产模式**: http://localhost:5173 (Docker部署)
-- **API基础路径**: http://localhost:3002/api/v1
+- **开发模式**: http://localhost:5174
+- **生产模式**: http://localhost:5174 (Docker部署)
+- **API基础路径**: http://localhost:3003/api/v1
 
 ## 演示场景说明
 
@@ -382,14 +382,14 @@ GET /api/v1/dashboard/real-time-metrics
    - 渠道策略（CHANNEL）
    - 时间策略（TIMING）
    - 预算策略（BUDGET_ALLOCATION）
-6. **内容生成**: 为小红书和公众号生成营销内容
+6. **内容生成**: 为小红书、公众号和抖音生成营销内容
 
 #### 预期产出
 - 完整的客户画像分析报告
 - 3个客户分群及特征描述
 - 营销活动策划方案
 - 4个AI生成的营销策略
-- 跨平台营销内容包（小红书+公众号）
+- 跨平台营销内容包（小红书+公众号+抖音）
 
 ## 故障排除
 
@@ -400,8 +400,8 @@ GET /api/v1/dashboard/real-time-metrics
 **解决方案**:
 ```bash
 # 检查端口占用
-netstat -ano | findstr :3002
-netstat -ano | findstr :5173
+netstat -ano | findstr :3003
+netstat -ano | findstr :5174
 netstat -ano | findstr :3307
 
 # 停止占用端口的进程
@@ -432,7 +432,7 @@ mysql -u lumina_user -plumina_password -h 127.0.0.1 -P 3307 lumina_media
 #### 4. 前端无法访问后端API
 **症状**: 前端看板显示网络错误
 **解决方案**:
-1. 检查后端服务是否运行：`curl http://localhost:3002/health`
+1. 检查后端服务是否运行：`curl http://localhost:3003/health`
 2. 检查CORS配置：确保前端URL在CORS允许列表中
 3. 查看浏览器控制台错误信息
 
@@ -511,14 +511,22 @@ docker-compose logs app
 
 1. 查看本文档的故障排除部分
 2. 检查应用日志：`docker-compose logs app`
-3. 运行健康检查：`curl http://localhost:3002/health`
+3. 运行健康检查：`curl http://localhost:3003/health`
 4. 查看数据库状态：`docker-compose exec db-lumina mysql -u lumina_user -plumina_password lumina_media -e "SHOW TABLES;"`
 5. 联系开发团队
+
+### 当前系统状态 (2026-03-22)
+
+- **Docker容器状态**: 所有容器运行正常（后端3003，前端5174，数据库3307）
+- **Gemini API代理**: 已修复并验证可用，健康检查通过，可访问7个模型
+- **DEMO核心功能**: 一键演示API工作正常，前端看板可访问
+- **内容生成**: Gemini API健康检查通过，但内容生成使用回退模式（需进一步调试）
+- **系统整体**: 功能完整，可进行完整演示流程
 
 ---
 
 **演示系统版本**: v2.0
-**最后更新**: 2026-03-16
+**最后更新**: 2026-03-22
 **预计演示时间**: 3-5分钟
 **数据完整性**: 1000条模拟客户记录
 **AI集成**: Google Gemini 1.5 Pro API

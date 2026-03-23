@@ -7,7 +7,32 @@
       "Bash(cd D:/GitHub/LuminaMedia && timeout 10 npm run start:dev 2>&1 | head -30)",
       "Bash(cd:*)",
       "Bash(ls:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(xargs grep:*)",
+      "Bash(grep -E \"\\\\.\\(json|js|ts|config\\)$\")",
+      "Bash(curl:*)",
+      "Bash(npm run:*)",
+      "Bash(tasklist)",
+      "Bash(findstr node:*)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :3003)",
+      "Bash(findstr 20140)",
+      "Bash(docker-compose build:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker-compose ps:*)",
+      "Bash(docker-compose down:*)",
+      "Bash(docker-compose logs:*)",
+      "Bash(findstr :5174)",
+      "Bash(tasklist:*)",
+      "Bash(dir:*)",
+      "Bash(tasklist.exe /FI \"PID eq 20140\")",
+      "Bash(cmd /c \"tasklist /fi \\\\\"pid eq 20140\\\\\"\")",
+      "Bash(powershell -Command \"Get-Process -Id 20140 -ErrorAction SilentlyContinue\")",
+      "Bash(docker stop:*)",
+      "Bash(npm view:*)",
+      "Bash(npm list:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker-compose stop:*)"
     ]
   }
 }

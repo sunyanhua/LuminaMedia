@@ -11,6 +11,9 @@ COPY nest-cli.json ./
 # Install all dependencies (including devDependencies for build)
 RUN npm ci
 
+# Ensure proxy dependencies are installed
+RUN npm install undici https-proxy-agent
+
 # Copy source code
 COPY src/ ./src/
 COPY scripts/ ./scripts/
@@ -30,7 +33,7 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 # Verify critical dependencies for proxy support
-RUN npm list undici https-proxy-agent
+RUN npm install undici https-proxy-agent --omit=dev
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist

@@ -23,8 +23,7 @@ export class CreateCampaignDto {
   targetAudience?: Record<string, any>;
 
   @IsNumber()
-  @IsOptional()
-  budget?: number;
+  budget: number;
 
   @IsDateString()
   @IsOptional()

@@ -82,12 +82,12 @@ DB_PASSWORD=lumina_password
 DB_DATABASE=lumina_media
 
 # 应用配置
-APP_PORT=3002
+APP_PORT=3003
 NODE_ENV=production
 
 # Gemini API 配置（可选，但推荐）
 GEMINI_API_KEY=your_actual_gemini_api_key_here
-GEMINI_MODEL=gemini-1.5-flash
+GEMINI_MODEL=gemini-2.5-flash
 GEMINI_TEMPERATURE=0.7
 GEMINI_MAX_TOKENS=2048
 GEMINI_TOP_P=0.95
@@ -118,10 +118,10 @@ docker-compose logs db-lumina  # 仅查看数据库日志
 #### 检查服务健康状态
 ```bash
 # 检查应用健康状态
-curl http://localhost:3002/health
+curl http://localhost:3003/health
 
 # 检查前端访问
-curl -I http://localhost:5173
+curl -I http://localhost:5174
 
 # 检查数据库连接
 docker-compose exec db-lumina mysql -u lumina_user -plumina_password lumina_media -e "SHOW TABLES;"
@@ -230,7 +230,7 @@ npm install
 
 # 配置环境变量
 # 创建 .env 文件，配置 VITE_API_BASE_URL
-echo "VITE_API_BASE_URL=http://localhost:3002/api" > .env
+echo "VITE_API_BASE_URL=http://localhost:3003/api" > .env
 
 # 开发模式
 npm run dev
@@ -262,7 +262,7 @@ server {
 
     # 后端 API 代理
     location /api/ {
-        proxy_pass http://localhost:3002/api/;
+        proxy_pass http://localhost:3003/api/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -360,7 +360,7 @@ if (cluster.isMaster) {
   }
 } else {
   // 启动应用
-  app.listen(3002);
+  app.listen(3003);
 }
 ```
 
@@ -377,7 +377,7 @@ gzip_types text/plain text/css application/json application/javascript text/xml 
 # 连接池
 upstream backend {
     least_conn;
-    server localhost:3002 max_fails=3 fail_timeout=30s;
+    server localhost:3003 max_fails=3 fail_timeout=30s;
     server localhost:3003 max_fails=3 fail_timeout=30s;
 }
 ```
@@ -558,9 +558,9 @@ docker stack deploy -c docker-stack.yml lumina
 **解决方案**:
 ```bash
 # 检查端口占用
-netstat -ano | findstr :3002  # Windows
-lsof -i :3002                 # Linux/macOS
-ss -tlnp | grep :3002         # Linux
+netstat -ano | findstr :3003  # Windows
+lsof -i :3003                 # Linux/macOS
+ss -tlnp | grep :3003         # Linux
 
 # 停止占用端口的进程
 # 或修改 docker-compose.yml 中的端口映射
@@ -646,16 +646,16 @@ docker-compose exec app node --inspect=0.0.0.0:9229 dist/main.js
 #### 手动健康检查
 ```bash
 # 应用健康检查
-curl http://localhost:3002/health
+curl http://localhost:3003/health
 
 # 数据库健康检查
 docker-compose exec db-lumina mysqladmin ping -h localhost -plumina_password
 
 # 前端健康检查
-curl -I http://localhost:5173
+curl -I http://localhost:5174
 
 # API端点测试
-curl http://localhost:3002/api/v1/analytics/content-generation/status
+curl http://localhost:3003/api/v1/analytics/content-generation/status
 ```
 
 #### 自动化监控脚本
@@ -664,7 +664,7 @@ curl http://localhost:3002/api/v1/analytics/content-generation/status
 # health-check.sh
 
 # 检查应用
-if ! curl -f http://localhost:3002/health > /dev/null 2>&1; then
+if ! curl -f http://localhost:3003/health > /dev/null 2>&1; then
   echo "应用服务异常"
   # 重启服务
   docker-compose restart app
@@ -777,14 +777,14 @@ echo "迁移完成！"
 | `DB_USERNAME` | `lumina_user` | 数据库用户名 |
 | `DB_PASSWORD` | `lumina_password` | 数据库密码 |
 | `DB_DATABASE` | `lumina_media` | 数据库名称 |
-| `APP_PORT` | `3002` | 应用监听端口 |
+| `APP_PORT` | `3003` | 应用监听端口 |
 | `NODE_ENV` | `production` | Node.js环境 |
 
 ### 可选环境变量
 | 变量名 | 默认值 | 描述 |
 |--------|--------|------|
 | `GEMINI_API_KEY` | `(空)` | Gemini API密钥 |
-| `GEMINI_MODEL` | `gemini-1.5-flash` | Gemini模型名称 |
+| `GEMINI_MODEL` | `gemini-2.5-flash` | Gemini模型名称 |
 | `GEMINI_TEMPERATURE` | `0.7` | 生成温度参数 |
 | `GEMINI_MAX_TOKENS` | `2048` | 最大token数 |
 | `TYPEORM_SYNCHRONIZE` | `false` | 是否自动同步数据库架构 |

@@ -14,3 +14,9 @@ backend/__pycache__/
 *.wav
 *.m4a
 *.zip
+.openclaw/
+.pm2/
+cc_output_*.txt
+TASK_REPORT.json
+BUTLER_STATE.json
+HISTORY.md

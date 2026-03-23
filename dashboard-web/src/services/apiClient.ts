@@ -1,11 +1,11 @@
 import axios from 'axios';
 
 // 从环境变量获取API基础URL，默认为开发环境
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3003';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },

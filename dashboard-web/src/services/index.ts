@@ -4,9 +4,10 @@ export { default as customerDataService } from './customerDataService';
 export { default as dashboardService } from './dashboardService';
 export { default as demoService } from './demoService';
 export { default as contentGenerationService } from './contentGenerationService';
+export { default as strategyService } from './strategyService';
 
-export * from './analyticsService';
-export * from './customerDataService';
-export * from './dashboardService';
-export * from './demoService';
-export * from './contentGenerationService';
+// export * from './analyticsService';
+// export * from './customerDataService';
+// export * from './dashboardService';
+// export * from './demoService';
+// export * from './contentGenerationService';

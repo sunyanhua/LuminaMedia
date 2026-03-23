@@ -30,6 +30,7 @@ import { CustomerAnalyticsController } from './controllers/customer-analytics.co
     CustomerProfileService,
     DataImportService,
     CustomerAnalyticsService,
+    TypeOrmModule.forFeature([CustomerProfile, DataImportJob, CustomerSegment]),
   ],
 })
 export class CustomerDataModule {}

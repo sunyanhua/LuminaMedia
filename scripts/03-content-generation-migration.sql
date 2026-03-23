@@ -6,31 +6,261 @@
 USE lumina_media;
 
 -- 1. 添加内容草稿表新字段
-ALTER TABLE content_drafts
-ADD COLUMN IF NOT EXISTS generated_by ENUM('AI_GENERATED', 'MANUAL', 'TEMPLATE', 'HYBRID') NULL COMMENT '生成方式枚举',
-ADD COLUMN IF NOT EXISTS quality_score DECIMAL(5, 2) NULL COMMENT '质量评分 (0-100)',
-ADD COLUMN IF NOT EXISTS ai_generated_content JSON NULL COMMENT 'JSON格式的AI生成详情',
-ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间';
+DELIMITER //
+CREATE PROCEDURE add_columns_to_content_drafts()
+BEGIN
+    DECLARE column_exists INT DEFAULT 0;
+
+    -- 检查 generated_by 列是否存在
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'content_drafts'
+    AND COLUMN_NAME = 'generated_by';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE content_drafts
+        ADD COLUMN generated_by ENUM('AI_GENERATED', 'MANUAL', 'TEMPLATE', 'HYBRID') NULL COMMENT '生成方式枚举';
+    END IF;
+
+    -- 检查 quality_score 列是否存在
+    SET column_exists = 0;
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'content_drafts'
+    AND COLUMN_NAME = 'quality_score';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE content_drafts
+        ADD COLUMN quality_score DECIMAL(5, 2) NULL COMMENT '质量评分 (0-100)';
+    END IF;
+
+    -- 检查 ai_generated_content 列是否存在
+    SET column_exists = 0;
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'content_drafts'
+    AND COLUMN_NAME = 'ai_generated_content';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE content_drafts
+        ADD COLUMN ai_generated_content JSON NULL COMMENT 'JSON格式的AI生成详情';
+    END IF;
+
+    -- 检查 created_at 列是否存在
+    SET column_exists = 0;
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'content_drafts'
+    AND COLUMN_NAME = 'created_at';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE content_drafts
+        ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间';
+    END IF;
+
+    -- 检查 updated_at 列是否存在
+    SET column_exists = 0;
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'content_drafts'
+    AND COLUMN_NAME = 'updated_at';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE content_drafts
+        ADD COLUMN updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间';
+    END IF;
+END //
+DELIMITER ;
+
+CALL add_columns_to_content_drafts();
+DROP PROCEDURE add_columns_to_content_drafts;
 
 -- 为现有数据设置默认时间戳
 UPDATE content_drafts SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL;
 
 -- 2. 扩展营销策略表新增字段
-ALTER TABLE marketing_strategies
-ADD COLUMN IF NOT EXISTS customer_profile_id CHAR(36) NULL COMMENT '关联客户档案ID',
-ADD COLUMN IF NOT EXISTS campaign_name VARCHAR(255) NULL COMMENT '活动名称',
-ADD COLUMN IF NOT EXISTS target_audience_analysis JSON NULL COMMENT 'JSON格式的目标受众分析',
-ADD COLUMN IF NOT EXISTS core_idea TEXT NULL COMMENT '核心创意',
-ADD COLUMN IF NOT EXISTS xhs_content TEXT NULL COMMENT '小红书文案内容',
-ADD COLUMN IF NOT EXISTS recommended_execution_time JSON NULL COMMENT 'JSON格式的推荐执行时间',
-ADD COLUMN IF NOT EXISTS expected_performance_metrics JSON NULL COMMENT 'JSON格式的预期效果指标',
-ADD COLUMN IF NOT EXISTS execution_steps JSON NULL COMMENT 'JSON格式的执行步骤计划',
-ADD COLUMN IF NOT EXISTS risk_assessment JSON NULL COMMENT 'JSON格式的风险评估',
-ADD COLUMN IF NOT EXISTS budget_allocation JSON NULL COMMENT 'JSON格式的预算分配方案',
-ADD COLUMN IF NOT EXISTS ai_response_raw TEXT NULL COMMENT 'AI原始响应文本',
-ADD COLUMN IF NOT EXISTS generated_content_ids JSON NULL COMMENT 'JSON格式的生成内容ID数组',
-ADD COLUMN IF NOT EXISTS content_platforms JSON NULL COMMENT 'JSON格式的内容平台数组';
+DELIMITER //
+CREATE PROCEDURE add_columns_to_marketing_strategies()
+BEGIN
+    DECLARE column_exists INT DEFAULT 0;
+
+    -- 检查 customer_profile_id 列是否存在
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'marketing_strategies'
+    AND COLUMN_NAME = 'customer_profile_id';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE marketing_strategies
+        ADD COLUMN customer_profile_id CHAR(36) NULL COMMENT '关联客户档案ID';
+    END IF;
+
+    -- 检查 campaign_name 列是否存在
+    SET column_exists = 0;
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'marketing_strategies'
+    AND COLUMN_NAME = 'campaign_name';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE marketing_strategies
+        ADD COLUMN campaign_name VARCHAR(255) NULL COMMENT '活动名称';
+    END IF;
+
+    -- 检查 target_audience_analysis 列是否存在
+    SET column_exists = 0;
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'marketing_strategies'
+    AND COLUMN_NAME = 'target_audience_analysis';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE marketing_strategies
+        ADD COLUMN target_audience_analysis JSON NULL COMMENT 'JSON格式的目标受众分析';
+    END IF;
+
+    -- 检查 core_idea 列是否存在
+    SET column_exists = 0;
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'marketing_strategies'
+    AND COLUMN_NAME = 'core_idea';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE marketing_strategies
+        ADD COLUMN core_idea TEXT NULL COMMENT '核心创意';
+    END IF;
+
+    -- 检查 xhs_content 列是否存在
+    SET column_exists = 0;
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'marketing_strategies'
+    AND COLUMN_NAME = 'xhs_content';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE marketing_strategies
+        ADD COLUMN xhs_content TEXT NULL COMMENT '小红书文案内容';
+    END IF;
+
+    -- 检查 recommended_execution_time 列是否存在
+    SET column_exists = 0;
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'marketing_strategies'
+    AND COLUMN_NAME = 'recommended_execution_time';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE marketing_strategies
+        ADD COLUMN recommended_execution_time JSON NULL COMMENT 'JSON格式的推荐执行时间';
+    END IF;
+
+    -- 检查 expected_performance_metrics 列是否存在
+    SET column_exists = 0;
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'marketing_strategies'
+    AND COLUMN_NAME = 'expected_performance_metrics';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE marketing_strategies
+        ADD COLUMN expected_performance_metrics JSON NULL COMMENT 'JSON格式的预期效果指标';
+    END IF;
+
+    -- 检查 execution_steps 列是否存在
+    SET column_exists = 0;
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'marketing_strategies'
+    AND COLUMN_NAME = 'execution_steps';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE marketing_strategies
+        ADD COLUMN execution_steps JSON NULL COMMENT 'JSON格式的执行步骤计划';
+    END IF;
+
+    -- 检查 risk_assessment 列是否存在
+    SET column_exists = 0;
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'marketing_strategies'
+    AND COLUMN_NAME = 'risk_assessment';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE marketing_strategies
+        ADD COLUMN risk_assessment JSON NULL COMMENT 'JSON格式的风险评估';
+    END IF;
+
+    -- 检查 budget_allocation 列是否存在
+    SET column_exists = 0;
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'marketing_strategies'
+    AND COLUMN_NAME = 'budget_allocation';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE marketing_strategies
+        ADD COLUMN budget_allocation JSON NULL COMMENT 'JSON格式的预算分配方案';
+    END IF;
+
+    -- 检查 ai_response_raw 列是否存在
+    SET column_exists = 0;
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'marketing_strategies'
+    AND COLUMN_NAME = 'ai_response_raw';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE marketing_strategies
+        ADD COLUMN ai_response_raw TEXT NULL COMMENT 'AI原始响应文本';
+    END IF;
+
+    -- 检查 generated_content_ids 列是否存在
+    SET column_exists = 0;
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'marketing_strategies'
+    AND COLUMN_NAME = 'generated_content_ids';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE marketing_strategies
+        ADD COLUMN generated_content_ids JSON NULL COMMENT 'JSON格式的生成内容ID数组';
+    END IF;
+
+    -- 检查 content_platforms 列是否存在
+    SET column_exists = 0;
+    SELECT COUNT(*) INTO column_exists
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'marketing_strategies'
+    AND COLUMN_NAME = 'content_platforms';
+
+    IF column_exists = 0 THEN
+        ALTER TABLE marketing_strategies
+        ADD COLUMN content_platforms JSON NULL COMMENT 'JSON格式的内容平台数组';
+    END IF;
+END //
+DELIMITER ;
+
+CALL add_columns_to_marketing_strategies();
+DROP PROCEDURE add_columns_to_marketing_strategies;
 
 -- 3. 添加外键约束（如果customer_profiles表存在）
 SET @customer_profiles_exists = (

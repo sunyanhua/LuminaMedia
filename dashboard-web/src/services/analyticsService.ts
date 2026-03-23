@@ -64,6 +64,26 @@ export interface MockDataResponse {
   dataCount: number;
 }
 
+export interface CustomerSegment {
+  id: string;
+  segmentName: string;
+  memberCount: number;
+  description?: string;
+  criteria?: Record<string, any>;
+  percentage?: number;
+}
+
+export interface ParkingSpendingData {
+  duration: string;
+  avgSpending: number;
+  userCount: number;
+}
+
+export interface TrafficTimeSeries {
+  date: string;
+  value: number;
+}
+
 /**
  * 用户行为分析服务
  */
@@ -79,7 +99,7 @@ export const analyticsService = {
    * 获取营销活动列表
    */
   getCampaigns: (userId: string): Promise<Campaign[]> => {
-    return apiClient.get(`/api/v1/analytics/campaigns`, { params: { userId } });
+    return apiClient.get(`/api/v1/analytics/campaigns`, { params: { userId } }).then(response => response.data.campaigns);
   },
 
   /**
@@ -93,7 +113,7 @@ export const analyticsService = {
     startDate?: string;
     endDate?: string;
   }): Promise<Campaign> => {
-    return apiClient.post(`/api/v1/analytics/campaigns`, data);
+    return apiClient.post(`/api/v1/analytics/campaigns`, data).then(response => response.data);
   },
 
   /**
@@ -171,6 +191,31 @@ export const analyticsService = {
    */
   getReport: (reportType: string, userId: string): Promise<any> => {
     return apiClient.get(`/api/v1/analytics/reports/${reportType}`, { params: { userId } });
+  },
+
+  /**
+   * 获取客户分群数据（零售商场分析）
+   */
+  getCustomerSegments: (profileId?: string): Promise<CustomerSegment[]> => {
+    const targetProfileId = profileId || 'demo';
+    return apiClient.get(`/api/v1/customer-data/profiles/${targetProfileId}/segments`);
+  },
+
+  /**
+   * 获取停车时长与消费金额关系数据
+   */
+  getParkingSpendingData: (profileId?: string): Promise<ParkingSpendingData[]> => {
+    const targetProfileId = profileId || 'demo';
+    return apiClient.get(`/api/v1/dashboard/charts/parking-spending`, { params: { profileId: targetProfileId } });
+  },
+
+  /**
+   * 获取每日客流趋势数据
+   */
+  getTrafficTimeSeries: (profileId?: string, days?: number): Promise<TrafficTimeSeries[]> => {
+    const targetProfileId = profileId || 'demo';
+    const targetDays = days || 30;
+    return apiClient.get(`/api/v1/dashboard/charts/traffic-timeseries`, { params: { profileId: targetProfileId, days: targetDays } });
   },
 };
 

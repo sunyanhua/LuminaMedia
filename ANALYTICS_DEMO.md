@@ -7,7 +7,7 @@
 > 1. **[DEMO_GUIDE.md](./DEMO_GUIDE.md)** - 完整的系统演示指南，涵盖从数据导入到营销内容生成的全流程
 > 2. **[API_REFERENCE.md](./API_REFERENCE.md)** - 完整的API参考文档，包含所有模块的详细API说明
 >
-> 新文档已更新端口号（3002）和新增功能，建议使用新文档进行开发和演示。
+> 新文档已更新端口号（3003）和新增功能，建议使用新文档进行开发和演示。
 
 ## 概述
 数据分析模块为 LuminaMedia 系统添加了用户行为追踪、营销活动管理和智能策略生成功能。本指南演示如何使用该模块的 API。
@@ -20,7 +20,7 @@
 ## API 端点概览
 
 ### 基础路径
-所有 API 端点前缀：`http://localhost:3002/api/v1/analytics/`
+所有 API 端点前缀：`http://localhost:3003/api/v1/analytics/`
 
 ### 1. 模拟数据管理（开发环境）
 ```bash
@@ -136,24 +136,24 @@ GET /reports/visualization/event-distribution?userId=test-user-123
 
 ### 步骤1: 生成模拟数据
 ```bash
-curl -X POST http://localhost:3002/api/v1/analytics/mock/generate \
+curl -X POST http://localhost:3003/api/v1/analytics/mock/generate \
   -H "Content-Type: application/json" \
   -d '{"userId": "test-user-123"}'
 ```
 
 ### 步骤2: 查看生成的数据
 ```bash
-curl http://localhost:3002/api/v1/analytics/mock/status
+curl http://localhost:3003/api/v1/analytics/mock/status
 ```
 
 ### 步骤3: 分析用户行为
 ```bash
-curl http://localhost:3002/api/v1/analytics/behavior/test-user-123/summary
+curl http://localhost:3003/api/v1/analytics/behavior/test-user-123/summary
 ```
 
 ### 步骤4: 创建营销活动
 ```bash
-curl -X POST http://localhost:3002/api/v1/analytics/campaigns \
+curl -X POST http://localhost:3003/api/v1/analytics/campaigns \
   -H "Content-Type: application/json" \
   -d '{
     "userId": "test-user-123",
@@ -167,14 +167,14 @@ curl -X POST http://localhost:3002/api/v1/analytics/campaigns \
 ```bash
 # 首先获取刚创建的活动ID，然后生成策略
 campaignId="从步骤4响应中获取"
-curl -X POST http://localhost:3002/api/v1/analytics/strategies/generate \
+curl -X POST http://localhost:3003/api/v1/analytics/strategies/generate \
   -H "Content-Type: application/json" \
   -d "{\"campaignId\": \"$campaignId\", \"strategyType\": \"CONTENT\"}"
 ```
 
 ### 步骤6: 生成报告
 ```bash
-curl http://localhost:3002/api/v1/analytics/reports/behavior/test-user-123
+curl http://localhost:3003/api/v1/analytics/reports/behavior/test-user-123
 ```
 
 ## 数据结构说明

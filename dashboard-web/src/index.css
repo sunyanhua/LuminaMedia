@@ -2,161 +2,327 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  font-family: '微软雅黑', 'Microsoft YaHei', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #020617;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #020617;
+  overflow: hidden;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+
 @layer base {
   :root {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: #1e293b;
-    --card-foreground: #f1f5f9;
-    --border: #334155;
-    --primary: #fbbf24;
-    --primary-foreground: #0f172a;
-    --secondary: #334155;
-    --secondary-foreground: #f1f5f9;
-    --success: #10b981;
-    --error: #ef4444;
-    --warning: #f59e0b;
-    --deep-blue: #1e40af;
-    --gold: #fbbf24;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
   }
-
-  body {
-    background: #0f172a;
-    color: #f1f5f9;
-    font-family: "Inter", system-ui, sans-serif;
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
   }
 }
 
-@layer components {
-  .card {
-    background: #1e293b;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+}
+
+/* 投屏模式样式 - 针对1920px+屏幕优化 */
+@media (min-width: 1920px) {
+  body {
+    font-size: 18px; /* 投屏模式进一步增大字体 */
+  }
+
+  .projector-text-xl {
+    font-size: 1.5rem; /* 24px */
+    line-height: 2rem;
+  }
+
+  .projector-text-2xl {
+    font-size: 2rem; /* 32px */
+    line-height: 2.5rem;
+  }
+
+  .projector-text-3xl {
+    font-size: 2.5rem; /* 40px */
+    line-height: 3rem;
+  }
+
+  .projector-text-4xl {
+    font-size: 3rem; /* 48px */
+    line-height: 3.5rem;
+  }
+
+  .projector-text-5xl {
+    font-size: 3.75rem; /* 60px */
+    line-height: 4rem;
+  }
+
+  .projector-spacing-lg {
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .projector-spacing-xl {
+    padding: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  .projector-card {
+    padding: 2.5rem;
+    border-radius: 1rem;
+    border-width: 2px;
+  }
+
+  .projector-card-xl {
+    padding: 3.5rem;
+    border-radius: 1.25rem;
+    border-width: 3px;
+  }
+
+  .projector-button {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
     border-radius: 0.75rem;
-    border: 1px solid #334155;
-    padding: 1.5rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
   }
 
-  .card-hover:hover {
-    border-color: rgba(251, 191, 36, 0.3);
-    box-shadow: 0 10px 15px -3px rgba(251, 191, 36, 0.1);
-    transition: all 0.3s ease;
+  .projector-button-xl {
+    padding: 1.25rem 2.5rem;
+    font-size: 1.25rem;
+    border-radius: 1rem;
   }
 
-  .btn-primary {
-    background-color: #fbbf24;
-    color: #0f172a;
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    transition: background-color 0.2s;
+  .projector-chart {
+    height: 500px !important;
   }
 
-  .btn-primary:hover {
-    background-color: #f59e0b;
+  .projector-chart-xl {
+    height: 600px !important;
   }
 
-  .btn-secondary {
-    background-color: #334155;
-    color: #f1f5f9;
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    border: 1px solid #475569;
-    transition: all 0.2s;
+  .projector-table {
+    font-size: 1.125rem;
   }
 
-  .btn-secondary:hover {
-    background-color: #475569;
-    border-color: #64748b;
+  .projector-table th {
+    padding: 1.25rem;
+    font-size: 1.25rem;
   }
 
-  .btn-success {
-    background-color: #10b981;
-    color: white;
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    transition: background-color 0.2s;
+  .projector-table td {
+    padding: 1rem;
   }
 
-  .btn-success:hover {
-    background-color: #059669;
+  .projector-input {
+    font-size: 1.125rem;
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
   }
 
-  .btn-error {
-    background-color: #ef4444;
-    color: white;
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    transition: background-color 0.2s;
+  .projector-modal {
+    max-width: 1200px;
+    padding: 3rem;
   }
 
-  .btn-error:hover {
-    background-color: #dc2626;
+  /* 侧边栏投屏优化 */
+  .projector-sidebar {
+    width: 320px;
   }
 
-  .btn-warning {
-    background-color: #f59e0b;
-    color: #0f172a;
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    transition: background-color 0.2s;
+  .projector-sidebar .menu-item {
+    padding: 1.25rem 1.5rem;
+    font-size: 1.125rem;
   }
 
-  .btn-warning:hover {
-    background-color: #d97706;
+  .projector-sidebar .submenu-item {
+    padding: 1rem 2rem;
+    font-size: 1rem;
   }
 
-  .badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 9999px;
-    text-align: center;
+  /* 头部投屏优化 */
+  .projector-header {
+    height: 80px;
+    padding: 0 3rem;
   }
 
-  .badge-success {
-    background-color: rgba(16, 185, 129, 0.2);
-    color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.3);
+  .projector-header .logo {
+    font-size: 1.75rem;
   }
 
-  .badge-error {
-    background-color: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+  .projector-header .breadcrumb {
+    font-size: 1.125rem;
   }
 
-  .badge-warning {
-    background-color: rgba(245, 158, 11, 0.2);
-    color: #f59e0b;
-    border: 1px solid rgba(245, 158, 11, 0.3);
+  /* 网格布局投屏优化 */
+  .projector-grid-2xl {
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 2.5rem;
   }
 
-  .badge-info {
-    background-color: rgba(59, 130, 246, 0.2);
-    color: #3b82f6;
-    border: 1px solid rgba(59, 130, 246, 0.3);
+  .projector-grid-3xl {
+    grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+    gap: 3rem;
   }
+}
 
-  .badge-purple {
-    background-color: rgba(139, 92, 246, 0.2);
-    color: #8b5cf6;
-    border: 1px solid rgba(139, 92, 246, 0.3);
+/* 4K屏幕优化 */
+@media (min-width: 3840px) {
+  body {
+    font-size: 20px;
   }
+}
 
-  /* 自定义颜色定义 */
-  .bg-deep-blue-500 { background-color: #1e40af; }
-  .bg-deep-blue-600 { background-color: #1e3a8a; }
-  .bg-deep-blue-900 { background-color: #1e3a8a; }
-  .text-deep-blue-300 { color: #93c5fd; }
-  .text-deep-blue-500 { color: #3b82f6; }
+/* 曜金渐变背景 */
+.gold-gradient-bg {
+  background: linear-gradient(135deg,
+    rgba(245, 158, 11, 0.1) 0%,
+    rgba(217, 119, 6, 0.2) 25%,
+    rgba(180, 83, 9, 0.3) 50%,
+    rgba(146, 64, 14, 0.2) 75%,
+    rgba(120, 53, 15, 0.1) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15);
+}
 
-  .bg-gold-400 { background-color: #fbbf24; }
-  .bg-gold-500 { background-color: #f59e0b; }
-  .text-gold-300 { color: #fcd34d; }
-  .text-gold-400 { color: #fbbf24; }
+/* 曜金渐变文字 */
+.gold-gradient-text {
+  background: linear-gradient(90deg, #f59e0b, #d97706, #b45309);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 曜金渐变边框 */
+.gold-gradient-border {
+  border: 2px solid transparent;
+  border-image: linear-gradient(135deg, #f59e0b, #d97706, #b45309) 1;
+  border-radius: 0.5rem;
+}
+
+/* 曜金渐变边框（带阴影） */
+.gold-gradient-border-with-shadow {
+  border: 2px solid transparent;
+  border-image: linear-gradient(135deg, #f59e0b, #d97706, #b45309) 1;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.2);
 }

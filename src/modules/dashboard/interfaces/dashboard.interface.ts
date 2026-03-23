@@ -58,7 +58,7 @@ export interface ChartData {
   labels: string[];
   datasets: Array<{
     label: string;
-    data: number[];
+    data: any[];
     backgroundColor: string | string[];
     borderColor: string | string[];
   }>;

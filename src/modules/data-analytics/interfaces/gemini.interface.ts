@@ -5,6 +5,15 @@
 import { CampaignType } from '../../../shared/enums/campaign-type.enum';
 
 /**
+ * AI引擎类型枚举
+ */
+export enum AIEngine {
+  QWEN = 'QWEN',
+  GEMINI = 'GEMINI',
+  FALLBACK = 'FALLBACK'
+}
+
+/**
  * 营销活动摘要信息
  */
 export interface CampaignSummary {
@@ -29,21 +38,21 @@ export interface CampaignSummary {
  * Gemini API 返回的营销策略方案结构
  */
 export interface GeminiStrategyResponse {
-  campaignName: string;
-  targetAudienceAnalysis: {
+  campaignName?: string;
+  targetAudienceAnalysis?: {
     demographics: string[];
     interests: string[];
     painPoints: string[];
     preferredChannels: string[];
   };
-  coreIdea: string;
-  xhsContent: {
+  coreIdea?: string;
+  xhsContent?: {
     title: string;
     content: string;
     hashtags: string[];
     suggestedImages: string[];
   };
-  recommendedExecutionTime: {
+  recommendedExecutionTime?: {
     timeline: {
       phase: string;
       duration: string;
@@ -52,39 +61,41 @@ export interface GeminiStrategyResponse {
     bestPostingTimes: string[];
     seasonalConsiderations: string[];
   };
-  expectedPerformanceMetrics: {
+  expectedPerformanceMetrics?: {
     engagementRate: number; // 互动率 (0-100)
     conversionRate: number; // 转化率 (0-100)
     expectedReach: number; // 预期覆盖人数
     estimatedCostPerClick?: number; // 预估每次点击成本
     estimatedROI: number; // 预估投资回报率
   };
-  executionSteps: {
+  executionSteps?: {
     step: number;
     description: string;
     responsible: string;
     deadline: string;
     dependencies?: number[];
   }[];
-  riskAssessment: {
+  riskAssessment?: {
     risk: string;
     probability: '低' | '中' | '高';
     impact: '低' | '中' | '高';
     mitigationStrategy: string;
   }[];
-  budgetAllocation: {
+  budgetAllocation?: {
     category: string;
     amount: number;
     percentage: number;
     justification: string;
   }[];
+  engine?: AIEngine;
 }
 
 /**
  * Gemini API 配置
  */
 export interface GeminiConfig {
-  apiKey: string;
+  apiKey?: string; // 单个API Key（向后兼容）
+  apiKeys?: string[]; // 多个API Key数组（逗号分隔）
   model: string;
   temperature: number;
   maxTokens: number;
@@ -117,4 +128,5 @@ export interface GeminiGenerateOptions {
   strategyType?: string;
   useFallback?: boolean;
   timeout?: number;
+  engine?: AIEngine;
 }

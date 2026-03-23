@@ -5,7 +5,7 @@
 本文档提供 LuminaMedia（灵曜智媒）内容营销平台的完整 API 参考。系统基于 NestJS 框架开发，采用 RESTful API 设计原则。
 
 ### 基础信息
-- **API 基础路径**: `http://localhost:3002`
+- **API 基础路径**: `http://localhost:3003`
 - **API 版本**: v1
 - **内容类型**: `application/json`
 - **认证方式**: 暂未实现（开发演示阶段）
@@ -495,7 +495,7 @@ Content-Type: application/json
       "improvements": ["可增加更多表情符号"]
     },
     "processingTime": 2.3,
-    "modelUsed": "Gemini-1.5-Flash"
+    "modelUsed": "Gemini-2.5-Flash"
   }
 }
 ```
@@ -552,7 +552,7 @@ Content-Type: application/json
     "generatedAt": "2026-03-16T12:00:00.000Z"
   },
   "processingTime": 5.8,
-  "modelUsed": "Gemini-1.5-Flash"
+  "modelUsed": "Gemini-2.5-Flash"
 }
 ```
 
@@ -601,7 +601,7 @@ GET /api/v1/analytics/content-generation/status
   "data": {
     "geminiAvailable": true,
     "timestamp": "2026-03-16T12:00:00.000Z",
-    "model": "gemini-1.5-flash",
+    "model": "gemini-2.5-flash",
     "responseTime": 1250
   }
 }
@@ -2289,37 +2289,37 @@ GET /
 
 ```bash
 # 1. 启动完整演示
-curl -X POST "http://localhost:3002/api/v1/analytics/demo/quick-start"
+curl -X POST "http://localhost:3003/api/v1/analytics/demo/quick-start"
 
 # 2. 查看生成的客户档案
-curl "http://localhost:3002/api/v1/customer-data/profiles"
+curl "http://localhost:3003/api/v1/customer-data/profiles"
 
 # 3. 查看营销活动
-curl "http://localhost:3002/api/v1/analytics/campaigns"
+curl "http://localhost:3003/api/v1/analytics/campaigns"
 
 # 4. 查看生成的策略
-curl "http://localhost:3002/api/v1/analytics/strategies/campaign/{campaignId}"
+curl "http://localhost:3003/api/v1/analytics/strategies/campaign/{campaignId}"
 
 # 5. 查看数据看板
-curl "http://localhost:3002/api/v1/dashboard/stats"
+curl "http://localhost:3003/api/v1/dashboard/stats"
 
 # 6. 重置演示数据
-curl -X DELETE "http://localhost:3002/api/v1/analytics/demo/reset"
+curl -X DELETE "http://localhost:3003/api/v1/analytics/demo/reset"
 ```
 
 ### 快速测试示例
 
 ```bash
 # 测试Gemini API连接
-curl "http://localhost:3002/api/v1/analytics/content-generation/status"
+curl "http://localhost:3003/api/v1/analytics/content-generation/status"
 
 # 生成模拟数据
-curl -X POST "http://localhost:3002/api/v1/analytics/mock/generate" \
+curl -X POST "http://localhost:3003/api/v1/analytics/mock/generate" \
   -H "Content-Type: application/json" \
   -d '{"userId": "test-user-123"}'
 
 # 创建营销活动
-curl -X POST "http://localhost:3002/api/v1/analytics/campaigns" \
+curl -X POST "http://localhost:3003/api/v1/analytics/campaigns" \
   -H "Content-Type: application/json" \
   -d '{
     "userId": "test-user-123",
@@ -2329,7 +2329,7 @@ curl -X POST "http://localhost:3002/api/v1/analytics/campaigns" \
   }'
 
 # 生成营销策略
-curl -X POST "http://localhost:3002/api/v1/analytics/strategies/generate" \
+curl -X POST "http://localhost:3003/api/v1/analytics/strategies/generate" \
   -H "Content-Type: application/json" \
   -d '{
     "campaignId": "campaign-uuid",
@@ -2353,7 +2353,7 @@ curl -X POST "http://localhost:3002/api/v1/analytics/strategies/generate" \
 
 - **API版本**: v1
 - **文档版本**: 1.0.0
-- **更新日期**: 2026-03-16
+- **更新日期**: 2026-03-18
 - **兼容性**: 向后兼容现有客户端
 
 ---

@@ -159,4 +159,23 @@ export class DashboardController {
   ): Promise<{ downloadUrl: string }> {
     return this.dashboardService.exportDashboardData(query.format);
   }
+
+  @Get('charts/parking-spending')
+  @ApiOperation({ summary: '获取停车时长与消费金额关系数据' })
+  @ApiResponse({ status: 200, description: '返回停车时长与消费金额关系数据' })
+  async getParkingSpendingChart(
+    @Query('profileId') profileId?: string,
+  ): Promise<any[]> {
+    return this.dashboardService.getParkingSpendingData(profileId);
+  }
+
+  @Get('charts/traffic-timeseries')
+  @ApiOperation({ summary: '获取每日客流趋势数据' })
+  @ApiResponse({ status: 200, description: '返回每日客流趋势数据' })
+  async getTrafficTimeSeriesChart(
+    @Query('profileId') profileId?: string,
+    @Query('days') days?: number,
+  ): Promise<any[]> {
+    return this.dashboardService.getTrafficTimeSeriesData(profileId, days);
+  }
 }

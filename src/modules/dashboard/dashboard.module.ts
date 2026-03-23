@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../../entities/user.entity';
 import { CustomerProfile } from '../../entities/customer-profile.entity';
 import { DataImportJob } from '../../entities/data-import-job.entity';
 import { CustomerSegment } from '../../entities/customer-segment.entity';
@@ -12,6 +13,7 @@ import { DashboardService } from './services/dashboard.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
+      User,
       CustomerProfile,
       DataImportJob,
       CustomerSegment,

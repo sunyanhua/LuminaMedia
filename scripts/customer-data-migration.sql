@@ -169,18 +169,23 @@ DROP PROCEDURE add_customer_profile_to_strategies;
 
 -- 6. 插入演示数据（可选，仅用于开发环境）
 -- 注意：需要先有测试用户数据才能插入演示数据
--- 假设存在一个测试用户 ID: 'test-user-123'
+-- 使用init.sql中的测试用户 ID: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
 
--- INSERT INTO customer_profiles (id, user_id, customer_name, customer_type, industry, data_sources, profile_data) VALUES
--- ('customer-profile-1', 'test-user-123', '上海万达广场', 'ENTERPRISE', 'RETAIL', '{"sources": ["POS系统", "会员系统", "停车数据"]}', '{"location": "上海市浦东新区", "floorCount": 6, "storeCount": 300}'),
--- ('customer-profile-2', 'test-user-123', '星巴克咖啡（中国）', 'ENTERPRISE', 'RESTAURANT', '{"sources": ["会员APP", "线上订单", "门店销售"]}', '{"storeCount": 6000, "employeeCount": 50000}');
+INSERT IGNORE INTO customer_profiles (id, user_id, customer_name, customer_type, industry, data_sources, profile_data, behavior_insights) VALUES
+('customer-profile-1', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', '上海万达广场', 'ENTERPRISE', 'RETAIL', '{"sources": ["POS系统", "会员系统", "停车数据"]}', '{"location": "上海市浦东新区", "floorCount": 6, "storeCount": 300, "annualRevenue": "50亿人民币"}', '{"averageCustomerSpend": 350, "peakHours": "周末14:00-18:00", "popularCategories": ["服装", "餐饮", "娱乐"]}'),
+('customer-profile-2', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', '星巴克咖啡（中国）', 'ENTERPRISE', 'RESTAURANT', '{"sources": ["会员APP", "线上订单", "门店销售"]}', '{"storeCount": 6000, "employeeCount": 50000, "marketShare": "中国咖啡市场35%"}', '{"customerRetentionRate": 75, "averageOrderValue": 45, "peakSeasons": ["夏季", "冬季节假日"]}'),
+('customer-profile-3', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', '小米科技', 'ENTERPRISE', 'TECHNOLOGY', '{"sources": ["官网商城", "线下门店", "合作伙伴数据"]}', '{"foundedYear": 2010, "productCategories": ["手机", "智能家居", "穿戴设备"], "globalMarkets": ["中国", "印度", "欧洲"]}', '{"brandLoyaltyScore": 85, "techAdoptionRate": 90, "customerSatisfaction": 88}');
 
--- INSERT INTO data_import_jobs (id, customer_profile_id, source_type, original_filename, record_count, success_count, status, summary) VALUES
--- ('import-job-1', 'customer-profile-1', 'CSV', 'mall_customers_202403.csv', 1000, 950, 'SUCCESS', '{"totalRecords": 1000, "validRecords": 950, "invalidRecords": 50, "importDuration": "2.5s"}');
+INSERT IGNORE INTO data_import_jobs (id, customer_profile_id, source_type, original_filename, record_count, success_count, failed_count, status, summary, import_data) VALUES
+('import-job-1', 'customer-profile-1', 'CSV', 'mall_customers_202403.csv', 1000, 950, 50, 'SUCCESS', '{"totalRecords": 1000, "validRecords": 950, "invalidRecords": 50, "importDuration": "2.5s", "importDate": "2026-03-18"}', '{"sampleRecords": 5, "dataQualityScore": 92}'),
+('import-job-2', 'customer-profile-2', 'API', 'starbucks_customers_202403.json', 50000, 48000, 2000, 'PARTIAL_SUCCESS', '{"totalRecords": 50000, "validRecords": 48000, "invalidRecords": 2000, "importDuration": "15.3s", "importDate": "2026-03-17"}', '{"apiEndpoint": "https://api.starbucks.com/customers", "dataFormat": "JSON"}'),
+('import-job-3', 'customer-profile-3', 'DATABASE', 'xiaomi_user_behavior_202403.sql', 1000000, 990000, 10000, 'SUCCESS', '{"totalRecords": 1000000, "validRecords": 990000, "invalidRecords": 10000, "importDuration": "120.5s", "importDate": "2026-03-16"}', '{"databaseType": "MySQL", "tableName": "user_behavior_logs"}');
 
--- INSERT INTO customer_segments (id, customer_profile_id, segment_name, description, criteria, member_count, segment_insights) VALUES
--- ('segment-1', 'customer-profile-1', '高价值会员', '月消费超过5000元的会员', '{"criteria": {"minMonthlySpend": 5000, "memberTier": ["GOLD", "PLATINUM"]}}', 150, '{"averageSpend": 8500, "favoriteCategories": ["服装", "餐饮", "娱乐"]}'),
--- ('segment-2', 'customer-profile-1', '年轻家庭客群', '25-35岁有孩子的家庭', '{"criteria": {"ageRange": [25, 35], "hasChildren": true}}', 320, '{"averageSpend": 3200, "visitFrequency": "每周1.5次", "preferredTime": "周末白天"}');
+INSERT IGNORE INTO customer_segments (id, customer_profile_id, segment_name, description, criteria, member_count, member_ids, segment_insights) VALUES
+('segment-1', 'customer-profile-1', '高价值会员', '月消费超过5000元的会员', '{"criteria": {"minMonthlySpend": 5000, "memberTier": ["GOLD", "PLATINUM"], "visitFrequency": "至少每周1次"}}', 150, '["CUST000001", "CUST000002", "CUST000004"]', '{"averageSpend": 8500, "favoriteCategories": ["服装", "餐饮", "娱乐"], "averageAge": 42, "genderDistribution": {"male": 55, "female": 45}}'),
+('segment-2', 'customer-profile-1', '年轻家庭客群', '25-35岁有孩子的家庭', '{"criteria": {"ageRange": [25, 35], "hasChildren": true, "preferredCategory": ["儿童用品", "家庭餐饮"]}}', 320, '["CUST000005", "CUST000008"]', '{"averageSpend": 3200, "visitFrequency": "每周1.5次", "preferredTime": "周末白天", "averageHouseholdSize": 3.2}'),
+('segment-3', 'customer-profile-2', '咖啡爱好者', '每周消费3次以上的重度用户', '{"criteria": {"minWeeklyVisits": 3, "preferredProducts": ["手冲咖啡", "特调饮品"], "membershipTier": "GOLD以上"}}', 12000, '[]', '{"averageMonthlySpend": 800, "preferredTime": "早晨7-9点", "productPreferences": ["美式咖啡", "拿铁", "星冰乐"]}'),
+('segment-4', 'customer-profile-3', '科技早期采用者', '购买最新科技产品的用户', '{"criteria": {"productOwnership": ["最新款手机", "智能家居设备"], "purchaseFrequency": "每季度至少1次", "techInterestScore": 80}}', 250000, '[]', '{"averageAge": 28, "genderDistribution": {"male": 70, "female": 30}, "brandLoyalty": 92, "upgradeCycle": "12个月"}');
 
 -- 7. 创建索引优化查询性能
 CREATE INDEX idx_customer_profiles_user_industry ON customer_profiles (user_id, industry);

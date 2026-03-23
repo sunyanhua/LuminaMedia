@@ -42,6 +42,12 @@ export class MarketingStrategyController {
     };
   }
 
+  @Get()
+  async getStrategies(@Query('userId') userId: string) {
+    const strategies = await this.marketingStrategyService.getStrategies(userId);
+    return strategies;
+  }
+
   @Get('campaign/:campaignId')
   async getCampaignStrategies(@Param('campaignId') campaignId: string) {
     const strategies =

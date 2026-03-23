@@ -102,7 +102,7 @@ export const demoService = {
   /**
    * 验证演示结果
    */
-  validateDemoResult: (scenarioId: string): Promise<{
+  validateDemoResult: (_scenarioId: string): Promise<{
     valid: boolean;
     score: number;
     feedback: string[];
@@ -127,7 +127,7 @@ export const demoService = {
   /**
    * 生成演示报告
    */
-  generateDemoReport: (scenarioId: string): Promise<{
+  generateDemoReport: (_scenarioId: string): Promise<{
     reportUrl: string;
     html: string;
     pdfUrl?: string;
