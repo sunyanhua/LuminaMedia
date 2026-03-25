@@ -44,6 +44,12 @@ export interface GeminiStrategyResponse {
     interests: string[];
     painPoints: string[];
     preferredChannels: string[];
+    userPersonas?: Array<{
+      name: string;
+      description: string;
+      behaviorTraits: string[];
+      motivations: string[];
+    }>;
   };
   coreIdea?: string;
   xhsContent?: {
@@ -52,11 +58,21 @@ export interface GeminiStrategyResponse {
     hashtags: string[];
     suggestedImages: string[];
   };
+  wechatFullPlan?: {
+    articleSeries?: Array<{
+      title: string;
+      theme: string;
+      keyPoints: string[];
+    }>;
+    offlineDecoration?: string;
+    membershipBenefits?: string;
+  };
   recommendedExecutionTime?: {
     timeline: {
       phase: string;
       duration: string;
       activities: string[];
+      milestones?: string[];
     }[];
     bestPostingTimes: string[];
     seasonalConsiderations: string[];
@@ -74,18 +90,21 @@ export interface GeminiStrategyResponse {
     responsible: string;
     deadline: string;
     dependencies?: number[];
+    deliverables?: string[];
   }[];
   riskAssessment?: {
     risk: string;
     probability: '低' | '中' | '高';
     impact: '低' | '中' | '高';
     mitigationStrategy: string;
+    contingencyPlan?: string;
   }[];
   budgetAllocation?: {
     category: string;
     amount: number;
     percentage: number;
     justification: string;
+    costBreakdown?: string[];
   }[];
   engine?: AIEngine;
 }

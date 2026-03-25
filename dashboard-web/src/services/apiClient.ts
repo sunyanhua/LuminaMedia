@@ -5,7 +5,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3003
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000,
+  timeout: 180000, // 3分钟，给Qwen-Max深度全案生成足够时间
   headers: {
     'Content-Type': 'application/json',
   },

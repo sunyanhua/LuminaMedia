@@ -61,19 +61,18 @@ services:
       - HTTP_PROXY=http://host.docker.internal:7897
       - GOOGLE_CLOUD_HTTP_PROXY=http://host.docker.internal:7897
       - GOOGLE_AUTH_HTTP_PROXY=http://host.docker.internal:7897
+      - CHOKIDAR_USEPOLLING=true  # 强制 NestJS 底层监听器使用轮询
+      - WATCHPACK_POLLING=true    # 确保 Webpack/TS 编译器捕获变更
+      - CHOKIDAR_INTERVAL=100       # 轮询间隔（毫秒）
     ports:
       - "3003:3003"
-    command: node dist/main.js
+    command: nodemon
     depends_on:
       db-lumina:
         condition: service_healthy
     volumes:
-      - ./uploads:/app/uploads
-      - ./src:/app/src
-      - ./package.json:/app/package.json
-      - ./tsconfig.json:/app/tsconfig.json
-      - ./nest-cli.json:/app/nest-cli.json
-      - /app/node_modules  # 防止覆盖容器内的node_modules
+      - .:/app                # 映射整个根目录
+      - /app/node_modules     # 匿名卷，防止容器内依赖不被本地覆盖
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:

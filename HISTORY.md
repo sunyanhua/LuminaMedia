@@ -678,3 +678,183 @@
 
 ---
 *计划已归档至 PROGRESS.md，请按 Ctrl+C 退出并指派管家进场。*
+
+### Gemini API响应解析错误修复详细计划
+
+#### 上下文
+用户报告Gemini API能够获得正常返回（HTTP 200），但本地解析结果报错。错误信息显示：`Failed to parse response: Unexpected token '`', "```json"`，表明响应以Markdown代码块标记开头，但解析器无法正确处理。
+
+从错误日志看，响应格式为：
+```
+```json
+
+{
+  "campaignName": "AI赋能营销：2026智能增长全攻略线上峰会",
+  ...
+```
+
+当前`parseGeminiResponse`方法使用正则表达式提取JSON，但匹配逻辑不够健壮，导致JSON解析失败。响应包含Markdown代码块标记，但正则表达式无法正确匹配和移除这些标记。
+
+#### 问题分析
+
+##### 当前实现问题
+1. **正则表达式过于严格**：`/```json\n([\s\S]*?)\n```/` 要求严格的```json\n...\n```格式
+   - 实际响应可能是```json\n\n{...}（多个换行符）
+   - 或```json{...}（无换行符）
+   - 或```json\n{...}（缺少结束换行符）
+
+2. **贪婪匹配问题**：备用正则表达式 `/{[\s\S]*}/` 是贪婪匹配，可能匹配到错误的结束括号
+3. **错误处理不足**：只记录前1000个字符，难以调试完整响应
+4. **代码重复**：相同逻辑在`GeminiService`和`QwenService`中重复
+
+##### 影响文件
+- `src/modules/data-analytics/services/gemini.service.ts` - 主要问题文件（第654-700行，parseGeminiResponse方法）
+- `src/modules/data-analytics/services/qwen.service.ts` - 相同问题（第381-427行，parseQwenResponse方法）
+- `src/modules/data-analytics/services/marketing-strategy.service.ts` - 调用方
+
+#### 解决方案
+
+采用直接修复方法，避免过度工程化。专注于增强现有的解析逻辑，而不是创建新的工具模块。
+
+##### 1. 增强正则表达式匹配
+支持多种Markdown代码块格式：
+- 标准格式：```json\n{...}\n```
+- 紧凑格式：```json{...}```
+- 多换行符格式：```json\n\n{...}\n\n```
+- 纯JSON格式：{...}
+
+##### 2. 改进错误处理和日志记录
+- 记录完整响应用于调试
+- 添加响应格式诊断信息
+- 提供更详细的错误消息
+
+##### 3. 保持代码一致性
+确保GeminiService和QwenService使用相同的修复逻辑。
+
+#### 实施步骤
+
+##### 步骤1：修复GeminiService的parseGeminiResponse方法
+1. 增强正则表达式以支持多种格式
+2. 改进错误处理和日志记录
+3. 保持现有接口和验证逻辑不变
+
+##### 步骤2：修复QwenService的parseQwenResponse方法
+应用相同的修复，确保一致性。
+
+##### 步骤3：测试验证
+1. 手动测试Gemini API集成
+2. 验证营销策略生成功能
+3. 检查错误处理和改进的日志记录
+
+##### 步骤4：更新PROGRESS.md文档
+按照项目规范记录修复工作。
+
+#### 关键代码变更
+
+##### 增强的parseGeminiResponse方法
+```typescript
+private parseGeminiResponse(text: string): {
+  success: boolean;
+  data?: GeminiStrategyResponse;
+  error?: string;
+} {
+  try {
+    // 尝试多种格式提取JSON
+    let jsonText = text;
+
+    // 1. 尝试匹配Markdown代码块（支持多种格式）
+    const codeBlockPatterns = [
+      /```json\s*\n([\s\S]*?)\n```/,      // 标准格式：```json\n{...}\n```
+      /```json\s*([\s\S]*?)```/,          // 紧凑格式：```json{...}```
+      /```\s*\n([\s\S]*?)\n```/,          // 无语言标记：```\n{...}\n```
+    ];
+
+    for (const pattern of codeBlockPatterns) {
+      const match = text.match(pattern);
+      if (match && match[1]) {
+        jsonText = match[1].trim();
+        break;
+      }
+    }
+
+    // 2. 如果代码块匹配失败，尝试提取JSON对象
+    if (jsonText === text) {
+      const jsonObjectMatch = text.match(/(\{[\s\S]*\})/);
+      if (jsonObjectMatch && jsonObjectMatch[1]) {
+        jsonText = jsonObjectMatch[1].trim();
+      }
+    }
+
+    // 3. 尝试解析JSON
+    const parsed = JSON.parse(jsonText);
+
+    // 验证必需字段（保持现有逻辑）
+    const requiredFields = [
+      'campaignName',
+      'targetAudienceAnalysis',
+      'coreIdea',
+      'xhsContent',
+      'recommendedExecutionTime',
+      'expectedPerformanceMetrics',
+      'executionSteps',
+      'riskAssessment',
+      'budgetAllocation',
+    ];
+
+    for (const field of requiredFields) {
+      if (!parsed[field]) {
+        throw new Error(`Missing required field: ${field}`);
+      }
+    }
+
+    return {
+      success: true,
+      data: parsed as GeminiStrategyResponse,
+    };
+  } catch (error) {
+    this.logger.error(`Failed to parse response: ${error.message}`);
+    this.logger.debug(`Raw response (full): ${text}`);
+    this.logger.debug(`Response length: ${text.length} chars`);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+}
+```
+
+##### 相同的修复应用到QwenService
+QwenService的parseQwenResponse方法需要应用完全相同的逻辑变更。
+
+#### 验证计划
+
+##### 1. 功能测试
+- 调用Gemini API生成营销策略，验证解析成功
+- 测试回退机制（当API不可用时）
+- 验证生成的策略数据完整性
+
+##### 2. 错误处理测试
+- 模拟包含Markdown代码块的响应
+- 测试纯JSON响应
+- 验证无效JSON的错误处理
+- 检查改进的日志记录
+
+##### 3. 回归测试
+- 确保现有功能不受影响
+- 验证QwenService的相同修复
+
+#### 风险缓解
+
+1. **向后兼容性**：保持现有API接口和验证逻辑不变
+2. **性能影响**：新增的正则表达式匹配轻微，影响可忽略
+3. **错误处理**：改进的日志记录有助于调试，不会破坏现有流程
+4. **代码维护**：两个服务使用相同的修复逻辑，保持一致性
+
+#### 预期结果
+
+1. ✅ Gemini API响应能正确解析，不再出现"Unexpected token '`'"错误
+2. ✅ 营销策略生成功能正常工作
+3. ✅ 错误日志提供完整响应和诊断信息
+4. ✅ QwenService也获得相同的修复
+5. ✅ 代码保持简洁，避免过度工程化
+

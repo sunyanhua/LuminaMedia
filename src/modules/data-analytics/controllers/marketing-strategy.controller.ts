@@ -26,7 +26,7 @@ export class MarketingStrategyController {
   @HttpCode(201)
   @UsePipes(new ValidationPipe({ transform: true }))
   async generateStrategy(@Body() generateStrategyDto: GenerateStrategyDto) {
-    const strategy = await this.marketingStrategyService.generateStrategy(
+    const result = await this.marketingStrategyService.generateStrategy(
       generateStrategyDto.campaignId,
       generateStrategyDto.strategyType,
       generateStrategyDto.generatedBy,
@@ -36,9 +36,10 @@ export class MarketingStrategyController {
     return {
       success: true,
       message: 'Strategy generated successfully',
-      data: strategy,
-      insights: this.generateStrategyInsights(strategy),
+      data: result.strategy,
+      insights: this.generateStrategyInsights(result.strategy),
       aiGenerated: !(generateStrategyDto.useGemini === false),
+      isTruncated: result.isTruncated,
     };
   }
 

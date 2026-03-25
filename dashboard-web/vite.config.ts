@@ -13,6 +13,10 @@ export default defineConfig({
         secure: false,
       },
     },
+    watch: {
+      usePolling: true, // 开启轮询以适配 Docker 挂载
+      interval: 100,    // 轮询间隔
+    },
   },
   plugins: [react()],
   resolve: {

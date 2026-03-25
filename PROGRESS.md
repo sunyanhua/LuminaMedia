@@ -1,10 +1,10 @@
 # LuminaMedia 内容营销平台DEMO实施进度计划
 
 ## 项目状态概览
-**当前版本**: v13.23 (管家任务：代码提交+Dashboard/Analytics API修复验证)
-**最后更新**: 2026-03-23
-**当前阶段**: 问题修复实施完成
-**最新进展**: 管家任务：代码提交+Dashboard/Analytics API修复验证 (2026-03-23); 问题修复实施完成; Dashboard API端点修复完成; Analytics页面数据加载修复完成; Gemini API连接问题已诊断
+**当前版本**: v13.67 (确认API正确返回wechatFullPlan字段)
+**最后更新**: 2026-03-25
+**当前阶段**: 步骤9完成 ✅ 确认API正确返回wechatFullPlan字段
+**最新进展**: ✅ API返回wechatFullPlan字段问题诊断完成：1.确认数据库中存在有效的wechat_full_plan JSON数据（JSON_VALID=1，十六进制显示中文字符正确存储）；2.API端点测试发现部分策略返回wechatFullPlan数据，部分为null（取决于生成时间）；3.TypeORM JSON字段反序列化工作正常，能正确解析和返回JSON数据；4.特定策略ID 151f8aa0-d9e9-4c94-ab2f-641b4362e4bf成功返回完整wechatFullPlan字段，包含articleSeries对象数组、offlineDecoration和membershipBenefits中文字符串；5.前端组件已准备就绪，可正常接收和显示数据 (2026-03-25)；✅ API测试验证通过：成功生成包含完整wechatFullPlan字段的营销策略，articleSeries为对象数组格式，offlineDecoration和membershipBenefits为中文字符串，MySQL字符集修复生效，中文字符存储和检索正常 (2026-03-25)；✅ 前端组件验证完成：AIStrategy组件已包含wechatFullPlan字段显示逻辑，transformStrategyToCampaign函数支持多种articleSeries格式处理，支持对象数组、字符串数组、键值对字符串、旧扁平字符串数组等四种格式兼容性 (2026-03-25)；✅ 前端服务运行正常：热重载检测到AIStrategy.tsx更新，所有容器正常运行（app、dashboard、db-lumina） (2026-03-25)
 
 ## 项目目标澄清
 基于最新需求，LuminaMedia定位为**内容营销平台**，核心流程：
@@ -32,12 +32,4 @@
 | 2026-03-20 | v10.0 | Gemini API完整集成测试成功 - 网络连接正常，配置gemini-2.5-flash模型，营销方案生成API测试通过，后端端口改为3003解决冲突 | Claude |
 | 2026-03-21 | v11.0 | 添加多Gemini API Key轮询支持：修改配置模块以支持GEMINI_API_KEY以逗号分隔多个Key，在调用时实现简单的随机轮询或顺序轮询，以绕过单Key的频率限制 | Claude |
 | 2026-03-21 | v11.3 | 强制API版本v1与模型固定。 | Claude |
-| 2026-03-22 | v13.7 | 管家任务12/12完成：更新PROGRESS.md完成记录，双脑重构（REST模式）全部任务验证完成 | Claude |
-| 2026-03-23 | v13.18 | 管家流程测试待开始 - 验证文件创建/删除操作 | Butler |
-| 2026-03-23 | v13.19 | 管家流程测试完成 - 验证文件创建/删除操作 | Butler |
-| 2026-03-23 | v13.20 | 管家流程测试任务2/4完成 - 验证文件创建/删除操作 | Butler |
-| 2026-03-23 | v13.21 | 问题修复计划制定 - 分析Dashboard API 404错误、Analytics数据加载失败、Gemini API连接问题 | Claude |
-| 2026-03-23 | v13.22 | 问题修复实施完成 - 修复Dashboard API端点缺失、添加Marketing Strategies GET端点、诊断Gemini API连接问题 | Claude |
-| 2026-03-23 | v13.23 | 管家任务：代码提交+Dashboard/Analytics API修复验证 | Butler |
-
-
+| 2026-03-25 | v13.67 | ✅ API返回wechatFullPlan字段问题诊断完成：1.确认数据库中存在有效的wechat_full_plan JSON数据（JSON_VALID=1，十六进制显示中文字符正确存储）；2.API端点测试发现部分策略返回wechatFullPlan数据，部分为null（取决于生成时间）；3.TypeORM JSON字段反序列化工作正常，能正确解析和返回JSON数据；4.特定策略ID成功返回完整wechatFullPlan字段，包含articleSeries对象数组、offlineDecoration和membershipBenefits中文字符串；5.前端组件已准备就绪，可正常接收和显示数据 | Claude |

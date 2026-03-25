@@ -4,8 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Target, Users, Calendar, Loader as Loader2, Copy, CircleCheck as CheckCircle2, AlertTriangle } from 'lucide-react';
-import { contentGenerationService, CampaignType } from '@/services/contentGenerationService';
-import { strategyService } from '@/services/strategyService';
+import { contentGenerationService } from '@/services/contentGenerationService';
+import { strategyService, MarketingStrategy } from '@/services/strategyService';
 import { analyticsService } from '@/services/analyticsService';
 import { Platform } from '@/types/platform';
 import { AIEngine } from '@/types/ai-engine';
@@ -176,8 +176,71 @@ function transformStrategyToCampaign(
     content.xiaohongshu = `🎊智能营销方案｜${planName}小红书内容\n\n基于您的目标"${userGoal}"，我们为您精心策划了小红书专属内容。\n\n✨ 活动亮点：\n🎯 个性化内容策略\n💎 精准受众触达\n🎪 高互动性内容设计\n\n#AI营销 #智能策划 #小红书运营`;
   }
 
-  // 微信公众号内容
-  content.wechat = `【智能营销方案】${planName}\n\n亲爱的用户：\n\n基于您的营销目标"${userGoal}"，我们为您定制了微信公众号专属内容策略。\n\n📋 方案要点：\n• 深度内容策划\n• 精准用户触达\n• 数据驱动优化\n• 效果持续追踪\n\n点击阅读原文，了解更多详情👇`;
+  // 微信公众号内容 - 如果存在wechatFullPlan，使用具体内容
+  if (strategy.wechatFullPlan?.articleSeries && Array.isArray(strategy.wechatFullPlan.articleSeries)) {
+    // 使用wechatFullPlan中的articleSeries内容
+    const articles = strategy.wechatFullPlan.articleSeries;
+    let wechatContent = `【微信全案方案】${planName}\n\n`;
+
+    // 检测articleSeries格式并处理
+    articles.forEach((article: any, index: number) => {
+      const articleStr = typeof article === 'string' ? article : JSON.stringify(article);
+
+      // 检测格式类型：
+      // 1. 旧格式：包含"推文标题：《"、"具体主题："、"核心卖点："的扁平字符串数组
+      if (articleStr.includes('推文标题：《')) {
+        wechatContent += `第${index + 1}篇：${articleStr}\n`;
+      } else if (articleStr.includes('具体主题：')) {
+        wechatContent += `主题：${articleStr.replace('具体主题：', '')}\n`;
+      } else if (articleStr.includes('核心卖点：')) {
+        wechatContent += `卖点：${articleStr.replace('核心卖点：', '')}\n\n`;
+      }
+      // 2. 新格式：简单的描述性字符串数组，如"第一篇文章 - 主题：新品首发"
+      else if (articleStr.includes(' - ') || articleStr.includes('文章') || articleStr.includes('主题：')) {
+        wechatContent += `第${index + 1}篇文章：${articleStr}\n\n`;
+      }
+      // 3. 对象格式：如果article是对象，提取关键信息
+      else if (typeof article === 'object' && article !== null) {
+        const title = article.title || `文章${index + 1}`;
+        const theme = article.theme || article.theme || '未指定主题';
+        const keyPoints = article.keyPoints || article.coreIdea || '未指定核心卖点';
+
+        wechatContent += `第${index + 1}篇：${title}\n`;
+        wechatContent += `主题：${theme}\n`;
+        if (Array.isArray(keyPoints)) {
+          wechatContent += `卖点：${keyPoints.join('、')}\n\n`;
+        } else {
+          wechatContent += `卖点：${keyPoints}\n\n`;
+        }
+      }
+      // 4. 其他未知格式：直接显示
+      else {
+        wechatContent += `第${index + 1}篇：${articleStr}\n\n`;
+      }
+    });
+
+    // 添加线下装饰和会员权益
+    if (strategy.wechatFullPlan.offlineDecoration) {
+      wechatContent += `\n🎪 线下装饰方案：\n${strategy.wechatFullPlan.offlineDecoration}\n`;
+    }
+
+    if (strategy.wechatFullPlan.membershipBenefits) {
+      wechatContent += `\n🎁 会员权益方案：\n${strategy.wechatFullPlan.membershipBenefits}\n`;
+    }
+
+    // 如果有articleSeriesDetails，也显示出来
+    if (strategy.wechatFullPlan.articleSeriesDetails && Array.isArray(strategy.wechatFullPlan.articleSeriesDetails)) {
+      wechatContent += `\n📝 详细文章规划：\n`;
+      strategy.wechatFullPlan.articleSeriesDetails.forEach((detail: string, index: number) => {
+        wechatContent += `${index + 1}. ${detail}\n`;
+      });
+    }
+
+    content.wechat = wechatContent;
+  } else {
+    // 回退到通用模板
+    content.wechat = `【智能营销方案】${planName}\n\n亲爱的用户：\n\n基于您的营销目标"${userGoal}"，我们为您定制了微信公众号专属内容策略。\n\n📋 方案要点：\n• 深度内容策划\n• 精准用户触达\n• 数据驱动优化\n• 效果持续追踪\n\n点击阅读原文，了解更多详情👇`;
+  }
 
   // 抖音脚本
   content.douyin = `【脚本大纲】${planName}\n\n开场（0-3秒）：\n快闪镜头：品牌元素、产品展示\n文字：${planName}正式启动！\n\n主体（3-30秒）：\n1. 核心卖点展示（5秒）\n2. 用户证言/案例分享（8秒）\n3. 互动环节设计（6秒）\n4. 行动号召（5秒）\n\n结尾（30-35秒）：\n品牌Logo+联系方式\n文字：立即行动，获取专属福利！\n\n#抖音营销 #短视频策划 #AI智策`;
@@ -330,9 +393,11 @@ export function AIStrategy() {
   const [showResults, setShowResults] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [campaign, setCampaign] = useState<Campaign | null>(null);
+  const [strategy, setStrategy] = useState<MarketingStrategy | null>(null);
   const [geminiAvailable, setGeminiAvailable] = useState<boolean>(true);
   const [apiError, setApiError] = useState<string>('');
   const [aiEngine, setAiEngine] = useState<AIEngine | null>(null);
+  const [isTruncated, setIsTruncated] = useState<boolean>(false);
 
   useEffect(() => {
     checkGeminiStatus();
@@ -390,8 +455,10 @@ export function AIStrategy() {
     setShowResults(false);
     setStreamedText('');
     setCampaign(null);
+    setStrategy(null);
+    setIsTruncated(false);
 
-    const introText = `正在基于您的目标生成智能营销方案...\n\n分析目标受众特征...\n识别最佳传播渠道...\n生成创意内容策略...\n规划执行时间线...\n\n✨ 方案生成完成！`;
+    const introText = `灵曜智媒正在深度推演全案...\n\n正在调动 Qwen-Max 算力中心...\n正在基于 600 万用户数据进行画像匹配...\n正在推演 ROI 转化模型...\n分析目标受众特征...\n识别最佳传播渠道...\n生成创意内容策略...\n规划执行时间线...\n\n✨ 方案生成完成！`;
 
     streamText(introText, setStreamedText);
 
@@ -432,6 +499,10 @@ export function AIStrategy() {
       if (result.success && result.data) {
         // 设置AI引擎
         setAiEngine(result.data.aiEngine || AIEngine.FALLBACK);
+        // 设置截断状态
+        setIsTruncated(result.isTruncated || false);
+        // 保存原始策略数据用于显示风险评估等字段
+        setStrategy(result.data);
 
         // 转换策略响应为前端Campaign对象
         const transformedCampaign = transformStrategyToCampaign(
@@ -445,6 +516,8 @@ export function AIStrategy() {
         // API调用失败，使用模拟数据
         console.warn('策略生成API调用失败，使用模拟数据:', result.message);
         setAiEngine(AIEngine.FALLBACK);
+        setIsTruncated(false);
+        setStrategy(null);
         const fallbackCampaign = transformMarketingContentToCampaign(
           {
             campaignName: `AI营销方案-${new Date().toLocaleDateString()}`,
@@ -460,6 +533,8 @@ export function AIStrategy() {
       console.error('生成营销方案失败:', error);
       // 使用默认的mockCampaign作为fallback
       setCampaign(mockCampaign);
+      setStrategy(null);
+      setIsTruncated(false);
     } finally {
       // 确保流式文本显示完成
       setTimeout(() => {
@@ -770,6 +845,115 @@ export function AIStrategy() {
             </CardContent>
           </Card>
 
+          {/* 策略详细数据 */}
+          {strategy && (
+            <Card className="bg-slate-900 border-slate-800">
+              <CardHeader>
+                <CardTitle className="text-slate-100">策略深度分析</CardTitle>
+                <p className="text-sm text-slate-400">AI生成的详细策略数据</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* ROI与置信度 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <h4 className="text-sm font-semibold text-amber-500 mb-2">预期ROI</h4>
+                    <p className="text-2xl font-bold text-slate-200">
+                      {strategy.expectedROI || '待评估'}
+                      {typeof strategy.expectedROI === 'string' && strategy.expectedROI.includes('%') ? '' : '%'}
+                    </p>
+                    <p className="text-sm text-slate-400 mt-1">投资回报率预测</p>
+                  </div>
+                  <div className="p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <h4 className="text-sm font-semibold text-amber-500 mb-2">置信度评分</h4>
+                    <p className="text-2xl font-bold text-slate-200">
+                      {strategy.confidenceScore || '待评估'}
+                      {typeof strategy.confidenceScore === 'string' && strategy.confidenceScore.includes('%') ? '' : '%'}
+                    </p>
+                    <p className="text-sm text-slate-400 mt-1">AI策略信心指数</p>
+                  </div>
+                </div>
+
+                {/* 风险评估 */}
+                {strategy.riskAssessment && (
+                  <div className="p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <h4 className="text-sm font-semibold text-amber-500 mb-2">风险评估</h4>
+                    <div className="text-slate-300 whitespace-pre-wrap font-sans">
+                      {typeof strategy.riskAssessment === 'string'
+                        ? strategy.riskAssessment
+                        : JSON.stringify(strategy.riskAssessment, null, 2)}
+                    </div>
+                  </div>
+                )}
+
+                {/* 执行步骤 */}
+                {strategy.executionSteps && (
+                  <div className="p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <h4 className="text-sm font-semibold text-amber-500 mb-2">执行步骤</h4>
+                    <div className="text-slate-300 whitespace-pre-wrap font-sans">
+                      {typeof strategy.executionSteps === 'string'
+                        ? strategy.executionSteps
+                        : JSON.stringify(strategy.executionSteps, null, 2)}
+                    </div>
+                  </div>
+                )}
+
+                {/* 预算分配 */}
+                {strategy.budgetAllocation && (
+                  <div className="p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <h4 className="text-sm font-semibold text-amber-500 mb-2">预算分配</h4>
+                    <div className="text-slate-300 whitespace-pre-wrap font-sans">
+                      {typeof strategy.budgetAllocation === 'string'
+                        ? strategy.budgetAllocation
+                        : JSON.stringify(strategy.budgetAllocation, null, 2)}
+                    </div>
+                  </div>
+                )}
+
+                {/* 微信全案方案 */}
+                {strategy.wechatFullPlan && (
+                  <div className="p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <h4 className="text-sm font-semibold text-amber-500 mb-2">微信全案方案</h4>
+                    <div className="space-y-4">
+                      {/* 文章系列 */}
+                      {strategy.wechatFullPlan.articleSeries && Array.isArray(strategy.wechatFullPlan.articleSeries) && (
+                        <div>
+                          <h5 className="text-sm font-semibold text-slate-300 mb-2">文章系列规划</h5>
+                          <div className="space-y-3">
+                            {strategy.wechatFullPlan.articleSeries.map((article: string, index: number) => (
+                              <div key={index} className="p-3 bg-slate-900/50 rounded border border-slate-700">
+                                <p className="text-slate-300 text-sm">{article}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 线下装饰方案 */}
+                      {strategy.wechatFullPlan.offlineDecoration && (
+                        <div>
+                          <h5 className="text-sm font-semibold text-slate-300 mb-2">线下装饰方案</h5>
+                          <div className="p-3 bg-slate-900/50 rounded border border-slate-700">
+                            <p className="text-slate-300 text-sm whitespace-pre-wrap">{strategy.wechatFullPlan.offlineDecoration}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 会员权益方案 */}
+                      {strategy.wechatFullPlan.membershipBenefits && (
+                        <div>
+                          <h5 className="text-sm font-semibold text-slate-300 mb-2">会员权益方案</h5>
+                          <div className="p-3 bg-slate-900/50 rounded border border-slate-700">
+                            <p className="text-slate-300 text-sm whitespace-pre-wrap">{strategy.wechatFullPlan.membershipBenefits}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           <Card className="bg-gradient-to-r from-amber-500/10 to-amber-600/10 border-amber-500/30">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -785,6 +969,24 @@ export function AIStrategy() {
               </div>
             </CardContent>
           </Card>
+
+          {isTruncated && (
+            <div className="p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-blue-400 mb-1">灵曜提示</h4>
+                  <p className="text-slate-300">
+                    基于您的用户大数据，AI 方案内容极度丰富，已为您呈现核心策略精华。
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -1,8 +1,6 @@
 {
-  "status": "COMPLETED",
-  "task_index": 7,
-  "total_tasks": 7,
-  "current_task": "测试Gemini API连接：调用营销策略生成API，验证 fetch failed 错误是否消失，报告结果",
-  "attempt": 1,
-  "last_start": "2026-03-23 23:10:29"
+  "status": "IDLE",
+  "last_result": "SUCCESS",
+  "completed_tasks": 4,
+  "total_tasks": 4
 }

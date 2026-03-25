@@ -29,8 +29,12 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install production dependencies only
-RUN npm ci --only=production
+# Install all dependencies for development (including nest CLI)
+RUN npm ci
+# Install nest CLI globally for nest command availability
+RUN npm install -g @nestjs/cli
+# Install nodemon for hot reload in Docker
+RUN npm install -g nodemon
 
 # Verify critical dependencies for proxy support
 RUN npm install undici https-proxy-agent --omit=dev

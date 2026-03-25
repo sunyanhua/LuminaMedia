@@ -20,6 +20,7 @@ export interface StrategyResponse {
   data: MarketingStrategy;
   insights: StrategyInsights;
   aiGenerated: boolean;
+  isTruncated?: boolean;
 }
 
 export interface MarketingStrategy {
@@ -28,14 +29,15 @@ export interface MarketingStrategy {
   strategyType: StrategyType;
   description: string;
   implementationPlan?: Record<string, any>;
-  expectedROI?: number;
-  confidenceScore: number;
+  expectedROI?: string; // 改为字符串，可能包含百分号
+  confidenceScore: string; // 改为字符串
   generatedBy: GenerationMethod;
   createdAt: string;
   campaignName?: string;
   targetAudienceAnalysis?: Record<string, any>;
   coreIdea?: string;
   xhsContent?: string;
+  wechatFullPlan?: Record<string, any>; // 微信全案方案
   recommendedExecutionTime?: Record<string, any>;
   expectedPerformanceMetrics?: Record<string, any>;
   executionSteps?: Record<string, any>;

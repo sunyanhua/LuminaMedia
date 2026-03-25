@@ -16,4 +16,10 @@ export const AppDataSource = new DataSource({
   synchronize: process.env.TYPEORM_SYNCHRONIZE === 'true',
   logging: process.env.TYPEORM_LOGGING === 'true',
   charset: 'utf8mb4',
+  extra: {
+    charset: 'utf8mb4',
+    init: (connection) => {
+      connection.query("SET NAMES utf8mb4");
+    },
+  },
 });

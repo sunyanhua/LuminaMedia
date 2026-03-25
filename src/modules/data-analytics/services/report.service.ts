@@ -314,7 +314,7 @@ export class ReportService {
   ): number {
     if (strategies.length === 0) return 0;
 
-    const total = strategies.reduce((sum, s) => sum + s.confidenceScore, 0);
+    const total = strategies.reduce((sum, s) => sum + (parseFloat(s.confidenceScore) || 0), 0);
     return Math.round(total / strategies.length);
   }
 
@@ -324,7 +324,7 @@ export class ReportService {
     const strategiesWithROI = strategies.filter((s) => s.expectedROI != null);
     if (strategiesWithROI.length === 0) return 0;
 
-    const total = strategiesWithROI.reduce((sum, s) => sum + s.expectedROI, 0);
+    const total = strategiesWithROI.reduce((sum, s) => sum + (parseFloat(s.expectedROI) || 0), 0);
     return Math.round((total / strategiesWithROI.length) * 100) / 100;
   }
 

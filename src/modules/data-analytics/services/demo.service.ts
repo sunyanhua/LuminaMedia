@@ -513,13 +513,13 @@ export class DemoService {
 
     for (const strategyType of strategyTypes) {
       try {
-        const strategy = await this.marketingStrategyService.generateStrategy(
+        const result = await this.marketingStrategyService.generateStrategy(
           campaignId,
           strategyType,
           GenerationMethod.AI_GENERATED,
           true, // 使用Gemini
         );
-        strategies.push(strategy);
+        strategies.push(result.strategy);
       } catch (error) {
         this.logger.warn(
           `Failed to generate strategy type ${strategyType}: ${error.message}`,
@@ -551,8 +551,8 @@ export class DemoService {
         steps: ['第一步', '第二步', '第三步'],
         timeline: '4周',
       },
-      expectedROI: 25 + Math.random() * 20,
-      confidenceScore: 70 + Math.floor(Math.random() * 20),
+      expectedROI: String(25 + Math.random() * 20),
+      confidenceScore: String(70 + Math.floor(Math.random() * 20)),
       generatedBy: GenerationMethod.TEMPLATE,
     };
 

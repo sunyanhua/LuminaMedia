@@ -227,7 +227,7 @@ export class DashboardService {
     const totalStrategies = strategies.length;
     const avgConfidence =
       totalStrategies > 0
-        ? strategies.reduce((sum, s) => sum + (s.confidenceScore || 0), 0) /
+        ? strategies.reduce((sum, s) => sum + (parseFloat(s.confidenceScore) || 0), 0) /
           totalStrategies
         : 0;
 

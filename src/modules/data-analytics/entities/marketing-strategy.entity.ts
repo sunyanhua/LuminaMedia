@@ -57,15 +57,14 @@ export class MarketingStrategy {
 
   @Column({
     name: 'expected_roi',
-    type: 'decimal',
-    precision: 5,
-    scale: 2,
+    type: 'varchar',
+    length: 255,
     nullable: true,
   })
-  expectedROI: number;
+  expectedROI: string;
 
-  @Column({ name: 'confidence_score', type: 'tinyint', default: 0 })
-  confidenceScore: number; // 0-100
+  @Column({ name: 'confidence_score', type: 'varchar', length: 255, nullable: true })
+  confidenceScore: string;
 
   @Column({
     name: 'generated_by',
@@ -94,6 +93,9 @@ export class MarketingStrategy {
 
   @Column({ name: 'xhs_content', type: 'text', nullable: true })
   xhsContent: string;
+
+  @Column({ name: 'wechat_full_plan', type: 'json', nullable: true })
+  wechatFullPlan: Record<string, any>;
 
   @Column({ name: 'recommended_execution_time', type: 'json', nullable: true })
   recommendedExecutionTime: Record<string, any>;

@@ -37,3 +37,8 @@ async function bootstrap() {
   await app.listen(process.env.APP_PORT ?? 3003, '0.0.0.0');
 }
 bootstrap();
+// [Hot reload test] Modified at $(date) to verify Docker watch mode
+// SECOND TEST: Modified at $(date) to check if hot reload works
+// NODEMON HOT RELOAD TEST: Modified at $(date) to verify nodemon watch mode
+// DATA CLEANING VERIFICATION TEST: Modified at $(date) to test nodemon hot reload after marketing-strategy.service.ts update
+// DATA CLEANING ENHANCED: Modified at $(date) to add number extraction from Chinese text

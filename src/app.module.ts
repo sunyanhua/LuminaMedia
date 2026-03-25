@@ -49,6 +49,12 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
           configService.get('TYPEORM_SYNCHRONIZE', 'false') === 'true',
         logging: configService.get('TYPEORM_LOGGING', 'true') === 'true',
         charset: 'utf8mb4',
+        extra: {
+          charset: 'utf8mb4',
+          init: (connection) => {
+            connection.query("SET NAMES utf8mb4");
+          },
+        },
       }),
     }),
     DataAnalyticsModule,
