@@ -71,7 +71,7 @@ describe('AuthService', () => {
 
       const result = await authService.validateUser('testuser', 'password');
       expect(userRepository.findOne).toHaveBeenCalledWith({
-        where: { username: 'testuser' },
+        where: { username: 'testuser', tenantId: 'default-tenant' },
         select: ['id', 'username', 'passwordHash', 'email', 'tenantId'],
       });
       expect(bcrypt.compare).toHaveBeenCalledWith('password', 'hashedPassword');
@@ -179,8 +179,13 @@ describe('AuthService', () => {
         .mockReturnValueOnce('refresh-token');
 
       const result = await authService.register(registerDto);
-      expect(userRepository.findOne).toHaveBeenCalledWith({
-        where: [{ username: 'newuser' }, { email: 'new@example.com' }],
+      // 应该调用两次findOne：一次检查用户名，一次检查邮箱
+      expect(userRepository.findOne).toHaveBeenCalledTimes(2);
+      expect(userRepository.findOne).toHaveBeenNthCalledWith(1, {
+        where: { username: 'newuser', tenantId: 'tenant-id' },
+      });
+      expect(userRepository.findOne).toHaveBeenNthCalledWith(2, {
+        where: { email: 'new@example.com', tenantId: 'tenant-id' },
       });
       expect(bcrypt.genSalt).toHaveBeenCalled();
       expect(bcrypt.hash).toHaveBeenCalledWith('password', 'salt');
@@ -264,7 +269,7 @@ describe('AuthService', () => {
       const result = await authService.refreshToken(refreshTokenDto);
       expect(jwtService.verify).toHaveBeenCalledWith('valid-refresh-token');
       expect(userRepository.findOne).toHaveBeenCalledWith({
-        where: { id: 'user-id' },
+        where: { id: 'user-id', tenantId: 'tenant-id' },
         select: ['id', 'username', 'email', 'tenantId'],
       });
       expect(jwtService.sign).toHaveBeenCalledWith({
@@ -321,7 +326,7 @@ describe('AuthService', () => {
       (userRepository.findOne as jest.Mock).mockResolvedValue(mockUser);
       const result = await authService.getProfile('user-id');
       expect(userRepository.findOne).toHaveBeenCalledWith({
-        where: { id: 'user-id' },
+        where: { id: 'user-id', tenantId: 'default-tenant' },
         select: ['id', 'username', 'email', 'tenantId', 'createdAt'],
       });
       expect(result).toEqual(mockUser);

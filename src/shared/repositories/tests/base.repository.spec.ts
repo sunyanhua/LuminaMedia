@@ -100,6 +100,8 @@ describe('BaseRepository', () => {
 
     // 替换logger为spy
     loggerSpy = jest.spyOn(testRepository['logger'], 'debug').mockImplementation(() => {});
+    // 模拟error日志，防止测试输出噪声
+    jest.spyOn(testRepository['logger'], 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {

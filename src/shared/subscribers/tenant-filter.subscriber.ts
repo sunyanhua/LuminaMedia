@@ -26,7 +26,7 @@ export class TenantFilterSubscriber implements EntitySubscriberInterface {
    * 检查实体是否有tenantId属性
    */
   private hasTenantId(entity: any): boolean {
-    return entity && 'tenantId' in entity;
+    return entity ? 'tenantId' in entity : false;
   }
 
   /**

@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
+import { DataImportModule } from './import/data-import.module';
 
 @Module({
-  imports: [],
+  imports: [DataImportModule],
   controllers: [],
   providers: [],
-  exports: [],
+  exports: [DataImportModule],
 })
 export class DataEngineModule {}
