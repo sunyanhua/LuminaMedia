@@ -15,13 +15,19 @@ import { DataImportJob } from './data-import-job.entity';
 import { CustomerSegment } from './customer-segment.entity';
 import { MarketingCampaign } from '../modules/data-analytics/entities/marketing-campaign.entity';
 import { MarketingStrategy } from '../modules/data-analytics/entities/marketing-strategy.entity';
+import { TenantEntity } from '../shared/interfaces/tenant-entity.interface';
+import { CustomerProfileRepository } from '../shared/repositories/customer-profile.repository';
 
-@Entity('customer_profiles')
+@Entity('customer_profiles', { repository: () => CustomerProfileRepository })
 @Index(['userId', 'customerType'])
 @Index(['industry', 'createdAt'])
-export class CustomerProfile {
+@Index(['tenantId'])
+export class CustomerProfile implements TenantEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ name: 'tenant_id', type: 'varchar', length: 36, default: 'default-tenant' })
+  tenantId: string;
 
   @Column({ name: 'user_id', type: 'varchar', length: 36 })
   userId: string;

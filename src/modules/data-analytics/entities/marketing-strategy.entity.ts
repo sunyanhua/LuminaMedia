@@ -19,9 +19,13 @@ import { AIEngine } from '../interfaces/gemini.interface';
 @Index(['customerProfileId'])
 @Index(['strategyType'])
 @Index(['confidenceScore'])
+@Index(['tenantId'])
 export class MarketingStrategy {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ name: 'tenant_id', type: 'varchar', length: 36, default: 'default-tenant' })
+  tenantId: string;
 
   @Column({ name: 'campaign_id', type: 'varchar', length: 36 })
   campaignId: string;

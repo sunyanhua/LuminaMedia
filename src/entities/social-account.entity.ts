@@ -12,9 +12,13 @@ import { Platform } from '../shared/enums/platform.enum';
 import { AccountStatus } from '../shared/enums/account-status.enum';
 
 @Entity('social_accounts')
+@Index(['tenantId'])
 export class SocialAccount {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ name: 'tenant_id', type: 'varchar', length: 36, default: 'default-tenant' })
+  tenantId: string;
 
   @Column({ name: 'user_id' })
   userId: string;

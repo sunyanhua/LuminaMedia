@@ -14,9 +14,13 @@ import { Platform } from '../shared/enums/platform.enum';
 import { GenerationMethod } from '../shared/enums/generation-method.enum';
 
 @Entity('content_drafts')
+@Index(['tenantId'])
 export class ContentDraft {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ name: 'tenant_id', type: 'varchar', length: 36, default: 'default-tenant' })
+  tenantId: string;
 
   @Column({ name: 'user_id' })
   userId: string;

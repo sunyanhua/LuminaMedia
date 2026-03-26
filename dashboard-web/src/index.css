@@ -326,3 +326,132 @@ button:focus-visible {
   border-radius: 0.5rem;
   box-shadow: 0 4px 20px rgba(245, 158, 11, 0.2);
 }
+
+/* ================================ */
+/* 移动优先响应式增强样式 */
+/* ================================ */
+
+/* 触摸目标优化 - WCAG标准最小44×44px */
+.touch-target {
+  min-width: 44px !important;
+  min-height: 44px !important;
+}
+
+/* 移动端字体大小调整 - 小屏幕字体稍大提高可读性 */
+@media (max-width: 374px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 375px) and (max-width: 639px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* 移动端滚动条优化 */
+@media (max-width: 767px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+}
+
+/* 移动端容器优化 - 防止水平溢出 */
+.mobile-container {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* 移动端导航优化 - 汉堡菜单基础样式 */
+.mobile-nav-toggle {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-nav-toggle:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mobile-nav-toggle:active {
+  transform: scale(0.95);
+}
+
+/* 移动端底部导航栏 - 类似微信风格 */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 16px;
+  z-index: 1000;
+}
+
+/* 微信内置浏览器特定优化 */
+@supports (-webkit-overflow-scrolling: touch) {
+  /* iOS Safari和微信浏览器优化 */
+  input, textarea, select {
+    font-size: 16px !important; /* 防止iOS Safari自动缩放 */
+  }
+
+  .ios-touch-fix {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* 375px小手机屏幕特定优化 */
+@media (max-width: 374px) {
+  .xs-hidden {
+    display: none !important;
+  }
+
+  .xs-block {
+    display: block !important;
+  }
+
+  .xs-flex {
+    display: flex !important;
+  }
+
+  .xs-grid {
+    display: grid !important;
+  }
+}
+
+/* 响应式隐藏/显示工具类 */
+@media (max-width: 767px) {
+  .mobile-hidden {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: block !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .desktop-only {
+    display: block !important;
+  }
+
+  .desktop-hidden {
+    display: none !important;
+  }
+}

@@ -1,6 +1,7 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { JwtService } from '@nestjs/jwt';
+import { TenantContextService } from '../../shared/services/tenant-context.service';
 
 export interface TenantRequest extends Request {
   tenantId?: string;
@@ -35,6 +36,12 @@ export class TenantMiddleware implements NestMiddleware {
       req.tenantId = 'default-tenant';
     }
 
-    next();
+    // 4. 设置AsyncLocalStorage上下文
+    TenantContextService.runWithContext(
+      { tenantId: req.tenantId },
+      () => {
+        next();
+      },
+    );
   }
 }

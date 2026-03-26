@@ -79,6 +79,12 @@ export default {
         'accordion-up': 'accordion-up 0.2s ease-out',
       },
       screens: {
+        'xs': '375px', // 小手机屏幕
+        'sm': '640px',
+        'md': '768px',
+        'lg': '1024px',
+        'xl': '1280px',
+        '2xl': '1536px',
         'projector': '1920px', // 投屏模式
         '4k': '3840px', // 4K屏幕
       },

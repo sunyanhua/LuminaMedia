@@ -10,9 +10,13 @@ import { SocialAccount } from './social-account.entity';
 import { TaskStatus } from '../shared/enums/task-status.enum';
 
 @Entity('publish_tasks')
+@Index(['tenantId'])
 export class PublishTask {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ name: 'tenant_id', type: 'varchar', length: 36, default: 'default-tenant' })
+  tenantId: string;
 
   @Column({ name: 'draft_id' })
   draftId: string;
