@@ -44,10 +44,10 @@
     {
       "index": 9,
       "content": "任务4.3：微信端适配测试（JSSDK/兼容性）",
-      "status": "RUNNING"
+      "status": "SUCCESS"
     }
   ],
   "total": 9,
-  "status": "RUNNING",
+  "status": "SUCCESS",
   "created": "2026-03-26 11:38:21"
 }
