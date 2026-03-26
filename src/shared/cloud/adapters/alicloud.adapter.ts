@@ -338,7 +338,7 @@ class AliCloudMessagingService implements MessagingService {
     const messageId = `mns_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     if (options?.delaySeconds) {
-      await new Promise(resolve => setTimeout(resolve, options.delaySeconds * 1000));
+      await new Promise(resolve => setTimeout(resolve, (options.delaySeconds ?? 0) * 1000));
     }
 
     return messageId;

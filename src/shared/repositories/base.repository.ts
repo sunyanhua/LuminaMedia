@@ -1,27 +1,13 @@
-import { Repository, SelectQueryBuilder, DeepPartial, SaveOptions, RemoveOptions } from 'typeorm';
+import { Repository, SelectQueryBuilder, DeepPartial, SaveOptions, RemoveOptions, ObjectLiteral } from 'typeorm';
 import { Logger } from '@nestjs/common';
 
 /**
  * 基础Repository基类
  * 提供CRUD通用操作、异常处理和日志记录
  */
-export abstract class BaseRepository<T> extends Repository<T> {
+export abstract class BaseRepository<T extends ObjectLiteral> extends Repository<T> {
   protected readonly logger = new Logger(this.constructor.name);
 
-  /**
-   * 保存实体（带异常处理和日志）
-   */
-  async save(entity: DeepPartial<T>, options?: SaveOptions): Promise<T> {
-    try {
-      this.logger.debug(`Saving entity: ${JSON.stringify(entity)}`);
-      const result = await super.save(entity, options);
-      this.logger.debug(`Entity saved successfully with id: ${(result as any).id}`);
-      return result;
-    } catch (error) {
-      this.logger.error(`Failed to save entity: ${error.message}`, error.stack);
-      throw this.wrapDatabaseError(error, 'SAVE');
-    }
-  }
 
   /**
    * 批量保存实体
@@ -91,21 +77,6 @@ export abstract class BaseRepository<T> extends Repository<T> {
     }
   }
 
-  /**
-   * 删除实体（带异常处理）
-   */
-  async remove(entity: T, options?: RemoveOptions): Promise<T> {
-    try {
-      const entityId = (entity as any).id;
-      this.logger.debug(`Removing entity with id: ${entityId}`);
-      const result = await super.remove(entity, options);
-      this.logger.debug(`Entity removed successfully: ${entityId}`);
-      return result;
-    } catch (error) {
-      this.logger.error(`Failed to remove entity: ${error.message}`, error.stack);
-      throw this.wrapDatabaseError(error, 'REMOVE');
-    }
-  }
 
   /**
    * 根据ID删除实体
@@ -127,7 +98,7 @@ export abstract class BaseRepository<T> extends Repository<T> {
   async updateById(id: any, partialEntity: DeepPartial<T>): Promise<void> {
     try {
       this.logger.debug(`Updating entity with id: ${id}, data: ${JSON.stringify(partialEntity)}`);
-      const result = await super.update(id, partialEntity);
+      const result = await super.update(id, partialEntity as any);
       this.logger.debug(`Update operation affected ${result.affected} rows`);
     } catch (error) {
       this.logger.error(`Failed to update entity with id ${id}: ${error.message}`, error.stack);

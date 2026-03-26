@@ -102,7 +102,6 @@ export function useGestures(
       const velocity = distance / duration;
 
       if (distance >= swipeThreshold) {
-        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
         let direction: 'left' | 'right' | 'up' | 'down';
 
         if (Math.abs(dx) > Math.abs(dy)) {

@@ -3,7 +3,7 @@
  * 基于Recharts，优化移动端图表显示和交互
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   ResponsiveContainer,
   LineChart,
@@ -30,9 +30,8 @@ import {
 } from 'recharts';
 import { Button, Space, Loading, Empty } from 'antd-mobile';
 import {
-  DownloadOutline,
-  ExpandOutline,
-  RefreshOutline,
+  DownlandOutline as DownloadOutline,
+  RedoOutline as RefreshOutline,
   EyeOutline,
   EyeInvisibleOutline,
 } from 'antd-mobile-icons';

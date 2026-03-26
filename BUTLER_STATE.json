@@ -1,8 +1,6 @@
 {
-  "status": "RUNNING",
-  "task_index": 1,
-  "total_tasks": 5,
-  "current_task": "任务5.1：后端TypeScript编译错误修复（27个TS错误）",
-  "attempt": 1,
-  "last_start": "2026-03-26 14:40:01"
+  "status": "IDLE",
+  "last_result": "SUCCESS",
+  "completed_tasks": 5,
+  "total_tasks": 5
 }

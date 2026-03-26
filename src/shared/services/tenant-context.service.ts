@@ -42,3 +42,5 @@ export class TenantContextService {
     return this.asyncLocalStorage;
   }
 }
+
+export default TenantContextService;

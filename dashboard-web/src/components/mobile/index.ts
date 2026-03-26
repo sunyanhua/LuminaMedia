@@ -19,17 +19,25 @@ export * from './gestures';
 // 类型导出
 export type {
   MobileCardProps,
+} from './MobileCard';
+export type {
   MobileFormProps,
   MobileFormItemProps,
+} from './MobileForm';
+export type {
   MobileTableProps,
   MobileTableColumn,
+} from './MobileTable';
+export type {
   MobileChartProps,
   ChartType,
   ChartSeries,
+} from './MobileChart';
+export type {
   GestureEvent,
   GestureOptions,
   GestureCallbacks,
-} from './';
+} from './gestures';
 
 // 默认导出（按需）
 import MobileCard from './MobileCard';

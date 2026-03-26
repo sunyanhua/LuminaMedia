@@ -25,7 +25,7 @@ export class ShardingService {
       'user_behaviors'
     ];
 
-    const results = [];
+    const results: any[] = [];
     for (const tableName of tables) {
       try {
         const result = await this.partitionTable(tableName);

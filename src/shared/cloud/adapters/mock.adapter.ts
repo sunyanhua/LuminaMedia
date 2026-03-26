@@ -21,7 +21,8 @@ import {
   EventHandler,
   Subscription,
   MigrationResult,
-  PartitionBalanceReport
+  PartitionBalanceReport,
+  PartitionInfo
 } from '../cloud-provider.interface';
 
 /**
@@ -343,7 +344,7 @@ class MockMessagingService implements MessagingService {
 
     // 模拟延迟
     if (options?.delaySeconds) {
-      await new Promise(resolve => setTimeout(resolve, options.delaySeconds * 1000));
+      await new Promise(resolve => setTimeout(resolve, (options.delaySeconds ?? 0) * 1000));
     }
 
     return messageId;

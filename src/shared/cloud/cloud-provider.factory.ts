@@ -26,16 +26,16 @@ export class CloudProviderFactory {
 
     switch (providerType.toLowerCase()) {
       case 'alicloud':
-        const { AliCloudAdapter } = await import('./adapters/alicloud.adapter');
+        const { AliCloudAdapter } = require('./adapters/alicloud.adapter');
         return new AliCloudAdapter();
 
       case 'private':
-        const { PrivateDeployAdapter } = await import('./adapters/private-deploy.adapter');
+        const { PrivateDeployAdapter } = require('./adapters/private-deploy.adapter');
         return new PrivateDeployAdapter();
 
       case 'mock':
       default:
-        const { MockAdapter } = await import('./adapters/mock.adapter');
+        const { MockAdapter } = require('./adapters/mock.adapter');
         return new MockAdapter();
     }
   }
