@@ -22,3 +22,7 @@ lerna-debug.log*
 # temp directory
 .temp
 .tmp
+
+cc_output_*.txt
+BUTLER_STATE.json
+TASK_REPORT.json

@@ -8,13 +8,14 @@ import { User } from '../../../entities/user.entity';
 import { UserRole } from '../../../entities/user-role.entity';
 import { Role } from '../../../entities/role.entity';
 import { Permission } from '../../../entities/permission.entity';
+import { UserRepository } from '../../../shared/repositories/user.repository';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private configService: ConfigService,
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
+    @InjectRepository(UserRepository)
+    private userRepository: UserRepository,
     @InjectRepository(UserRole)
     private userRoleRepository: Repository<UserRole>,
     @InjectRepository(Role)

@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { CustomerProfile } from '../../../entities/customer-profile.entity';
 import { DataImportJob } from '../../../entities/data-import-job.entity';
 import { CustomerSegment } from '../../../entities/customer-segment.entity';
+import { CustomerProfileRepository } from '../../../shared/repositories/customer-profile.repository';
 import { CustomerType } from '../../../shared/enums/customer-type.enum';
 import { Industry } from '../../../shared/enums/industry.enum';
 import { DataImportStatus } from '../../../shared/enums/data-import-status.enum';
@@ -16,8 +17,8 @@ import { SourceType } from '../../../shared/enums/source-type.enum';
 @Injectable()
 export class CustomerProfileService {
   constructor(
-    @InjectRepository(CustomerProfile)
-    private customerProfileRepository: Repository<CustomerProfile>,
+    @InjectRepository(CustomerProfileRepository)
+    private customerProfileRepository: CustomerProfileRepository,
     @InjectRepository(DataImportJob)
     private dataImportJobRepository: Repository<DataImportJob>,
     @InjectRepository(CustomerSegment)

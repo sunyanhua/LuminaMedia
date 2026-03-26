@@ -7,18 +7,22 @@ import { User } from '../../../entities/user.entity';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
+import { UserRepository } from '../../../shared/repositories/user.repository';
+import { TenantContextService } from '../../../shared/services/tenant-context.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
+    @InjectRepository(UserRepository)
+    private userRepository: UserRepository,
     private jwtService: JwtService,
+    private tenantContextService: TenantContextService,
   ) {}
 
   async validateUser(username: string, password: string): Promise<any> {
+    const tenantId = this.tenantContextService.getCurrentTenantId();
     const user = await this.userRepository.findOne({
-      where: { username },
+      where: { username, tenantId },
       select: ['id', 'username', 'passwordHash', 'email', 'tenantId'],
     });
 
@@ -55,13 +59,24 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto) {
-    // 检查用户名是否已存在
+    const tenantId = registerDto.tenantId || this.tenantContextService.getCurrentTenantId();
+
+    // 检查用户名是否已存在（当前租户内）
     const existingUser = await this.userRepository.findOne({
-      where: [{ username: registerDto.username }, { email: registerDto.email }],
+      where: { username: registerDto.username, tenantId },
     });
 
     if (existingUser) {
-      throw new ConflictException('用户名或邮箱已被注册');
+      throw new ConflictException('用户名已存在');
+    }
+
+    // 检查邮箱是否已存在（当前租户内）
+    const existingEmail = await this.userRepository.findOne({
+      where: { email: registerDto.email, tenantId },
+    });
+
+    if (existingEmail) {
+      throw new ConflictException('邮箱已被注册');
     }
 
     // 密码哈希
@@ -73,7 +88,7 @@ export class AuthService {
       username: registerDto.username,
       passwordHash,
       email: registerDto.email,
-      tenantId: registerDto.tenantId || 'default-tenant',
+      tenantId,
     });
 
     const savedUser = await this.userRepository.save(user);
@@ -102,9 +117,9 @@ export class AuthService {
     try {
       const payload = this.jwtService.verify(refreshTokenDto.refresh_token);
 
-      // 检查用户是否存在
+      // 检查用户是否存在且属于正确的租户
       const user = await this.userRepository.findOne({
-        where: { id: payload.sub },
+        where: { id: payload.sub, tenantId: payload.tenantId },
         select: ['id', 'username', 'email', 'tenantId'],
       });
 
@@ -129,8 +144,9 @@ export class AuthService {
   }
 
   async getProfile(userId: string) {
+    const tenantId = this.tenantContextService.getCurrentTenantId();
     const user = await this.userRepository.findOne({
-      where: { id: userId },
+      where: { id: userId, tenantId },
       select: ['id', 'username', 'email', 'tenantId', 'createdAt'],
     });
 
