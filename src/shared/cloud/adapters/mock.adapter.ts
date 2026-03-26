@@ -376,7 +376,12 @@ class MockMessagingService implements MessagingService {
 
     // 异步调用所有处理程序
     for (const handler of handlers) {
-      setTimeout(() => handler(event).catch(console.error), 0);
+      setTimeout(() => {
+        const result = handler(event);
+        if (result && typeof result.catch === 'function') {
+          result.catch(console.error);
+        }
+      }, 0);
     }
   }
 

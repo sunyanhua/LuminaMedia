@@ -36,7 +36,8 @@
       "Bash(npx tsc:*)",
       "Bash(npm test:*)",
       "Bash(npx jest:*)",
-      "Bash(grep -r \"JWT_SECRET\\\\|JWT_EXPIRES_IN\" D:GitHubLuminaMediasrc --include=*.ts)"
+      "Bash(grep -r \"JWT_SECRET\\\\|JWT_EXPIRES_IN\" D:GitHubLuminaMediasrc --include=*.ts)",
+      "Bash(grep -r \"getCloudProvider\\\\|getStorageService\\\\|getAIService\" /d/GitHub/LuminaMedia/src --include=*.ts --include=*.js)"
     ]
   }
 }

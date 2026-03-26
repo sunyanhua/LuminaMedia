@@ -14,7 +14,7 @@ class TestEntity implements ObjectLiteral {
 // 具体的测试Repository
 class TestRepository extends BaseRepository<TestEntity> {}
 
-describe.skip('BaseRepository', () => {
+describe('BaseRepository', () => {
   let testRepository: TestRepository;
   let mockTypeOrmRepository: Repository<TestEntity>;
   let mockQueryBuilder: Partial<SelectQueryBuilder<TestEntity>>;
@@ -44,6 +44,13 @@ describe.skip('BaseRepository', () => {
       count: jest.fn(),
       createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
       manager: {
+        save: jest.fn(),
+        find: jest.fn(),
+        findOne: jest.fn(),
+        delete: jest.fn(),
+        update: jest.fn(),
+        count: jest.fn(),
+        createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
         connection: {
           createQueryRunner: jest.fn(() => ({
             connect: jest.fn(),
@@ -79,6 +86,18 @@ describe.skip('BaseRepository', () => {
     }).compile();
 
     testRepository = module.get<TestRepository>(TestRepository);
+
+    // 关键修复：手动设置TestRepository的manager和metadata属性，使其使用我们的模拟值
+    // 由于TypeORM的Repository内部使用这些属性，我们需要确保它们被正确设置
+    Object.defineProperty(testRepository, 'manager', {
+      get: () => mockTypeOrmRepository.manager,
+      configurable: true,
+    });
+    Object.defineProperty(testRepository, 'metadata', {
+      get: () => mockTypeOrmRepository.metadata,
+      configurable: true,
+    });
+
     // 替换logger为spy
     loggerSpy = jest.spyOn(testRepository['logger'], 'debug').mockImplementation(() => {});
   });
@@ -97,10 +116,12 @@ describe.skip('BaseRepository', () => {
         { id: 'id1', name: 'Entity1', tenantId: 'tenant1' },
         { id: 'id2', name: 'Entity2', tenantId: 'tenant1' },
       ];
-      (mockTypeOrmRepository.save as jest.Mock).mockResolvedValue(savedEntities);
+      // 模拟manager.save，因为Repository.save会调用this.manager.save
+      (mockTypeOrmRepository.manager.save as jest.Mock).mockResolvedValue(savedEntities);
 
       const result = await testRepository.saveMany(entities);
-      expect(mockTypeOrmRepository.save).toHaveBeenCalledWith(entities, undefined);
+      // Repository.save调用this.manager.save，所以我们期望manager.save被调用
+      expect(mockTypeOrmRepository.manager.save).toHaveBeenCalledWith(TestEntity, entities, undefined);
       expect(loggerSpy).toHaveBeenCalledWith('Saving 2 entities');
       expect(loggerSpy).toHaveBeenCalledWith('Successfully saved 2 entities');
       expect(result).toEqual(savedEntities);
@@ -109,7 +130,7 @@ describe.skip('BaseRepository', () => {
     it('should wrap database errors', async () => {
       const entities: DeepPartial<TestEntity>[] = [{ name: 'Entity1' }];
       const dbError = new Error('Database error');
-      (mockTypeOrmRepository.save as jest.Mock).mockRejectedValue(dbError);
+      (mockTypeOrmRepository.manager.save as jest.Mock).mockRejectedValue(dbError);
       await expect(testRepository.saveMany(entities)).rejects.toThrow('Database error');
     });
   });
@@ -120,10 +141,10 @@ describe.skip('BaseRepository', () => {
       const foundEntities = [
         { id: 'id1', name: 'Entity1', tenantId: 'tenant1' },
       ];
-      (mockTypeOrmRepository.find as jest.Mock).mockResolvedValue(foundEntities);
+      (mockTypeOrmRepository.manager.find as jest.Mock).mockResolvedValue(foundEntities);
 
       const result = await testRepository.find(options);
-      expect(mockTypeOrmRepository.find).toHaveBeenCalledWith(options);
+      expect(mockTypeOrmRepository.manager.find).toHaveBeenCalledWith(TestEntity, options);
       expect(loggerSpy).toHaveBeenCalledWith('Finding entities with options: {"where":{"tenantId":"tenant1"}}');
       expect(loggerSpy).toHaveBeenCalledWith('Found 1 entities');
       expect(result).toEqual(foundEntities);
@@ -133,17 +154,17 @@ describe.skip('BaseRepository', () => {
   describe('findById', () => {
     it('should find entity by id', async () => {
       const entity = { id: 'test-id', name: 'Test Entity', tenantId: 'tenant1' };
-      (mockTypeOrmRepository.findOne as jest.Mock).mockResolvedValue(entity);
+      (mockTypeOrmRepository.manager.findOne as jest.Mock).mockResolvedValue(entity);
 
       const result = await testRepository.findById('test-id');
-      expect(mockTypeOrmRepository.findOne).toHaveBeenCalledWith({ where: { id: 'test-id' } });
+      expect(mockTypeOrmRepository.manager.findOne).toHaveBeenCalledWith(TestEntity, { where: { id: 'test-id' } });
       expect(loggerSpy).toHaveBeenCalledWith('Finding entity by id: test-id');
       expect(loggerSpy).toHaveBeenCalledWith('Entity found with id: test-id');
       expect(result).toEqual(entity);
     });
 
     it('should return null when entity not found', async () => {
-      (mockTypeOrmRepository.findOne as jest.Mock).mockResolvedValue(null);
+      (mockTypeOrmRepository.manager.findOne as jest.Mock).mockResolvedValue(null);
       const result = await testRepository.findById('non-existent-id');
       expect(result).toBeNull();
       expect(loggerSpy).toHaveBeenCalledWith('Entity not found with id: non-existent-id');
@@ -154,10 +175,10 @@ describe.skip('BaseRepository', () => {
     it('should find one entity with options', async () => {
       const options = { where: { name: 'Test', tenantId: 'tenant1' } };
       const entity = { id: 'id1', name: 'Test', tenantId: 'tenant1' };
-      (mockTypeOrmRepository.findOne as jest.Mock).mockResolvedValue(entity);
+      (mockTypeOrmRepository.manager.findOne as jest.Mock).mockResolvedValue(entity);
 
       const result = await testRepository.findOne(options);
-      expect(mockTypeOrmRepository.findOne).toHaveBeenCalledWith(options);
+      expect(mockTypeOrmRepository.manager.findOne).toHaveBeenCalledWith(TestEntity, options);
       expect(result).toEqual(entity);
     });
   });
@@ -165,10 +186,10 @@ describe.skip('BaseRepository', () => {
   describe('deleteById', () => {
     it('should delete entity by id', async () => {
       const deleteResult = { affected: 1, raw: [] };
-      (mockTypeOrmRepository.delete as jest.Mock).mockResolvedValue(deleteResult);
+      (mockTypeOrmRepository.manager.delete as jest.Mock).mockResolvedValue(deleteResult);
 
       await testRepository.deleteById('test-id');
-      expect(mockTypeOrmRepository.delete).toHaveBeenCalledWith('test-id');
+      expect(mockTypeOrmRepository.manager.delete).toHaveBeenCalledWith(TestEntity, 'test-id');
       expect(loggerSpy).toHaveBeenCalledWith('Delete operation affected 1 rows');
     });
   });
@@ -177,10 +198,10 @@ describe.skip('BaseRepository', () => {
     it('should update entity by id', async () => {
       const updateResult = { affected: 1, raw: [] };
       const partialEntity = { name: 'Updated Name' };
-      (mockTypeOrmRepository.update as jest.Mock).mockResolvedValue(updateResult);
+      (mockTypeOrmRepository.manager.update as jest.Mock).mockResolvedValue(updateResult);
 
       await testRepository.updateById('test-id', partialEntity);
-      expect(mockTypeOrmRepository.update).toHaveBeenCalledWith('test-id', partialEntity);
+      expect(mockTypeOrmRepository.manager.update).toHaveBeenCalledWith(TestEntity, 'test-id', partialEntity);
       expect(loggerSpy).toHaveBeenCalledWith('Update operation affected 1 rows');
     });
   });
@@ -188,9 +209,9 @@ describe.skip('BaseRepository', () => {
   describe('count', () => {
     it('should count entities with options', async () => {
       const options = { where: { tenantId: 'tenant1' } };
-      (mockTypeOrmRepository.count as jest.Mock).mockResolvedValue(5);
+      (mockTypeOrmRepository.manager.count as jest.Mock).mockResolvedValue(5);
       const result = await testRepository.count(options);
-      expect(mockTypeOrmRepository.count).toHaveBeenCalledWith(options);
+      expect(mockTypeOrmRepository.manager.count).toHaveBeenCalledWith(TestEntity, options);
       expect(loggerSpy).toHaveBeenCalledWith('Count result: 5');
       expect(result).toBe(5);
     });
@@ -216,9 +237,9 @@ describe.skip('BaseRepository', () => {
   describe('createQueryBuilder', () => {
     it('should create query builder with alias', () => {
       const alias = 'test';
-      (mockTypeOrmRepository.createQueryBuilder as jest.Mock).mockReturnValue(mockQueryBuilder);
+      (mockTypeOrmRepository.manager.createQueryBuilder as jest.Mock).mockReturnValue(mockQueryBuilder);
       const result = testRepository.createQueryBuilder(alias);
-      expect(mockTypeOrmRepository.createQueryBuilder).toHaveBeenCalledWith(alias);
+      expect(mockTypeOrmRepository.manager.createQueryBuilder).toHaveBeenCalledWith(TestEntity, alias, undefined);
       expect(result).toBe(mockQueryBuilder);
     });
   });

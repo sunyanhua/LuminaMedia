@@ -17,6 +17,5 @@ backend/__pycache__/
 .openclaw/
 .pm2/
 cc_output_*.txt
-TASK_REPORT.json
 BUTLER_STATE.json
 HISTORY.md
