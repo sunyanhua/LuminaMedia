@@ -21,7 +21,8 @@ import {
   EventHandler,
   Subscription,
   MigrationResult,
-  PartitionBalanceReport
+  PartitionBalanceReport,
+  PartitionInfo
 } from '../cloud-provider.interface';
 
 /**

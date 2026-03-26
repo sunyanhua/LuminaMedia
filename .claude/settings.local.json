@@ -32,7 +32,8 @@
       "Bash(npm view:*)",
       "Bash(npm list:*)",
       "Bash(docker exec:*)",
-      "Bash(docker-compose stop:*)"
+      "Bash(docker-compose stop:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

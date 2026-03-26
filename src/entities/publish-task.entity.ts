@@ -4,6 +4,7 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { ContentDraft } from './content-draft.entity';
 import { SocialAccount } from './social-account.entity';

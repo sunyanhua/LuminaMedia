@@ -18,7 +18,7 @@ import { MarketingStrategy } from '../modules/data-analytics/entities/marketing-
 import { TenantEntity } from '../shared/interfaces/tenant-entity.interface';
 import { CustomerProfileRepository } from '../shared/repositories/customer-profile.repository';
 
-@Entity('customer_profiles', { repository: () => CustomerProfileRepository })
+@Entity('customer_profiles')
 @Index(['userId', 'customerType'])
 @Index(['industry', 'createdAt'])
 @Index(['tenantId'])

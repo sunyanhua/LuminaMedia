@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { User } from '../../../entities/user.entity';
 import { UserRole } from '../../../entities/user-role.entity';
 import { Role } from '../../../entities/role.entity';
@@ -45,12 +45,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     const roleIds = userRoles.map((ur) => ur.roleId);
     const roles = await this.roleRepository.find({
-      where: { id: roleIds },
+      where: { id: In(roleIds) },
       relations: ['permissions'],
     });
 
     // 提取所有权限
-    const permissions = [];
+    const permissions: Array<{ id: string; module: string; action: string }> = [];
     roles.forEach((role) => {
       if (role.permissions) {
         role.permissions.forEach((permission) => {
