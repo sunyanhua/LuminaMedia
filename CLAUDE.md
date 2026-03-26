@@ -4,75 +4,72 @@
 
 ## 项目概述
 
-LuminaMedia (智媒) 是一个 AI 驱动的内容营销平台 DEMO 项目。该平台帮助企业导入客户数据，使用 AI 分析生成用户画像和洞察，并创建带有生成内容的营销策略。
+LuminaMedia 2.0 (灵曜智媒) 是一个基于AI驱动的企业级内容营销平台，采用模块化单体架构，为企事业单位提供完整的宣传营销解决方案。平台分为商务版和政务版，支持SaaS多租户模式和私有化部署。
 
 ### 项目结构
 ```
 LuminaMedia/
-├── src/                      # NestJS 后端
-├── dashboard-web/           # React 前端（数据可视化）
-├── docs/                    # 文档
-├── scripts/                 # 工具脚本
-└── CLAUDE.md               # 本文件
+├── src/                    # NestJS后端源代码（模块化单体架构）
+│   ├── modules/           # 功能模块目录
+│   │   ├── auth/         # 认证授权模块
+│   │   ├── data-engine/  # 智能数据引擎模块
+│   │   ├── ai-engine/    # AI工作流引擎模块
+│   │   ├── publish/      # 发布模块
+│   │   └── knowledge/    # 知识库模块
+│   ├── entities/         # 数据库实体
+│   ├── shared/           # 共享代码（CloudProvider、Repository等）
+│   └── config/           # 配置管理
+├── dashboard-web/         # 前端Dashboard (React + Mobile-First)
+├── tasks/                # 2.0实施任务清单（分阶段详细规划）
+├── scripts/              # 数据库脚本和工具
+├── docs/                 # 项目文档
+├── docker-compose.yml    # Docker编排配置
+├── Dockerfile.backend    # 后端Dockerfile
+└── CLAUDE.md            # 本文件
 ```
 
-### 核心技术
-- **后端**: NestJS (Node.js), TypeScript, TypeORM
-- **前端**: React, TypeScript, ECharts, Ant Design
-- **数据库**: MySQL
-- **AI 服务**: Gemini API (Google)
-- **容器化**: Docker, Docker Compose
+### 核心技术（2.0版本）
+- **架构模式**: 模块化单体（Modular Monolith），严格模块隔离
+- **后端框架**: NestJS + TypeScript + TypeORM
+- **前端框架**: React + Vite + TypeScript + Ant Design Mobile（Mobile-First）
+- **数据库**: MySQL 8.0 + 多租户tenant_id隔离 + 分表策略
+- **AI技术栈**:
+  - AI Agent工作流（分析→策划→文案三阶段）
+  - RAG知识库 + 向量数据库
+  - 云端AI: Google Gemini 2.5 + 阿里云百炼(Qwen)
+  - 本地AI: Docker一键拉起Qwen-7B本地模型
+- **云服务抽象**: CloudProvider接口，支持一键切换阿里云SaaS ↔ 私有化部署
+- **容器化**: Docker + Docker Compose + Kubernetes生产部署
+- **监控运维**: Prometheus + Grafana + ELK日志聚合
 
 ---
 
-## 🤖 协作工作流
+### 2.0重构执行机制
+1. **管家派送任务流程**：
+   - 管家根据 `PROGRESS.md` 中的2.0重构工作计划，按阶段顺序调用CC执行具体任务
+   - CC收到任务后，需首先读取对应阶段的任务清单文件（`tasks/phase-*.md`），明确具体任务要求
+   - 执行任务前，需确认任务在任务清单文件中的准确位置和描述
 
-- **核心模式**：本项目采用“人工规划 + 自动化执行”的双轨制。
+2. **任务执行和状态更新**：
+   - 每完成一个任务，必须在对应的任务清单文件中标注“✅ 已完成”状态及完成时间戳
+   - 任务状态更新格式：`- ✅ **2026-03-26**: 任务描述（实际完成时间）`
+   - 大阶段（里程碑）完成后，需在 `PROGRESS.md` 中标注“✅ 已完成”状态及完成时间
 
-- **Plan Mode 规范**：
-  1. 当老孙在 VS Code 终端使用**plan mode**探讨计划时，最终目标是更新 `PROGRESS.md`。
-  2. **禁止自动执行代码修改**：计划确认后，CC 必须将步骤详细写入 `PROGRESS.md`，并按照格式修改“项目概览”与“更新记录”内容。
-  3. **主动结案**：文档更新完成后，CC 应提示：“计划已归档至 PROGRESS.md，老孙请按 Ctrl+C 退出并指派管家进场。” 
+3. **进度文档更新规范**：
+   - `PROGRESS.md` 的更新仅限于以下情况：
+     1. **状态概览更新**：项目状态、当前阶段、最新进展
+     2. **各阶段完成状态更新**：阶段完成后标记完成状态
+     3. **执行过程中出现的重大问题或调整**：需要记录的重大变更
+   - **禁止**在 `PROGRESS.md` 中记录日常任务完成细节，这些细节应保留在任务清单文件中
 
-- **Butler 执行规范**：
-  1. 真正的代码修改由 `project_butler.py` 调用非交互式 CC 完成。
-  2. 每次被管家唤起时，CC 必须优先读取 `PROGRESS.md` 里的当前计划。
+4. **任务清单文件维护**：
+   - 每个阶段的任务清单文件（`tasks/phase-*.md`）是任务执行的唯一依据
+   - 任务清单中的任务分解必须足够详细，确保管家安排实施时无误解
+   - 任务完成后及时更新状态，保持清单与实际进度同步
 
 - **单步执行原则**：在非交互式自动化（Butler）模式下，CC 必须严格遵守“一个进程只处理一个 Step”的规矩。
 - **强制退出机制**：完成指定 Step 后的第一动作是更新进度文档，第二动作是立即终止会话，严禁跨步执行。
 
-
-## 开发规则
-
-### ⚠️ 重要：进度文档
-
-**完成任何任务后，必须更新 PROGRESS.md：**
-
-1. 添加新章节或更新现有章节，包含：
-   - 任务描述
-   - 完成状态（✅ 完成 / 🔄 进行中）
-   - 完成时间戳
-   - 关键变更或发现
-
-2. 更新 PROGRESS.md 顶部的“最新进展”部分，只保留最近的5条即可
-
-3. **自动归档**: 每当一个大项（包含多个子任务）全部标记为完成后，必须执行： PROGRESS.md 中仅保留该大项的“更新记录”即可，并更新“项目状态概览”，将其他本次所有已完成的内容记录移动至 HISTORY.md
-
-### 代码质量标准
-- 使用 TypeScript 严格模式
-- 遵循 NestJS 模块规范
-- 为公共 API 添加 JSDoc 注释
-- 提交前运行 lint：`npm run lint`
-
-### Git 提交消息
-遵循约定式提交：
-- `feat:` 新功能
-- `fix:` 错误修复
-- `docs:` 文档变更
-- `refactor:` 代码重构
-- `test:` 测试相关变更
-
----
 
 ## 开发环境
 
@@ -96,10 +93,6 @@ LuminaMedia/
    - 执行 `docker-compose build --no-cache dashboard` 重新构建前端镜像
    - 然后执行 `docker-compose up -d` 重启容器
 
-### 📝 环境变量管理
-- 所有环境变量在 `.env` 文件中配置，通过 `docker-compose.yml` 注入容器
-- 修改环境变量后，需要重启相关容器：`docker-compose up -d --build [服务名]`
-
 ### API 文档
 - Swagger UI: http://localhost:3003/api/docs
 - 健康检查: http://localhost:3003/health
@@ -118,14 +111,21 @@ LuminaMedia/
 
 ## 当前项目状态
 
-**最新完成任务 (2026-03-22):**
-- ✅ 一键演示串联测试前后端联调
-- ✅ 数据可视化完善增加图表类型
-- ✅ 一键重置功能 /demo/reset 接口
-- ✅ Docker 部署配置 docker-compose 更新
-- ✅ DEMO 文档编写
+**项目阶段**: LuminaMedia 2.0 重构实施准备阶段
+**当前版本**: v15.0 (2.0重构方案设计完成)
 
-**当前重点:** DEMO 功能完善与部署
+**最新完成任务 (2026-03-26):**
+- ✅ 2.0重构分析报告完成，架构方案确定
+- ✅ 详细分阶段任务清单制定完成
+- ✅ README.md全量更新为2.0版本内容
+- ✅ 2.0重构执行机制和管家工作规范建立
+
+**当前重点**: 准备开始第一阶段实施（基础架构升级）
+
+**重要文档更新**:
+- [PROGRESS.md](../PROGRESS.md) - 2.0重构实施进度计划
+- [tasks/](../tasks/) - 分阶段详细任务清单
+- [README.md](../README.md) - 项目全量文档更新
 
 ---
 
