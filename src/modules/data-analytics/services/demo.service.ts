@@ -20,6 +20,7 @@ import { CampaignType } from '../../../shared/enums/campaign-type.enum';
 import { CampaignStatus } from '../../../shared/enums/campaign-status.enum';
 import { StrategyType } from '../../../shared/enums/strategy-type.enum';
 import { GenerationMethod } from '../../../shared/enums/generation-method.enum';
+import { UserBehaviorEvent } from '../../../shared/enums/user-behavior-event.enum';
 import { CustomerType } from '../../../shared/enums/customer-type.enum';
 import { Industry } from '../../../shared/enums/industry.enum';
 
@@ -38,20 +39,21 @@ export class DemoService {
   private readonly logger = new Logger(DemoService.name);
 
   constructor(
-    @InjectRepository(CustomerProfile)
-    private customerProfileRepository: Repository<CustomerProfile>,
-    @InjectRepository(CustomerSegment)
-    private customerSegmentRepository: Repository<CustomerSegment>,
-    @InjectRepository(DataImportJob)
-    private dataImportJobRepository: Repository<DataImportJob>,
-    @InjectRepository(MarketingCampaign)
-    private marketingCampaignRepository: Repository<MarketingCampaign>,
-    @InjectRepository(MarketingStrategy)
-    private marketingStrategyRepository: Repository<MarketingStrategy>,
-    @InjectRepository(UserBehavior)
-    private userBehaviorRepository: Repository<UserBehavior>,
+    @InjectRepository(CustomerProfileRepository)
+    private customerProfileRepository: CustomerProfileRepository,
+    @InjectRepository(CustomerSegmentRepository)
+    private customerSegmentRepository: CustomerSegmentRepository,
+    @InjectRepository(DataImportJobRepository)
+    private dataImportJobRepository: DataImportJobRepository,
+    @InjectRepository(MarketingCampaignRepository)
+    private marketingCampaignRepository: MarketingCampaignRepository,
+    @InjectRepository(MarketingStrategyRepository)
+    private marketingStrategyRepository: MarketingStrategyRepository,
+    @InjectRepository(UserBehaviorRepository)
+    private userBehaviorRepository: UserBehaviorRepository,
     private readonly contentGenerationService: ContentGenerationService,
     private readonly marketingStrategyService: MarketingStrategyService,
+    private readonly tenantContextService: TenantContextService,
   ) {}
 
   /**
@@ -112,10 +114,13 @@ export class DemoService {
   private async createDemoCustomerProfile(
     userId: string,
   ): Promise<CustomerProfile> {
+    const tenantId = this.tenantContextService.getCurrentTenantId();
+
     const profileData: Partial<CustomerProfile> = {
       customerName: '商场顾客数据',
       customerType: CustomerType.INDIVIDUAL,
       industry: Industry.RETAIL,
+      tenantId,
       dataSources: [
         {
           type: 'CSV',
@@ -244,6 +249,7 @@ export class DemoService {
   private async createDemoSegments(
     customerProfileId: string,
   ): Promise<CustomerSegment[]> {
+    const tenantId = this.tenantContextService.getCurrentTenantId();
     const segmentsData = [
       {
         segmentName: '高价值VIP客户',
@@ -438,6 +444,7 @@ export class DemoService {
     const segments = segmentsData.map((data) => {
       return this.customerSegmentRepository.create({
         customerProfileId,
+        tenantId,
         segmentName: data.segmentName,
         description: data.description,
         criteria: data.criteria,
@@ -456,7 +463,9 @@ export class DemoService {
     userId: string,
     customerProfileId: string,
   ): Promise<MarketingCampaign> {
+    const tenantId = this.tenantContextService.getCurrentTenantId();
     const campaignData: Partial<MarketingCampaign> = {
+      tenantId,
       userId,
       customerProfileId,
       name: '商场春季焕新购物节',
@@ -549,7 +558,9 @@ export class DemoService {
     campaignId: string,
     strategyType: StrategyType,
   ): Promise<MarketingStrategy> {
+    const tenantId = this.tenantContextService.getCurrentTenantId();
     const strategyData: Partial<MarketingStrategy> = {
+      tenantId,
       campaignId,
       strategyType,
       description: `演示用的${strategyType}策略`,
@@ -662,17 +673,19 @@ export class DemoService {
   ): Promise<{ deleted: number }> {
     this.logger.log(`Resetting demo data for user: ${userId}`);
 
+    const tenantId = this.tenantContextService.getCurrentTenantId();
+
     let deleted = 0;
 
     // 先获取客户档案，以便后续使用
     const profiles = await this.customerProfileRepository.find({
-      where: { userId },
+      where: { userId, tenantId },
     });
     const profileIds = profiles.length > 0 ? profiles.map((p) => p.id) : [];
 
     // 1. 删除用户行为数据
     const userBehaviors = await this.userBehaviorRepository.find({
-      where: { userId },
+      where: { userId, tenantId },
     });
     deleted += userBehaviors.length;
     if (userBehaviors.length > 0) {
@@ -681,7 +694,7 @@ export class DemoService {
 
     // 2. 删除演示活动（级联删除策略）
     const campaigns = await this.marketingCampaignRepository.find({
-      where: { userId },
+      where: { userId, tenantId },
     });
     deleted += campaigns.length;
     await this.marketingCampaignRepository.remove(campaigns);
@@ -690,7 +703,7 @@ export class DemoService {
     const segments = await this.customerSegmentRepository
       .createQueryBuilder('segment')
       .innerJoin('segment.customerProfile', 'profile')
-      .where('profile.userId = :userId', { userId })
+      .where('profile.userId = :userId AND profile.tenantId = :tenantId', { userId, tenantId })
       .getMany();
     deleted += segments.length;
     await this.customerSegmentRepository.remove(segments);
@@ -700,8 +713,8 @@ export class DemoService {
       const orphanStrategies = await this.marketingStrategyRepository
         .createQueryBuilder('strategy')
         .where(
-          'strategy.campaignId IS NULL AND strategy.customerProfileId IN (:...profileIds)',
-          { profileIds },
+          'strategy.campaignId IS NULL AND strategy.customerProfileId IN (:...profileIds) AND strategy.tenantId = :tenantId',
+          { profileIds, tenantId },
         )
         .getMany();
       deleted += orphanStrategies.length;
@@ -714,7 +727,7 @@ export class DemoService {
     if (profileIds.length > 0) {
       const importJobs = await this.dataImportJobRepository
         .createQueryBuilder('job')
-        .where('job.customerProfileId IN (:...profileIds)', { profileIds })
+        .where('job.customerProfileId IN (:...profileIds) AND job.tenantId = :tenantId', { profileIds, tenantId })
         .getMany();
       deleted += importJobs.length;
       if (importJobs.length > 0) {
@@ -754,20 +767,22 @@ export class DemoService {
     }>;
   }> {
     try {
+      const tenantId = this.tenantContextService.getCurrentTenantId();
+
       // 查询用户创建的演示数据
       const profiles = await this.customerProfileRepository.count({
-        where: { userId },
+        where: { userId, tenantId },
       });
       const campaigns = await this.marketingCampaignRepository.count({
-        where: { userId },
+        where: { userId, tenantId },
       });
       const strategies = await this.marketingStrategyRepository.count({
-        where: { campaign: { userId } },
+        where: { campaign: { userId, tenantId } },
       });
       const segments = await this.customerSegmentRepository
         .createQueryBuilder('segment')
         .innerJoin('segment.customerProfile', 'profile')
-        .where('profile.userId = :userId', { userId })
+        .where('profile.userId = :userId AND profile.tenantId = :tenantId', { userId, tenantId })
         .getCount();
 
       // 计算进度
@@ -900,9 +915,11 @@ export class DemoService {
     };
   }> {
     try {
+      const tenantId = this.tenantContextService.getCurrentTenantId();
+
       // 查询演示数据
       const profile = await this.customerProfileRepository.findOne({
-        where: { userId },
+        where: { userId, tenantId },
         order: { createdAt: 'DESC' },
       });
 
@@ -912,18 +929,18 @@ export class DemoService {
 
       if (profile) {
         segments = await this.customerSegmentRepository.find({
-          where: { customerProfileId: profile.id },
+          where: { customerProfileId: profile.id, tenantId },
           take: 5,
         });
 
         campaign = await this.marketingCampaignRepository.findOne({
-          where: { userId, customerProfileId: profile.id },
+          where: { userId, customerProfileId: profile.id, tenantId },
           order: { createdAt: 'DESC' },
         });
 
         if (campaign) {
           strategies = await this.marketingStrategyRepository.find({
-            where: { campaignId: campaign.id },
+            where: { campaignId: campaign.id, tenantId },
             take: 10,
           });
         }
@@ -1326,8 +1343,9 @@ export class DemoService {
       const nextStep: number | undefined = step < 6 ? step + 1 : undefined;
 
       // 获取或创建客户档案（用于后续步骤）
+      const tenantId = this.tenantContextService.getCurrentTenantId();
       let customerProfile = await this.customerProfileRepository.findOne({
-        where: { userId },
+        where: { userId, tenantId },
         order: { createdAt: 'DESC' },
       });
 
@@ -1405,7 +1423,7 @@ export class DemoService {
           // 获取最近的活动
           const campaignForStrategies =
             await this.marketingCampaignRepository.findOne({
-              where: { userId, customerProfileId: customerProfile.id },
+              where: { userId, customerProfileId: customerProfile.id, tenantId },
               order: { createdAt: 'DESC' },
             });
           if (!campaignForStrategies) {
@@ -1437,7 +1455,7 @@ export class DemoService {
           // 获取最近的活动和策略
           const campaignForContent =
             await this.marketingCampaignRepository.findOne({
-              where: { userId, customerProfileId: customerProfile.id },
+              where: { userId, customerProfileId: customerProfile.id, tenantId },
               order: { createdAt: 'DESC' },
             });
           if (!campaignForContent) {
@@ -1451,7 +1469,7 @@ export class DemoService {
           }
           const strategiesForContent =
             await this.marketingStrategyRepository.find({
-              where: { campaignId: campaignForContent.id },
+              where: { campaignId: campaignForContent.id, tenantId },
               take: 1,
             });
           if (strategiesForContent.length === 0) {
@@ -1483,24 +1501,25 @@ export class DemoService {
           };
       }
 
-      // 记录用户行为（暂时注释掉，因为TypeScript编译错误）
-      // try {
-      //   const userBehavior = this.userBehaviorRepository.create({
-      //     userId,
-      //     eventType: 'CAMPAIGN_CREATE', // 使用现有枚举值
-      //     details: {
-      //       step,
-      //       stepName: stepDef.name,
-      //       result: result ? (typeof result === 'object' ? { ...result } : result) : null,
-      //       timestamp: new Date().toISOString(),
-      //     },
-      //     timestamp: new Date(),
-      //     sessionId: `demo-session-${userId}`,
-      //   });
-      //   await this.userBehaviorRepository.save(userBehavior);
-      // } catch (behaviorError) {
-      //   this.logger.warn(`Failed to log user behavior: ${behaviorError.message}`);
-      // }
+      // 记录用户行为
+      try {
+        const userBehavior = this.userBehaviorRepository.create({
+          userId,
+          tenantId,
+          eventType: UserBehaviorEvent.CAMPAIGN_CREATE, // 使用现有枚举值
+          eventData: {
+            step,
+            stepName: stepDef.name,
+            result: result ? (typeof result === 'object' ? { ...result } : result) : null,
+            timestamp: new Date().toISOString(),
+          },
+          timestamp: new Date(),
+          sessionId: `demo-session-${userId}`,
+        });
+        await this.userBehaviorRepository.save(userBehavior);
+      } catch (behaviorError) {
+        this.logger.warn(`Failed to log user behavior: ${behaviorError.message}`);
+      }
 
       return {
         success: true,
