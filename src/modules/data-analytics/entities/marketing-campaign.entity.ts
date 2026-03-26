@@ -13,12 +13,14 @@ import { CustomerProfile } from '../../../entities/customer-profile.entity';
 import { CampaignType } from '../../../shared/enums/campaign-type.enum';
 import { CampaignStatus } from '../../../shared/enums/campaign-status.enum';
 import { MarketingStrategy } from './marketing-strategy.entity';
+import { TenantEntity } from '../../../shared/interfaces/tenant-entity.interface';
 
 @Entity('marketing_campaigns')
 @Index(['userId', 'status'])
 @Index(['customerProfileId', 'status'])
 @Index(['startDate', 'endDate'])
-export class MarketingCampaign {
+@Index(['tenantId'])
+export class MarketingCampaign implements TenantEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -40,6 +42,9 @@ export class MarketingCampaign {
   @ManyToOne(() => CustomerProfile, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'customer_profile_id' })
   customerProfile: CustomerProfile;
+
+  @Column({ name: 'tenant_id', type: 'varchar', length: 36, default: 'default-tenant' })
+  tenantId: string;
 
   @Column({ name: 'name', type: 'varchar', length: 255 })
   name: string;

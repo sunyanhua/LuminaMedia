@@ -8,12 +8,14 @@ import {
 } from 'typeorm';
 import { User } from '../../../entities/user.entity';
 import { UserBehaviorEvent } from '../../../shared/enums/user-behavior-event.enum';
+import { TenantEntity } from '../../../shared/interfaces/tenant-entity.interface';
 
 @Entity('user_behaviors')
 @Index(['userId', 'timestamp'])
 @Index(['sessionId'])
 @Index(['eventType'])
-export class UserBehavior {
+@Index(['tenantId'])
+export class UserBehavior implements TenantEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -36,6 +38,9 @@ export class UserBehavior {
 
   @Column({ name: 'event_data', type: 'json', nullable: true })
   eventData: Record<string, any>;
+
+  @Column({ name: 'tenant_id', type: 'varchar', length: 36, default: 'default-tenant' })
+  tenantId: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   timestamp: Date;

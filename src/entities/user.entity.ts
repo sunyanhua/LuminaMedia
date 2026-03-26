@@ -4,13 +4,16 @@ import {
   Column,
   CreateDateColumn,
   OneToMany,
+  Index,
 } from 'typeorm';
 import { SocialAccount } from './social-account.entity';
 import { ContentDraft } from './content-draft.entity';
 import { UserRole } from './user-role.entity';
+import { TenantEntity } from '../shared/interfaces/tenant-entity.interface';
 
 @Entity('users')
-export class User {
+@Index(['tenantId'])
+export class User implements TenantEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

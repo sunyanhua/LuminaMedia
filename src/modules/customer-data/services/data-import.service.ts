@@ -4,19 +4,20 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { DataImportJob } from '../../../entities/data-import-job.entity';
 import { CustomerProfile } from '../../../entities/customer-profile.entity';
 import { DataImportStatus } from '../../../shared/enums/data-import-status.enum';
 import { SourceType } from '../../../shared/enums/source-type.enum';
+import { DataImportJobRepository } from '../../../shared/repositories/data-import-job.repository';
+import { CustomerProfileRepository } from '../../../shared/repositories/customer-profile.repository';
 
 @Injectable()
 export class DataImportService {
   constructor(
-    @InjectRepository(DataImportJob)
-    private dataImportJobRepository: Repository<DataImportJob>,
-    @InjectRepository(CustomerProfile)
-    private customerProfileRepository: Repository<CustomerProfile>,
+    @InjectRepository(DataImportJobRepository)
+    private dataImportJobRepository: DataImportJobRepository,
+    @InjectRepository(CustomerProfileRepository)
+    private customerProfileRepository: CustomerProfileRepository,
   ) {}
 
   /**

@@ -13,6 +13,7 @@ import { StrategyType } from '../../../shared/enums/strategy-type.enum';
 import { GenerationMethod } from '../../../shared/enums/generation-method.enum';
 import { Platform } from '../../../shared/enums/platform.enum';
 import { AIEngine } from '../interfaces/gemini.interface';
+import { TenantEntity } from '../../../shared/interfaces/tenant-entity.interface';
 
 @Entity('marketing_strategies')
 @Index(['campaignId'])
@@ -20,7 +21,7 @@ import { AIEngine } from '../interfaces/gemini.interface';
 @Index(['strategyType'])
 @Index(['confidenceScore'])
 @Index(['tenantId'])
-export class MarketingStrategy {
+export class MarketingStrategy implements TenantEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

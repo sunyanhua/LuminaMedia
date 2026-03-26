@@ -8,12 +8,17 @@ import {
   Index,
 } from 'typeorm';
 import { CustomerProfile } from './customer-profile.entity';
+import { TenantEntity } from '../shared/interfaces/tenant-entity.interface';
 
 @Entity('customer_segments')
 @Index(['customerProfileId', 'segmentName'])
-export class CustomerSegment {
+@Index(['tenantId'])
+export class CustomerSegment implements TenantEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ name: 'tenant_id', type: 'varchar', length: 36, default: 'default-tenant' })
+  tenantId: string;
 
   @Column({ name: 'customer_profile_id', type: 'varchar', length: 36 })
   customerProfileId: string;

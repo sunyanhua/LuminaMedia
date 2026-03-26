@@ -10,13 +10,18 @@ import {
 import { CustomerProfile } from './customer-profile.entity';
 import { SourceType } from '../shared/enums/source-type.enum';
 import { DataImportStatus } from '../shared/enums/data-import-status.enum';
+import { TenantEntity } from '../shared/interfaces/tenant-entity.interface';
 
 @Entity('data_import_jobs')
 @Index(['customerProfileId', 'status'])
 @Index(['createdAt'])
-export class DataImportJob {
+@Index(['tenantId'])
+export class DataImportJob implements TenantEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ name: 'tenant_id', type: 'varchar', length: 36, default: 'default-tenant' })
+  tenantId: string;
 
   @Column({ name: 'customer_profile_id', type: 'varchar', length: 36 })
   customerProfileId: string;

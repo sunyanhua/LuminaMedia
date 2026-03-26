@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { UserBehavior } from '../entities/user-behavior.entity';
 import { MarketingCampaign } from '../entities/marketing-campaign.entity';
 import { MarketingStrategy } from '../entities/marketing-strategy.entity';
+import { UserBehaviorRepository } from '../../../shared/repositories/user-behavior.repository';
+import { MarketingCampaignRepository } from '../../../shared/repositories/marketing-campaign.repository';
+import { MarketingStrategyRepository } from '../../../shared/repositories/marketing-strategy.repository';
+import { TenantContextService } from '../../../shared/services/tenant-context.service';
 import { UserBehaviorEvent } from '../../../shared/enums/user-behavior-event.enum';
 import { CampaignType } from '../../../shared/enums/campaign-type.enum';
 import { CampaignStatus } from '../../../shared/enums/campaign-status.enum';
@@ -13,12 +16,12 @@ import { GenerationMethod } from '../../../shared/enums/generation-method.enum';
 @Injectable()
 export class MockDataService {
   constructor(
-    @InjectRepository(UserBehavior)
-    private userBehaviorRepository: Repository<UserBehavior>,
-    @InjectRepository(MarketingCampaign)
-    private campaignRepository: Repository<MarketingCampaign>,
-    @InjectRepository(MarketingStrategy)
-    private strategyRepository: Repository<MarketingStrategy>,
+    @InjectRepository(UserBehaviorRepository)
+    private userBehaviorRepository: UserBehaviorRepository,
+    @InjectRepository(MarketingCampaignRepository)
+    private campaignRepository: MarketingCampaignRepository,
+    @InjectRepository(MarketingStrategyRepository)
+    private strategyRepository: MarketingStrategyRepository,
   ) {}
 
   async generateMockData(userId: string): Promise<{
@@ -45,6 +48,7 @@ export class MockDataService {
   private async generateMockCampaigns(
     userId: string,
   ): Promise<MarketingCampaign[]> {
+    const tenantId = TenantContextService.getCurrentTenantIdStatic();
     const campaignTemplates = [
       {
         name: '小红书春季美妆推广',
@@ -108,6 +112,7 @@ export class MockDataService {
     for (const template of campaignTemplates) {
       const campaign = this.campaignRepository.create({
         userId,
+        tenantId,
         ...template,
       });
       const savedCampaign = await this.campaignRepository.save(campaign);
@@ -118,6 +123,7 @@ export class MockDataService {
   }
 
   private async generateMockBehaviors(userId: string): Promise<number> {
+    const tenantId = TenantContextService.getCurrentTenantIdStatic();
     const events: UserBehaviorEvent[] = Object.values(UserBehaviorEvent);
     const sessionCount = 8;
     const days = 30; // 最近30天
@@ -157,6 +163,7 @@ export class MockDataService {
 
           const behavior = this.userBehaviorRepository.create({
             userId,
+            tenantId,
             sessionId,
             eventType,
             eventData,
@@ -175,6 +182,7 @@ export class MockDataService {
   private async generateMockStrategies(
     campaigns: MarketingCampaign[],
   ): Promise<number> {
+    const tenantId = TenantContextService.getCurrentTenantIdStatic();
     let totalStrategies = 0;
     const strategyTypes = Object.values(StrategyType);
 
@@ -235,6 +243,7 @@ export class MockDataService {
         const template = strategyTemplates[strategyType];
         const strategy = this.strategyRepository.create({
           campaignId: campaign.id,
+          tenantId,
           strategyType,
           description: template.description,
           implementationPlan: template.implementationPlan,
@@ -252,23 +261,29 @@ export class MockDataService {
   }
 
   async resetMockData(userId?: string): Promise<{ deleted: number }> {
+    const tenantId = TenantContextService.getCurrentTenantIdStatic();
     let totalDeleted = 0;
 
     if (userId) {
-      // 删除指定用户的模拟数据
+      // 删除指定用户的模拟数据（仅当前租户）
       const behaviorResult = await this.userBehaviorRepository.delete({
         userId,
+        tenantId,
       });
-      const campaignResult = await this.campaignRepository.delete({ userId });
+      const campaignResult = await this.campaignRepository.delete({
+        userId,
+        tenantId,
+      });
       // 策略会通过外键级联删除
       totalDeleted =
         (behaviorResult.affected || 0) + (campaignResult.affected || 0);
     } else {
-      // 删除所有模拟数据
-      const behaviorResult = await this.userBehaviorRepository.clear();
-      const campaignResult = await this.campaignRepository.clear();
-      const strategyResult = await this.strategyRepository.clear();
-      totalDeleted = 3; // 表示三个表都被清空
+      // 删除当前租户的所有模拟数据
+      const behaviorResult = await this.userBehaviorRepository.delete({ tenantId });
+      const campaignResult = await this.campaignRepository.delete({ tenantId });
+      const strategyResult = await this.strategyRepository.delete({ tenantId });
+      totalDeleted =
+        (behaviorResult.affected || 0) + (campaignResult.affected || 0) + (strategyResult.affected || 0);
     }
 
     return { deleted: totalDeleted };

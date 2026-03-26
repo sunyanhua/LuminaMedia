@@ -4,11 +4,12 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { CustomerProfile } from '../../../entities/customer-profile.entity';
 import { DataImportJob } from '../../../entities/data-import-job.entity';
 import { CustomerSegment } from '../../../entities/customer-segment.entity';
 import { CustomerProfileRepository } from '../../../shared/repositories/customer-profile.repository';
+import { DataImportJobRepository } from '../../../shared/repositories/data-import-job.repository';
+import { CustomerSegmentRepository } from '../../../shared/repositories/customer-segment.repository';
 import { CustomerType } from '../../../shared/enums/customer-type.enum';
 import { Industry } from '../../../shared/enums/industry.enum';
 import { DataImportStatus } from '../../../shared/enums/data-import-status.enum';
@@ -19,10 +20,10 @@ export class CustomerProfileService {
   constructor(
     @InjectRepository(CustomerProfileRepository)
     private customerProfileRepository: CustomerProfileRepository,
-    @InjectRepository(DataImportJob)
-    private dataImportJobRepository: Repository<DataImportJob>,
-    @InjectRepository(CustomerSegment)
-    private customerSegmentRepository: Repository<CustomerSegment>,
+    @InjectRepository(DataImportJobRepository)
+    private dataImportJobRepository: DataImportJobRepository,
+    @InjectRepository(CustomerSegmentRepository)
+    private customerSegmentRepository: CustomerSegmentRepository,
   ) {}
 
   /**

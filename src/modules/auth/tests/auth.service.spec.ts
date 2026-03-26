@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { Repository } from 'typeorm';
 import { AuthService } from '../services/auth.service';
 import { User } from '../../../entities/user.entity';
+import { UserRepository } from '../../../shared/repositories/user.repository';
+import { TenantContextService } from '../../../shared/services/tenant-context.service';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
@@ -14,15 +15,16 @@ jest.mock('bcrypt');
 
 describe('AuthService', () => {
   let authService: AuthService;
-  let userRepository: Repository<User>;
+  let userRepository: UserRepository;
   let jwtService: JwtService;
+  let tenantContextService: TenantContextService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         {
-          provide: getRepositoryToken(User),
+          provide: UserRepository,
           useValue: {
             findOne: jest.fn(),
             create: jest.fn(),
@@ -36,12 +38,19 @@ describe('AuthService', () => {
             verify: jest.fn(),
           },
         },
+        {
+          provide: TenantContextService,
+          useValue: {
+            getCurrentTenantId: jest.fn().mockReturnValue('default-tenant'),
+          },
+        },
       ],
     }).compile();
 
     authService = module.get<AuthService>(AuthService);
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
+    userRepository = module.get<UserRepository>(UserRepository);
     jwtService = module.get<JwtService>(JwtService);
+    tenantContextService = module.get<TenantContextService>(TenantContextService);
   });
 
   afterEach(() => {

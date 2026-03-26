@@ -1,9 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
+import { Between } from 'typeorm';
 import { UserBehavior } from '../entities/user-behavior.entity';
 import { MarketingCampaign } from '../entities/marketing-campaign.entity';
 import { MarketingStrategy } from '../entities/marketing-strategy.entity';
+import { UserBehaviorRepository } from '../../../shared/repositories/user-behavior.repository';
+import { MarketingCampaignRepository } from '../../../shared/repositories/marketing-campaign.repository';
+import { MarketingStrategyRepository } from '../../../shared/repositories/marketing-strategy.repository';
 import { UserBehaviorEvent } from '../../../shared/enums/user-behavior-event.enum';
 import { CampaignStatus } from '../../../shared/enums/campaign-status.enum';
 
@@ -36,12 +39,12 @@ export interface ReportData {
 @Injectable()
 export class ReportService {
   constructor(
-    @InjectRepository(UserBehavior)
-    private userBehaviorRepository: Repository<UserBehavior>,
-    @InjectRepository(MarketingCampaign)
-    private campaignRepository: Repository<MarketingCampaign>,
-    @InjectRepository(MarketingStrategy)
-    private strategyRepository: Repository<MarketingStrategy>,
+    @InjectRepository(UserBehaviorRepository)
+    private userBehaviorRepository: UserBehaviorRepository,
+    @InjectRepository(MarketingCampaignRepository)
+    private campaignRepository: MarketingCampaignRepository,
+    @InjectRepository(MarketingStrategyRepository)
+    private strategyRepository: MarketingStrategyRepository,
   ) {}
 
   async generateBehaviorReport(userId: string): Promise<ReportData> {
