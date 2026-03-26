@@ -10,12 +10,17 @@ import { PublishTask } from './entities/publish-task.entity';
 import { CustomerProfile } from './entities/customer-profile.entity';
 import { DataImportJob } from './entities/data-import-job.entity';
 import { CustomerSegment } from './entities/customer-segment.entity';
+import { Tenant } from './entities/tenant.entity';
+import { Role } from './entities/role.entity';
+import { Permission } from './entities/permission.entity';
+import { UserRole } from './entities/user-role.entity';
 import { UserBehavior } from './modules/data-analytics/entities/user-behavior.entity';
 import { MarketingCampaign } from './modules/data-analytics/entities/marketing-campaign.entity';
 import { MarketingStrategy } from './modules/data-analytics/entities/marketing-strategy.entity';
 import { DataAnalyticsModule } from './modules/data-analytics/data-analytics.module';
 import { CustomerDataModule } from './modules/customer-data/customer-data.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -44,6 +49,10 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
           UserBehavior,
           MarketingCampaign,
           MarketingStrategy,
+          Tenant,
+          Role,
+          Permission,
+          UserRole,
         ],
         synchronize:
           configService.get('TYPEORM_SYNCHRONIZE', 'false') === 'true',
@@ -60,6 +69,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     DataAnalyticsModule,
     CustomerDataModule,
     DashboardModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

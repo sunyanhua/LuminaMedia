@@ -1,0 +1,84 @@
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from '../../../entities/user.entity';
+import { UserRole } from '../../../entities/user-role.entity';
+import { Role } from '../../../entities/role.entity';
+import { Permission } from '../../../entities/permission.entity';
+
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor(
+    private configService: ConfigService,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    @InjectRepository(UserRole)
+    private userRoleRepository: Repository<UserRole>,
+    @InjectRepository(Role)
+    private roleRepository: Repository<Role>,
+  ) {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: configService.get('JWT_SECRET', 'your-secret-key'),
+    });
+  }
+
+  async validate(payload: any) {
+    const user = await this.userRepository.findOne({
+      where: { id: payload.sub },
+      select: ['id', 'username', 'email', 'tenantId'],
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    // 获取用户的角色
+    const userRoles = await this.userRoleRepository.find({
+      where: { userId: user.id },
+      relations: ['role'],
+    });
+
+    const roleIds = userRoles.map((ur) => ur.roleId);
+    const roles = await this.roleRepository.find({
+      where: { id: roleIds },
+      relations: ['permissions'],
+    });
+
+    // 提取所有权限
+    const permissions = [];
+    roles.forEach((role) => {
+      if (role.permissions) {
+        role.permissions.forEach((permission) => {
+          permissions.push({
+            id: permission.id,
+            module: permission.module,
+            action: permission.action,
+          });
+        });
+      }
+    });
+
+    // 去重权限
+    const uniquePermissions = Array.from(
+      new Map(permissions.map((p) => [`${p.module}:${p.action}`, p])).values(),
+    );
+
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      tenantId: user.tenantId,
+      roles: roles.map((role) => ({
+        id: role.id,
+        name: role.name,
+        description: role.description,
+      })),
+      permissions: uniquePermissions,
+    };
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "project": "智媒",
+  "tasks": [
+    {
+      "index": 1,
+      "content": "任务1.1：JWT认证模块实现（登录/注册/令牌刷新/Profile）",
+      "status": "SUCCESS"
+    },
+    {
+      "index": 2,
+      "content": "任务1.2：多租户用户体系（tenant_id/User实体/Tenant实体/中间件）",
+      "status": "SUCCESS"
+    },
+    {
+      "index": 3,
+      "content": "任务1.3：RBAC角色权限管理（Role/Permission/Guard）",
+      "status": "SUCCESS"
+    }
+  ],
+  "total": 3,
+  "status": "SUCCESS",
+  "created": "2026-03-26 11:12:47"
+}
