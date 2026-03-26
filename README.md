@@ -1,225 +1,248 @@
-# LuminaMedia (灵曜智媒) - 项目设计说明书 (v2.0)
+# LuminaMedia 2.0 (灵曜智媒) - AI驱动的内容营销平台
 
-## 1. 项目愿景与定位
-**LuminaMedia (灵曜智媒)** 是一个基于 AI 驱动的**内容营销平台**。系统通过数据分析+AI智能能力，为客户提供完整的营销解决方案：
+## 项目概述
+
+**LuminaMedia 2.0** 是一个基于AI驱动的企业级内容营销平台，采用模块化单体架构，为企事业单位提供完整的宣传营销解决方案。平台分为商务版和政务版，支持SaaS多租户模式和私有化部署。
 
 ### 核心业务流程
-1. **客户数据导入**：支持导入客户已有数据（用户信息、消费记录、行为数据等）
-2. **AI智能分析**：对导入数据进行深度分析，生成用户画像、消费洞察、趋势预测
-3. **营销方案生成**：基于分析结果，AI生成针对性的营销活动方案（线上/线下）
-4. **内容营销服务**：提供新媒体运营、网站建设建议、智能内容生成
-5. **方案执行跟踪**：跟踪方案执行进度，收集效果反馈，优化迭代
+1. **智能数据导入**：支持Excel/API数据导入，AI自动映射非标字段
+2. **大数据分析**：SmartDataEngine处理600万会员数据，生成4维度用户画像
+3. **AI营销策划**：Agent工作流模式生成专业级营销方案
+4. **内容生成发布**：跨平台内容生成和自动化发布
+5. **效果追踪分析**：活动闭环评价和优化建议
 
-### 服务模式
-- **有数据客户**：导入客户数据 → AI分析 → 个性化营销方案
-- **无数据客户**：行业基准数据 → AI推荐 → 标准化营销模板
+### 架构设计原则
+- **模块化单体架构**：代码严格模块化，数据库逻辑隔离
+- **Mobile-First前端**：优先移动端设计，确保微信端完美显示
+- **CloudProvider抽象层**：一键切换阿里云SaaS环境和私有化环境
+- **渐进式演进**：当前模块化单体，未来可平滑拆分为微服务
 
-## 2. 项目核心价值
-- **数据驱动决策**：基于真实客户数据提供精准营销建议
-- **AI智能赋能**：利用大语言模型生成高质量营销方案和内容
-- **全流程覆盖**：从数据分析到方案执行的全链路支持
-- **行业适配性**：支持零售、电商、服务、教育等多个行业
+## 核心技术架构
 
-## 3. 核心技术栈与当前状态
+### 2.0架构核心组件
+```
+┌─────────────────────────────────────────────────┐
+│            LuminaMedia 2.0 Core Engine          │
+│  ┌─────────────┐ ┌─────────────┐ ┌───────────┐ │
+│  │ AI Engine   │ │ Data Engine │ │ Workflow  │ │
+│  │   (Agent)   │ │  (OLAP)     │ │  Engine   │ │
+│  └─────────────┘ └─────────────┘ └───────────┘ │
+└─────────────────────────────────────────────────┘
+         │                  │               │
+┌────────▼──────────────────▼───────────────▼──────┐
+│           Platform Adapter Layer                  │
+│  ┌─────────────┐ ┌─────────────┐ ┌───────────┐  │
+│  │ AliCloud    │ │ Private     │ │ Mock      │  │
+│  │ Adapter     │ │ Deploy      │ │ Adapter   │  │
+│  │             │ │ Adapter     │ │           │  │
+│  └─────────────┘ └─────────────┘ └───────────┘  │
+└─────────────────────────────────────────────────┘
+```
 
-### 已实现核心能力
-- **后端框架**: Node.js (NestJS) + TypeScript ✅
-- **数据库**: MySQL 8.0 + TypeORM ✅
-- **AI集成**: Google Gemini 1.5 Pro API ✅
-  - 已实现完整的营销策略生成功能
-  - 支持优雅降级和错误处理
-- **数据分析模块**: 完整的用户行为分析和营销活动管理 ✅
-- **容器化部署**: Docker Compose 支持 ✅
+### 技术栈详情
 
-### 待实现能力
-- **AI内容生成**: Claude API 集成、文案生成、图片生成
-- **自动化发布**: OpenClaw/Playwright 浏览器自动化
-- **对象存储**: 阿里云 OSS 集成
-- **任务调度**: BullMQ 队列系统
-- **前端管理**: React/Vue 管理后台
+#### 后端技术栈 (NestJS + TypeScript)
+- **框架**: NestJS 模块化架构
+- **数据库**: MySQL 8.0 + TypeORM (多租户tenant_id隔离)
+- **缓存**: Redis云版 (任务队列、会话缓存)
+- **异步处理**: Bull/Redis Queue
+- **API设计**: RESTful API + WebSocket
+- **配置管理**: ConfigModule + 环境变量
+- **监控**: Prometheus + Grafana
+- **日志**: Winston + ELK
 
-### 技术架构特点
-1. **模块化设计**: 独立的数据分析模块，易于扩展
-2. **多AI提供商支持**: 抽象AI服务接口，支持Gemini/Claude切换
-3. **事件驱动**: 通过事件解耦模块间通信
-4. **配置驱动**: 环境变量配置所有关键参数
-5. **容器化部署**: 支持Docker一键部署
+#### 前端技术栈 (React + Vite + TypeScript)
+- **构建工具**: Vite + 移动端代码优化
+- **组件库**: Ant Design Mobile + 响应式组件
+- **状态管理**: Zustand (轻量级全局状态)
+- **路由**: React Router + 移动端友好导航
+- **数据可视化**: Recharts
+- **类型安全**: TypeScript严格模式
+- **移动端适配**: Mobile-First原则，微信端完美兼容
 
-## 4. 多租户数据库模型 (TypeORM Entities)
+#### AI技术栈
+- **云端AI**: Google Gemini 2.5 + 阿里云百炼(Qwen)
+- **本地AI**: Docker一键拉起Qwen-7B本地模型
+- **AI Agent工作流**: 分析Agent → 策划Agent → 文案Agent三阶段
+- **RAG知识库**: 向量数据库 + 检索增强生成
+- **成本控制**: Token计费 + 额度管控
 
-### 3.1 User (系统用户)
-- `id`: UUID, 主键
-- `username`: 登录名
-- `password_hash`: 加密后的密码
-- `email`: 联系邮箱
-- `created_at`: 创建时间
+#### 云服务 (阿里云)
+- **计算**: ECS集群 + SLB负载均衡
+- **数据库**: RDS MySQL主从
+- **缓存**: Redis云版集群
+- **存储**: OSS对象存储 + CDN
+- **网络**: VPC + 安全组
 
-### 3.2 SocialAccount (社交账号管理)
-- `id`: UUID, 主键
-- `userId`: 关联 User.id (多对一)
-- `platform`: 平台枚举 (XHS / WECHAT_MP)
-- `accountName`: 账号显示名称
-- `credentials`: JSON (加密存储 Cookie, Session, Token 等)
-- `status`: 账号状态 (ACTIVE / EXPIRED / RE-AUTH_REQUIRED)
-- `lastUsedAt`: 最后一次发布时间
+### 数据库架构
+- **多租户隔离**: 所有表增加tenant_id字段，逻辑隔离
+- **大数据处理**: 600万数据分表分片策略
+- **混合存储**:
+  - MySQL RDS: 结构化业务数据
+  - Redis: 任务队列、会话缓存
+  - OSS: 文档、图片、视频文件
+  - 向量数据库: 知识库文档向量化存储
 
-### 3.3 ContentDraft (内容草稿库)
-- `id`: UUID, 主键
-- `userId`: 关联 User.id
-- `platformType`: 适配平台 (XHS / WECHAT_MP)
-- `title`: AI 生成的标题
-- `content`: AI 生成的正文 (Markdown 或 RichText)
-- `mediaUrls`: JSON Array (阿里云 OSS 上的图片/视频链接)
-- `tags`: JSON Array (话题标签)
+## 五大核心功能模块
 
-### 3.4 PublishTask (发布任务队列)
-- `id`: UUID, 主键
-- `draftId`: 关联 ContentDraft.id
-- `accountId`: 关联 SocialAccount.id
-- `status`: 任务状态 (PENDING / PROCESSING / SUCCESS / FAILED)
-- `scheduledAt`: 计划发布时间
-- `publishedAt`: 实际完成时间
-- `postUrl`: 发布成功后的线上链接
-- `errorMessage`: 失败原因记录
+### 1. 智能数据魔方 (Business Insights)
+- **AI字段自动映射**: 自动识别非标Excel/API表头，转换为标准4维度字段
+- **离线标签计算**: SQL批处理引擎，避免Token浪费
+- **4维度用户画像**:
+  - 基础生命周期属性 (年龄段、学历、家庭角色等)
+  - 消费性格属性 (消费档次、购物宽度、决策速度等)
+  - 实时状态属性 (活跃度、成长趋势等)
+  - 社交与活动属性 (裂变潜力、活动偏好等)
+- **数据缺失预警**: 关键维度缺失时自动标记并引导补全
 
-## 5. 核心功能模块设计
+### 2. AI智策工厂 (Campaign Lab)
+- **Agent工作流模式**: 分析 → 策划 → 文案三阶段专业CMO工作流
+- **RAG知识库联动**: 检索客户知识库，确保方案符合品牌调性
+- **全案包生成**: Word方案 + PPT结构 + 媒体排期 + 效果预估
+- **活动闭环评价**: AI预测值与实际数据对比分析
 
-### 4.1 AI 创意引擎 (Creative Service)
-- 提供不同平台的 Prompt 模板库。
-- 支持小红书风格（Emoji 密集、短句、互动感）和公众号风格（结构化、严谨、长文）的切换。
-- 调用图片生成 API 并自动上传至阿里云 OSS。
+### 3. 矩阵分发中心 (Matrix Ops)
+- **三审三校工作流**: 编辑 → AI安全自检 → 业务主管 → 行政/法务
+- **跨平台发布引擎**:
+  - 微信: 官方API + 自动排版模板
+  - 小红书/微博: OpenClaw Browser Agent模拟发布
+- **自动排版配图**: AI生成封面图、配图、视频脚本
 
-### 4.2 OpenClaw 自动化适配器 (Automation Adapter)
-- 封装 OpenClaw 接口。
-- **环境隔离**: 为每个发布任务创建独立的 BrowserContext，注入对应 `SocialAccount` 的 Cookie。
-- **UI 操作流**: 实现模拟点击“上传图片”、自动填写标题、粘贴文案、点击“发布”。
-- **状态回传**: 抓取发布成功后的页面元素（如链接、作品 ID），并更新数据库状态。
+### 4. 客户大脑 (Knowledge Base)
+- **向量化存储**: 客户文档、网址、文章通过Embedding存入向量数据库
+- **企业画像生成**: 自动分析语言风格、视觉偏好、禁忌词
+- **智能检索**: RAG增强的内容生成和方案策划
 
-### 4.3 任务调度系统 (Scheduler)
-- 扫描 `PublishTask` 表，定时触发自动化脚本。
-- 实现发布间隔控制，避免触发平台反爬虫策略。
+### 5. 舆情与GEO监测
+- **全网数据采集**: 监测小红书/微博/公众号等平台
+- **情感分析引擎**: 实时舆情分析和趋势预测
+- **GEO优化建议**: SEO/GEO关键词霸屏建议
 
-## 6. 内容营销平台DEMO实施计划
+## 部署方案
 
-### 项目当前状态
-- ✅ **第一阶段**: 基础框架与多租户数据库 - 已完成
-- ✅ **第五阶段**: 用户数据分析模块 - 已完成（包含完整的营销策略AI生成）
-- 🔄 **第二阶段**: AI内容生成链 - 部分实现（Gemini集成完成，Claude待集成）
-- 📋 **新目标**: 围绕"数据分析+营销活动方案生产"制作DEMO演示
+### 阿里云SaaS部署 (默认)
+```yaml
+环境变量: CLOUD_PROVIDER=alicloud
+服务配置:
+  - 数据库: RDS MySQL 8.0
+  - 缓存: Redis云版
+  - 存储: OSS + CDN
+  - AI服务: Gemini API + 阿里云百炼
+```
 
-### DEMO核心目标
-1. **数据看板展示**: 漂亮的数据可视化看板，展示分析结果
-2. **完整功能演示**: 从数据导入 → 数据分析 → 营销方案生成的全流程
-3. **混合演示模式**:
-   - 数据导入分析部分：使用模拟数据展示未来能力
-   - 营销活动方案生成：接入真实Gemini API进行演示
+### 私有化部署
+```yaml
+环境变量: CLOUD_PROVIDER=private
+服务配置:
+  - 数据库: 本地MySQL/PostgreSQL
+  - 缓存: 内网Redis集群
+  - 存储: MinIO对象存储
+  - AI服务: Docker一键拉起Qwen-7B本地模型
+```
 
-### 实施阶段规划
+### DEMO部署
+- **商务版DEMO**: 模拟数据 + Mock AI服务
+- **政务版DEMO**: 真实账号 + 真实AI服务
 
-#### 阶段1：客户数据导入与分析模块 (1-2周)
-**目标**: 实现客户数据导入和基础分析能力
-- 新增 `CustomerDataModule`：支持客户档案管理
-- 数据导入API：支持CSV/Excel文件上传
-- 用户画像生成：基于导入数据生成分析报告
-- DEMO数据生成器：预设商场客户数据场景
+## 2.0重构实施路线图
 
-#### 阶段2：营销方案增强与内容生成 (1-2周)
-**目标**: 增强现有营销策略生成，增加AI内容生成能力
-- 扩展 `GeminiService`：支持多平台文案生成（小红书、公众号等）
-- 创建 `ContentGenerationService`：管理AI内容生成流程
-- 集成现有 `ContentDraft` 实体：存储AI生成的内容草稿
-- 增强 `MarketingStrategy`：连接客户数据分析结果
+### 第一阶段: 基础架构升级 (1-2个月)
+- 认证授权系统 (JWT + 多租户)
+- 数据库架构重构 (tenant_id字段 + 分表策略)
+- 模块化单体基础框架
+- CloudProvider抽象层设计
+- Mobile-First前端基础
 
-#### 阶段3：DEMO集成与前端展示 (1周)
-**目标**: 集成所有功能，提供演示界面
-- DEMO专用API：一键启动演示场景
-- 数据可视化看板：使用Chart.js/ECharts展示分析结果
-- 简单管理界面：React/Vue基础前端
-- 完整文档：DEMO使用指南和API文档
+### 第二阶段: 核心功能开发 (3-5个月)
+- SmartDataEngine (600万数据处理 + AI字段映射)
+- AI Agent工作流引擎 (分析-策划-文案三阶段)
+- 矩阵分发中心 (三审三校 + 跨平台发布)
+- Mobile-First前端框架优化
 
-#### 阶段4：后续演进路线
-1. **Claude API集成**：补充现有Gemini，提供多AI选择
-2. **图片生成与OSS上传**：集成DALL-E/Midjourney，阿里云OSS存储
-3. **自动化发布集成**：OpenClaw/Playwright浏览器自动化
-4. **方案执行跟踪**：营销方案执行进度和效果反馈
-5. **行业模板扩展**：零售、电商、教育、医疗等行业方案
+### 第三阶段: 高级功能完善 (6-8个月)
+- CloudProvider完整实现 (一键环境切换)
+- 客户大脑系统 (向量数据库 + 企业画像)
+- 舆情监测系统 (全网采集 + 情感分析)
+- 运维监控体系 (APM + 日志聚合)
 
-### 技术架构调整
-1. **模块重构**: 将 `DataAnalyticsModule` 扩展为 `CustomerAnalyticsModule`
-2. **AI服务抽象**: 创建 `IAIService` 接口，支持Gemini/Claude多提供商
-3. **事件驱动**: 通过事件解耦数据导入 → 分析 → 方案生成流程
-4. **前后端分离**: 后端API + 前端数据看板展示
+### 第四阶段: DEMO版本开发 (并行)
+- 商务版DEMO: 模拟数据 + 前端演示 (第1-3个月)
+- 政务版DEMO: 真实运营 + 全功能验证 (第4-6个月)
 
-### 关键API端点规划
-- **客户数据管理**: `/api/v1/customer-data/` (新增)
-- **内容生成服务**: `/api/v1/content-generation/` (新增)
-- **DEMO专用API**: `/api/v1/demo/` (新增)
-- **现有数据分析API**: `/api/v1/analytics/` (保持不变)
+详细任务清单见: [tasks/](./tasks/) 目录
 
-### 成功指标
-1. DEMO流程完整执行时间 < 3分钟
-2. 数据可视化看板响应时间 < 2秒
-3. AI营销方案生成质量评分 > 70分
-4. 用户理解度调查评分 > 4/5
+## 开发环境准备
+
+### 快速启动 (开发环境)
+```bash
+# 1. 克隆项目
+git clone <repository-url>
+cd LuminaMedia
+
+# 2. 配置环境变量
+cp .env.example .env
+# 编辑.env文件，配置数据库连接和API密钥
+
+# 3. 启动Docker容器
+docker-compose up -d
+
+# 4. 访问服务
+# 后端API: http://localhost:3003
+# 前端Dashboard: http://localhost:5174
+# API文档: http://localhost:3003/api/docs
+```
+
+### 环境变量配置
+```env
+# 数据库配置
+DB_HOST=db-lumina
+DB_PORT=3306
+DB_USERNAME=lumina_user
+DB_PASSWORD=lumina_password
+DB_DATABASE=lumina_media
+
+# AI服务配置
+GEMINI_API_KEY=your_gemini_api_key
+DASHSCOPE_API_KEY=your_dashscope_api_key
+
+# 部署模式
+CLOUD_PROVIDER=alicloud  # alicloud | private
+DEPLOYMENT_MODE=saas     # saas | demo
+```
+
+## 项目结构
+```
+LuminaMedia/
+├── src/                    # NestJS后端源代码
+│   ├── modules/           # 模块化目录 (待重构)
+│   │   ├── auth/         # 认证模块
+│   │   ├── data-engine/  # 智能数据引擎模块
+│   │   ├── ai-engine/    # AI工作流引擎模块
+│   │   ├── publish/      # 发布模块
+│   │   └── knowledge/    # 知识库模块
+│   ├── entities/         # 数据库实体
+│   ├── shared/           # 共享代码
+│   └── config/           # 配置管理
+├── dashboard-web/         # 前端Dashboard (React)
+├── tasks/                # 2.0实施任务清单
+├── scripts/              # 数据库脚本和工具
+├── docs/                 # 项目文档
+├── docker-compose.yml    # Docker编排配置
+├── Dockerfile.backend    # 后端Dockerfile
+└── README.md            # 本文件
+```
+
+## 文档链接
+- [2.0重构分析报告](./LuminaMedia-2.0重构分析报告.md) - 详细架构设计和实施方案
+- [项目进度追踪](./PROGRESS.md) - 当前进展和任务状态
+- [实施任务清单](./tasks/) - 分阶段详细任务分解
+- [开发规范](./docs/development-guide.md) - 编码规范和最佳实践
+
+## 许可证
+版权所有 © 2026 灵曜智媒团队。保留所有权利。
 
 ---
 
-## 7. 快速启动与开发指引
-
-### 实施计划文档
-详细的DEMO实施进度计划请参阅 [Progress.md](./Progress.md)，包含：
-- 分阶段任务分解（阶段1-3，共14-20天）
-- 具体交付物和验收标准
-- 技术决策点和风险评估
-- 资源需求和时间估算
-
-### 环境准备
-1. **配置环境变量**: 复制 `.env.example` 为 `.env` 并填写实际配置
-2. **安装依赖**: `npm install`
-3. **启动数据库**: `docker-compose up -d` (或配置阿里云RDS)
-4. **运行数据库迁移**:
-   ```bash
-   mysql -u username -p < scripts/01-init.sql
-   mysql -u username -p lumina_media < scripts/02-analytics-migration.sql
-   ```
-5. **启动开发服务器**: `npm run start:dev`
-
-### 测试现有功能
-1. **测试Gemini API**: `npm run test:gemini`
-2. **访问API文档**: 启动后访问 `http://localhost:3003/api` (如有配置Swagger)
-3. **测试数据分析API**:
-   ```bash
-   # 生成模拟数据
-   curl -X POST http://localhost:3003/api/v1/analytics/mock/generate \
-     -H "Content-Type: application/json" \
-     -d '{"userId": "test-user-123"}'
-
-   # 获取行为分析
-   curl http://localhost:3003/api/v1/analytics/behavior/test-user-123/summary
-   ```
-
-### 后续开发任务
-1. **客户数据模块**: 实现 `CustomerDataModule` 和相关实体
-2. **内容生成服务**: 扩展 `GeminiService` 支持文案生成
-3. **前端数据看板**: 开发 `dashboard-web/` 可视化界面
-4. **DEMO集成**: 实现一键演示场景和完整流程
-
-### 项目结构说明
-```
-src/
-├── entities/                    # 核心业务实体
-├── modules/
-│   ├── data-analytics/         # 数据分析模块（已完成）
-│   ├── customer-data/          # 客户数据模块（待开发）
-│   └── content-generation/     # 内容生成模块（待开发）
-├── shared/
-│   └── enums/                  # 枚举类型定义
-└── config/                     # 配置文件
-```
-
-### 开发规范
-1. **TypeScript严格模式**: 启用所有严格类型检查
-2. **模块化设计**: 每个功能独立模块，清晰接口
-3. **错误处理**: 统一错误响应格式和日志记录
-4. **API文档**: 使用Swagger/OpenAPI文档
-5. **测试覆盖**: 单元测试和集成测试
+**版本**: 2.0 (2026-03-26)
+**状态**: 重构方案设计完成，准备实施第一阶段
+**最新进展**: 2.0重构方案根据补充要求调整完成，详细任务清单已制定

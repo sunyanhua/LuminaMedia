@@ -1,10 +1,10 @@
 # LuminaMedia 内容营销平台DEMO实施进度计划
 
 ## 项目状态概览
-**当前版本**: v13.67 (确认API正确返回wechatFullPlan字段)
-**最后更新**: 2026-03-25
-**当前阶段**: 步骤9完成 ✅ 确认API正确返回wechatFullPlan字段
-**最新进展**: ✅ API返回wechatFullPlan字段问题诊断完成：1.确认数据库中存在有效的wechat_full_plan JSON数据（JSON_VALID=1，十六进制显示中文字符正确存储）；2.API端点测试发现部分策略返回wechatFullPlan数据，部分为null（取决于生成时间）；3.TypeORM JSON字段反序列化工作正常，能正确解析和返回JSON数据；4.特定策略ID 151f8aa0-d9e9-4c94-ab2f-641b4362e4bf成功返回完整wechatFullPlan字段，包含articleSeries对象数组、offlineDecoration和membershipBenefits中文字符串；5.前端组件已准备就绪，可正常接收和显示数据 (2026-03-25)；✅ API测试验证通过：成功生成包含完整wechatFullPlan字段的营销策略，articleSeries为对象数组格式，offlineDecoration和membershipBenefits为中文字符串，MySQL字符集修复生效，中文字符存储和检索正常 (2026-03-25)；✅ 前端组件验证完成：AIStrategy组件已包含wechatFullPlan字段显示逻辑，transformStrategyToCampaign函数支持多种articleSeries格式处理，支持对象数组、字符串数组、键值对字符串、旧扁平字符串数组等四种格式兼容性 (2026-03-25)；✅ 前端服务运行正常：热重载检测到AIStrategy.tsx更新，所有容器正常运行（app、dashboard、db-lumina） (2026-03-25)
+**当前版本**: v14.1 (2.0重构方案调整阶段)
+**最后更新**: 2026-03-26
+**当前阶段**: 2.0重构方案根据补充要求调整完成
+**最新进展**: ✅ 2.0重构方案根据补充要求调整完成：1.架构模式调整为模块化单体（Modular Monolith）；2.优先设计SmartDataEngine，支持600万数据AI字段自动映射和SQL离线计算；3.AI策略升级为Agent工作流模式（分析-策划-文案三阶段）；4.抽象CloudProvider接口，支持一键SaaS/私有化环境切换；5.前端强制Mobile-First原则，确保微信端完美显示；6.更新实施路线图和优先级建议 (2026-03-26)
 
 ## 项目目标澄清
 基于最新需求，LuminaMedia定位为**内容营销平台**，核心流程：
@@ -33,3 +33,5 @@
 | 2026-03-21 | v11.0 | 添加多Gemini API Key轮询支持：修改配置模块以支持GEMINI_API_KEY以逗号分隔多个Key，在调用时实现简单的随机轮询或顺序轮询，以绕过单Key的频率限制 | Claude |
 | 2026-03-21 | v11.3 | 强制API版本v1与模型固定。 | Claude |
 | 2026-03-25 | v13.67 | ✅ API返回wechatFullPlan字段问题诊断完成：1.确认数据库中存在有效的wechat_full_plan JSON数据（JSON_VALID=1，十六进制显示中文字符正确存储）；2.API端点测试发现部分策略返回wechatFullPlan数据，部分为null（取决于生成时间）；3.TypeORM JSON字段反序列化工作正常，能正确解析和返回JSON数据；4.特定策略ID成功返回完整wechatFullPlan字段，包含articleSeries对象数组、offlineDecoration和membershipBenefits中文字符串；5.前端组件已准备就绪，可正常接收和显示数据 | Claude |
+| 2026-03-26 | v14.0 | ✅ 2.0系统重构分析报告完成：1.全面分析当前架构状态（后端、前端、数据库、AI、部署）；2.评估功能模块成熟度；3.识别技术债务；4.提出"The Infinity Architecture"技术方案；5.制定四阶段实施路线图；6.提供资源估算和风险评估 | Claude |
+| 2026-03-26 | v14.1 | ✅ 2.0重构方案根据补充要求调整完成：1.架构模式调整为模块化单体；2.优先设计SmartDataEngine；3.AI策略升级为Agent工作流模式；4.抽象CloudProvider接口；5.前端强制Mobile-First原则；6.更新实施路线图和优先级建议 | Claude |
