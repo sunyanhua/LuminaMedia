@@ -11,7 +11,8 @@ import {
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
-import { UserService, CreateUserDto, UpdateUserDto } from '../services/user.service';
+import { UserService } from '../services/user.service';
+import type { CreateUserDto, UpdateUserDto } from '../services/user.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';

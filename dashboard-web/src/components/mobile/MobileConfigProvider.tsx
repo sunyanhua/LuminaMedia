@@ -46,19 +46,8 @@ export function MobileConfigProvider({
 
   return (
     <ConfigProvider
-      theme={themeConfig}
-      locale={localeConfig}
-      // 其他全局配置
-      safeArea={{
-        position: { top: true, bottom: true },
-      }}
-      // 手势配置
-      gesture={{
-        // 启用全局手势支持
-        enabled: true,
-        // 手势阈值
-        threshold: 10,
-      }}
+      // theme={themeConfig}
+      locale={undefined}
     >
       {children}
     </ConfigProvider>

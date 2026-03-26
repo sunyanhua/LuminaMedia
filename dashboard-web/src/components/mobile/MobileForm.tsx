@@ -20,13 +20,13 @@ import {
   Space,
 } from 'antd-mobile';
 import type {
-  FormProps as MobileFormProps,
-  FormItemProps as MobileFormItemProps,
+  FormProps as AntdFormProps,
+  FormItemProps as AntdFormItemProps,
 } from 'antd-mobile';
 import { cn } from '../../lib/utils';
 
 // 扩展FormItemProps以支持更多功能
-export interface MobileFormItemProps extends Omit<MobileFormItemProps, 'children'> {
+export interface MobileFormItemProps extends Omit<AntdFormItemProps, 'children'> {
   /**
    * 表单项类型
    */
@@ -72,7 +72,7 @@ export interface MobileFormItemProps extends Omit<MobileFormItemProps, 'children
   clearable?: boolean;
 }
 
-export interface MobileFormProps extends Omit<MobileFormProps, 'children'> {
+export interface MobileFormProps extends Omit<AntdFormProps, 'children'> {
   /**
    * 表单项配置数组
    */
@@ -126,7 +126,7 @@ function renderFormField({
   fieldProps = {},
   renderField,
   clearable = true,
-}: Pick<MobileFormItemProps, 'type' | 'fieldProps' | 'renderField' | 'clearable'>) {
+}: any) {
   if (renderField) {
     return renderField(fieldProps);
   }
@@ -141,28 +141,28 @@ function renderFormField({
     case 'email':
     case 'tel':
     case 'url':
-      return <Input type={type} {...commonProps} />;
+      return <Input type={type} {...(commonProps as any)} />;
     case 'password':
       return <Input type="password" {...commonProps} />;
     case 'textarea':
-      return <TextArea {...commonProps} />;
+      return <TextArea {...(commonProps as any)} />;
     case 'number':
-      return <Input type="number" {...commonProps} />;
+      return <Input type="number" {...(commonProps as any)} />;
     case 'selector':
-      return <Selector options={fieldProps.options || []} {...commonProps} />;
+      return <Selector options={fieldProps.options || []} {...(commonProps as any)} />;
     case 'stepper':
-      return <Stepper {...commonProps} />;
+      return <Stepper {...(commonProps as any)} />;
     case 'slider':
-      return <Slider {...commonProps} />;
+      return <Slider {...(commonProps as any)} />;
     case 'date':
-      return <DatePicker {...commonProps} />;
+      return <DatePicker {...(commonProps as any)} />;
     case 'cascade':
-      return <CascadePicker options={fieldProps.options || []} {...commonProps} />;
+      return <CascadePicker options={fieldProps.options || []} {...(commonProps as any)} />;
     case 'switch':
-      return <Switch {...commonProps} />;
+      return <Switch {...(commonProps as any)} />;
     case 'radio':
       return (
-        <Radio.Group {...commonProps}>
+        <Radio.Group {...(commonProps as any)}>
           {(fieldProps.options || []).map((option: any) => (
             <Radio key={option.value} value={option.value}>
               {option.label}
@@ -172,7 +172,7 @@ function renderFormField({
       );
     case 'checkbox':
       return (
-        <Checkbox.Group {...commonProps}>
+        <Checkbox.Group {...(commonProps as any)}>
           {(fieldProps.options || []).map((option: any) => (
             <Checkbox key={option.value} value={option.value}>
               {option.label}
@@ -181,7 +181,7 @@ function renderFormField({
         </Checkbox.Group>
       );
     default:
-      return <Input {...commonProps} />;
+      return <Input {...(commonProps as any)} />;
   }
 }
 

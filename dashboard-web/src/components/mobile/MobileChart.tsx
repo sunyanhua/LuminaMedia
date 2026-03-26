@@ -329,7 +329,7 @@ export function MobileChart({
             fill={color}
             dataKey={activeSeries.dataKey}
             nameKey={xAxisKey}
-            activeIndex={activePieIndex}
+            activeIndex={activePieIndex ?? undefined}
             activeShape={(props: any) => (
               <Sector
                 {...props}

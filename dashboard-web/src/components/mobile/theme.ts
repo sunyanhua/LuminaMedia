@@ -3,7 +3,7 @@
  * 参考: https://mobile.ant.design/zh/guide/theming
  */
 
-import { ThemeConfig } from 'antd-mobile';
+type ThemeConfig = any;
 
 /**
  * 项目主题配置 - 亮色模式

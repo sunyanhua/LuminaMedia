@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { TenantMiddleware, TenantRequest } from '../middlewares/tenant.middleware';
-import TenantContextService from '../../../shared/services/tenant-context.service';
+import { TenantContextService } from '../../../shared/services/tenant-context.service';
 
 describe('TenantMiddleware', () => {
   let middleware: TenantMiddleware;

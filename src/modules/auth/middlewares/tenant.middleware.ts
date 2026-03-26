@@ -1,7 +1,7 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import TenantContextService from '../../shared/services/tenant-context.service';
+import { TenantContextService } from '../../../shared/services/tenant-context.service';
 
 export interface TenantRequest extends Request {
   tenantId?: string;
