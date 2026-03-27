@@ -438,7 +438,7 @@
   - 项目能够正常构建、测试和运行
   - 文档与代码状态一致
 
-#### 任务5.6: ✅ **2026-03-27**: 多租户数据隔离修复（已完成）
+#### 任务5.6: ✅ **2026-03-27**: 多租户数据隔离修复（部分完成）
 - **任务描述**: 修复data-analytics模块中多租户数据隔离不完整的问题，确保所有数据操作通过TenantRepository自动添加租户过滤条件
 - **问题识别**: 发现data-analytics模块的服务中使用了泛型`Repository<T>`注入，而不是基于`TenantRepository<T>`的专用Repository类，导致多租户隔离不完整
 - **解决方案**: 创建专用Repository类并更新所有服务使用这些Repository
@@ -458,22 +458,78 @@
   3. **修复了TypeScript编译错误**:
      - 修复`demo.service.ts`中`UserBehaviorEvent.CAMPAIGN_CREATE`枚举使用
      - 修复`data-import-job.repository.ts`中`DataImportStatus`枚举使用
-- **修复效果**: 现在所有数据操作都通过`TenantRepository`自动添加租户过滤条件，确保多租户数据隔离的完整性
+- **修复效果**: 多数数据操作已通过`TenantRepository`自动添加租户过滤条件，但仍有3个文件未更新
+- **剩余问题**:
+  1. `src/modules/data-analytics/controllers/marketing-campaign.controller.ts`仍使用泛型`Repository<MarketingCampaign>`
+  2. `src/modules/data-analytics/services/marketing-strategy.service.ts`仍使用泛型`Repository<MarketingCampaign>`和`Repository<MarketingStrategy>`
+  3. `src/shared/subscribers/tenant-filter.subscriber.ts`查询过滤未实现
+  4. 数据库表结构缺失tenant_id字段（marketing_campaigns等表）
 - **验收标准**:
   - 所有data-analytics模块使用TenantRepository而非泛型Repository
   - 所有数据创建操作包含tenantId字段
   - TypeScript编译无错误
   - 多租户隔离逻辑完整
 
+#### 任务5.7: 🔄 **2026-03-27**: 完成剩余多租户隔离修复
+- **任务描述**: 完成剩余的多租户数据隔离修复工作，确保所有数据操作都使用专用TenantRepository
+- **具体修复工作**:
+  1. 更新`src/modules/data-analytics/controllers/marketing-campaign.controller.ts`:
+     - 将泛型`Repository<MarketingCampaign>`注入替换为`MarketingCampaignRepository`
+     - 更新所有查询和操作方法使用专用Repository
+  2. 更新`src/modules/data-analytics/services/marketing-strategy.service.ts`:
+     - 将泛型`Repository<MarketingCampaign>`和`Repository<MarketingStrategy>`替换为专用Repository类
+     - 确保所有数据操作自动添加租户过滤条件
+  3. 完善`src/shared/subscribers/tenant-filter.subscriber.ts`:
+     - 实现查询过滤功能，自动添加`tenant_id`条件
+     - 处理更新和删除操作的租户权限检查
+- **技术方案**:
+  - 使用现有的`MarketingCampaignRepository`和`MarketingStrategyRepository`
+  - 确保类型安全，避免编译错误
+  - 添加适当的错误处理和日志记录
+- **验收标准**:
+  - 所有data-analytics模块使用专用TenantRepository
+  - 查询过滤逻辑完整实现
+  - TypeScript编译无错误
+  - 多租户隔离逻辑100%完整
+
+#### 任务5.8: 🔄 **2026-03-27**: 执行数据库迁移脚本
+- **任务描述**: 执行`04-tenant-migration.sql`脚本，为所有核心表添加tenant_id字段，解决分表策略依赖问题
+- **具体工作**:
+  1. 验证`scripts/04-tenant-migration.sql`脚本的完整性和正确性
+  2. 执行脚本为以下表添加tenant_id字段:
+     - `customer_profiles` (已添加，验证)
+     - `marketing_strategies`
+     - `content_drafts`
+     - `social_accounts`
+     - `publish_tasks`
+     - `analytics_reports`
+     - `marketing_campaigns`
+     - `customer_segments`
+     - `data_import_jobs`
+     - `user_behaviors`
+  3. 为每个表添加索引: `idx_<表名>_tenant_id`
+  4. 更新现有数据，分配默认租户ID
+- **技术方案**:
+  - 使用MySQL客户端执行脚本
+  - 分步骤执行，每步验证
+  - 记录执行日志和错误处理
+- **验收标准**:
+  - 所有目标表都有tenant_id字段和索引
+  - 现有数据已分配默认租户ID
+  - 脚本可重复执行，无数据丢失
+  - 分表策略可以正常实施
+
 **验证结果**:
-1. **代码交付物验证**: ✅ 后端构建成功 (`npm run build` 无错误)，前端构建成功 (Vite 构建通过，仅有 chunk 大小警告)
+1. **代码交付物验证**: ⚠️ 后端构建存在问题 (`npm run build` 有模块依赖错误 - https-proxy-agent类型定义缺失)，前端构建成功 (Vite 构建通过，仅有 chunk 大小警告)
 2. **数据库交付物验证**: ✅ 所有迁移脚本存在 (`04-tenant-migration.sql`, `05-sharding-setup.sql`, `06-rbac-init.sql`)
 3. **文档交付物验证**: ✅ 4个核心文档全部存在且内容完整
-4. **测试交付物验证**: ⚠️ 测试覆盖率仅4.68%，需要实施核心资产保护策略（目标：核心资产100%覆盖，整体30-40%）
+4. **测试交付物验证**: ⚠️ 测试覆盖率18.19%（语句），11.64%（分支），23.51%（函数），未达目标（核心资产100%覆盖，整体30-40%）
 
 **修复完成情况**:
-- ✅ 剩余构建错误已修复 (TypeScript 编译无错误)
-- ⚠️ 测试覆盖率未达标 (当前4.68%，目标：核心资产100%覆盖，整体30-40%) - 需实施核心资产保护测试方案
+- ⚠️ 构建问题未修复: https-proxy-agent模块类型定义缺失 (gemini.service.ts)
+- ✅ 多租户隔离修复部分完成: 创建了专用Repository类，多数模块已更新，但3个文件仍使用泛型Repository
+- ✅ 分表策略验证完成: MySQL分区策略设计验证通过，但tenant_id字段缺失
+- ⚠️ 测试覆盖率有所提升但未达标: 从4.68%提升至18.19%，核心资产分支覆盖率未100%
 - ✅ PROGRESS.md 已更新反映真实状态
 
 ### 里程碑6: 核心资产保护测试实施方案 (1-2周)
@@ -560,6 +616,43 @@
 1. `src/shared/repositories/tests/base.repository.spec.ts` - 修复运行时错误（当前使用`describe.skip`）
 2. 更新`jest.config.js`配置，优化测试运行性能
 
+##### 6.5: 🔄 **2026-03-27**: 修复测试依赖问题
+- **任务描述**: 修复`https-proxy-agent`模块类型定义缺失问题，解决gemini.service.ts构建错误
+- **问题识别**: `src/modules/data-analytics/services/gemini.service.ts`第3行导入`https-proxy-agent`模块时类型定义缺失
+- **解决方案**:
+  1. 检查`package.json`中`https-proxy-agent`版本和类型定义
+  2. 添加缺失的类型定义或使用`@types/https-proxy-agent`
+  3. 修复导入语句，确保TypeScript编译通过
+- **技术方案**:
+  - 运行`npm install @types/https-proxy-agent --save-dev`安装类型定义
+  - 或更新`tsconfig.json`跳过类型检查（临时方案）
+  - 验证`npm run build`成功执行
+- **验收标准**:
+  - `npm run build`无类型错误
+  - gemini.service.ts编译通过
+  - 后端构建成功
+
+##### 6.6: 🔄 **2026-03-27**: 提升核心资产测试覆盖率至100%
+- **任务描述**: 提升核心资产测试覆盖率至100%语句、分支、函数覆盖率
+- **当前状态**:
+  - 多租户隔离逻辑: 100%语句覆盖率，93.75%分支覆盖率
+  - 认证鉴权系统: 97.95%语句覆盖率，85.71%分支覆盖率
+  - CloudProvider抽象层: 84.66%语句覆盖率，65.46%分支覆盖率
+- **具体工作**:
+  1. 为多租户隔离逻辑补充分支测试，达到100%分支覆盖率
+  2. 为认证鉴权系统补充分支测试，达到100%分支覆盖率
+  3. 为CloudProvider抽象层补充测试，达到100%语句和分支覆盖率
+  4. 编写缺失的集成测试和边界条件测试
+- **技术方案**:
+  - 分析覆盖率报告，识别未覆盖的分支
+  - 编写针对性的测试用例
+  - 使用测试数据工厂确保测试独立性
+- **验收标准**:
+  - 核心资产100%语句覆盖率
+  - 核心资产100%分支覆盖率
+  - 核心资产100%函数覆盖率
+  - 整体覆盖率提升至30-40%
+
 #### 实施步骤和时间安排
 
 **第一阶段：基础测试设施建立（1小时）**
@@ -628,6 +721,28 @@
   - 整体覆盖率提升至30-40%（当前未达标）
   - 核心资产覆盖率保持100%
 
+#### 任务6.6: 🔄 **2026-03-27**: 提升核心资产测试覆盖率至100%
+- **任务描述**: 将核心资产的测试覆盖率提升至100%分支覆盖率，确保多租户隔离、认证鉴权、CloudProvider抽象层等关键组件完全覆盖
+- **核心资产当前状态**:
+  1. 多租户隔离逻辑: 100%语句覆盖率，93.75%分支覆盖率
+  2. 认证鉴权系统: 97.95%语句覆盖率，85.71%分支覆盖率
+  3. CloudProvider抽象层: 84.66%语句覆盖率，65.46%分支覆盖率
+- **提升目标**:
+  1. 多租户隔离逻辑: 从93.75%分支覆盖率提升至100%
+  2. 认证鉴权系统: 从85.71%分支覆盖率提升至100%
+  3. CloudProvider抽象层: 从65.46%分支覆盖率提升至100%
+- **具体工作**:
+  1. 分析现有测试覆盖率报告，识别未覆盖的分支和路径
+  2. 为多租户隔离逻辑编写补充测试用例，覆盖所有分支条件
+  3. 为认证鉴权系统完善测试，覆盖所有权限检查和错误处理
+  4. 为CloudProvider抽象层编写完整测试，覆盖所有适配器接口和错误场景
+  5. 运行覆盖率验证，确保核心资产100%分支覆盖
+- **验收标准**:
+  - 多租户隔离逻辑: 100%分支覆盖率
+  - 认证鉴权系统: 100%分支覆盖率
+  - CloudProvider抽象层: 100%分支覆盖率
+  - 整体测试覆盖率≥30%
+
 ### 里程碑7: 数据库分表策略验证 (2-3天)
 
 #### 任务7.1: ✅ **2026-03-27**: 数据库分表策略验证（已完成，发现tenant_id字段缺失问题）
@@ -666,6 +781,29 @@
   - 错误处理、重试机制和监控指标完善
   - 私有部署适配器所有接口实现完成
   - CloudProvider生产就绪
+
+#### 任务7.3: 🔄 **2026-03-27**: 实施分表策略
+- **任务描述**: 执行`05-sharding-setup.sql`脚本，实施MySQL分区策略，解决tenant_id字段依赖问题
+- **前提条件**: 必须先完成Task #5.8（执行04-tenant-migration.sql），确保所有目标表都有tenant_id字段
+- **具体工作**:
+  1. 验证`scripts/05-sharding-setup.sql`脚本的完整性和正确性
+  2. 为以下表实施分区策略（按tenant_id哈希分16个分区）:
+     - `customer_profiles`
+     - `content_drafts`
+     - `publish_tasks`
+     - `marketing_strategies`
+     - `user_behaviors`
+  3. 验证分区创建成功，检查分区信息
+  4. 测试分区查询性能，验证分表策略效果
+- **技术方案**:
+  - 使用MySQL客户端执行分区脚本
+  - 分表实施后运行分区平衡性分析
+  - 测试单租户查询性能提升
+- **验收标准**:
+  - 所有目标表成功分区（按tenant_id哈希分16个分区）
+  - 分区查询性能验证通过
+  - 分区平衡性分析工具运行正常
+  - 分表策略与多租户隔离兼容性验证通过
 
 ### 里程碑8: 阶段一最终审计和阶段二入口验证 (1-2天)
 
