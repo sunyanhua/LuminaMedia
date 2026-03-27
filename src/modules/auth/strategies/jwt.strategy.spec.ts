@@ -7,6 +7,7 @@ import { User } from '../../../entities/user.entity';
 import { UserRole } from '../../../entities/user-role.entity';
 import { Role } from '../../../entities/role.entity';
 import { Permission } from '../../../entities/permission.entity';
+import { UserRepository } from '../../../shared/repositories/user.repository';
 
 describe('JwtStrategy', () => {
   let jwtStrategy: JwtStrategy;
@@ -26,7 +27,7 @@ describe('JwtStrategy', () => {
           },
         },
         {
-          provide: getRepositoryToken(User),
+          provide: UserRepository,
           useValue: {
             findOne: jest.fn(),
           },
@@ -48,7 +49,7 @@ describe('JwtStrategy', () => {
 
     jwtStrategy = module.get<JwtStrategy>(JwtStrategy);
     configService = module.get<ConfigService>(ConfigService);
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
+    userRepository = module.get<UserRepository>(UserRepository);
     userRoleRepository = module.get<Repository<UserRole>>(getRepositoryToken(UserRole));
     roleRepository = module.get<Repository<Role>>(getRepositoryToken(Role));
   });

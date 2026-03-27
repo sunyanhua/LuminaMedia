@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1774567859370" clover="3.2.0">
-  <project timestamp="1774567859370" name="All files">
-    <metrics statements="4707" coveredstatements="735" conditionals="3118" coveredconditionals="309" methods="910" coveredmethods="182" elements="8735" coveredelements="1226" complexity="0" loc="4707" ncloc="4707" packages="43" files="127" classes="127"/>
+<coverage generated="1774571184763" clover="3.2.0">
+  <project timestamp="1774571184763" name="All files">
+    <metrics statements="4707" coveredstatements="827" conditionals="3118" coveredconditionals="337" methods="910" coveredmethods="208" elements="8735" coveredelements="1372" complexity="0" loc="4707" ncloc="4707" packages="43" files="127" classes="127"/>
     <package name="src">
       <metrics statements="50" coveredstatements="9" conditionals="8" coveredconditionals="3" methods="6" coveredmethods="3"/>
       <file name="app.controller.ts" path="D:\GitHub\LuminaMedia\src\app.controller.ts">
@@ -559,19 +559,19 @@
         <line num="4" count="2" type="stmt"/>
         <line num="11" count="2" type="stmt"/>
         <line num="12" count="7" type="cond" truecount="3" falsecount="1"/>
-        <line num="16" count="6" type="stmt"/>
-        <line num="17" count="6" type="cond" truecount="4" falsecount="0"/>
-        <line num="18" count="4" type="stmt"/>
-        <line num="19" count="4" type="stmt"/>
-        <line num="20" count="4" type="stmt"/>
-        <line num="21" count="2" type="cond" truecount="2" falsecount="0"/>
-        <line num="22" count="1" type="stmt"/>
-        <line num="30" count="6" type="cond" truecount="4" falsecount="0"/>
-        <line num="31" count="3" type="stmt"/>
-        <line num="35" count="6" type="cond" truecount="2" falsecount="0"/>
-        <line num="36" count="2" type="stmt"/>
-        <line num="40" count="6" type="stmt"/>
-        <line num="43" count="6" type="stmt"/>
+        <line num="16" count="19" type="stmt"/>
+        <line num="17" count="19" type="cond" truecount="4" falsecount="0"/>
+        <line num="18" count="11" type="stmt"/>
+        <line num="19" count="11" type="stmt"/>
+        <line num="20" count="11" type="stmt"/>
+        <line num="21" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="22" count="4" type="stmt"/>
+        <line num="30" count="19" type="cond" truecount="4" falsecount="0"/>
+        <line num="31" count="6" type="stmt"/>
+        <line num="35" count="19" type="cond" truecount="2" falsecount="0"/>
+        <line num="36" count="9" type="stmt"/>
+        <line num="40" count="19" type="stmt"/>
+        <line num="43" count="19" type="stmt"/>
       </file>
     </package>
     <package name="src.modules.auth.services">
@@ -717,9 +717,9 @@
       </file>
     </package>
     <package name="src.modules.auth.strategies">
-      <metrics statements="30" coveredstatements="10" conditionals="20" coveredconditionals="12" methods="7" coveredmethods="0"/>
+      <metrics statements="30" coveredstatements="30" conditionals="20" coveredconditionals="15" methods="7" coveredmethods="7"/>
       <file name="jwt.strategy.ts" path="D:\GitHub\LuminaMedia\src\modules\auth\strategies\jwt.strategy.ts">
-        <metrics statements="30" coveredstatements="10" conditionals="20" coveredconditionals="12" methods="7" coveredmethods="0"/>
+        <metrics statements="30" coveredstatements="30" conditionals="20" coveredconditionals="15" methods="7" coveredmethods="7"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
@@ -730,26 +730,26 @@
         <line num="9" count="1" type="stmt"/>
         <line num="11" count="1" type="stmt"/>
         <line num="14" count="1" type="stmt"/>
-        <line num="16" count="0" type="cond" truecount="6" falsecount="2"/>
-        <line num="18" count="0" type="cond" truecount="3" falsecount="1"/>
-        <line num="20" count="0" type="cond" truecount="3" falsecount="1"/>
-        <line num="22" count="0" type="stmt"/>
-        <line num="24" count="0" type="stmt"/>
-        <line num="32" count="0" type="stmt"/>
-        <line num="37" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="38" count="0" type="stmt"/>
-        <line num="42" count="0" type="stmt"/>
-        <line num="47" count="0" type="stmt"/>
-        <line num="48" count="0" type="stmt"/>
-        <line num="54" count="0" type="stmt"/>
-        <line num="55" count="0" type="stmt"/>
-        <line num="56" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="57" count="0" type="stmt"/>
-        <line num="58" count="0" type="stmt"/>
-        <line num="68" count="0" type="stmt"/>
-        <line num="69" count="0" type="stmt"/>
-        <line num="72" count="0" type="stmt"/>
-        <line num="77" count="0" type="stmt"/>
+        <line num="16" count="5" type="cond" truecount="6" falsecount="2"/>
+        <line num="18" count="5" type="cond" truecount="3" falsecount="1"/>
+        <line num="20" count="5" type="cond" truecount="3" falsecount="1"/>
+        <line num="22" count="5" type="stmt"/>
+        <line num="24" count="5" type="stmt"/>
+        <line num="32" count="4" type="stmt"/>
+        <line num="37" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="42" count="3" type="stmt"/>
+        <line num="47" count="4" type="stmt"/>
+        <line num="48" count="3" type="stmt"/>
+        <line num="54" count="3" type="stmt"/>
+        <line num="55" count="3" type="stmt"/>
+        <line num="56" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="57" count="4" type="stmt"/>
+        <line num="58" count="8" type="stmt"/>
+        <line num="68" count="3" type="stmt"/>
+        <line num="69" count="8" type="stmt"/>
+        <line num="72" count="3" type="stmt"/>
+        <line num="77" count="4" type="stmt"/>
       </file>
     </package>
     <package name="src.modules.customer-data">
@@ -4776,12 +4776,12 @@
       </file>
     </package>
     <package name="src.shared.repositories">
-      <metrics statements="259" coveredstatements="115" conditionals="66" coveredconditionals="21" methods="63" coveredmethods="21"/>
+      <metrics statements="259" coveredstatements="125" conditionals="66" coveredconditionals="24" methods="63" coveredmethods="24"/>
       <file name="base.repository.ts" path="D:\GitHub\LuminaMedia\src\shared\repositories\base.repository.ts">
         <metrics statements="92" coveredstatements="74" conditionals="16" coveredconditionals="12" methods="11" coveredmethods="11"/>
-        <line num="1" count="7" type="stmt"/>
-        <line num="2" count="7" type="stmt"/>
-        <line num="8" count="7" type="stmt"/>
+        <line num="1" count="8" type="stmt"/>
+        <line num="2" count="8" type="stmt"/>
+        <line num="8" count="8" type="stmt"/>
         <line num="9" count="38" type="stmt"/>
         <line num="16" count="2" type="stmt"/>
         <line num="17" count="2" type="stmt"/>
@@ -4793,7 +4793,7 @@
         <line num="31" count="2" type="stmt"/>
         <line num="32" count="2" type="stmt"/>
         <line num="33" count="2" type="stmt"/>
-        <line num="34" count="1" type="stmt"/>
+        <line num="34" count="2" type="stmt"/>
         <line num="35" count="1" type="stmt"/>
         <line num="37" count="1" type="stmt"/>
         <line num="38" count="1" type="stmt"/>
@@ -4941,9 +4941,9 @@
         <line num="32" count="0" type="stmt"/>
       </file>
       <file name="sharding.repository.ts" path="D:\GitHub\LuminaMedia\src\shared\repositories\sharding.repository.ts">
-        <metrics statements="59" coveredstatements="0" conditionals="19" coveredconditionals="0" methods="16" coveredmethods="0"/>
-        <line num="3" count="0" type="stmt"/>
-        <line num="10" count="0" type="stmt"/>
+        <metrics statements="59" coveredstatements="10" conditionals="19" coveredconditionals="3" methods="16" coveredmethods="3"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
         <line num="14" count="0" type="stmt"/>
         <line num="23" count="0" type="stmt"/>
         <line num="24" count="0" type="stmt"/>
@@ -4991,22 +4991,22 @@
         <line num="176" count="0" type="stmt"/>
         <line num="181" count="0" type="stmt"/>
         <line num="183" count="0" type="stmt"/>
-        <line num="204" count="0" type="stmt"/>
-        <line num="212" count="0" type="stmt"/>
-        <line num="215" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="204" count="1" type="stmt"/>
+        <line num="212" count="2" type="stmt"/>
+        <line num="215" count="2" type="cond" truecount="1" falsecount="1"/>
         <line num="216" count="0" type="stmt"/>
-        <line num="220" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="220" count="2" type="cond" truecount="1" falsecount="1"/>
         <line num="221" count="0" type="stmt"/>
-        <line num="226" count="0" type="stmt"/>
-        <line num="240" count="0" type="stmt"/>
-        <line num="252" count="0" type="stmt"/>
-        <line num="275" count="0" type="stmt"/>
+        <line num="226" count="2" type="stmt"/>
+        <line num="240" count="2" type="stmt"/>
+        <line num="252" count="1" type="stmt"/>
+        <line num="275" count="1" type="stmt"/>
       </file>
       <file name="tenant.repository.ts" path="D:\GitHub\LuminaMedia\src\shared\repositories\tenant.repository.ts">
         <metrics statements="44" coveredstatements="39" conditionals="14" coveredconditionals="9" methods="10" coveredmethods="10"/>
-        <line num="3" count="6" type="stmt"/>
-        <line num="4" count="6" type="stmt"/>
-        <line num="10" count="6" type="stmt"/>
+        <line num="3" count="7" type="stmt"/>
+        <line num="4" count="7" type="stmt"/>
+        <line num="10" count="7" type="stmt"/>
         <line num="15" count="18" type="stmt"/>
         <line num="22" count="17" type="stmt"/>
         <line num="23" count="17" type="stmt"/>
@@ -5068,77 +5068,77 @@
       </file>
     </package>
     <package name="src.shared.services">
-      <metrics statements="95" coveredstatements="12" conditionals="54" coveredconditionals="2" methods="25" coveredmethods="4"/>
+      <metrics statements="95" coveredstatements="74" conditionals="54" coveredconditionals="24" methods="25" coveredmethods="20"/>
       <file name="sharding.service.ts" path="D:\GitHub\LuminaMedia\src\shared\services\sharding.service.ts">
-        <metrics statements="83" coveredstatements="0" conditionals="52" coveredconditionals="0" methods="21" coveredmethods="0"/>
-        <line num="1" count="0" type="stmt"/>
-        <line num="2" count="0" type="stmt"/>
-        <line num="3" count="0" type="stmt"/>
-        <line num="10" count="0" type="stmt"/>
-        <line num="11" count="0" type="stmt"/>
-        <line num="13" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="20" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="28" count="0" type="stmt"/>
-        <line num="29" count="0" type="stmt"/>
-        <line num="30" count="0" type="stmt"/>
-        <line num="31" count="0" type="stmt"/>
-        <line num="32" count="0" type="stmt"/>
-        <line num="34" count="0" type="stmt"/>
-        <line num="35" count="0" type="stmt"/>
-        <line num="43" count="0" type="stmt"/>
-        <line num="51" count="0" type="stmt"/>
-        <line num="52" count="0" type="cond" truecount="0" falsecount="2"/>
+        <metrics statements="83" coveredstatements="62" conditionals="52" coveredconditionals="22" methods="21" coveredmethods="16"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="11" count="10" type="stmt"/>
+        <line num="13" count="10" type="cond" truecount="3" falsecount="1"/>
+        <line num="20" count="1" type="cond" truecount="2" falsecount="0"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="30" count="5" type="stmt"/>
+        <line num="31" count="5" type="stmt"/>
+        <line num="32" count="1" type="stmt"/>
+        <line num="34" count="4" type="stmt"/>
+        <line num="35" count="4" type="stmt"/>
+        <line num="43" count="1" type="stmt"/>
+        <line num="51" count="5" type="stmt"/>
+        <line num="52" count="1" type="cond" truecount="1" falsecount="1"/>
         <line num="53" count="0" type="stmt"/>
-        <line num="61" count="0" type="stmt"/>
-        <line num="62" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="61" count="1" type="stmt"/>
+        <line num="62" count="1" type="cond" truecount="1" falsecount="1"/>
         <line num="63" count="0" type="stmt"/>
-        <line num="72" count="0" type="stmt"/>
-        <line num="73" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="73" count="1" type="cond" truecount="1" falsecount="1"/>
         <line num="74" count="0" type="stmt"/>
-        <line num="82" count="0" type="stmt"/>
-        <line num="83" count="0" type="stmt"/>
-        <line num="84" count="0" type="stmt"/>
-        <line num="86" count="0" type="stmt"/>
-        <line num="87" count="0" type="stmt"/>
+        <line num="82" count="1" type="stmt"/>
+        <line num="83" count="1" type="stmt"/>
+        <line num="84" count="1" type="stmt"/>
+        <line num="86" count="1" type="stmt"/>
+        <line num="87" count="1" type="stmt"/>
         <line num="95" count="0" type="stmt"/>
-        <line num="103" count="0" type="stmt"/>
-        <line num="118" count="0" type="stmt"/>
-        <line num="125" count="0" type="stmt"/>
-        <line num="132" count="0" type="stmt"/>
-        <line num="133" count="0" type="stmt"/>
-        <line num="140" count="0" type="stmt"/>
-        <line num="146" count="0" type="stmt"/>
-        <line num="147" count="0" type="stmt"/>
-        <line num="154" count="0" type="stmt"/>
-        <line num="161" count="0" type="stmt"/>
-        <line num="162" count="0" type="stmt"/>
-        <line num="169" count="0" type="stmt"/>
-        <line num="186" count="0" type="stmt"/>
-        <line num="193" count="0" type="stmt"/>
-        <line num="194" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="103" count="4" type="stmt"/>
+        <line num="118" count="4" type="stmt"/>
+        <line num="125" count="5" type="stmt"/>
+        <line num="132" count="5" type="stmt"/>
+        <line num="133" count="5" type="stmt"/>
+        <line num="140" count="7" type="stmt"/>
+        <line num="146" count="7" type="stmt"/>
+        <line num="147" count="7" type="stmt"/>
+        <line num="154" count="1" type="stmt"/>
+        <line num="161" count="1" type="stmt"/>
+        <line num="162" count="1" type="stmt"/>
+        <line num="169" count="1" type="stmt"/>
+        <line num="186" count="1" type="stmt"/>
+        <line num="193" count="2" type="stmt"/>
+        <line num="194" count="2" type="cond" truecount="1" falsecount="1"/>
         <line num="195" count="0" type="stmt"/>
-        <line num="198" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="199" count="0" type="stmt"/>
-        <line num="200" count="0" type="stmt"/>
-        <line num="201" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="202" count="0" type="stmt"/>
-        <line num="205" count="0" type="stmt"/>
-        <line num="211" count="0" type="stmt"/>
-        <line num="228" count="0" type="stmt"/>
-        <line num="239" count="0" type="stmt"/>
-        <line num="246" count="0" type="stmt"/>
-        <line num="247" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="198" count="8" type="cond" truecount="1" falsecount="1"/>
+        <line num="199" count="2" type="stmt"/>
+        <line num="200" count="2" type="stmt"/>
+        <line num="201" count="8" type="cond" truecount="1" falsecount="1"/>
+        <line num="202" count="8" type="stmt"/>
+        <line num="205" count="2" type="stmt"/>
+        <line num="211" count="1" type="stmt"/>
+        <line num="228" count="1" type="stmt"/>
+        <line num="239" count="1" type="stmt"/>
+        <line num="246" count="2" type="stmt"/>
+        <line num="247" count="2" type="cond" truecount="1" falsecount="1"/>
         <line num="248" count="0" type="stmt"/>
-        <line num="255" count="0" type="stmt"/>
-        <line num="256" count="0" type="stmt"/>
-        <line num="257" count="0" type="stmt"/>
-        <line num="259" count="0" type="stmt"/>
-        <line num="274" count="0" type="stmt"/>
-        <line num="275" count="0" type="stmt"/>
-        <line num="276" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="284" count="0" type="stmt"/>
-        <line num="285" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="286" count="0" type="stmt"/>
+        <line num="255" count="2" type="stmt"/>
+        <line num="256" count="2" type="stmt"/>
+        <line num="257" count="2" type="stmt"/>
+        <line num="259" count="2" type="stmt"/>
+        <line num="274" count="2" type="stmt"/>
+        <line num="275" count="2" type="stmt"/>
+        <line num="276" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="284" count="2" type="stmt"/>
+        <line num="285" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="286" count="2" type="stmt"/>
         <line num="287" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="288" count="0" type="stmt"/>
         <line num="290" count="0" type="stmt"/>
@@ -5157,18 +5157,18 @@
       </file>
       <file name="tenant-context.service.ts" path="D:\GitHub\LuminaMedia\src\shared\services\tenant-context.service.ts">
         <metrics statements="12" coveredstatements="12" conditionals="2" coveredconditionals="2" methods="4" coveredmethods="4"/>
-        <line num="1" count="11" type="stmt"/>
-        <line num="2" count="11" type="stmt"/>
-        <line num="9" count="11" type="stmt"/>
-        <line num="10" count="11" type="stmt"/>
-        <line num="16" count="12" type="stmt"/>
+        <line num="1" count="12" type="stmt"/>
+        <line num="2" count="12" type="stmt"/>
+        <line num="9" count="12" type="stmt"/>
+        <line num="10" count="12" type="stmt"/>
+        <line num="16" count="25" type="stmt"/>
         <line num="23" count="1" type="stmt"/>
-        <line num="30" count="8" type="stmt"/>
-        <line num="31" count="8" type="cond" truecount="2" falsecount="0"/>
+        <line num="30" count="21" type="stmt"/>
+        <line num="31" count="21" type="cond" truecount="2" falsecount="0"/>
         <line num="33" count="1" type="stmt"/>
-        <line num="35" count="7" type="stmt"/>
+        <line num="35" count="20" type="stmt"/>
         <line num="42" count="1" type="stmt"/>
-        <line num="46" count="11" type="stmt"/>
+        <line num="46" count="12" type="stmt"/>
       </file>
     </package>
     <package name="src.shared.subscribers">

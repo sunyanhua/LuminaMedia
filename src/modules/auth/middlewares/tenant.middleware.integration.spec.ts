@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, Controller, Get, Module } from '@nestjs/common';
 import { Request } from 'express';
-import * as request from 'supertest';
+import request from 'supertest';
 import { TenantMiddleware } from './tenant.middleware';
 import { JwtService } from '@nestjs/jwt';
 import { TenantContextService } from '../../../shared/services/tenant-context.service';

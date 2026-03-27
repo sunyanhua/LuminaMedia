@@ -107,7 +107,7 @@ describe('TenantRepository', () => {
 
       const result = await testRepository.find();
 
-      expect(mockTypeOrmRepository.manager.createQueryBuilder).toHaveBeenCalledWith(TestTenantEntity, 'TestTenantEntity');
+      expect(mockTypeOrmRepository.manager.createQueryBuilder).toHaveBeenCalledWith(TestTenantEntity, 'TestTenantEntity', undefined);
       expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('testEntity.tenantId = :tenantId', { tenantId });
       expect(mockQueryBuilder.getMany).toHaveBeenCalled();
       expect(result).toEqual(entities);
@@ -176,8 +176,8 @@ describe('TenantRepository', () => {
 
       const queryBuilder = testRepository.createQueryBuilder('alias');
 
-      expect(mockTypeOrmRepository.manager.createQueryBuilder).toHaveBeenCalledWith(TestTenantEntity, 'alias');
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('alias.tenantId = :tenantId', { tenantId });
+      expect(mockTypeOrmRepository.manager.createQueryBuilder).toHaveBeenCalledWith(TestTenantEntity, 'alias', undefined);
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('testEntity.tenantId = :tenantId', { tenantId });
       expect(queryBuilder).toBe(mockQueryBuilder);
     });
   });

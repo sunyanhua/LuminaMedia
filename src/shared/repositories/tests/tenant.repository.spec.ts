@@ -54,6 +54,7 @@ describe('TenantRepository', () => {
       find: jest.fn(),
       manager: {
         createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
+        find: jest.fn(),
       },
       metadata: {
         target: TestEntity,
