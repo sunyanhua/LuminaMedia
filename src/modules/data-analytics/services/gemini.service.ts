@@ -1,7 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-// import { HttpsProxyAgent } from 'https-proxy-agent';
-const HttpsProxyAgent = require('https-proxy-agent').HttpsProxyAgent;
+import { HttpsProxyAgent } from 'https-proxy-agent';
 
 import {
   AIEngine,

@@ -31,7 +31,7 @@ export abstract class BaseRepository<T extends ObjectLiteral> extends Repository
     try {
       this.logger.debug(`Finding entities with options: ${JSON.stringify(options)}`);
       const result = await super.find(options);
-      this.logger.debug(`Found ${result.length} entities`);
+      this.logger.debug(`Found ${result ? result.length : 0} entities`);
       return result;
     } catch (error) {
       this.logger.error(`Failed to find entities: ${error.message}`, error.stack);

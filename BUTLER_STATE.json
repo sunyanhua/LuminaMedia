@@ -1,8 +1,6 @@
 {
-  "status": "RUNNING",
-  "task_index": 1,
-  "total_tasks": 3,
-  "current_task": "任务1：解决文档同步问题。问题：PROGRESS.md头部状态仍显示旧信息，phase-1-foundation.md里程碑7.1仍显示待实施。需：①检查PROGRESS.md最新进展区，补充本轮所有完成任务记录 ②检查phase-1-foundation.md里程碑6-8任务状态，补充完成时间戳 ③确认所有最新进展条目与TASKS.md一致 ④运行npm test确认系统状态正常，更新PROGRESS.md",
-  "attempt": 1,
-  "last_start": "2026-03-27 08:56:13"
+  "status": "IDLE",
+  "last_result": "SUCCESS",
+  "completed_tasks": 3,
+  "total_tasks": 3
 }

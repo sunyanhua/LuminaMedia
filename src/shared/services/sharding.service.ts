@@ -144,6 +144,7 @@ export class ShardingService {
         AND table_name = ?
     `;
     const result = await this.connection.query(query, [tableName]);
+    if (!result || !Array.isArray(result) || result.length === 0) return false;
     return result[0]?.table_count > 0;
   }
 
