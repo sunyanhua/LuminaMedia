@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">7.62% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/118</span>
+                <span class='fraction'>9/118</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">12.76% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/47</span>
+                <span class='fraction'>6/47</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">6.14% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/114</span>
+                <span class='fraction'>7/114</span>
             </div>
         
             
@@ -513,21 +513,21 @@
 <a name='L448'></a><a href='#L448'>448</a>
 <a name='L449'></a><a href='#L449'>449</a>
 <a name='L450'></a><a href='#L450'>450</a>
-<a name='L451'></a><a href='#L451'>451</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L451'></a><a href='#L451'>451</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -963,26 +963,26 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import {</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import {
   Injectable,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-<span class="cstat-no" title="statement not covered" >import { InjectRepository } from '@nestjs/typeorm';</span>
+import { InjectRepository } from '@nestjs/typeorm';
 import { DataImportJob } from '../../../entities/data-import-job.entity';
 import { CustomerProfile } from '../../../entities/customer-profile.entity';
-<span class="cstat-no" title="statement not covered" >import { DataImportStatus } from '../../../shared/enums/data-import-status.enum';</span>
-<span class="cstat-no" title="statement not covered" >import { SourceType } from '../../../shared/enums/source-type.enum';</span>
-<span class="cstat-no" title="statement not covered" >import { DataImportJobRepository } from '../../../shared/repositories/data-import-job.repository';</span>
-<span class="cstat-no" title="statement not covered" >import { CustomerProfileRepository } from '../../../shared/repositories/customer-profile.repository';</span>
+import { DataImportStatus } from '../../../shared/enums/data-import-status.enum';
+import { SourceType } from '../../../shared/enums/source-type.enum';
+import { DataImportJobRepository } from '../../../shared/repositories/data-import-job.repository';
+import { CustomerProfileRepository } from '../../../shared/repositories/customer-profile.repository';
 &nbsp;
 @Injectable()
-export <span class="cstat-no" title="statement not covered" >class <span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" >DataImportService </span>{</span></span>
+export class DataImportService {
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     @InjectRepository(DataImportJobRepository)
-    private <span class="cstat-no" title="statement not covered" >dataImportJobRepository: D</span>ataImportJobRepository,
+    private <span class="cstat-no" title="statement not covered" >dataImportJobRepository: D</span>ataImportJobRepository<span class="branch-1 cbranch-no" title="branch not covered" >,</span>
     @InjectRepository(CustomerProfileRepository)
-    private <span class="cstat-no" title="statement not covered" >customerProfileRepository: C</span>ustomerProfileRepository,
+    private <span class="cstat-no" title="statement not covered" >customerProfileRepository: C</span>ustomerProfileRepository<span class="branch-1 cbranch-no" title="branch not covered" >,</span>
   ) {}
 &nbsp;
   /**
@@ -1420,7 +1420,7 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-27T01:46:04.960Z
+                at 2026-03-27T15:34:53.550Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

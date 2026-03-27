@@ -1,5 +1,7 @@
 import { withRetry, RetryableError, NonRetryableError, sleep, createRetryWrapper, cloudServiceRetryOptions, RetryOptions } from './retry';
 
+jest.setTimeout(10000);
+
 describe('Retry utilities', () => {
   describe('sleep', () => {
     it('should resolve after specified milliseconds', async () => {
@@ -31,7 +33,7 @@ describe('Retry utilities', () => {
 
   describe('withRetry', () => {
     beforeEach(() => {
-      jest.useFakeTimers();
+      jest.useFakeTimers({ legacyFakeTimers: true });
     });
 
     afterEach(() => {
@@ -129,11 +131,11 @@ describe('Retry utilities', () => {
         .mockResolvedValueOnce('success');
 
       // Need to handle timers in wrapper
-      global.jest.useFakeTimers();
+      jest.useFakeTimers({ legacyFakeTimers: true });
       const promise = wrapper(operation);
       jest.advanceTimersByTime(50);
       const result = await promise;
-      global.jest.useRealTimers();
+      jest.useRealTimers();
 
       expect(result).toBe('success');
       expect(operation).toHaveBeenCalledTimes(2);

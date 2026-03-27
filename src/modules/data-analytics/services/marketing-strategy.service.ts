@@ -9,16 +9,18 @@ import { GenerationMethod } from '../../../shared/enums/generation-method.enum';
 import { GeminiService } from './gemini.service';
 import { QwenService } from './qwen.service';
 import { CampaignSummary, AIEngine } from '../interfaces/gemini.interface';
+import { MarketingCampaignRepository } from '../../../shared/repositories/marketing-campaign.repository';
+import { MarketingStrategyRepository } from '../../../shared/repositories/marketing-strategy.repository';
 
 @Injectable()
 export class MarketingStrategyService {
   private readonly logger = new Logger(MarketingStrategyService.name);
 
   constructor(
-    @InjectRepository(MarketingCampaign)
-    private campaignRepository: Repository<MarketingCampaign>,
-    @InjectRepository(MarketingStrategy)
-    private strategyRepository: Repository<MarketingStrategy>,
+    @InjectRepository(MarketingCampaignRepository)
+    private campaignRepository: MarketingCampaignRepository,
+    @InjectRepository(MarketingStrategyRepository)
+    private strategyRepository: MarketingStrategyRepository,
     private readonly configService: ConfigService,
     private readonly geminiService: GeminiService,
     private readonly qwenService: QwenService,

@@ -131,6 +131,43 @@ describe('TenantRepository', () => {
       );
       expect(result).toEqual(foundEntities);
     });
+
+    it('should add where condition when options.where is provided', async () => {
+      const foundEntities = [
+        { id: 'id1', name: 'Entity1', tenantId: 'test-tenant-id' },
+      ];
+      (mockQueryBuilder.getMany as jest.Mock).mockResolvedValue(foundEntities);
+
+      const result = await testRepository.find({ where: { name: 'Entity1' } });
+
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith({ name: 'Entity1' });
+      expect(result).toEqual(foundEntities);
+    });
+
+    it('should add order condition when options.order is provided', async () => {
+      const foundEntities = [
+        { id: 'id1', name: 'Entity1', tenantId: 'test-tenant-id' },
+      ];
+      (mockQueryBuilder.getMany as jest.Mock).mockResolvedValue(foundEntities);
+
+      const result = await testRepository.find({ order: { createdAt: 'DESC' } });
+
+      expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith({ createdAt: 'DESC' });
+      expect(result).toEqual(foundEntities);
+    });
+
+    it('should add skip and take when options.skip and options.take are provided', async () => {
+      const foundEntities = [
+        { id: 'id1', name: 'Entity1', tenantId: 'test-tenant-id' },
+      ];
+      (mockQueryBuilder.getMany as jest.Mock).mockResolvedValue(foundEntities);
+
+      const result = await testRepository.find({ skip: 10, take: 5 });
+
+      expect(mockQueryBuilder.skip).toHaveBeenCalledWith(10);
+      expect(mockQueryBuilder.take).toHaveBeenCalledWith(5);
+      expect(result).toEqual(foundEntities);
+    });
   });
 
   describe('findOne', () => {
@@ -146,10 +183,20 @@ describe('TenantRepository', () => {
       );
       expect(result).toEqual(entity);
     });
+
+    it('should add where condition when options.where is provided', async () => {
+      const entity = { id: 'id1', name: 'Entity1', tenantId: 'test-tenant-id' };
+      (mockQueryBuilder.getOne as jest.Mock).mockResolvedValue(entity);
+
+      const result = await testRepository.findOne({ where: { name: 'Entity1' } });
+
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith({ name: 'Entity1' });
+      expect(result).toEqual(entity);
+    });
   });
 
   describe('findAllTenants', () => {
-    it.skip('should skip tenant filtering for admin access', async () => {
+    it('should skip tenant filtering for admin access', async () => {
       const allEntities = [
         { id: 'id1', name: 'Entity1', tenantId: 'tenant1' },
         { id: 'id2', name: 'Entity2', tenantId: 'tenant2' },
@@ -178,11 +225,4 @@ describe('TenantRepository', () => {
     });
 
     it('should return false when entity does not exist for current tenant', async () => {
-      jest.spyOn(testRepository, 'findOne').mockResolvedValue(null);
-
-      const result = await testRepository.checkTenantAccess('non-existent-id');
-
-      expect(result).toBe(false);
-    });
-  });
-});
+      jest.spyOn(testReposi

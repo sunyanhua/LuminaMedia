@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/14</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -99,21 +99,19 @@
 <a name='L34'></a><a href='#L34'>34</a>
 <a name='L35'></a><a href='#L35'>35</a>
 <a name='L36'></a><a href='#L36'>36</a>
-<a name='L37'></a><a href='#L37'>37</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L37'></a><a href='#L37'>37</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -134,20 +132,22 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { Module } from '@nestjs/common';</span>
-<span class="cstat-no" title="statement not covered" >import { TypeOrmModule } from '@nestjs/typeorm';</span>
-<span class="cstat-no" title="statement not covered" >import { CustomerProfile } from '../../entities/customer-profile.entity';</span>
-<span class="cstat-no" title="statement not covered" >import { DataImportJob } from '../../entities/data-import-job.entity';</span>
-<span class="cstat-no" title="statement not covered" >import { CustomerSegment } from '../../entities/customer-segment.entity';</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { CustomerProfile } from '../../entities/customer-profile.entity';
+import { DataImportJob } from '../../entities/data-import-job.entity';
+import { CustomerSegment } from '../../entities/customer-segment.entity';
 // 服务导入
-<span class="cstat-no" title="statement not covered" >import { CustomerProfileService } from './services/customer-profile.service';</span>
-<span class="cstat-no" title="statement not covered" >import { DataImportService } from './services/data-import.service';</span>
-<span class="cstat-no" title="statement not covered" >import { CustomerAnalyticsService } from './services/customer-analytics.service';</span>
+import { CustomerProfileService } from './services/customer-profile.service';
+import { DataImportService } from './services/data-import.service';
+import { CustomerAnalyticsService } from './services/customer-analytics.service';
 // 控制器导入
-<span class="cstat-no" title="statement not covered" >import { CustomerProfileController } from './controllers/customer-profile.controller';</span>
-<span class="cstat-no" title="statement not covered" >import { DataImportController } from './controllers/data-import.controller';</span>
-<span class="cstat-no" title="statement not covered" >import { CustomerAnalyticsController } from './controllers/customer-analytics.controller';</span>
+import { CustomerProfileController } from './controllers/customer-profile.controller';
+import { DataImportController } from './controllers/data-import.controller';
+import { CustomerAnalyticsController } from './controllers/customer-analytics.controller';
 &nbsp;
 @Module({
   imports: [
@@ -170,7 +170,7 @@
     TypeOrmModule.forFeature([CustomerProfile, DataImportJob, CustomerSegment]),
   ],
 })
-export <span class="cstat-no" title="statement not covered" >class <span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" >CustomerDataModule </span>{}</span></span>
+export class CustomerDataModule {}
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -178,7 +178,7 @@ export <span class="cstat-no" title="statement not covered" >class <span class="
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-27T01:46:04.960Z
+                at 2026-03-27T15:34:53.550Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

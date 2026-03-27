@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">2.45% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/610</span>
+                <span class='fraction'>15/610</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">0.74% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/405</span>
+                <span class='fraction'>3/405</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">1.69% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/59</span>
+                <span class='fraction'>1/59</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">2.25% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/577</span>
+                <span class='fraction'>13/577</span>
             </div>
         
             
@@ -2174,11 +2174,11 @@
 <a name='L2109'></a><a href='#L2109'>2109</a>
 <a name='L2110'></a><a href='#L2110'>2110</a>
 <a name='L2111'></a><a href='#L2111'>2111</a>
-<a name='L2112'></a><a href='#L2112'>2112</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L2112'></a><a href='#L2112'>2112</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2195,22 +2195,22 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -4285,11 +4285,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { Injectable, Logger, OnModuleInit } from '@nestjs/common';</span>
-<span class="cstat-no" title="statement not covered" >import { ConfigService } from '@nestjs/config';</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 &nbsp;
-<span class="cstat-no" title="statement not covered" >import {</span>
+import {
   AIEngine,
   GeminiConfig,
   GeminiStrategyResponse,
@@ -4306,22 +4306,22 @@ import {
   ContentGenerationResult,
   ContentQualityAssessment,
 } from '../interfaces/content-generation.interface';
-<span class="cstat-no" title="statement not covered" >import { Platform } from '../../../shared/enums/platform.enum';</span>
+import { Platform } from '../../../shared/enums/platform.enum';
 &nbsp;
 @Injectable()
-export class <span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" >GeminiService<span class="cstat-no" title="statement not covered" > </span>implements OnModuleInit {</span></span>
-  private readonly logger = <span class="cstat-no" title="statement not covered" >new Logger(GeminiService.name);</span>
+export class GeminiService implements OnModuleInit {
+  private readonly logger = new Logger(GeminiService.name);
   private config: GeminiConfig;
-  private isAvailable = <span class="cstat-no" title="statement not covered" >false;</span>
+  private isAvailable = false;
 &nbsp;
   // 多API Key支持
-  private apiKeys: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-  private currentKeyIndex = <span class="cstat-no" title="statement not covered" >0;</span>
-  private keyFailures = <span class="cstat-no" title="statement not covered" >new Map&lt;string, number&gt;();</span>
-  private maxFailuresPerKey = <span class="cstat-no" title="statement not covered" >3;</span>
-  private keyRotationMode: 'sequential' | 'random' = <span class="cstat-no" title="statement not covered" >'sequential';</span>
+  private apiKeys: string[] = [];
+  private currentKeyIndex = 0;
+  private keyFailures = new Map&lt;string, number&gt;();
+  private maxFailuresPerKey = 3;
+  private keyRotationMode: 'sequential' | 'random' = 'sequential';
 &nbsp;
-<span class="fstat-no" title="function not covered" >  constructor(private <span class="cstat-no" title="statement not covered" >c</span>onfigService: C</span>onfigService) {}
+  constructor(private configService: ConfigService<span class="branch-1 cbranch-no" title="branch not covered" >) {}</span>
 &nbsp;
 <span class="fstat-no" title="function not covered" >  async </span>onModuleInit() {
 <span class="cstat-no" title="statement not covered" >    console.log('LuminaMedia Proxy active on:', process.env.HTTPS_PROXY);</span>
@@ -6403,7 +6403,7 @@ ${platformInstructions}
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-27T01:46:04.960Z
+                at 2026-03-27T15:34:53.550Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

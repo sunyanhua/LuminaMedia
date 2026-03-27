@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">60% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>12/20</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -92,63 +92,63 @@
 <a name='L27'></a><a href='#L27'>27</a>
 <a name='L28'></a><a href='#L28'>28</a>
 <a name='L29'></a><a href='#L29'>29</a>
-<a name='L30'></a><a href='#L30'>30</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L30'></a><a href='#L30'>30</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { IsEnum, IsString, IsOptional, IsObject } from 'class-validator';</span>
-<span class="cstat-no" title="statement not covered" >import { CustomerType } from '../../../shared/enums/customer-type.enum';</span>
-<span class="cstat-no" title="statement not covered" >import { Industry } from '../../../shared/enums/industry.enum';</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { IsEnum, IsString, IsOptional, IsObject } from 'class-validator';
+import { CustomerType } from '../../../shared/enums/customer-type.enum';
+import { Industry } from '../../../shared/enums/industry.enum';
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export class C</span>reateCustomerProfileDto {
+export class CreateCustomerProfileDto {
   @IsString()
-<span class="cstat-no" title="statement not covered" >  userId: string;</span>
+  userId: string;
 &nbsp;
   @IsString()
-<span class="cstat-no" title="statement not covered" >  customerName: string;</span>
+  customerName: string;
 &nbsp;
   @IsEnum(CustomerType)
-<span class="cstat-no" title="statement not covered" >  customerType: CustomerType;</span>
+  customerType: CustomerType<span class="branch-0 cbranch-no" title="branch not covered" >;</span>
 &nbsp;
   @IsEnum(Industry)
-<span class="cstat-no" title="statement not covered" >  industry: Industry;</span>
+  industry: Industry<span class="branch-0 cbranch-no" title="branch not covered" >;</span>
 &nbsp;
   @IsObject()
   @IsOptional()
-<span class="cstat-no" title="statement not covered" >  dataSources?: Record&lt;string, any&gt;;</span>
+  dataSources?: <span class="branch-1 cbranch-no" title="branch not covered" >Record<span class="branch-0 cbranch-no" title="branch not covered" >&lt;</span>string, any&gt;;</span>
 &nbsp;
   @IsObject()
   @IsOptional()
-<span class="cstat-no" title="statement not covered" >  profileData?: Record&lt;string, any&gt;;</span>
+  profileData?: <span class="branch-1 cbranch-no" title="branch not covered" >Record<span class="branch-0 cbranch-no" title="branch not covered" >&lt;</span>string, any&gt;;</span>
 &nbsp;
   @IsObject()
   @IsOptional()
-<span class="cstat-no" title="statement not covered" >  behaviorInsights?: Record&lt;string, any&gt;;</span>
+  behaviorInsights?: <span class="branch-1 cbranch-no" title="branch not covered" >Record<span class="branch-0 cbranch-no" title="branch not covered" >&lt;</span>string, any&gt;;</span>
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -157,7 +157,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-27T01:46:04.960Z
+                at 2026-03-27T15:34:53.550Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
