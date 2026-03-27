@@ -73,19 +73,23 @@ export class MarketingStrategyService {
       if (this.qwenService.isQwenAvailable()) {
         try {
           this.logger.log('尝试使用 Qwen API 生成营销策略');
-          const qwenResponse = await this.qwenService.generateMarketingStrategy({
-            campaignSummary,
-            strategyType: type,
-            useFallback: true,
-            timeout: 30000,
-          });
+          const qwenResponse = await this.qwenService.generateMarketingStrategy(
+            {
+              campaignSummary,
+              strategyType: type,
+              useFallback: true,
+              timeout: 30000,
+            },
+          );
 
           if (qwenResponse.success && qwenResponse.data) {
             aiResult = qwenResponse.data;
             fallbackUsed = qwenResponse.fallbackUsed || false;
             isTruncated = qwenResponse.isTruncated || false;
             aiEngine = AIEngine.QWEN;
-            this.logger.log(`Qwen API 生成成功，引擎: ${aiEngine}, 截断状态: ${isTruncated}`);
+            this.logger.log(
+              `Qwen API 生成成功，引擎: ${aiEngine}, 截断状态: ${isTruncated}`,
+            );
           } else {
             aiError = qwenResponse.error;
             this.logger.warn(`Qwen API 失败: ${aiError?.message}`);
@@ -105,19 +109,22 @@ export class MarketingStrategyService {
       if (!aiResult && this.geminiService.isGeminiAvailable()) {
         try {
           this.logger.log('尝试使用 Gemini API 生成营销策略');
-          const geminiResponse = await this.geminiService.generateMarketingStrategy({
-            campaignSummary,
-            strategyType: type,
-            useFallback: true,
-            timeout: 30000,
-          });
+          const geminiResponse =
+            await this.geminiService.generateMarketingStrategy({
+              campaignSummary,
+              strategyType: type,
+              useFallback: true,
+              timeout: 30000,
+            });
 
           if (geminiResponse.success && geminiResponse.data) {
             aiResult = geminiResponse.data;
             fallbackUsed = geminiResponse.fallbackUsed || false;
             isTruncated = geminiResponse.isTruncated || false;
             aiEngine = AIEngine.GEMINI;
-            this.logger.log(`Gemini API 生成成功，引擎: ${aiEngine}, 截断状态: ${isTruncated}`);
+            this.logger.log(
+              `Gemini API 生成成功，引擎: ${aiEngine}, 截断状态: ${isTruncated}`,
+            );
           } else {
             aiError = geminiResponse.error;
             this.logger.warn(`Gemini API 失败: ${aiError?.message}`);
@@ -184,8 +191,10 @@ export class MarketingStrategyService {
 
       const averageConfidenceScore =
         strategies.length > 0
-          ? strategies.reduce((sum, s) => sum + parseFloat(s.confidenceScore || '0'), 0) /
-            strategies.length
+          ? strategies.reduce(
+              (sum, s) => sum + parseFloat(s.confidenceScore || '0'),
+              0,
+            ) / strategies.length
           : 0;
 
       const estimatedTotalROI = strategies.reduce(
@@ -316,11 +325,13 @@ export class MarketingStrategyService {
     let expectedROI = '30'; // 默认字符串值
     if (geminiResponse.expectedPerformanceMetrics?.estimatedROI !== undefined) {
       // 将值转换为字符串（无论原始类型是什么）
-      expectedROI = String(geminiResponse.expectedPerformanceMetrics.estimatedROI);
+      expectedROI = String(
+        geminiResponse.expectedPerformanceMetrics.estimatedROI,
+      );
     }
-    const confidenceScore = String(fallbackUsed
-      ? 65
-      : this.calculateConfidenceScore(geminiResponse));
+    const confidenceScore = String(
+      fallbackUsed ? 65 : this.calculateConfidenceScore(geminiResponse),
+    );
 
     // 从推荐执行时间生成实施计划
     const implementationPlan = this.generateImplementationPlan(geminiResponse);
@@ -370,23 +381,26 @@ export class MarketingStrategyService {
       expectedROI = String(aiResponse.expectedROI);
     }
     // 然后检查 expectedPerformanceMetrics.estimatedROI
-    else if (aiResponse.expectedPerformanceMetrics?.estimatedROI !== undefined) {
+    else if (
+      aiResponse.expectedPerformanceMetrics?.estimatedROI !== undefined
+    ) {
       expectedROI = String(aiResponse.expectedPerformanceMetrics.estimatedROI);
     }
 
-    const confidenceScore = String(fallbackUsed
-      ? 65
-      : this.calculateConfidenceScore(aiResponse));
+    const confidenceScore = String(
+      fallbackUsed ? 65 : this.calculateConfidenceScore(aiResponse),
+    );
 
     // 从推荐执行时间生成实施计划
     const implementationPlan = this.generateImplementationPlan(aiResponse);
 
     // 构建引擎描述
-    const engineDescription = aiEngine === AIEngine.QWEN
-      ? '通义千问生成'
-      : aiEngine === AIEngine.GEMINI
-        ? 'Gemini生成'
-        : '回退方案';
+    const engineDescription =
+      aiEngine === AIEngine.QWEN
+        ? '通义千问生成'
+        : aiEngine === AIEngine.GEMINI
+          ? 'Gemini生成'
+          : '回退方案';
 
     return {
       campaignId,
@@ -442,7 +456,9 @@ export class MarketingStrategyService {
    */
   private generateImplementationPlan(geminiResponse: any): Record<string, any> {
     // 防御性编程：如果 timeline 是字符串，先转为数组；如果是 undefined，给个空数组
-    const timelineData = Array.isArray(geminiResponse.recommendedExecutionTime?.timeline)
+    const timelineData = Array.isArray(
+      geminiResponse.recommendedExecutionTime?.timeline,
+    )
       ? geminiResponse.recommendedExecutionTime.timeline
       : [geminiResponse.recommendedExecutionTime?.timeline].filter(Boolean);
 
@@ -541,7 +557,9 @@ export class MarketingStrategyService {
 
     // 按置信度排序，返回前5个
     return allStrategies
-      .sort((a, b) => parseFloat(b.confidenceScore) - parseFloat(a.confidenceScore))
+      .sort(
+        (a, b) => parseFloat(b.confidenceScore) - parseFloat(a.confidenceScore),
+      )
       .slice(0, 5);
   }
 

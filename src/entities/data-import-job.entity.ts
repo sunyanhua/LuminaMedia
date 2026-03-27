@@ -20,7 +20,12 @@ export class DataImportJob implements TenantEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'tenant_id', type: 'varchar', length: 36, default: 'default-tenant' })
+  @Column({
+    name: 'tenant_id',
+    type: 'varchar',
+    length: 36,
+    default: 'default-tenant',
+  })
   tenantId: string;
 
   @Column({ name: 'customer_profile_id', type: 'varchar', length: 36 })

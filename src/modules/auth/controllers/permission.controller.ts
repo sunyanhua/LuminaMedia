@@ -9,7 +9,12 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { PermissionService } from '../services/permission.service';
 import { CreatePermissionDto } from '../dto/create-permission.dto';
 import { UpdatePermissionDto } from '../dto/update-permission.dto';
@@ -28,7 +33,11 @@ export class PermissionController {
   @Get()
   @Roles('admin')
   @ApiOperation({ summary: '获取所有权限' })
-  @ApiResponse({ status: 200, description: '成功获取权限列表', type: [Permission] })
+  @ApiResponse({
+    status: 200,
+    description: '成功获取权限列表',
+    type: [Permission],
+  })
   async findAll(@Request() req): Promise<Permission[]> {
     return this.permissionService.findAll(req.user.tenantId);
   }
@@ -36,8 +45,15 @@ export class PermissionController {
   @Get('module/:module')
   @Roles('admin')
   @ApiOperation({ summary: '按模块获取权限' })
-  @ApiResponse({ status: 200, description: '成功获取权限列表', type: [Permission] })
-  async findByModule(@Param('module') module: string, @Request() req): Promise<Permission[]> {
+  @ApiResponse({
+    status: 200,
+    description: '成功获取权限列表',
+    type: [Permission],
+  })
+  async findByModule(
+    @Param('module') module: string,
+    @Request() req,
+  ): Promise<Permission[]> {
     return this.permissionService.findByModule(module, req.user.tenantId);
   }
 
@@ -59,7 +75,10 @@ export class PermissionController {
     @Body() createPermissionDto: CreatePermissionDto,
     @Request() req,
   ): Promise<Permission> {
-    return this.permissionService.create(createPermissionDto, req.user.tenantId);
+    return this.permissionService.create(
+      createPermissionDto,
+      req.user.tenantId,
+    );
   }
 
   @Put(':id')
@@ -72,7 +91,11 @@ export class PermissionController {
     @Body() updatePermissionDto: UpdatePermissionDto,
     @Request() req,
   ): Promise<Permission> {
-    return this.permissionService.update(id, updatePermissionDto, req.user.tenantId);
+    return this.permissionService.update(
+      id,
+      updatePermissionDto,
+      req.user.tenantId,
+    );
   }
 
   @Delete(':id')

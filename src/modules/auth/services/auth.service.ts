@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -59,7 +64,8 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto) {
-    const tenantId = registerDto.tenantId || this.tenantContextService.getCurrentTenantId();
+    const tenantId =
+      registerDto.tenantId || this.tenantContextService.getCurrentTenantId();
 
     // 检查用户名是否已存在（当前租户内）
     const existingUser = await this.userRepository.findOne({

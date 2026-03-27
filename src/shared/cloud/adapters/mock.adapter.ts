@@ -22,7 +22,7 @@ import {
   Subscription,
   MigrationResult,
   PartitionBalanceReport,
-  PartitionInfo
+  PartitionInfo,
 } from '../cloud-provider.interface';
 
 /**
@@ -42,14 +42,17 @@ export class MockAdapter implements CloudProvider {
     console.log('[MockAdapter] 初始化模拟云服务提供者');
   }
 
-  async healthCheck(): Promise<{ status: 'healthy' | 'degraded' | 'unhealthy'; details?: Record<string, any>; }> {
+  async healthCheck(): Promise<{
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    details?: Record<string, any>;
+  }> {
     return {
       status: 'healthy',
       details: {
         provider: 'mock',
         message: '所有服务运行正常（模拟模式）',
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     };
   }
 
@@ -62,25 +65,40 @@ export class MockAdapter implements CloudProvider {
  * Mock存储服务
  */
 class MockStorageService implements StorageService {
-  private files = new Map<string, { bucket: string; key: string; content: Buffer; metadata: Record<string, string> }>();
+  private files = new Map<
+    string,
+    {
+      bucket: string;
+      key: string;
+      content: Buffer;
+      metadata: Record<string, string>;
+    }
+  >();
 
-  async uploadFile(bucket: string, key: string, file: Buffer, options?: StorageOptions): Promise<StorageResult> {
+  async uploadFile(
+    bucket: string,
+    key: string,
+    file: Buffer,
+    options?: StorageOptions,
+  ): Promise<StorageResult> {
     const fileKey = `${bucket}/${key}`;
     this.files.set(fileKey, {
       bucket,
       key,
       content: file,
-      metadata: options?.metadata || {}
+      metadata: options?.metadata || {},
     });
 
-    console.log(`[MockStorageService] 上传文件: ${fileKey}, 大小: ${file.length} bytes`);
+    console.log(
+      `[MockStorageService] 上传文件: ${fileKey}, 大小: ${file.length} bytes`,
+    );
 
     return {
       key,
       bucket,
       url: `https://mock-storage.example.com/${bucket}/${key}`,
       size: file.length,
-      etag: `mock-etag-${Date.now()}`
+      etag: `mock-etag-${Date.now()}`,
     };
   }
 
@@ -92,7 +110,9 @@ class MockStorageService implements StorageService {
       throw new Error(`文件不存在: ${fileKey}`);
     }
 
-    console.log(`[MockStorageService] 下载文件: ${fileKey}, 大小: ${file.content.length} bytes`);
+    console.log(
+      `[MockStorageService] 下载文件: ${fileKey}, 大小: ${file.content.length} bytes`,
+    );
     return file.content;
   }
 
@@ -102,7 +122,11 @@ class MockStorageService implements StorageService {
     console.log(`[MockStorageService] 删除文件: ${fileKey}`);
   }
 
-  async getFileUrl(bucket: string, key: string, expiresIn?: number): Promise<string> {
+  async getFileUrl(
+    bucket: string,
+    key: string,
+    expiresIn?: number,
+  ): Promise<string> {
     return `https://mock-storage.example.com/${bucket}/${key}?expires=${expiresIn || 3600}`;
   }
 
@@ -110,17 +134,22 @@ class MockStorageService implements StorageService {
     const files: FileInfo[] = [];
 
     for (const [fileKey, file] of this.files.entries()) {
-      if (fileKey.startsWith(`${bucket}/`) && (!prefix || fileKey.includes(prefix))) {
+      if (
+        fileKey.startsWith(`${bucket}/`) &&
+        (!prefix || fileKey.includes(prefix))
+      ) {
         files.push({
           key: file.key,
           size: file.content.length,
           lastModified: new Date(),
-          etag: `mock-etag-${fileKey}`
+          etag: `mock-etag-${fileKey}`,
         });
       }
     }
 
-    console.log(`[MockStorageService] 列出文件: bucket=${bucket}, prefix=${prefix}, 数量=${files.length}`);
+    console.log(
+      `[MockStorageService] 列出文件: bucket=${bucket}, prefix=${prefix}, 数量=${files.length}`,
+    );
     return files;
   }
 }
@@ -130,48 +159,62 @@ class MockStorageService implements StorageService {
  */
 class MockAIService implements AIService {
   private mockResponses = [
-    "这是一个模拟的AI响应。",
-    "根据您的请求，AI建议采取以下措施...",
-    "分析完成，推荐方案已生成。",
-    "模拟AI模型处理成功。",
-    "这里是AI生成的创意内容。"
+    '这是一个模拟的AI响应。',
+    '根据您的请求，AI建议采取以下措施...',
+    '分析完成，推荐方案已生成。',
+    '模拟AI模型处理成功。',
+    '这里是AI生成的创意内容。',
   ];
 
-  async callModel(model: string, prompt: string, options?: AIModelOptions): Promise<AIResponse> {
-    console.log(`[MockAIService] 调用云端模型: ${model}, prompt长度: ${prompt.length}`);
+  async callModel(
+    model: string,
+    prompt: string,
+    options?: AIModelOptions,
+  ): Promise<AIResponse> {
+    console.log(
+      `[MockAIService] 调用云端模型: ${model}, prompt长度: ${prompt.length}`,
+    );
 
     // 模拟延迟
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-    const randomResponse = this.mockResponses[Math.floor(Math.random() * this.mockResponses.length)];
+    const randomResponse =
+      this.mockResponses[Math.floor(Math.random() * this.mockResponses.length)];
 
     return {
       text: `[${model}] ${randomResponse}\n\n原始提示: ${prompt.substring(0, 100)}...`,
       usage: {
         promptTokens: Math.floor(prompt.length / 4),
         completionTokens: Math.floor(randomResponse.length / 4),
-        totalTokens: Math.floor((prompt.length + randomResponse.length) / 4)
+        totalTokens: Math.floor((prompt.length + randomResponse.length) / 4),
       },
-      finishReason: 'stop'
+      finishReason: 'stop',
     };
   }
 
-  async callLocalModel(model: string, prompt: string, options?: LocalModelOptions): Promise<AIResponse> {
-    console.log(`[MockAIService] 调用本地模型: ${model}, GPU=${options?.gpu || false}`);
+  async callLocalModel(
+    model: string,
+    prompt: string,
+    options?: LocalModelOptions,
+  ): Promise<AIResponse> {
+    console.log(
+      `[MockAIService] 调用本地模型: ${model}, GPU=${options?.gpu || false}`,
+    );
 
     // 模拟更长的延迟（本地模型）
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
-    const randomResponse = this.mockResponses[Math.floor(Math.random() * this.mockResponses.length)];
+    const randomResponse =
+      this.mockResponses[Math.floor(Math.random() * this.mockResponses.length)];
 
     return {
       text: `[本地${model}] ${randomResponse}\n\n原始提示: ${prompt.substring(0, 100)}...`,
       usage: {
         promptTokens: Math.floor(prompt.length / 4),
         completionTokens: Math.floor(randomResponse.length / 4),
-        totalTokens: Math.floor((prompt.length + randomResponse.length) / 4)
+        totalTokens: Math.floor((prompt.length + randomResponse.length) / 4),
       },
-      finishReason: 'stop'
+      finishReason: 'stop',
     };
   }
 
@@ -182,22 +225,22 @@ class MockAIService implements AIService {
         name: 'Gemini 2.0 Pro',
         provider: 'gemini',
         capabilities: ['text-generation', 'code-generation', 'translation'],
-        maxTokens: 32768
+        maxTokens: 32768,
       },
       {
         id: 'qwen-max',
         name: 'Qwen Max',
         provider: 'qwen',
         capabilities: ['text-generation', 'creative-writing', 'analysis'],
-        maxTokens: 8192
+        maxTokens: 8192,
       },
       {
         id: 'qwen-7b-local',
         name: 'Qwen 7B (本地)',
         provider: 'local',
         capabilities: ['text-generation', 'summarization'],
-        maxTokens: 4096
-      }
+        maxTokens: 4096,
+      },
     ];
   }
 
@@ -205,7 +248,7 @@ class MockAIService implements AIService {
     return {
       available: true,
       models: await this.listAvailableModels(),
-      latency: 50
+      latency: 50,
     };
   }
 }
@@ -217,20 +260,24 @@ class MockDatabaseService implements DatabaseService {
   sharding: ShardingService = new MockShardingService();
 
   async query<T>(sql: string, params?: any[]): Promise<T[]> {
-    console.log(`[MockDatabaseService] 执行查询: ${sql}, 参数: ${JSON.stringify(params || [])}`);
+    console.log(
+      `[MockDatabaseService] 执行查询: ${sql}, 参数: ${JSON.stringify(params || [])}`,
+    );
 
     // 模拟查询延迟
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     // 返回空结果集（模拟）
     return [] as T[];
   }
 
   async execute(sql: string, params?: any[]): Promise<number> {
-    console.log(`[MockDatabaseService] 执行更新: ${sql}, 参数: ${JSON.stringify(params || [])}`);
+    console.log(
+      `[MockDatabaseService] 执行更新: ${sql}, 参数: ${JSON.stringify(params || [])}`,
+    );
 
     // 模拟执行延迟
-    await new Promise(resolve => setTimeout(resolve, 30));
+    await new Promise((resolve) => setTimeout(resolve, 30));
 
     // 返回受影响的行数（模拟）
     return sql.toLowerCase().includes('insert') ? 1 : 0;
@@ -242,12 +289,12 @@ class MockDatabaseService implements DatabaseService {
     return {
       commit: async () => {
         console.log('[MockDatabaseService] 提交事务');
-        await new Promise(resolve => setTimeout(resolve, 20));
+        await new Promise((resolve) => setTimeout(resolve, 20));
       },
       rollback: async () => {
         console.log('[MockDatabaseService] 回滚事务');
-        await new Promise(resolve => setTimeout(resolve, 20));
-      }
+        await new Promise((resolve) => setTimeout(resolve, 20));
+      },
     };
   }
 
@@ -256,7 +303,7 @@ class MockDatabaseService implements DatabaseService {
       total: 10,
       active: 2,
       idle: 8,
-      waiting: 0
+      waiting: 0,
     };
   }
 }
@@ -272,16 +319,21 @@ class MockShardingService implements ShardingService {
     return `${table}_partition_${partition}`;
   }
 
-  async migrateData(sourceTable: string, targetTable: string): Promise<MigrationResult> {
-    console.log(`[MockShardingService] 迁移数据: ${sourceTable} -> ${targetTable}`);
+  async migrateData(
+    sourceTable: string,
+    targetTable: string,
+  ): Promise<MigrationResult> {
+    console.log(
+      `[MockShardingService] 迁移数据: ${sourceTable} -> ${targetTable}`,
+    );
 
     // 模拟迁移延迟
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     return {
       migratedRows: Math.floor(Math.random() * 1000) + 100,
       duration: 1000,
-      errors: []
+      errors: [],
     };
   }
 
@@ -293,7 +345,7 @@ class MockShardingService implements ShardingService {
         name: `partition_${i}`,
         rowCount: Math.floor(Math.random() * 10000) + 1000,
         dataSize: Math.floor(Math.random() * 100000000) + 1000000,
-        tenantIds: [`tenant_${i}_1`, `tenant_${i}_2`]
+        tenantIds: [`tenant_${i}_1`, `tenant_${i}_2`],
       });
     }
 
@@ -303,15 +355,15 @@ class MockShardingService implements ShardingService {
       imbalanceScore: 0.15,
       recommendations: [
         '分区分布较为均衡，无需立即调整',
-        '建议监控 partition_7 的增长情况'
-      ]
+        '建议监控 partition_7 的增长情况',
+      ],
     };
   }
 
   private hashString(str: string): number {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
-      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash = (hash << 5) - hash + str.charCodeAt(i);
       hash |= 0; // 转换为32位整数
     }
     return Math.abs(hash);
@@ -325,7 +377,11 @@ class MockMessagingService implements MessagingService {
   private queues = new Map<string, Message[]>();
   private subscriptions = new Map<string, EventHandler[]>();
 
-  async sendMessage(queue: string, message: any, options?: MessageOptions): Promise<string> {
+  async sendMessage(
+    queue: string,
+    message: any,
+    options?: MessageOptions,
+  ): Promise<string> {
     const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     if (!this.queues.has(queue)) {
@@ -336,7 +392,7 @@ class MockMessagingService implements MessagingService {
       id: messageId,
       body: message,
       attributes: options?.messageAttributes,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     this.queues.get(queue)!.push(msg);
@@ -344,13 +400,18 @@ class MockMessagingService implements MessagingService {
 
     // 模拟延迟
     if (options?.delaySeconds) {
-      await new Promise(resolve => setTimeout(resolve, (options.delaySeconds ?? 0) * 1000));
+      await new Promise((resolve) =>
+        setTimeout(resolve, (options.delaySeconds ?? 0) * 1000),
+      );
     }
 
     return messageId;
   }
 
-  async receiveMessage(queue: string, options?: ReceiveOptions): Promise<Message | null> {
+  async receiveMessage(
+    queue: string,
+    options?: ReceiveOptions,
+  ): Promise<Message | null> {
     const messages = this.queues.get(queue) || [];
 
     if (messages.length === 0) {
@@ -359,7 +420,9 @@ class MockMessagingService implements MessagingService {
     }
 
     const message = messages.shift()!;
-    console.log(`[MockMessagingService] 从队列 ${queue} 接收消息: ${message.id}`);
+    console.log(
+      `[MockMessagingService] 从队列 ${queue} 接收消息: ${message.id}`,
+    );
 
     return message;
   }
@@ -385,7 +448,10 @@ class MockMessagingService implements MessagingService {
     }
   }
 
-  async subscribeEvent(topic: string, handler: EventHandler): Promise<Subscription> {
+  async subscribeEvent(
+    topic: string,
+    handler: EventHandler,
+  ): Promise<Subscription> {
     if (!this.subscriptions.has(topic)) {
       this.subscriptions.set(topic, []);
     }
@@ -401,7 +467,7 @@ class MockMessagingService implements MessagingService {
           handlers.splice(index, 1);
           console.log(`[MockMessagingService] 取消订阅主题 ${topic}`);
         }
-      }
+      },
     };
   }
 }

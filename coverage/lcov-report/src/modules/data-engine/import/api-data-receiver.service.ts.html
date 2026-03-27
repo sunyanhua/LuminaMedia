@@ -402,7 +402,22 @@
 <a name='L337'></a><a href='#L337'>337</a>
 <a name='L338'></a><a href='#L338'>338</a>
 <a name='L339'></a><a href='#L339'>339</a>
-<a name='L340'></a><a href='#L340'>340</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L340'></a><a href='#L340'>340</a>
+<a name='L341'></a><a href='#L341'>341</a>
+<a name='L342'></a><a href='#L342'>342</a>
+<a name='L343'></a><a href='#L343'>343</a>
+<a name='L344'></a><a href='#L344'>344</a>
+<a name='L345'></a><a href='#L345'>345</a>
+<a name='L346'></a><a href='#L346'>346</a>
+<a name='L347'></a><a href='#L347'>347</a>
+<a name='L348'></a><a href='#L348'>348</a>
+<a name='L349'></a><a href='#L349'>349</a>
+<a name='L350'></a><a href='#L350'>350</a>
+<a name='L351'></a><a href='#L351'>351</a>
+<a name='L352'></a><a href='#L352'>352</a>
+<a name='L353'></a><a href='#L353'>353</a>
+<a name='L354'></a><a href='#L354'>354</a>
+<a name='L355'></a><a href='#L355'>355</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -565,6 +580,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -683,6 +700,9 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -690,6 +710,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -700,10 +722,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -719,6 +745,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -734,6 +763,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -880,7 +910,7 @@ export class <span class="cstat-no" title="statement not covered" ><span class="
         }
 &nbsp;
         // 模拟延迟
-<span class="cstat-no" title="statement not covered" >        await new Promise(<span class="fstat-no" title="function not covered" >resolve </span>=&gt; <span class="cstat-no" title="statement not covered" >setTimeout(resolve, 10))</span>;</span>
+<span class="cstat-no" title="statement not covered" >        await new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve) =&gt; <span class="cstat-no" title="statement not covered" >setTimeout(resolve, 10))</span>;</span>
       }
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      this.logger.error(`API数据接收失败: ${error.message}`, error.stack);</span>
@@ -899,11 +929,13 @@ export class <span class="cstat-no" title="statement not covered" ><span class="
         startTime,
         endTime,
         durationMs,
-        dataRate: durationMs &gt; 0 ? (totalReceived / (durationMs / 1000)) : 0,
+        dataRate: durationMs &gt; 0 ? totalReceived / (durationMs / 1000) : 0,
       },
     };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    this.logger.log(`API数据接收完成: ${JSON.stringify(result.summary, null, 2)}`);</span>
+<span class="cstat-no" title="statement not covered" >    this.logger.log(</span>
+      `API数据接收完成: ${JSON.stringify(result.summary, null, 2)}`,
+    );
 <span class="cstat-no" title="statement not covered" >    return result;</span>
   }
 &nbsp;
@@ -950,7 +982,7 @@ export class <span class="cstat-no" title="statement not covered" ><span class="
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // TODO: 实现实际的API连接测试
       // 临时模拟实现
-<span class="cstat-no" title="statement not covered" >      await new Promise(<span class="fstat-no" title="function not covered" >resolve </span>=&gt; <span class="cstat-no" title="statement not covered" >setTimeout(resolve, 100))</span>;</span>
+<span class="cstat-no" title="statement not covered" >      await new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve) =&gt; <span class="cstat-no" title="statement not covered" >setTimeout(resolve, 100))</span>;</span>
 &nbsp;
       const responseTime = <span class="cstat-no" title="statement not covered" >Date.now() - startTime;</span>
 &nbsp;
@@ -1008,10 +1040,10 @@ export class <span class="cstat-no" title="statement not covered" ><span class="
 &nbsp;
     // 检查字段类型
 <span class="cstat-no" title="statement not covered" >    if (schema.properties) {</span>
-<span class="cstat-no" title="statement not covered" >      for (const [field, fieldSchema] of Object.entries(schema.properties) as [string, any][]) {</span>
+<span class="cstat-no" title="statement not covered" >      for (const [field, fieldSchema] of Object.entries(schema.properties)) {</span>
 <span class="cstat-no" title="statement not covered" >        if (data[field] !== undefined) {</span>
           const value = <span class="cstat-no" title="statement not covered" >data[field];</span>
-          const expectedType = <span class="cstat-no" title="statement not covered" >fieldSchema.type;</span>
+          const expectedType = (<span class="cstat-no" title="statement not covered" >fieldSchema as any).type;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >          if (expectedType === 'string' &amp;&amp; typeof value !== 'string') {</span>
 <span class="cstat-no" title="statement not covered" >            errors.push(`字段 ${field} 应为字符串类型`);</span>
@@ -1021,7 +1053,10 @@ export class <span class="cstat-no" title="statement not covered" ><span class="
 <span class="cstat-no" title="statement not covered" >            errors.push(`字段 ${field} 应为布尔类型`);</span>
           } else <span class="cstat-no" title="statement not covered" >if (expectedType === 'array' &amp;&amp; !Array.isArray(value)) {</span>
 <span class="cstat-no" title="statement not covered" >            errors.push(`字段 ${field} 应为数组类型`);</span>
-          } else <span class="cstat-no" title="statement not covered" >if (expectedType === 'object' &amp;&amp; (typeof value !== 'object' || Array.isArray(value))) {</span>
+          } else <span class="cstat-no" title="statement not covered" >if (</span>
+            expectedType === 'object' &amp;&amp;
+            (typeof value !== 'object' || Array.isArray(value))
+          ) {
 <span class="cstat-no" title="statement not covered" >            errors.push(`字段 ${field} 应为对象类型`);</span>
           }
         }
@@ -1038,7 +1073,10 @@ export class <span class="cstat-no" title="statement not covered" ><span class="
   /**
    * 生成模拟数据（临时）
    */
-  private <span class="fstat-no" title="function not covered" >generateMockData(</span>config: ApiDataSourceConfig, count: number): Record&lt;string, any&gt;[] {
+  private <span class="fstat-no" title="function not covered" >generateMockData(</span>
+    config: ApiDataSourceConfig,
+    count: number,
+  ): Record&lt;string, any&gt;[] {
     const data: Record&lt;string, any&gt;[] = <span class="cstat-no" title="statement not covered" >[];</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    for (let i = <span class="cstat-no" title="statement not covered" >0;</span> i &lt; count; i++) {</span>
@@ -1049,10 +1087,16 @@ export class <span class="cstat-no" title="statement not covered" ><span class="
         mobile: `138${String(10000000 + i).padStart(8, '0')}`,
         email: `customer${i}@example.com`,
         purchase_amount: (Math.random() * 1000).toFixed(2),
-        purchase_time: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+        purchase_time: new Date(
+          Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000,
+        ).toISOString(),
         location: `城市${Math.floor(Math.random() * 10)}`,
-        product_category: ['电子产品', '服装', '食品', '家居'][Math.floor(Math.random() * 4)],
-        order_status: ['pending', 'completed', 'cancelled'][Math.floor(Math.random() * 3)],
+        product_category: ['电子产品', '服装', '食品', '家居'][
+          Math.floor(Math.random() * 4)
+        ],
+        order_status: ['pending', 'completed', 'cancelled'][
+          Math.floor(Math.random() * 3)
+        ],
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       });
@@ -1080,14 +1124,15 @@ export class <span class="cstat-no" title="statement not covered" ><span class="
       recommendedBatchSize: config.pagination?.pageSize || 100,
     };
   }
-}</pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-27T15:34:53.550Z
+                at 2026-03-27T16:54:39.391Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

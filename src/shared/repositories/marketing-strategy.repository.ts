@@ -21,16 +21,24 @@ export class MarketingStrategyRepository extends TenantRepository<MarketingStrat
       .getMany();
   }
 
-  async findHighConfidenceStrategies(minScore: number = 80): Promise<MarketingStrategy[]> {
+  async findHighConfidenceStrategies(
+    minScore: number = 80,
+  ): Promise<MarketingStrategy[]> {
     return this.createQueryBuilder('strategy')
-      .where('CAST(strategy.confidenceScore AS DECIMAL) >= :minScore', { minScore })
+      .where('CAST(strategy.confidenceScore AS DECIMAL) >= :minScore', {
+        minScore,
+      })
       .orderBy('strategy.confidenceScore', 'DESC')
       .getMany();
   }
 
-  async findByCustomerProfile(customerProfileId: string): Promise<MarketingStrategy[]> {
+  async findByCustomerProfile(
+    customerProfileId: string,
+  ): Promise<MarketingStrategy[]> {
     return this.createQueryBuilder('strategy')
-      .where('strategy.customerProfileId = :customerProfileId', { customerProfileId })
+      .where('strategy.customerProfileId = :customerProfileId', {
+        customerProfileId,
+      })
       .orderBy('strategy.createdAt', 'DESC')
       .getMany();
   }

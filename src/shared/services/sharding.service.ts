@@ -22,7 +22,7 @@ export class ShardingService {
       'content_drafts',
       'publish_tasks',
       'marketing_strategies',
-      'user_behaviors'
+      'user_behaviors',
     ];
 
     const results: any[] = [];
@@ -35,7 +35,7 @@ export class ShardingService {
         results.push({
           tableName,
           success: false,
-          error: error.message
+          error: error.message,
         });
       }
     }
@@ -46,14 +46,17 @@ export class ShardingService {
   /**
    * 为单个表添加分区
    */
-  async partitionTable(tableName: string, partitionCount: number = 16): Promise<any> {
+  async partitionTable(
+    tableName: string,
+    partitionCount: number = 16,
+  ): Promise<any> {
     // 检查表是否存在
     const tableExists = await this.checkTableExists(tableName);
     if (!tableExists) {
       return {
         tableName,
         success: false,
-        message: `Table ${tableName} does not exist`
+        message: `Table ${tableName} does not exist`,
       };
     }
 
@@ -64,7 +67,7 @@ export class ShardingService {
         tableName,
         success: true,
         message: `Table ${tableName} is already partitioned`,
-        partitionInfo: await this.getPartitionInfo(tableName)
+        partitionInfo: await this.getPartitionInfo(tableName),
       };
     }
 
@@ -74,7 +77,7 @@ export class ShardingService {
       return {
         tableName,
         success: false,
-        message: `Table ${tableName} does not have tenant_id column`
+        message: `Table ${tableName} does not have tenant_id column`,
       };
     }
 
@@ -89,10 +92,12 @@ export class ShardingService {
         success: true,
         message: `Table ${tableName} partitioned successfully`,
         ddl,
-        partitionInfo
+        partitionInfo,
       };
     } catch (error) {
-      throw new Error(`Failed to execute partition DDL for ${tableName}: ${error.message}`);
+      throw new Error(
+        `Failed to execute partition DDL for ${tableName}: ${error.message}`,
+      );
     }
   }
 
@@ -151,7 +156,10 @@ export class ShardingService {
   /**
    * 检查列是否存在
    */
-  async checkColumnExists(tableName: string, columnName: string): Promise<boolean> {
+  async checkColumnExists(
+    tableName: string,
+    columnName: string,
+  ): Promise<boolean> {
     const query = `
       SELECT COUNT(*) as column_count
       FROM information_schema.columns
@@ -196,9 +204,12 @@ export class ShardingService {
       return { tableName, isPartitioned: false };
     }
 
-    const totalRows = partitionInfo.reduce((sum, p) => sum + (p.table_rows || 0), 0);
+    const totalRows = partitionInfo.reduce(
+      (sum, p) => sum + (p.table_rows || 0),
+      0,
+    );
     const avgRows = totalRows / partitionInfo.length;
-    const imbalances = partitionInfo.filter(p => {
+    const imbalances = partitionInfo.filter((p) => {
       const deviation = Math.abs((p.table_rows || 0) - avgRows);
       return deviation > avgRows * 0.3; // 偏差超过30%
     });
@@ -209,23 +220,30 @@ export class ShardingService {
       partitionCount: partitionInfo.length,
       totalRows,
       avgRows: Math.round(avgRows),
-      imbalances: imbalances.map(p => ({
+      imbalances: imbalances.map((p) => ({
         partition: p.partition_name,
         rows: p.table_rows,
         deviation: Math.abs((p.table_rows || 0) - avgRows),
-        deviationPercent: avgRows > 0 ? Math.abs(((p.table_rows || 0) - avgRows) / avgRows * 100) : 0
+        deviationPercent:
+          avgRows > 0
+            ? Math.abs((((p.table_rows || 0) - avgRows) / avgRows) * 100)
+            : 0,
       })),
       isBalanced: imbalances.length === 0,
-      recommendation: imbalances.length > 0 ?
-        `Consider increasing partition count or using different partition key` :
-        'Partition distribution is balanced'
+      recommendation:
+        imbalances.length > 0
+          ? `Consider increasing partition count or using different partition key`
+          : 'Partition distribution is balanced',
     };
   }
 
   /**
    * 获取租户数据分布
    */
-  async getTenantDistribution(tableName: string, limit: number = 20): Promise<any[]> {
+  async getTenantDistribution(
+    tableName: string,
+    limit: number = 20,
+  ): Promise<any[]> {
     const query = `
       SELECT
         tenant_id,
@@ -249,7 +267,7 @@ export class ShardingService {
       return {
         tableName,
         exists: false,
-        message: `Table ${tableName} does not exist`
+        message: `Table ${tableName} does not exist`,
       };
     }
 
@@ -263,8 +281,10 @@ export class ShardingService {
       isPartitioned,
       rowCount,
       shouldShard,
-      migrationPlan: isPartitioned ? null : ShardingUtils.generateMigrationPlan(tableName),
-      estimatedDowntime: this.estimateDowntime(rowCount)
+      migrationPlan: isPartitioned
+        ? null
+        : ShardingUtils.generateMigrationPlan(tableName),
+      estimatedDowntime: this.estimateDowntime(rowCount),
     };
   }
 
@@ -331,7 +351,7 @@ export class ShardingService {
     return {
       tableInfo: tableInfo[0] || {},
       partitions,
-      analysis: this.analyzePerformance(partitions)
+      analysis: this.analyzePerformance(partitions),
     };
   }
 
@@ -341,10 +361,13 @@ export class ShardingService {
   private analyzePerformance(partitions: any[]): any {
     if (partitions.length === 0) return {};
 
-    const totalRows = partitions.reduce((sum, p) => sum + (p.TABLE_ROWS || 0), 0);
+    const totalRows = partitions.reduce(
+      (sum, p) => sum + (p.TABLE_ROWS || 0),
+      0,
+    );
     const avgRows = totalRows / partitions.length;
-    const maxRows = Math.max(...partitions.map(p => p.TABLE_ROWS || 0));
-    const minRows = Math.min(...partitions.map(p => p.TABLE_ROWS || 0));
+    const maxRows = Math.max(...partitions.map((p) => p.TABLE_ROWS || 0));
+    const minRows = Math.min(...partitions.map((p) => p.TABLE_ROWS || 0));
 
     const imbalanceRatio = avgRows > 0 ? (maxRows - minRows) / avgRows : 0;
 
@@ -355,9 +378,10 @@ export class ShardingService {
       maxRowsPerPartition: maxRows,
       minRowsPerPartition: minRows,
       imbalanceRatio: imbalanceRatio.toFixed(2),
-      recommendation: imbalanceRatio > 0.5 ?
-        'Significant partition imbalance detected. Consider re-partitioning.' :
-        'Partition distribution is acceptable.'
+      recommendation:
+        imbalanceRatio > 0.5
+          ? 'Significant partition imbalance detected. Consider re-partitioning.'
+          : 'Partition distribution is acceptable.',
     };
   }
 }

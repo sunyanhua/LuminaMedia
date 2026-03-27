@@ -1,25 +1,39 @@
-import { Repository, SelectQueryBuilder, DeepPartial, SaveOptions, RemoveOptions, ObjectLiteral } from 'typeorm';
+import {
+  Repository,
+  SelectQueryBuilder,
+  DeepPartial,
+  SaveOptions,
+  RemoveOptions,
+  ObjectLiteral,
+} from 'typeorm';
 import { Logger } from '@nestjs/common';
 
 /**
  * 基础Repository基类
  * 提供CRUD通用操作、异常处理和日志记录
  */
-export abstract class BaseRepository<T extends ObjectLiteral> extends Repository<T> {
+export abstract class BaseRepository<
+  T extends ObjectLiteral,
+> extends Repository<T> {
   protected readonly logger = new Logger(this.constructor.name);
-
 
   /**
    * 批量保存实体
    */
-  async saveMany(entities: DeepPartial<T>[], options?: SaveOptions): Promise<T[]> {
+  async saveMany(
+    entities: DeepPartial<T>[],
+    options?: SaveOptions,
+  ): Promise<T[]> {
     try {
       this.logger.debug(`Saving ${entities.length} entities`);
       const result = await super.save(entities, options);
       this.logger.debug(`Successfully saved ${result.length} entities`);
       return result;
     } catch (error) {
-      this.logger.error(`Failed to save ${entities.length} entities: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to save ${entities.length} entities: ${error.message}`,
+        error.stack,
+      );
       throw this.wrapDatabaseError(error, 'SAVE_MANY');
     }
   }
@@ -29,12 +43,17 @@ export abstract class BaseRepository<T extends ObjectLiteral> extends Repository
    */
   async find(options?: any): Promise<T[]> {
     try {
-      this.logger.debug(`Finding entities with options: ${JSON.stringify(options)}`);
+      this.logger.debug(
+        `Finding entities with options: ${JSON.stringify(options)}`,
+      );
       const result = await super.find(options);
       this.logger.debug(`Found ${result ? result.length : 0} entities`);
       return result;
     } catch (error) {
-      this.logger.error(`Failed to find entities: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to find entities: ${error.message}`,
+        error.stack,
+      );
       throw this.wrapDatabaseError(error, 'FIND');
     }
   }
@@ -53,7 +72,10 @@ export abstract class BaseRepository<T extends ObjectLiteral> extends Repository
       }
       return result;
     } catch (error) {
-      this.logger.error(`Failed to find entity by id ${id}: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to find entity by id ${id}: ${error.message}`,
+        error.stack,
+      );
       throw this.wrapDatabaseError(error, 'FIND_BY_ID');
     }
   }
@@ -63,7 +85,9 @@ export abstract class BaseRepository<T extends ObjectLiteral> extends Repository
    */
   async findOne(options?: any): Promise<T | null> {
     try {
-      this.logger.debug(`Finding one entity with options: ${JSON.stringify(options)}`);
+      this.logger.debug(
+        `Finding one entity with options: ${JSON.stringify(options)}`,
+      );
       const result = await super.findOne(options);
       if (result) {
         this.logger.debug(`Entity found`);
@@ -72,11 +96,13 @@ export abstract class BaseRepository<T extends ObjectLiteral> extends Repository
       }
       return result;
     } catch (error) {
-      this.logger.error(`Failed to find one entity: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to find one entity: ${error.message}`,
+        error.stack,
+      );
       throw this.wrapDatabaseError(error, 'FIND_ONE');
     }
   }
-
 
   /**
    * 根据ID删除实体
@@ -87,7 +113,10 @@ export abstract class BaseRepository<T extends ObjectLiteral> extends Repository
       const result = await super.delete(id);
       this.logger.debug(`Delete operation affected ${result.affected} rows`);
     } catch (error) {
-      this.logger.error(`Failed to delete entity by id ${id}: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to delete entity by id ${id}: ${error.message}`,
+        error.stack,
+      );
       throw this.wrapDatabaseError(error, 'DELETE_BY_ID');
     }
   }
@@ -97,11 +126,16 @@ export abstract class BaseRepository<T extends ObjectLiteral> extends Repository
    */
   async updateById(id: any, partialEntity: DeepPartial<T>): Promise<void> {
     try {
-      this.logger.debug(`Updating entity with id: ${id}, data: ${JSON.stringify(partialEntity)}`);
+      this.logger.debug(
+        `Updating entity with id: ${id}, data: ${JSON.stringify(partialEntity)}`,
+      );
       const result = await super.update(id, partialEntity as any);
       this.logger.debug(`Update operation affected ${result.affected} rows`);
     } catch (error) {
-      this.logger.error(`Failed to update entity with id ${id}: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to update entity with id ${id}: ${error.message}`,
+        error.stack,
+      );
       throw this.wrapDatabaseError(error, 'UPDATE_BY_ID');
     }
   }
@@ -111,12 +145,17 @@ export abstract class BaseRepository<T extends ObjectLiteral> extends Repository
    */
   async count(options?: any): Promise<number> {
     try {
-      this.logger.debug(`Counting entities with options: ${JSON.stringify(options)}`);
+      this.logger.debug(
+        `Counting entities with options: ${JSON.stringify(options)}`,
+      );
       const result = await super.count(options);
       this.logger.debug(`Count result: ${result}`);
       return result;
     } catch (error) {
-      this.logger.error(`Failed to count entities: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to count entities: ${error.message}`,
+        error.stack,
+      );
       throw this.wrapDatabaseError(error, 'COUNT');
     }
   }
@@ -126,13 +165,18 @@ export abstract class BaseRepository<T extends ObjectLiteral> extends Repository
    */
   async exists(options: any): Promise<boolean> {
     try {
-      this.logger.debug(`Checking existence with options: ${JSON.stringify(options)}`);
+      this.logger.debug(
+        `Checking existence with options: ${JSON.stringify(options)}`,
+      );
       const count = await this.count(options);
       const exists = count > 0;
       this.logger.debug(`Exists: ${exists}`);
       return exists;
     } catch (error) {
-      this.logger.error(`Failed to check existence: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to check existence: ${error.message}`,
+        error.stack,
+      );
       throw this.wrapDatabaseError(error, 'EXISTS');
     }
   }
@@ -145,7 +189,10 @@ export abstract class BaseRepository<T extends ObjectLiteral> extends Repository
       this.logger.debug(`Creating query builder with alias: ${alias}`);
       return super.createQueryBuilder(alias);
     } catch (error) {
-      this.logger.error(`Failed to create query builder: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to create query builder: ${error.message}`,
+        error.stack,
+      );
       throw this.wrapDatabaseError(error, 'CREATE_QUERY_BUILDER');
     }
   }
@@ -171,20 +218,26 @@ export abstract class BaseRepository<T extends ObjectLiteral> extends Repository
     }
 
     // 返回原始错误，但确保它是Error实例
-    return error instanceof Error ? error : new Error(`Database error: ${error.message}`);
+    return error instanceof Error
+      ? error
+      : new Error(`Database error: ${error.message}`);
   }
 
   /**
    * 事务支持：执行事务操作
    */
-  async transaction<U>(operation: (repository: this) => Promise<U>): Promise<U> {
+  async transaction<U>(
+    operation: (repository: this) => Promise<U>,
+  ): Promise<U> {
     const queryRunner = this.manager.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
       // 创建事务中的Repository实例
-      const transactionalRepository = queryRunner.manager.getRepository(this.metadata.target) as this;
+      const transactionalRepository = queryRunner.manager.getRepository(
+        this.metadata.target,
+      ) as this;
       const result = await operation(transactionalRepository);
       await queryRunner.commitTransaction();
       return result;

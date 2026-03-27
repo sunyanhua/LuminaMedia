@@ -85,7 +85,9 @@ export class TenantFilterSubscriber implements EntitySubscriberInterface {
   /**
    * 检查租户权限
    */
-  private async checkTenantPermission(event: UpdateEvent<any> | RemoveEvent<any>): Promise<void> {
+  private async checkTenantPermission(
+    event: UpdateEvent<any> | RemoveEvent<any>,
+  ): Promise<void> {
     // 获取实体ID
     const eventAny = event as any;
     const entityId = eventAny.entityId || (event.entity && event.entity.id);
@@ -103,7 +105,9 @@ export class TenantFilterSubscriber implements EntitySubscriberInterface {
     // 检查实体是否有tenantId属性
     const repository = this.dataSource.getRepository(entityTarget);
     const metadata = repository.metadata;
-    const tenantIdColumn = metadata.columns.find(col => col.propertyName === 'tenantId');
+    const tenantIdColumn = metadata.columns.find(
+      (col) => col.propertyName === 'tenantId',
+    );
     if (!tenantIdColumn) {
       // 实体没有tenantId字段，跳过检查
       return;
@@ -119,7 +123,7 @@ export class TenantFilterSubscriber implements EntitySubscriberInterface {
     // 从数据库加载实体以获取其tenantId
     const entity = await repository.findOne({
       where: { id: entityId },
-      select: ['tenantId']
+      select: ['tenantId'],
     });
 
     if (!entity) {

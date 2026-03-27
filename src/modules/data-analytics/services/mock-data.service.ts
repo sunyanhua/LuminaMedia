@@ -279,11 +279,15 @@ export class MockDataService {
         (behaviorResult.affected || 0) + (campaignResult.affected || 0);
     } else {
       // 删除当前租户的所有模拟数据
-      const behaviorResult = await this.userBehaviorRepository.delete({ tenantId });
+      const behaviorResult = await this.userBehaviorRepository.delete({
+        tenantId,
+      });
       const campaignResult = await this.campaignRepository.delete({ tenantId });
       const strategyResult = await this.strategyRepository.delete({ tenantId });
       totalDeleted =
-        (behaviorResult.affected || 0) + (campaignResult.affected || 0) + (strategyResult.affected || 0);
+        (behaviorResult.affected || 0) +
+        (campaignResult.affected || 0) +
+        (strategyResult.affected || 0);
     }
 
     return { deleted: totalDeleted };

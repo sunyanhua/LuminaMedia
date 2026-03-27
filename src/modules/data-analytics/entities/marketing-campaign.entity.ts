@@ -43,7 +43,12 @@ export class MarketingCampaign implements TenantEntity {
   @JoinColumn({ name: 'customer_profile_id' })
   customerProfile: CustomerProfile;
 
-  @Column({ name: 'tenant_id', type: 'varchar', length: 36, default: 'default-tenant' })
+  @Column({
+    name: 'tenant_id',
+    type: 'varchar',
+    length: 36,
+    default: 'default-tenant',
+  })
   tenantId: string;
 
   @Column({ name: 'name', type: 'varchar', length: 255 })

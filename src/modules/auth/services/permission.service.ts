@@ -31,7 +31,10 @@ export class PermissionService {
     return permission;
   }
 
-  async create(createPermissionDto: CreatePermissionDto, tenantId: string): Promise<Permission> {
+  async create(
+    createPermissionDto: CreatePermissionDto,
+    tenantId: string,
+  ): Promise<Permission> {
     const permission = this.permissionRepository.create({
       ...createPermissionDto,
       tenantId,
@@ -40,7 +43,11 @@ export class PermissionService {
     return this.permissionRepository.save(permission);
   }
 
-  async update(id: string, updatePermissionDto: UpdatePermissionDto, tenantId: string): Promise<Permission> {
+  async update(
+    id: string,
+    updatePermissionDto: UpdatePermissionDto,
+    tenantId: string,
+  ): Promise<Permission> {
     const permission = await this.findOne(id, tenantId);
 
     Object.assign(permission, updatePermissionDto);

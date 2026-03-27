@@ -6,9 +6,7 @@ import { UserController } from './controllers/user.controller';
 import { TenantContextService } from '../../shared/services/tenant-context.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User]),
-  ],
+  imports: [TypeOrmModule.forFeature([User])],
   controllers: [UserController],
   providers: [UserService, TenantContextService],
   exports: [UserService],

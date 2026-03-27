@@ -41,15 +41,16 @@ export class QwenService implements OnModuleInit {
 
     // 按逗号分隔，物理级清洗每个Key
     const rawKeys = apiKeyString;
-    const keys = rawKeys.split(',')
-      .map(k => {
+    const keys = rawKeys
+      .split(',')
+      .map((k) => {
         // 物理级正则表达式清洗：只保留字母、数字、下划线和破折号
         const cleaned = k.replace(/[^a-zA-Z0-9_-]/g, '');
         this.logger.debug(`正则表达式清洗后Key长度：${cleaned.length}`);
         return cleaned;
       })
-      .filter(k => k.length > 10)  // 阿里云API Key长度通常较短
-      .filter(k => k.startsWith('sk-'));    // 阿里云DashScope API Key以sk-开头
+      .filter((k) => k.length > 10) // 阿里云API Key长度通常较短
+      .filter((k) => k.startsWith('sk-')); // 阿里云DashScope API Key以sk-开头
     return keys;
   }
 
@@ -68,7 +69,9 @@ export class QwenService implements OnModuleInit {
       }
 
       const key = this.apiKeys[this.currentKeyIndex];
-      this.logger.debug(`[Lumina AI Qwen] Using Key: ${key.substring(0, 6)}... (索引: ${this.currentKeyIndex})`);
+      this.logger.debug(
+        `[Lumina AI Qwen] Using Key: ${key.substring(0, 6)}... (索引: ${this.currentKeyIndex})`,
+      );
       const failures = this.keyFailures.get(key) || 0;
 
       if (failures < this.maxFailuresPerKey) {
@@ -90,11 +93,15 @@ export class QwenService implements OnModuleInit {
   private recordKeyFailure(key: string): void {
     const currentFailures = this.keyFailures.get(key) || 0;
     this.keyFailures.set(key, currentFailures + 1);
-    this.logger.warn(`API Key失败记录: ${key.substring(0, 8)}... (失败次数: ${currentFailures + 1}/${this.maxFailuresPerKey})`);
+    this.logger.warn(
+      `API Key失败记录: ${key.substring(0, 8)}... (失败次数: ${currentFailures + 1}/${this.maxFailuresPerKey})`,
+    );
 
     // 如果达到最大失败次数，尝试切换到下一个key
     if (currentFailures + 1 >= this.maxFailuresPerKey) {
-      this.logger.warn(`API Key ${key.substring(0, 8)}... 已达到最大失败次数，将尝试下一个key`);
+      this.logger.warn(
+        `API Key ${key.substring(0, 8)}... 已达到最大失败次数，将尝试下一个key`,
+      );
       this.rotateToNextKey();
     }
   }
@@ -120,7 +127,9 @@ export class QwenService implements OnModuleInit {
     const oldIndex = this.currentKeyIndex;
     this.currentKeyIndex = (this.currentKeyIndex + 1) % this.apiKeys.length;
 
-    this.logger.log(`轮转API Key: 从索引 ${oldIndex} 切换到 ${this.currentKeyIndex}`);
+    this.logger.log(
+      `轮转API Key: 从索引 ${oldIndex} 切换到 ${this.currentKeyIndex}`,
+    );
     // Qwen API不需要重新初始化
   }
 
@@ -129,7 +138,9 @@ export class QwenService implements OnModuleInit {
    */
   private async initializeWithCurrentKey(): Promise<boolean> {
     const currentKey = this.apiKeys[this.currentKeyIndex];
-    this.logger.debug(`[Lumina AI Qwen] Initializing with Key: ${currentKey.substring(0, 6)}... (index: ${this.currentKeyIndex})`);
+    this.logger.debug(
+      `[Lumina AI Qwen] Initializing with Key: ${currentKey.substring(0, 6)}... (index: ${this.currentKeyIndex})`,
+    );
     if (!currentKey) {
       this.isAvailable = false;
       return false;
@@ -142,7 +153,7 @@ export class QwenService implements OnModuleInit {
         temperature: this.configService.get<number>('QWEN_TEMPERATURE', 0.7),
         maxTokens: this.configService.get<number>('QWEN_MAX_TOKENS', 2048),
         topP: this.configService.get<number>('GEMINI_TOP_P', 0.95), // 复用Gemini配置
-        topK: this.configService.get<number>('GEMINI_TOP_K', 40),   // 复用Gemini配置
+        topK: this.configService.get<number>('GEMINI_TOP_K', 40), // 复用Gemini配置
         timeout: 30000, // 30秒超时
       };
 
@@ -151,7 +162,7 @@ export class QwenService implements OnModuleInit {
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${currentKey}`,
+          Authorization: `Bearer ${currentKey}`,
           'Content-Type': 'application/json',
         },
       });
@@ -168,12 +179,18 @@ export class QwenService implements OnModuleInit {
       this.isAvailable = true;
       this.resetKeyFailure(currentKey);
 
-      this.logger.log(`QwenService使用API Key索引 ${this.currentKeyIndex} 初始化成功，模型: ${this.config.model}`);
-      this.logger.debug(`当前可用API Key数量: ${this.apiKeys.length}, 当前索引: ${this.currentKeyIndex}`);
+      this.logger.log(
+        `QwenService使用API Key索引 ${this.currentKeyIndex} 初始化成功，模型: ${this.config.model}`,
+      );
+      this.logger.debug(
+        `当前可用API Key数量: ${this.apiKeys.length}, 当前索引: ${this.currentKeyIndex}`,
+      );
 
       return true;
     } catch (error) {
-      this.logger.error(`使用API Key索引 ${this.currentKeyIndex} 初始化失败: ${error.message}`);
+      this.logger.error(
+        `使用API Key索引 ${this.currentKeyIndex} 初始化失败: ${error.message}`,
+      );
       this.recordKeyFailure(currentKey);
       this.isAvailable = false;
       return false;
@@ -182,7 +199,10 @@ export class QwenService implements OnModuleInit {
 
   private async initialize() {
     // 解析多个API Key
-    const apiKeyString = this.configService.get<string>('DASHSCOPE_API_KEY', '');
+    const apiKeyString = this.configService.get<string>(
+      'DASHSCOPE_API_KEY',
+      '',
+    );
     this.apiKeys = this.parseApiKeys(apiKeyString);
 
     if (this.apiKeys.length === 0) {
@@ -197,8 +217,11 @@ export class QwenService implements OnModuleInit {
     this.logger.log(`解析到 ${this.apiKeys.length} 个阿里云DashScope API Key`);
 
     // 设置轮询模式（可以从环境变量读取，默认为顺序轮询）
-    const rotationMode = this.configService.get<string>('QWEN_KEY_ROTATION', 'sequential');
-    this.keyRotationMode = (rotationMode === 'random' ? 'random' : 'sequential');
+    const rotationMode = this.configService.get<string>(
+      'QWEN_KEY_ROTATION',
+      'sequential',
+    );
+    this.keyRotationMode = rotationMode === 'random' ? 'random' : 'sequential';
     this.logger.log(`API Key轮询模式: ${this.keyRotationMode}`);
 
     // 初始化失败次数记录
@@ -266,27 +289,39 @@ export class QwenService implements OnModuleInit {
     // 使用 OpenAI 兼容模式 REST API 生成内容
     this.logger.log('Generating marketing strategy via Qwen REST API');
     const result = await this.generateContentViaRest(prompt, {
-      model: this.config?.model
+      model: this.config?.model,
       // temperature 和 maxTokens 已硬编码，不再传递
     });
 
     if (result.text) {
-      this.logger.error(`[QWEN DEBUG] 开始解析响应文本，长度: ${result.text.length}`);
-      console.error(`[QWEN DEBUG CONSOLE] 开始解析响应文本，长度: ${result.text.length}`);
-      console.error(`[QWEN DEBUG CONSOLE] 响应文本前500字符: ${result.text.substring(0, 500)}`);
-      console.error(`[QWEN DEBUG CONSOLE] result对象键: ${Object.keys(result).join(', ')}`);
-      console.error(`[QWEN DEBUG CONSOLE] result.isTruncated: ${result.isTruncated}`);
+      this.logger.error(
+        `[QWEN DEBUG] 开始解析响应文本，长度: ${result.text.length}`,
+      );
+      console.error(
+        `[QWEN DEBUG CONSOLE] 开始解析响应文本，长度: ${result.text.length}`,
+      );
+      console.error(
+        `[QWEN DEBUG CONSOLE] 响应文本前500字符: ${result.text.substring(0, 500)}`,
+      );
+      console.error(
+        `[QWEN DEBUG CONSOLE] result对象键: ${Object.keys(result).join(', ')}`,
+      );
+      console.error(
+        `[QWEN DEBUG CONSOLE] result.isTruncated: ${result.isTruncated}`,
+      );
       // 解析响应文本（复用GeminiService的解析逻辑）
       const parsedResponse = this.parseQwenResponse(result.text);
       if (parsedResponse.success) {
         // 添加引擎标识
         const dataWithEngine = {
           ...parsedResponse.data,
-          engine: AIEngine.QWEN
+          engine: AIEngine.QWEN,
         };
         // 成功日志
         const duration = Date.now() - startTime;
-        this.logger.log(`>>> [QWEN SUCCESS] 灵曜大脑已连接，方案生成用时: ${duration}ms。`);
+        this.logger.log(
+          `>>> [QWEN SUCCESS] 灵曜大脑已连接，方案生成用时: ${duration}ms。`,
+        );
         return {
           success: true,
           data: dataWithEngine,
@@ -530,7 +565,10 @@ export class QwenService implements OnModuleInit {
   private repairTruncatedJson(str: string): any {
     let jsonStr = str.trim();
     // 移除 markdown 标签
-    jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
+    jsonStr = jsonStr
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim();
 
     // 如果没有以 } 结尾，暴力尝试补齐
     if (!jsonStr.endsWith('}')) {
@@ -556,20 +594,28 @@ export class QwenService implements OnModuleInit {
     error?: string;
   } {
     try {
-      this.logger.error(`[parseQwenResponse] START 输入文本长度: ${text.length}`);
+      this.logger.error(
+        `[parseQwenResponse] START 输入文本长度: ${text.length}`,
+      );
       console.error(`[PARSE_QWEN_CONSOLE] START 输入文本长度: ${text.length}`);
-      console.error(`[PARSE_QWEN_CONSOLE] 输入文本前200字符: ${text.substring(0, 200)}`);
+      console.error(
+        `[PARSE_QWEN_CONSOLE] 输入文本前200字符: ${text.substring(0, 200)}`,
+      );
       this.logger.log(`[parseQwenResponse] 输入文本长度: ${text.length}`);
-      this.logger.log(`[parseQwenResponse] 输入文本前500字符: ${text.substring(0, 500)}`);
-      this.logger.log(`[parseQwenResponse] 完整响应（前1000字符）: ${text.substring(0, Math.min(1000, text.length))}`);
+      this.logger.log(
+        `[parseQwenResponse] 输入文本前500字符: ${text.substring(0, 500)}`,
+      );
+      this.logger.log(
+        `[parseQwenResponse] 完整响应（前1000字符）: ${text.substring(0, Math.min(1000, text.length))}`,
+      );
       // 尝试多种格式提取JSON
       let jsonText = text;
 
       // 1. 尝试匹配Markdown代码块（支持多种格式）
       const codeBlockPatterns = [
-        /```json\s*\n([\s\S]*?)\n```/,      // 标准格式：```json\n{...}\n```
-        /```json\s*([\s\S]*?)```/,          // 紧凑格式：```json{...}```
-        /```\s*\n([\s\S]*?)\n```/,          // 无语言标记：```\n{...}\n```
+        /```json\s*\n([\s\S]*?)\n```/, // 标准格式：```json\n{...}\n```
+        /```json\s*([\s\S]*?)```/, // 紧凑格式：```json{...}```
+        /```\s*\n([\s\S]*?)\n```/, // 无语言标记：```\n{...}\n```
       ];
 
       for (const pattern of codeBlockPatterns) {
@@ -590,8 +636,12 @@ export class QwenService implements OnModuleInit {
 
       // 3. 尝试解析JSON，使用物理级JSON修复函数
       const parsed = this.repairTruncatedJson(jsonText);
-      this.logger.log(`[parseQwenResponse] 解析后的对象键: ${Object.keys(parsed).join(', ')}`);
-      this.logger.error(`[parseQwenResponse] 🔍 DEBUG 解析对象包含 wechatFullPlan? ${'wechatFullPlan' in parsed}, 值: ${JSON.stringify(parsed.wechatFullPlan)}`);
+      this.logger.log(
+        `[parseQwenResponse] 解析后的对象键: ${Object.keys(parsed).join(', ')}`,
+      );
+      this.logger.error(
+        `[parseQwenResponse] 🔍 DEBUG 解析对象包含 wechatFullPlan? ${'wechatFullPlan' in parsed}, 值: ${JSON.stringify(parsed.wechatFullPlan)}`,
+      );
 
       // 验证必需字段（曜金级版本增强）
       const requiredFields = [
@@ -607,26 +657,42 @@ export class QwenService implements OnModuleInit {
         'budgetAllocation',
       ];
 
-      this.logger.log(`[parseQwenResponse] 开始验证必需字段，共${requiredFields.length}个字段`);
+      this.logger.log(
+        `[parseQwenResponse] 开始验证必需字段，共${requiredFields.length}个字段`,
+      );
 
       for (const field of requiredFields) {
-        this.logger.log(`[parseQwenResponse] 检查字段: ${field}, 值: ${JSON.stringify(parsed[field])?.substring(0, 100)}`);
+        this.logger.log(
+          `[parseQwenResponse] 检查字段: ${field}, 值: ${JSON.stringify(parsed[field])?.substring(0, 100)}`,
+        );
 
         // 更严格的检查：字段必须存在且不是空对象或空数组
         if (parsed[field] === undefined || parsed[field] === null) {
-          this.logger.error(`🚨 缺失必需字段: ${field} (值为 ${parsed[field]})`);
-          this.logger.error(`🚨 解析后的对象字段: ${Object.keys(parsed).join(', ')}`);
+          this.logger.error(
+            `🚨 缺失必需字段: ${field} (值为 ${parsed[field]})`,
+          );
+          this.logger.error(
+            `🚨 解析后的对象字段: ${Object.keys(parsed).join(', ')}`,
+          );
           this.logger.error(`🚨 原始响应前500字符: ${text.substring(0, 500)}`);
           if (field === 'wechatFullPlan') {
-            this.logger.error(`🚨 严重: wechatFullPlan字段缺失! AI未遵循指令生成微信全案方案`);
+            this.logger.error(
+              `🚨 严重: wechatFullPlan字段缺失! AI未遵循指令生成微信全案方案`,
+            );
             this.logger.error(`🚨 检查提示词中的强制要求是否足够明确`);
           }
           throw new Error(`Missing required field: ${field}`);
         }
 
         // 对于对象字段，检查是否为空对象
-        if (field === 'wechatFullPlan' && typeof parsed[field] === 'object' && Object.keys(parsed[field]).length === 0) {
-          this.logger.warn(`⚠️ wechatFullPlan字段存在但为空对象，可能AI生成了空结构`);
+        if (
+          field === 'wechatFullPlan' &&
+          typeof parsed[field] === 'object' &&
+          Object.keys(parsed[field]).length === 0
+        ) {
+          this.logger.warn(
+            `⚠️ wechatFullPlan字段存在但为空对象，可能AI生成了空结构`,
+          );
         }
       }
 
@@ -634,7 +700,11 @@ export class QwenService implements OnModuleInit {
 
       // 特别检查wechatFullPlan的子字段
       if (parsed.wechatFullPlan) {
-        const wechatFields = ['articleSeries', 'offlineDecoration', 'membershipBenefits'];
+        const wechatFields = [
+          'articleSeries',
+          'offlineDecoration',
+          'membershipBenefits',
+        ];
         for (const field of wechatFields) {
           if (!parsed.wechatFullPlan[field]) {
             this.logger.warn(`⚠️ wechatFullPlan缺少子字段: ${field}`);
@@ -642,9 +712,14 @@ export class QwenService implements OnModuleInit {
         }
 
         // 检查articleSeries是否包含足够的内容
-        if (parsed.wechatFullPlan.articleSeries && Array.isArray(parsed.wechatFullPlan.articleSeries)) {
+        if (
+          parsed.wechatFullPlan.articleSeries &&
+          Array.isArray(parsed.wechatFullPlan.articleSeries)
+        ) {
           if (parsed.wechatFullPlan.articleSeries.length < 2) {
-            this.logger.warn(`⚠️ wechatFullPlan.articleSeries只有${parsed.wechatFullPlan.articleSeries.length}篇文章，建议至少3篇`);
+            this.logger.warn(
+              `⚠️ wechatFullPlan.articleSeries只有${parsed.wechatFullPlan.articleSeries.length}篇文章，建议至少3篇`,
+            );
           }
         }
       }
@@ -692,17 +767,22 @@ export class QwenService implements OnModuleInit {
         userPersonas: [
           {
             name: '时尚小白领莉莉',
-            description: '25-30岁，一线城市白领，注重生活品质，喜欢在社交平台分享生活方式',
-            behaviorTraits: ['高频使用小红书', '关注美妆穿搭', '喜欢参与线上活动'],
-            motivations: ['寻求认同感', '追求生活品质', '社交展示']
+            description:
+              '25-30岁，一线城市白领，注重生活品质，喜欢在社交平台分享生活方式',
+            behaviorTraits: [
+              '高频使用小红书',
+              '关注美妆穿搭',
+              '喜欢参与线上活动',
+            ],
+            motivations: ['寻求认同感', '追求生活品质', '社交展示'],
           },
           {
             name: '新手妈妈小雅',
             description: '28-35岁，注重育儿品质，关注健康安全，消费决策理性',
             behaviorTraits: ['关注母婴内容', '信任专家推荐', '重视产品安全性'],
-            motivations: ['宝宝健康', '育儿便利', '家庭幸福感']
-          }
-        ]
+            motivations: ['宝宝健康', '育儿便利', '家庭幸福感'],
+          },
+        ],
       },
       coreIdea: `这是一份基于 ${type} 的营销策略回退方案。由于 Qwen API 暂时不可用，我们提供了基于最佳实践的基础方案。建议在 API 恢复后重新生成更精准的策略。`,
       xhsContent: {
@@ -716,21 +796,23 @@ export class QwenService implements OnModuleInit {
           {
             title: '【首发】探索新体验：XXXX的全新升级',
             theme: '品牌升级与创新',
-            keyPoints: ['品牌故事', '产品特色', '用户体验']
+            keyPoints: ['品牌故事', '产品特色', '用户体验'],
           },
           {
             title: '【深度】行业洞察：XXXX如何引领潮流',
             theme: '行业分析与趋势',
-            keyPoints: ['市场分析', '趋势预测', '竞争优势']
+            keyPoints: ['市场分析', '趋势预测', '竞争优势'],
           },
           {
             title: '【互动】邀请您参与：XXXX共创计划',
             theme: '用户参与与共创',
-            keyPoints: ['互动机制', '用户反馈', '共创成果']
-          }
+            keyPoints: ['互动机制', '用户反馈', '共创成果'],
+          },
         ],
-        offlineDecoration: '主题展区设计，结合品牌色系与互动装置，打造沉浸式体验空间',
-        membershipBenefits: '三级会员体系：基础会员（注册即享）、银卡会员（消费累计）、金卡会员（年度活跃），对应不同权益与专属服务'
+        offlineDecoration:
+          '主题展区设计，结合品牌色系与互动装置，打造沉浸式体验空间',
+        membershipBenefits:
+          '三级会员体系：基础会员（注册即享）、银卡会员（消费累计）、金卡会员（年度活跃），对应不同权益与专属服务',
       },
       recommendedExecutionTime: {
         timeline: [
@@ -738,19 +820,19 @@ export class QwenService implements OnModuleInit {
             phase: '准备期',
             duration: '2周',
             activities: ['内容规划', '资源准备', '团队培训'],
-            milestones: ['方案定稿', '资源到位', '团队培训完成']
+            milestones: ['方案定稿', '资源到位', '团队培训完成'],
           },
           {
             phase: '执行期',
             duration: '4周',
             activities: ['内容发布', '活动运营', '数据监测'],
-            milestones: ['首波内容发布', '活动引爆', '数据达标']
+            milestones: ['首波内容发布', '活动引爆', '数据达标'],
           },
           {
             phase: '优化期',
             duration: '2周',
             activities: ['效果评估', '策略调整', '总结报告'],
-            milestones: ['效果报告完成', '策略优化方案', '项目总结']
+            milestones: ['效果报告完成', '策略优化方案', '项目总结'],
           },
         ],
         bestPostingTimes: ['09:00-11:00', '19:00-21:00', '周末上午'],
@@ -773,35 +855,35 @@ export class QwenService implements OnModuleInit {
           description: '市场调研与竞品分析',
           responsible: '市场部',
           deadline: '第1周',
-          deliverables: ['竞品分析报告', '目标用户画像']
+          deliverables: ['竞品分析报告', '目标用户画像'],
         },
         {
           step: 2,
           description: '内容创意与脚本撰写',
           responsible: '内容团队',
           deadline: '第2周',
-          deliverables: ['内容日历', '创意脚本', '视觉概念']
+          deliverables: ['内容日历', '创意脚本', '视觉概念'],
         },
         {
           step: 3,
           description: '素材制作与审核',
           responsible: '设计部',
           deadline: '第3周',
-          deliverables: ['设计素材', '视频成品', '审核报告']
+          deliverables: ['设计素材', '视频成品', '审核报告'],
         },
         {
           step: 4,
           description: '渠道发布与推广',
           responsible: '运营部',
           deadline: '第4周',
-          deliverables: ['渠道发布记录', '推广数据', '用户反馈']
+          deliverables: ['渠道发布记录', '推广数据', '用户反馈'],
         },
         {
           step: 5,
           description: '数据监测与优化',
           responsible: '数据分析',
           deadline: '持续',
-          deliverables: ['数据日报', '优化建议', '结案报告']
+          deliverables: ['数据日报', '优化建议', '结案报告'],
         },
       ],
       riskAssessment: [
@@ -810,21 +892,21 @@ export class QwenService implements OnModuleInit {
           probability: '中',
           impact: '高',
           mitigationStrategy: '多平台分发，降低单一平台依赖',
-          contingencyPlan: '准备备用渠道，调整内容策略'
+          contingencyPlan: '准备备用渠道，调整内容策略',
         },
         {
           risk: '预算超支',
           probability: '低',
           impact: '中',
           mitigationStrategy: '分阶段拨款，定期审计',
-          contingencyPlan: '预留10%应急预算，优化资源分配'
+          contingencyPlan: '预留10%应急预算，优化资源分配',
         },
         {
           risk: '内容效果不佳',
           probability: '中',
           impact: '中',
           mitigationStrategy: 'A/B测试，快速迭代',
-          contingencyPlan: '准备备选内容方案，调整发布时间'
+          contingencyPlan: '准备备选内容方案，调整发布时间',
         },
       ],
       budgetAllocation: [
@@ -833,28 +915,28 @@ export class QwenService implements OnModuleInit {
           amount: campaignSummary.budget * 0.4,
           percentage: 40,
           justification: '高质量内容是营销成功的基础',
-          costBreakdown: ['文案撰写', '设计制作', '视频拍摄']
+          costBreakdown: ['文案撰写', '设计制作', '视频拍摄'],
         },
         {
           category: '渠道推广',
           amount: campaignSummary.budget * 0.3,
           percentage: 30,
           justification: '包括小红书推广、微信广告等',
-          costBreakdown: ['平台广告', 'KOL合作', '流量投放']
+          costBreakdown: ['平台广告', 'KOL合作', '流量投放'],
         },
         {
           category: '数据分析',
           amount: campaignSummary.budget * 0.15,
           percentage: 15,
           justification: '效果监测与优化调整',
-          costBreakdown: ['监测工具', '分析服务', '报告制作']
+          costBreakdown: ['监测工具', '分析服务', '报告制作'],
         },
         {
           category: '应急备用',
           amount: campaignSummary.budget * 0.15,
           percentage: 15,
           justification: '应对突发情况和机会',
-          costBreakdown: ['应急预算', '灵活调配', '机会捕捉']
+          costBreakdown: ['应急预算', '灵活调配', '机会捕捉'],
         },
       ],
     };
@@ -875,11 +957,14 @@ export class QwenService implements OnModuleInit {
   /**
    * 使用 OpenAI 兼容模式 REST API 生成内容
    */
-  private async generateContentViaRest(prompt: string, options?: {
-    temperature?: number;
-    maxTokens?: number;
-    model?: string;
-  }): Promise<{ text: string; error?: string; isTruncated?: boolean }> {
+  private async generateContentViaRest(
+    prompt: string,
+    options?: {
+      temperature?: number;
+      maxTokens?: number;
+      model?: string;
+    },
+  ): Promise<{ text: string; error?: string; isTruncated?: boolean }> {
     const currentKey = this.apiKeys[this.currentKeyIndex];
     if (!currentKey) {
       return { text: '', error: 'No API key available' };
@@ -892,43 +977,51 @@ export class QwenService implements OnModuleInit {
     const maxTokens = 3000;
 
     // 阿里云DashScope OpenAI兼容模式端点
-    const url = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
+    const url =
+      'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
 
     const payload = {
       model,
       messages: [
         {
           role: 'system',
-          content: '你是一个专业的营销策略专家，请根据用户提供的活动信息生成详细的营销策略方案。输出必须是完整的JSON格式。'
+          content:
+            '你是一个专业的营销策略专家，请根据用户提供的活动信息生成详细的营销策略方案。输出必须是完整的JSON格式。',
         },
         {
           role: 'user',
-          content: prompt
-        }
+          content: prompt,
+        },
       ],
       temperature,
       max_tokens: maxTokens,
-      top_p: 0.95,      // 必须显式写 0.95
-      response_format: { "type": "json_object" } // 开启阿里云的原生 JSON 模式
+      top_p: 0.95, // 必须显式写 0.95
+      response_format: { type: 'json_object' }, // 开启阿里云的原生 JSON 模式
       // top_k: this.config?.topK || 40, // OpenAI API不支持top_k参数
     };
 
     try {
-      this.logger.log(`Generating content via Qwen REST API with model: ${model}`);
+      this.logger.log(
+        `Generating content via Qwen REST API with model: ${model}`,
+      );
       this.logger.log(`[QWEN DEBUG] URL: ${url}`);
       this.logger.log(`[QWEN DEBUG] Payload model: ${payload.model}`);
-      this.logger.log(`[QWEN DEBUG] Current key (first 10 chars): ${currentKey.substring(0, 10)}...`);
-      this.logger.log(`[QWEN DEBUG] Payload messages length: ${JSON.stringify(payload.messages).length}`);
+      this.logger.log(
+        `[QWEN DEBUG] Current key (first 10 chars): ${currentKey.substring(0, 10)}...`,
+      );
+      this.logger.log(
+        `[QWEN DEBUG] Payload messages length: ${JSON.stringify(payload.messages).length}`,
+      );
 
       // 使用代理（如果配置了环境变量）
       const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
-      let fetchOptions: any = {
+      const fetchOptions: any = {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${currentKey}`,
+          Authorization: `Bearer ${currentKey}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       };
 
       if (proxyUrl) {
@@ -939,7 +1032,9 @@ export class QwenService implements OnModuleInit {
           const agent = new HttpsProxyAgent(proxyUrl);
           fetchOptions.agent = agent;
         } catch (proxyError) {
-          this.logger.warn(`Failed to create proxy agent: ${proxyError.message}`);
+          this.logger.warn(
+            `Failed to create proxy agent: ${proxyError.message}`,
+          );
         }
       }
 
@@ -947,8 +1042,14 @@ export class QwenService implements OnModuleInit {
 
       if (!response.ok) {
         const errorText = await response.text();
-        this.logger.error(`Qwen REST API generation failed: HTTP ${response.status} ${response.statusText}`);
-        return { text: '', error: `HTTP ${response.status}: ${errorText.substring(0, 200)}`, isTruncated: false };
+        this.logger.error(
+          `Qwen REST API generation failed: HTTP ${response.status} ${response.statusText}`,
+        );
+        return {
+          text: '',
+          error: `HTTP ${response.status}: ${errorText.substring(0, 200)}`,
+          isTruncated: false,
+        };
       }
 
       const data = await response.json();
@@ -958,13 +1059,19 @@ export class QwenService implements OnModuleInit {
         const isTruncated = finishReason === 'length'; // OpenAI API中'length'表示因令牌限制截断
 
         if (isTruncated) {
-          this.logger.warn(`Qwen API response truncated. Finish reason: ${finishReason}, Text length: ${text.length}`);
+          this.logger.warn(
+            `Qwen API response truncated. Finish reason: ${finishReason}, Text length: ${text.length}`,
+          );
         }
 
         return { text, isTruncated };
       } else {
         this.logger.error('Qwen REST API response missing expected content');
-        return { text: '', error: 'Invalid response format', isTruncated: false };
+        return {
+          text: '',
+          error: 'Invalid response format',
+          isTruncated: false,
+        };
       }
     } catch (error) {
       this.logger.error(`Qwen REST API generation error: ${error.message}`);

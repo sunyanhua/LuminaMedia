@@ -1,6 +1,4 @@
 {
-  "status": "RUNNING",
-  "task_index": 4,
-  "current_task": "Task 6.6：提升核心资产测试覆盖率至100%，参考LuminaMedia/tasks/phase-1-foundation.md里程碑6.6。当前状态：多租户隔离93.75%分支、认证鉴权85.71%分支、CloudProvider65.46%分支。执行步骤：①运行npm test -- --coverage获取详细报告 ②为多租户隔离补充分支测试至100% ③为认证鉴权补充分支测试至100% ④为CloudProvider补充分支测试至100% ⑤运行npm test验证覆盖率，更新PROGRESS.md",
-  "attempt": 1
+  "status": "HEALING",
+  "round": 3
 }

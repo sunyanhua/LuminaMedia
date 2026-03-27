@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { SelectQueryBuilder, Repository, ObjectLiteral } from 'typeorm';
 import { TenantRepository } from '../tenant.repository';
+import { BaseRepository } from '../base.repository';
 import { TenantContextService } from '../../services/tenant-context.service';
 import { TenantEntity } from '../../interfaces/tenant-entity.interface';
 
@@ -195,14 +196,59 @@ describe('TenantRepository', () => {
     });
   });
 
+  describe('findByIds', () => {
+    it('should add tenant condition and ids condition when finding by ids', async () => {
+      const foundEntities = [
+        { id: 'id1', name: 'Entity1', tenantId: 'test-tenant-id' },
+        { id: 'id2', name: 'Entity2', tenantId: 'test-tenant-id' },
+      ];
+      (mockQueryBuilder.getMany as jest.Mock).mockResolvedValue(foundEntities);
+
+      const result = await testRepository.findByIds(['id1', 'id2']);
+
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'test.tenantId = :tenantId',
+        { tenantId: 'test-tenant-id' }
+      );
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'test.id IN (:...ids)',
+        { ids: ['id1', 'id2'] }
+      );
+      expect(result).toEqual(foundEntities);
+    });
+  });
+
+  describe('count', () => {
+    it('should add tenant condition when counting entities', async () => {
+      (mockQueryBuilder.getCount as jest.Mock).mockResolvedValue(5);
+
+      const result = await testRepository.count();
+
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'test.tenantId = :tenantId',
+        { tenantId: 'test-tenant-id' }
+      );
+      expect(result).toBe(5);
+    });
+
+    it('should add where condition when options.where is provided', async () => {
+      (mockQueryBuilder.getCount as jest.Mock).mockResolvedValue(2);
+
+      const result = await testRepository.count({ where: { active: true } });
+
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith({ active: true });
+      expect(result).toBe(2);
+    });
+  });
+
   describe('findAllTenants', () => {
     it('should skip tenant filtering for admin access', async () => {
       const allEntities = [
         { id: 'id1', name: 'Entity1', tenantId: 'tenant1' },
         { id: 'id2', name: 'Entity2', tenantId: 'tenant2' },
       ];
-      // 模拟父类的find方法
-      const parentFindSpy = jest.spyOn(Object.getPrototypeOf(Object.getPrototypeOf(testRepository)), 'find')
+      // 模拟BaseRepository.prototype.find
+      const parentFindSpy = jest.spyOn(BaseRepository.prototype, 'find')
         .mockResolvedValue(allEntities);
 
       const result = await testRepository.findAllTenants();
@@ -210,6 +256,7 @@ describe('TenantRepository', () => {
       expect(parentFindSpy).toHaveBeenCalled();
       expect(mockQueryBuilder.andWhere).not.toHaveBeenCalled();
       expect(result).toEqual(allEntities);
+      parentFindSpy.mockRestore();
     });
   });
 
@@ -225,4 +272,48 @@ describe('TenantRepository', () => {
     });
 
     it('should return false when entity does not exist for current tenant', async () => {
-      jest.spyOn(testReposi
+      jest.spyOn(testRepository, 'findOne').mockResolvedValue(null);
+
+      const result = await testRepository.checkTenantAccess('non-existent-id');
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false when findOne throws an error', async () => {
+      jest.spyOn(testRepository, 'findOne').mockRejectedValue(new Error('DB error'));
+
+      const result = await testRepository.checkTenantAccess('123');
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('getTenantStats', () => {
+    it('should return tenant statistics', async () => {
+      jest.spyOn(testRepository, 'count').mockResolvedValue(10);
+      const mockEntity = { id: 'id1', name: 'Entity1', tenantId: 'test-tenant-id', updatedAt: new Date('2026-03-27') };
+      (mockQueryBuilder.orderBy as jest.Mock).mockReturnThis();
+      (mockQueryBuilder.getOne as jest.Mock).mockResolvedValue(mockEntity);
+
+      const result = await testRepository.getTenantStats();
+
+      expect(testRepository.count).toHaveBeenCalled();
+      expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith('test.updatedAt', 'DESC');
+      expect(result.totalCount).toBe(10);
+      expect(result.lastUpdated).toEqual(new Date('2026-03-27'));
+      expect(result.sizeEstimate).toBe(10 * 1024); // 10 * 1024
+    });
+
+    it('should return null lastUpdated when no entities exist', async () => {
+      jest.spyOn(testRepository, 'count').mockResolvedValue(0);
+      (mockQueryBuilder.orderBy as jest.Mock).mockReturnThis();
+      (mockQueryBuilder.getOne as jest.Mock).mockResolvedValue(null);
+
+      const result = await testRepository.getTenantStats();
+
+      expect(result.totalCount).toBe(0);
+      expect(result.lastUpdated).toBeNull();
+      expect(result.sizeEstimate).toBe(0);
+    });
+  });
+});

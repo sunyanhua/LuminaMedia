@@ -25,12 +25,19 @@ export class MarketingCampaignRepository extends TenantRepository<MarketingCampa
       .getMany();
   }
 
-  async findByUserAndProfile(userId: string, customerProfileId?: string): Promise<MarketingCampaign[]> {
-    const query = this.createQueryBuilder('campaign')
-      .where('campaign.userId = :userId', { userId });
+  async findByUserAndProfile(
+    userId: string,
+    customerProfileId?: string,
+  ): Promise<MarketingCampaign[]> {
+    const query = this.createQueryBuilder('campaign').where(
+      'campaign.userId = :userId',
+      { userId },
+    );
 
     if (customerProfileId) {
-      query.andWhere('campaign.customerProfileId = :customerProfileId', { customerProfileId });
+      query.andWhere('campaign.customerProfileId = :customerProfileId', {
+        customerProfileId,
+      });
     }
 
     return query.orderBy('campaign.createdAt', 'DESC').getMany();

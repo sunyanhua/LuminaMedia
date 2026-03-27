@@ -39,7 +39,12 @@ export class UserBehavior implements TenantEntity {
   @Column({ name: 'event_data', type: 'json', nullable: true })
   eventData: Record<string, any>;
 
-  @Column({ name: 'tenant_id', type: 'varchar', length: 36, default: 'default-tenant' })
+  @Column({
+    name: 'tenant_id',
+    type: 'varchar',
+    length: 36,
+    default: 'default-tenant',
+  })
   tenantId: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

@@ -57,7 +57,10 @@ export class UserFactory {
    * @param overrides 自定义属性
    * @returns 用户实体实例
    */
-  static createForTenant(tenantId: string, overrides: Partial<User> = {}): User {
+  static createForTenant(
+    tenantId: string,
+    overrides: Partial<User> = {},
+  ): User {
     return this.create({ ...overrides, tenantId });
   }
 

@@ -54,7 +54,12 @@ export interface StorageService {
   /**
    * 上传文件到云存储
    */
-  uploadFile(bucket: string, key: string, file: Buffer, options?: StorageOptions): Promise<StorageResult>;
+  uploadFile(
+    bucket: string,
+    key: string,
+    file: Buffer,
+    options?: StorageOptions,
+  ): Promise<StorageResult>;
 
   /**
    * 下载文件
@@ -84,12 +89,20 @@ export interface AIService {
   /**
    * 调用云端AI模型（Gemini、Qwen等）
    */
-  callModel(model: string, prompt: string, options?: AIModelOptions): Promise<AIResponse>;
+  callModel(
+    model: string,
+    prompt: string,
+    options?: AIModelOptions,
+  ): Promise<AIResponse>;
 
   /**
    * 调用本地AI模型（Docker一键拉起）
    */
-  callLocalModel(model: string, prompt: string, options?: LocalModelOptions): Promise<AIResponse>;
+  callLocalModel(
+    model: string,
+    prompt: string,
+    options?: LocalModelOptions,
+  ): Promise<AIResponse>;
 
   /**
    * 获取可用模型列表
@@ -139,12 +152,19 @@ export interface MessagingService {
   /**
    * 发送消息到队列
    */
-  sendMessage(queue: string, message: any, options?: MessageOptions): Promise<string>;
+  sendMessage(
+    queue: string,
+    message: any,
+    options?: MessageOptions,
+  ): Promise<string>;
 
   /**
    * 接收消息
    */
-  receiveMessage(queue: string, options?: ReceiveOptions): Promise<Message | null>;
+  receiveMessage(
+    queue: string,
+    options?: ReceiveOptions,
+  ): Promise<Message | null>;
 
   /**
    * 确认消息已处理
@@ -235,7 +255,10 @@ export interface ConnectionStats {
 
 export interface ShardingService {
   getTablePartition(table: string, tenantId: string): Promise<string>;
-  migrateData(sourceTable: string, targetTable: string): Promise<MigrationResult>;
+  migrateData(
+    sourceTable: string,
+    targetTable: string,
+  ): Promise<MigrationResult>;
   analyzePartitionBalance(): Promise<PartitionBalanceReport>;
 }
 

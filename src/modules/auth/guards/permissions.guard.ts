@@ -13,11 +13,12 @@ export interface RequiredPermission {
 export class PermissionsGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
-    const requiredPermissions = this.reflector.getAllAndOverride<RequiredPermission[]>(PERMISSIONS_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+  canActivate(
+    context: ExecutionContext,
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    const requiredPermissions = this.reflector.getAllAndOverride<
+      RequiredPermission[]
+    >(PERMISSIONS_KEY, [context.getHandler(), context.getClass()]);
 
     if (!requiredPermissions || requiredPermissions.length === 0) {
       return true;
@@ -38,7 +39,8 @@ export class PermissionsGuard implements CanActivate {
     return requiredPermissions.every((requiredPerm) =>
       userPermissions.some(
         (userPerm) =>
-          userPerm.module === requiredPerm.module && userPerm.action === requiredPerm.action,
+          userPerm.module === requiredPerm.module &&
+          userPerm.action === requiredPerm.action,
       ),
     );
   }

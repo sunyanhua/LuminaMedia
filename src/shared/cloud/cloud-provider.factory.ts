@@ -30,7 +30,9 @@ export class CloudProviderFactory {
         return new AliCloudAdapter();
 
       case 'private':
-        const { PrivateDeployAdapter } = require('./adapters/private-deploy.adapter');
+        const {
+          PrivateDeployAdapter,
+        } = require('./adapters/private-deploy.adapter');
         return new PrivateDeployAdapter();
 
       case 'mock':

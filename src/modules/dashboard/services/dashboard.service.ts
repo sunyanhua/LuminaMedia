@@ -227,8 +227,10 @@ export class DashboardService {
     const totalStrategies = strategies.length;
     const avgConfidence =
       totalStrategies > 0
-        ? strategies.reduce((sum, s) => sum + (parseFloat(s.confidenceScore) || 0), 0) /
-          totalStrategies
+        ? strategies.reduce(
+            (sum, s) => sum + (parseFloat(s.confidenceScore) || 0),
+            0,
+          ) / totalStrategies
         : 0;
 
     // 生成时间线数据（模拟）
@@ -662,7 +664,10 @@ export class DashboardService {
     return data;
   }
 
-  async getTrafficTimeSeriesData(profileId?: string, days?: number): Promise<any[]> {
+  async getTrafficTimeSeriesData(
+    profileId?: string,
+    days?: number,
+  ): Promise<any[]> {
     const targetDays = days || 30;
     const data: { date: string; value: number }[] = [];
     const baseDate = new Date();

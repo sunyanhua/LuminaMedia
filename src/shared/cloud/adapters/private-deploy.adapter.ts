@@ -22,7 +22,7 @@ import {
   Subscription,
   MigrationResult,
   PartitionBalanceReport,
-  PartitionInfo
+  PartitionInfo,
 } from '../cloud-provider.interface';
 
 /**
@@ -49,11 +49,15 @@ export class PrivateDeployAdapter implements CloudProvider {
     console.log('[PrivateDeployAdapter] 初始化私有化部署适配器');
 
     // 私有化部署环境通常使用本地服务
-    const baseUrl = process.env.PRIVATE_DEPLOY_BASE_URL || 'http://localhost:8080';
+    const baseUrl =
+      process.env.PRIVATE_DEPLOY_BASE_URL || 'http://localhost:8080';
     console.log(`[PrivateDeployAdapter] 基础服务地址: ${baseUrl}`);
   }
 
-  async healthCheck(): Promise<{ status: 'healthy' | 'degraded' | 'unhealthy'; details?: Record<string, any>; }> {
+  async healthCheck(): Promise<{
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    details?: Record<string, any>;
+  }> {
     // 检查各本地服务的健康状态
     try {
       // 模拟健康检查
@@ -63,8 +67,8 @@ export class PrivateDeployAdapter implements CloudProvider {
           provider: 'private',
           services: ['local-storage', 'local-ai', 'local-db', 'local-mq'],
           deployment: process.env.PRIVATE_DEPLOY_ENV || 'development',
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       };
     } catch (error) {
       return {
@@ -72,8 +76,8 @@ export class PrivateDeployAdapter implements CloudProvider {
         details: {
           provider: 'private',
           error: error instanceof Error ? error.message : String(error),
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       };
     }
   }
@@ -90,9 +94,16 @@ export class PrivateDeployAdapter implements CloudProvider {
 class PrivateStorageService implements StorageService {
   private basePath = process.env.PRIVATE_STORAGE_PATH || './storage';
 
-  async uploadFile(bucket: string, key: string, file: Buffer, options?: StorageOptions): Promise<StorageResult> {
+  async uploadFile(
+    bucket: string,
+    key: string,
+    file: Buffer,
+    options?: StorageOptions,
+  ): Promise<StorageResult> {
     // 实际实现：保存到本地文件系统或MinIO
-    console.log(`[PrivateStorageService] 上传文件到本地存储: ${bucket}/${key}, 大小: ${file.length} bytes`);
+    console.log(
+      `[PrivateStorageService] 上传文件到本地存储: ${bucket}/${key}, 大小: ${file.length} bytes`,
+    );
 
     // 模拟实现
     const filePath = `${this.basePath}/${bucket}/${key}`;
@@ -103,7 +114,7 @@ class PrivateStorageService implements StorageService {
       bucket,
       url: `file://${filePath}`,
       size: file.length,
-      etag: `private-etag-${Date.now()}`
+      etag: `private-etag-${Date.now()}`,
     };
   }
 
@@ -112,7 +123,10 @@ class PrivateStorageService implements StorageService {
     console.log(`[PrivateStorageService] 从本地存储下载文件: ${bucket}/${key}`);
 
     // 模拟实现
-    return Buffer.from(`私有化存储文件内容: ${bucket}/${key}\n时间戳: ${new Date().toISOString()}`, 'utf-8');
+    return Buffer.from(
+      `私有化存储文件内容: ${bucket}/${key}\n时间戳: ${new Date().toISOString()}`,
+      'utf-8',
+    );
   }
 
   async deleteFile(bucket: string, key: string): Promise<void> {
@@ -120,15 +134,22 @@ class PrivateStorageService implements StorageService {
     console.log(`[PrivateStorageService] 从本地存储删除文件: ${bucket}/${key}`);
   }
 
-  async getFileUrl(bucket: string, key: string, expiresIn?: number): Promise<string> {
+  async getFileUrl(
+    bucket: string,
+    key: string,
+    expiresIn?: number,
+  ): Promise<string> {
     // 私有化部署通常提供HTTP服务访问文件
-    const baseUrl = process.env.PRIVATE_STORAGE_BASE_URL || 'http://localhost:9000';
+    const baseUrl =
+      process.env.PRIVATE_STORAGE_BASE_URL || 'http://localhost:9000';
     return `${baseUrl}/${bucket}/${key}`;
   }
 
   async listFiles(bucket: string, prefix?: string): Promise<FileInfo[]> {
     // 实际实现：列出本地目录文件
-    console.log(`[PrivateStorageService] 列出本地存储文件: bucket=${bucket}, prefix=${prefix}`);
+    console.log(
+      `[PrivateStorageService] 列出本地存储文件: bucket=${bucket}, prefix=${prefix}`,
+    );
 
     // 模拟实现
     return [
@@ -136,14 +157,14 @@ class PrivateStorageService implements StorageService {
         key: prefix ? `${prefix}/local1.txt` : 'local1.txt',
         size: 512,
         lastModified: new Date(),
-        etag: 'private-etag-1'
+        etag: 'private-etag-1',
       },
       {
         key: prefix ? `${prefix}/local2.dat` : 'local2.dat',
         size: 10240,
         lastModified: new Date(Date.now() - 172800000),
-        etag: 'private-etag-2'
-      }
+        etag: 'private-etag-2',
+      },
     ];
   }
 }
@@ -152,39 +173,51 @@ class PrivateStorageService implements StorageService {
  * 私有化AI服务（本地Docker模型）
  */
 class PrivateAIService implements AIService {
-  async callModel(model: string, prompt: string, options?: AIModelOptions): Promise<AIResponse> {
+  async callModel(
+    model: string,
+    prompt: string,
+    options?: AIModelOptions,
+  ): Promise<AIResponse> {
     // 私有化部署可以调用本地模型，也可以调用外部AI API
-    console.log(`[PrivateAIService] 调用AI模型: ${model}, prompt长度: ${prompt.length}`);
+    console.log(
+      `[PrivateAIService] 调用AI模型: ${model}, prompt长度: ${prompt.length}`,
+    );
 
     // 模拟延迟（本地模型可能较慢）
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
     return {
       text: `[私有化${model}] 这是来自私有化AI服务的响应。\n\n输入: ${prompt.substring(0, 100)}...`,
       usage: {
         promptTokens: Math.floor(prompt.length / 4),
         completionTokens: 200,
-        totalTokens: Math.floor(prompt.length / 4) + 200
+        totalTokens: Math.floor(prompt.length / 4) + 200,
       },
-      finishReason: 'stop'
+      finishReason: 'stop',
     };
   }
 
-  async callLocalModel(model: string, prompt: string, options?: LocalModelOptions): Promise<AIResponse> {
+  async callLocalModel(
+    model: string,
+    prompt: string,
+    options?: LocalModelOptions,
+  ): Promise<AIResponse> {
     // 调用本地Docker容器中的模型
-    console.log(`[PrivateAIService] 调用本地Docker模型: ${model}, GPU=${options?.gpu || false}`);
+    console.log(
+      `[PrivateAIService] 调用本地Docker模型: ${model}, GPU=${options?.gpu || false}`,
+    );
 
     // 本地模型调用通常更慢
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     return {
       text: `[本地Docker ${model}] 这是来自本地Docker模型的响应。\n\n输入: ${prompt.substring(0, 100)}...`,
       usage: {
         promptTokens: Math.floor(prompt.length / 4),
         completionTokens: 250,
-        totalTokens: Math.floor(prompt.length / 4) + 250
+        totalTokens: Math.floor(prompt.length / 4) + 250,
       },
-      finishReason: 'stop'
+      finishReason: 'stop',
     };
   }
 
@@ -196,34 +229,34 @@ class PrivateAIService implements AIService {
         name: 'Qwen 7B (Docker)',
         provider: 'local',
         capabilities: ['text-generation', 'summarization', 'translation'],
-        maxTokens: 4096
+        maxTokens: 4096,
       },
       {
         id: 'llama-7b-docker',
         name: 'Llama 7B (Docker)',
         provider: 'local',
         capabilities: ['text-generation', 'code-generation'],
-        maxTokens: 2048
+        maxTokens: 2048,
       },
       {
         id: 'openai-api',
         name: 'OpenAI API (外部)',
         provider: 'gemini', // 使用gemini分类表示外部API
         capabilities: ['text-generation', 'analysis'],
-        maxTokens: 16384
-      }
+        maxTokens: 16384,
+      },
     ];
   }
 
   async getServiceStatus(): Promise<AIServiceStatus> {
     // 检查本地AI服务状态
     const models = await this.listAvailableModels();
-    const localModels = models.filter(m => m.provider === 'local');
+    const localModels = models.filter((m) => m.provider === 'local');
 
     return {
       available: localModels.length > 0,
       models,
-      latency: 800 // 本地模型延迟较高
+      latency: 800, // 本地模型延迟较高
     };
   }
 }
@@ -236,10 +269,12 @@ class PrivateDatabaseService implements DatabaseService {
 
   async query<T>(sql: string, params?: any[]): Promise<T[]> {
     // 实际实现：连接本地MySQL数据库
-    console.log(`[PrivateDatabaseService] 执行本地数据库查询: ${sql.substring(0, 100)}..., 参数: ${JSON.stringify(params || [])}`);
+    console.log(
+      `[PrivateDatabaseService] 执行本地数据库查询: ${sql.substring(0, 100)}..., 参数: ${JSON.stringify(params || [])}`,
+    );
 
     // 模拟延迟
-    await new Promise(resolve => setTimeout(resolve, 150));
+    await new Promise((resolve) => setTimeout(resolve, 150));
 
     // 模拟结果
     return [] as T[];
@@ -247,9 +282,11 @@ class PrivateDatabaseService implements DatabaseService {
 
   async execute(sql: string, params?: any[]): Promise<number> {
     // 实际实现：执行本地数据库更新
-    console.log(`[PrivateDatabaseService] 执行本地数据库更新: ${sql.substring(0, 100)}..., 参数: ${JSON.stringify(params || [])}`);
+    console.log(
+      `[PrivateDatabaseService] 执行本地数据库更新: ${sql.substring(0, 100)}..., 参数: ${JSON.stringify(params || [])}`,
+    );
 
-    await new Promise(resolve => setTimeout(resolve, 120));
+    await new Promise((resolve) => setTimeout(resolve, 120));
 
     return sql.toLowerCase().includes('insert') ? 1 : 0;
   }
@@ -260,12 +297,12 @@ class PrivateDatabaseService implements DatabaseService {
     return {
       commit: async () => {
         console.log('[PrivateDatabaseService] 提交本地数据库事务');
-        await new Promise(resolve => setTimeout(resolve, 80));
+        await new Promise((resolve) => setTimeout(resolve, 80));
       },
       rollback: async () => {
         console.log('[PrivateDatabaseService] 回滚本地数据库事务');
-        await new Promise(resolve => setTimeout(resolve, 80));
-      }
+        await new Promise((resolve) => setTimeout(resolve, 80));
+      },
     };
   }
 
@@ -275,7 +312,7 @@ class PrivateDatabaseService implements DatabaseService {
       total: 15,
       active: 3,
       idle: 12,
-      waiting: 0
+      waiting: 0,
     };
   }
 }
@@ -291,16 +328,21 @@ class PrivateShardingService implements ShardingService {
     return `${table}_local_p${partition}`;
   }
 
-  async migrateData(sourceTable: string, targetTable: string): Promise<MigrationResult> {
+  async migrateData(
+    sourceTable: string,
+    targetTable: string,
+  ): Promise<MigrationResult> {
     // 本地数据迁移
-    console.log(`[PrivateShardingService] 本地数据迁移: ${sourceTable} -> ${targetTable}`);
+    console.log(
+      `[PrivateShardingService] 本地数据迁移: ${sourceTable} -> ${targetTable}`,
+    );
 
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     return {
       migratedRows: 1000,
       duration: 3000,
-      errors: []
+      errors: [],
     };
   }
 
@@ -313,7 +355,7 @@ class PrivateShardingService implements ShardingService {
         name: `local_p${i}`,
         rowCount: 5000 + i * 1000,
         dataSize: 50000000 + i * 10000000,
-        tenantIds: [`tenant_local_${i}`]
+        tenantIds: [`tenant_local_${i}`],
       });
     }
 
@@ -321,17 +363,14 @@ class PrivateShardingService implements ShardingService {
       table: 'customer_profiles',
       partitions,
       imbalanceScore: 0.12,
-      recommendations: [
-        '分区分布基本均衡',
-        '建议考虑增加分区数以适应未来增长'
-      ]
+      recommendations: ['分区分布基本均衡', '建议考虑增加分区数以适应未来增长'],
     };
   }
 
   private hashString(str: string): number {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
-      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash = (hash << 5) - hash + str.charCodeAt(i);
       hash |= 0;
     }
     return Math.abs(hash);
@@ -342,20 +381,29 @@ class PrivateShardingService implements ShardingService {
  * 私有化消息服务（RabbitMQ或Redis）
  */
 class PrivateMessagingService implements MessagingService {
-  async sendMessage(queue: string, message: any, options?: MessageOptions): Promise<string> {
+  async sendMessage(
+    queue: string,
+    message: any,
+    options?: MessageOptions,
+  ): Promise<string> {
     // 实际实现：发送到本地消息队列（RabbitMQ/Redis）
     console.log(`[PrivateMessagingService] 发送消息到本地队列: ${queue}`);
 
     const messageId = `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     if (options?.delaySeconds) {
-      await new Promise(resolve => setTimeout(resolve, (options.delaySeconds ?? 0) * 1000));
+      await new Promise((resolve) =>
+        setTimeout(resolve, (options.delaySeconds ?? 0) * 1000),
+      );
     }
 
     return messageId;
   }
 
-  async receiveMessage(queue: string, options?: ReceiveOptions): Promise<Message | null> {
+  async receiveMessage(
+    queue: string,
+    options?: ReceiveOptions,
+  ): Promise<Message | null> {
     // 实际实现：从本地消息队列接收
     console.log(`[PrivateMessagingService] 从本地队列接收消息: ${queue}`);
 
@@ -365,22 +413,30 @@ class PrivateMessagingService implements MessagingService {
 
   async acknowledgeMessage(queue: string, messageId: string): Promise<void> {
     // 实际实现：确认本地消息处理
-    console.log(`[PrivateMessagingService] 确认本地消息: ${queue}/${messageId}`);
+    console.log(
+      `[PrivateMessagingService] 确认本地消息: ${queue}/${messageId}`,
+    );
   }
 
   async publishEvent(topic: string, event: any): Promise<void> {
     // 实际实现：发布到本地事件总线
-    console.log(`[PrivateMessagingService] 发布事件到本地主题: ${topic}`, event);
+    console.log(
+      `[PrivateMessagingService] 发布事件到本地主题: ${topic}`,
+      event,
+    );
   }
 
-  async subscribeEvent(topic: string, handler: EventHandler): Promise<Subscription> {
+  async subscribeEvent(
+    topic: string,
+    handler: EventHandler,
+  ): Promise<Subscription> {
     // 实际实现：订阅本地事件
     console.log(`[PrivateMessagingService] 订阅本地主题: ${topic}`);
 
     return {
       unsubscribe: async () => {
         console.log(`[PrivateMessagingService] 取消订阅本地主题: ${topic}`);
-      }
+      },
     };
   }
 }

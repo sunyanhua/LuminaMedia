@@ -9,7 +9,12 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { RoleService } from '../services/role.service';
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
@@ -49,7 +54,10 @@ export class RoleController {
   @ApiOperation({ summary: '创建新角色' })
   @ApiResponse({ status: 201, description: '成功创建角色', type: Role })
   @ApiResponse({ status: 400, description: '请求参数错误' })
-  async create(@Body() createRoleDto: CreateRoleDto, @Request() req): Promise<Role> {
+  async create(
+    @Body() createRoleDto: CreateRoleDto,
+    @Request() req,
+  ): Promise<Role> {
     return this.roleService.create(createRoleDto, req.user.tenantId);
   }
 
@@ -85,15 +93,26 @@ export class RoleController {
     @Body() assignPermissionsDto: AssignPermissionsDto,
     @Request() req,
   ): Promise<Role> {
-    return this.roleService.assignPermissions(id, assignPermissionsDto, req.user.tenantId);
+    return this.roleService.assignPermissions(
+      id,
+      assignPermissionsDto,
+      req.user.tenantId,
+    );
   }
 
   @Get(':id/permissions')
   @Roles('admin')
   @ApiOperation({ summary: '获取角色的权限列表' })
-  @ApiResponse({ status: 200, description: '成功获取权限列表', type: [Permission] })
+  @ApiResponse({
+    status: 200,
+    description: '成功获取权限列表',
+    type: [Permission],
+  })
   @ApiResponse({ status: 404, description: '角色不存在' })
-  async getPermissions(@Param('id') id: string, @Request() req): Promise<Permission[]> {
+  async getPermissions(
+    @Param('id') id: string,
+    @Request() req,
+  ): Promise<Permission[]> {
     return this.roleService.getPermissions(id, req.user.tenantId);
   }
 }

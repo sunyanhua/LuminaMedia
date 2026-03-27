@@ -45,7 +45,8 @@ export class MarketingStrategyController {
 
   @Get()
   async getStrategies(@Query('userId') userId: string) {
-    const strategies = await this.marketingStrategyService.getStrategies(userId);
+    const strategies =
+      await this.marketingStrategyService.getStrategies(userId);
     return strategies;
   }
 

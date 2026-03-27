@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from '../../../entities/user.entity';
@@ -36,7 +40,10 @@ export class UserService {
   /**
    * 获取当前租户的所有用户（分页）
    */
-  async findAll(page = 1, limit = 10): Promise<{ data: User[]; total: number }> {
+  async findAll(
+    page = 1,
+    limit = 10,
+  ): Promise<{ data: User[]; total: number }> {
     const tenantId = this.tenantContextService.getCurrentTenantId();
     const [data, total] = await this.userRepository.findAndCount({
       where: { tenantId },

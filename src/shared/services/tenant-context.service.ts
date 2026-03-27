@@ -7,7 +7,8 @@ export interface TenantContext {
 
 @Injectable({ scope: Scope.REQUEST })
 export class TenantContextService {
-  private static readonly asyncLocalStorage = new AsyncLocalStorage<TenantContext>();
+  private static readonly asyncLocalStorage =
+    new AsyncLocalStorage<TenantContext>();
 
   /**
    * 设置当前请求的租户上下文

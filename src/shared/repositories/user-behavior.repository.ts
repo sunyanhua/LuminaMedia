@@ -6,10 +6,17 @@ import { UserBehavior } from '../../modules/data-analytics/entities/user-behavio
  */
 export class UserBehaviorRepository extends TenantRepository<UserBehavior> {
   // 可以添加实体特定的查询方法
-  async findByUserAndDateRange(userId: string, startDate: Date, endDate: Date): Promise<UserBehavior[]> {
+  async findByUserAndDateRange(
+    userId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<UserBehavior[]> {
     return this.createQueryBuilder('behavior')
       .where('behavior.userId = :userId', { userId })
-      .andWhere('behavior.timestamp BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('behavior.timestamp BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      })
       .orderBy('behavior.timestamp', 'ASC')
       .getMany();
   }
@@ -24,6 +31,6 @@ export class UserBehaviorRepository extends TenantRepository<UserBehavior> {
       .andWhere('behavior.timestamp >= :date', { date })
       .getRawMany();
 
-    return behaviors.map(b => b.sessionId);
+    return behaviors.map((b) => b.sessionId);
   }
 }

@@ -49,8 +49,6 @@ import { TenantMiddleware } from './middlewares/tenant.middleware';
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(TenantMiddleware)
-      .forRoutes('*'); // 应用到所有路由
+    consumer.apply(TenantMiddleware).forRoutes('*'); // 应用到所有路由
   }
 }

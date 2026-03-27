@@ -137,7 +137,7 @@ export class ApiDataReceiverService {
         }
 
         // 模拟延迟
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
       }
     } catch (error) {
       this.logger.error(`API数据接收失败: ${error.message}`, error.stack);
@@ -156,11 +156,13 @@ export class ApiDataReceiverService {
         startTime,
         endTime,
         durationMs,
-        dataRate: durationMs > 0 ? (totalReceived / (durationMs / 1000)) : 0,
+        dataRate: durationMs > 0 ? totalReceived / (durationMs / 1000) : 0,
       },
     };
 
-    this.logger.log(`API数据接收完成: ${JSON.stringify(result.summary, null, 2)}`);
+    this.logger.log(
+      `API数据接收完成: ${JSON.stringify(result.summary, null, 2)}`,
+    );
     return result;
   }
 
@@ -207,7 +209,7 @@ export class ApiDataReceiverService {
     try {
       // TODO: 实现实际的API连接测试
       // 临时模拟实现
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const responseTime = Date.now() - startTime;
 
@@ -265,10 +267,10 @@ export class ApiDataReceiverService {
 
     // 检查字段类型
     if (schema.properties) {
-      for (const [field, fieldSchema] of Object.entries(schema.properties) as [string, any][]) {
+      for (const [field, fieldSchema] of Object.entries(schema.properties)) {
         if (data[field] !== undefined) {
           const value = data[field];
-          const expectedType = fieldSchema.type;
+          const expectedType = (fieldSchema as any).type;
 
           if (expectedType === 'string' && typeof value !== 'string') {
             errors.push(`字段 ${field} 应为字符串类型`);
@@ -278,7 +280,10 @@ export class ApiDataReceiverService {
             errors.push(`字段 ${field} 应为布尔类型`);
           } else if (expectedType === 'array' && !Array.isArray(value)) {
             errors.push(`字段 ${field} 应为数组类型`);
-          } else if (expectedType === 'object' && (typeof value !== 'object' || Array.isArray(value))) {
+          } else if (
+            expectedType === 'object' &&
+            (typeof value !== 'object' || Array.isArray(value))
+          ) {
             errors.push(`字段 ${field} 应为对象类型`);
           }
         }
@@ -295,7 +300,10 @@ export class ApiDataReceiverService {
   /**
    * 生成模拟数据（临时）
    */
-  private generateMockData(config: ApiDataSourceConfig, count: number): Record<string, any>[] {
+  private generateMockData(
+    config: ApiDataSourceConfig,
+    count: number,
+  ): Record<string, any>[] {
     const data: Record<string, any>[] = [];
 
     for (let i = 0; i < count; i++) {
@@ -306,10 +314,16 @@ export class ApiDataReceiverService {
         mobile: `138${String(10000000 + i).padStart(8, '0')}`,
         email: `customer${i}@example.com`,
         purchase_amount: (Math.random() * 1000).toFixed(2),
-        purchase_time: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+        purchase_time: new Date(
+          Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000,
+        ).toISOString(),
         location: `城市${Math.floor(Math.random() * 10)}`,
-        product_category: ['电子产品', '服装', '食品', '家居'][Math.floor(Math.random() * 4)],
-        order_status: ['pending', 'completed', 'cancelled'][Math.floor(Math.random() * 3)],
+        product_category: ['电子产品', '服装', '食品', '家居'][
+          Math.floor(Math.random() * 4)
+        ],
+        order_status: ['pending', 'completed', 'cancelled'][
+          Math.floor(Math.random() * 3)
+        ],
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       });

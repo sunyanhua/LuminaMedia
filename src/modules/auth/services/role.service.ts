@@ -46,7 +46,11 @@ export class RoleService {
     return this.roleRepository.save(role);
   }
 
-  async update(id: string, updateRoleDto: UpdateRoleDto, tenantId: string): Promise<Role> {
+  async update(
+    id: string,
+    updateRoleDto: UpdateRoleDto,
+    tenantId: string,
+  ): Promise<Role> {
     const role = await this.findOne(id, tenantId);
 
     Object.assign(role, updateRoleDto);
@@ -58,7 +62,11 @@ export class RoleService {
     await this.roleRepository.remove(role);
   }
 
-  async assignPermissions(id: string, assignPermissionsDto: AssignPermissionsDto, tenantId: string): Promise<Role> {
+  async assignPermissions(
+    id: string,
+    assignPermissionsDto: AssignPermissionsDto,
+    tenantId: string,
+  ): Promise<Role> {
     const role = await this.findOne(id, tenantId);
     const permissions = await this.permissionRepository.find({
       where: {

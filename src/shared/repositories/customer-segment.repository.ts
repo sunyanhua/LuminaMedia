@@ -6,30 +6,42 @@ import { CustomerSegment } from '../../entities/customer-segment.entity';
  */
 export class CustomerSegmentRepository extends TenantRepository<CustomerSegment> {
   // 可以添加客户分群特定的查询方法
-  async findByCustomerProfile(customerProfileId: string): Promise<CustomerSegment[]> {
+  async findByCustomerProfile(
+    customerProfileId: string,
+  ): Promise<CustomerSegment[]> {
     return this.createQueryBuilder('segment')
-      .where('segment.customerProfileId = :customerProfileId', { customerProfileId })
+      .where('segment.customerProfileId = :customerProfileId', {
+        customerProfileId,
+      })
       .orderBy('segment.createdAt', 'DESC')
       .getMany();
   }
 
-  async findLargeSegments(minMemberCount: number = 1000): Promise<CustomerSegment[]> {
+  async findLargeSegments(
+    minMemberCount: number = 1000,
+  ): Promise<CustomerSegment[]> {
     return this.createQueryBuilder('segment')
       .where('segment.memberCount >= :minMemberCount', { minMemberCount })
       .orderBy('segment.memberCount', 'DESC')
       .getMany();
   }
 
-  async findSegmentsByCriteria(criteria: Record<string, any>): Promise<CustomerSegment[]> {
+  async findSegmentsByCriteria(
+    criteria: Record<string, any>,
+  ): Promise<CustomerSegment[]> {
     const query = this.createQueryBuilder('segment');
 
     // 简单的JSON字段搜索 - 实际实现可能需要更复杂的JSON查询
     if (criteria.segmentName) {
-      query.andWhere('segment.segmentName LIKE :name', { name: `%${criteria.segmentName}%` });
+      query.andWhere('segment.segmentName LIKE :name', {
+        name: `%${criteria.segmentName}%`,
+      });
     }
 
     if (criteria.minMemberCount) {
-      query.andWhere('segment.memberCount >= :minMemberCount', { minMemberCount: criteria.minMemberCount });
+      query.andWhere('segment.memberCount >= :minMemberCount', {
+        minMemberCount: criteria.minMemberCount,
+      });
     }
 
     return query.getMany();
@@ -48,14 +60,20 @@ export class CustomerSegmentRepository extends TenantRepository<CustomerSegment>
         totalSegments: 0,
         totalMembers: 0,
         avgMembersPerSegment: 0,
-        largestSegment: null
+        largestSegment: null,
       };
     }
 
-    const totalMembers = segments.reduce((sum, segment) => sum + segment.memberCount, 0);
+    const totalMembers = segments.reduce(
+      (sum, segment) => sum + segment.memberCount,
+      0,
+    );
     const avgMembersPerSegment = totalMembers / segments.length;
-    const largestSegment = segments.reduce((largest, segment) =>
-      segment.memberCount > largest.memberCount ? segment : largest, segments[0]);
+    const largestSegment = segments.reduce(
+      (largest, segment) =>
+        segment.memberCount > largest.memberCount ? segment : largest,
+      segments[0],
+    );
 
     return {
       totalSegments: segments.length,
@@ -63,8 +81,8 @@ export class CustomerSegmentRepository extends TenantRepository<CustomerSegment>
       avgMembersPerSegment,
       largestSegment: {
         name: largestSegment.segmentName,
-        count: largestSegment.memberCount
-      }
+        count: largestSegment.memberCount,
+      },
     };
   }
 }

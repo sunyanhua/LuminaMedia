@@ -89,8 +89,14 @@ export class ContentGenerationController {
       };
 
       // 调试日志
-      console.log('Generated campaignSummary:', JSON.stringify(campaignSummary));
-      console.log('DTO targetAudience:', generateMarketingContentDto.targetAudience);
+      console.log(
+        'Generated campaignSummary:',
+        JSON.stringify(campaignSummary),
+      );
+      console.log(
+        'DTO targetAudience:',
+        generateMarketingContentDto.targetAudience,
+      );
 
       const result =
         await this.contentGenerationService.generateMarketingContent({
@@ -160,7 +166,7 @@ export class ContentGenerationController {
       data: {
         geminiAvailable: isAvailable,
         service: 'content-generation',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       },
     };
   }
@@ -177,8 +183,8 @@ export class ContentGenerationController {
         geminiAvailable: health.available,
         timestamp: new Date().toISOString(),
         error: health.error,
-        details: health.details
-      }
+        details: health.details,
+      },
     };
   }
 }

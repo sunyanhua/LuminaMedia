@@ -2,7 +2,11 @@ import { IsString, IsNotEmpty, IsOptional, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreatePermissionDto {
-  @ApiProperty({ description: '权限所属模块', maxLength: 100, example: 'content' })
+  @ApiProperty({
+    description: '权限所属模块',
+    maxLength: 100,
+    example: 'content',
+  })
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
@@ -14,7 +18,11 @@ export class CreatePermissionDto {
   @MaxLength(100)
   action: string;
 
-  @ApiProperty({ description: '权限描述', required: false, example: '创建和修改内容' })
+  @ApiProperty({
+    description: '权限描述',
+    required: false,
+    example: '创建和修改内容',
+  })
   @IsString()
   @IsOptional()
   description?: string;

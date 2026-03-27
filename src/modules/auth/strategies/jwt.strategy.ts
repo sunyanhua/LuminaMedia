@@ -51,7 +51,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
 
     // 提取所有权限
-    const permissions: Array<{ id: string; module: string; action: string }> = [];
+    const permissions: Array<{ id: string; module: string; action: string }> =
+      [];
     roles.forEach((role) => {
       if (role.permissions) {
         role.permissions.forEach((permission) => {

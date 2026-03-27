@@ -8,7 +8,11 @@ export class CreateRoleDto {
   @MaxLength(50)
   name: string;
 
-  @ApiProperty({ description: '角色描述', required: false, example: '内容编辑人员' })
+  @ApiProperty({
+    description: '角色描述',
+    required: false,
+    example: '内容编辑人员',
+  })
   @IsString()
   @IsOptional()
   description?: string;

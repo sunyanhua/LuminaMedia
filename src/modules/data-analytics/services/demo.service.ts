@@ -703,7 +703,10 @@ export class DemoService {
     const segments = await this.customerSegmentRepository
       .createQueryBuilder('segment')
       .innerJoin('segment.customerProfile', 'profile')
-      .where('profile.userId = :userId AND profile.tenantId = :tenantId', { userId, tenantId })
+      .where('profile.userId = :userId AND profile.tenantId = :tenantId', {
+        userId,
+        tenantId,
+      })
       .getMany();
     deleted += segments.length;
     await this.customerSegmentRepository.remove(segments);
@@ -727,7 +730,10 @@ export class DemoService {
     if (profileIds.length > 0) {
       const importJobs = await this.dataImportJobRepository
         .createQueryBuilder('job')
-        .where('job.customerProfileId IN (:...profileIds) AND job.tenantId = :tenantId', { profileIds, tenantId })
+        .where(
+          'job.customerProfileId IN (:...profileIds) AND job.tenantId = :tenantId',
+          { profileIds, tenantId },
+        )
         .getMany();
       deleted += importJobs.length;
       if (importJobs.length > 0) {
@@ -782,7 +788,10 @@ export class DemoService {
       const segments = await this.customerSegmentRepository
         .createQueryBuilder('segment')
         .innerJoin('segment.customerProfile', 'profile')
-        .where('profile.userId = :userId AND profile.tenantId = :tenantId', { userId, tenantId })
+        .where('profile.userId = :userId AND profile.tenantId = :tenantId', {
+          userId,
+          tenantId,
+        })
         .getCount();
 
       // 计算进度
@@ -1423,7 +1432,11 @@ export class DemoService {
           // 获取最近的活动
           const campaignForStrategies =
             await this.marketingCampaignRepository.findOne({
-              where: { userId, customerProfileId: customerProfile.id, tenantId },
+              where: {
+                userId,
+                customerProfileId: customerProfile.id,
+                tenantId,
+              },
               order: { createdAt: 'DESC' },
             });
           if (!campaignForStrategies) {
@@ -1455,7 +1468,11 @@ export class DemoService {
           // 获取最近的活动和策略
           const campaignForContent =
             await this.marketingCampaignRepository.findOne({
-              where: { userId, customerProfileId: customerProfile.id, tenantId },
+              where: {
+                userId,
+                customerProfileId: customerProfile.id,
+                tenantId,
+              },
               order: { createdAt: 'DESC' },
             });
           if (!campaignForContent) {
@@ -1510,7 +1527,11 @@ export class DemoService {
           eventData: {
             step,
             stepName: stepDef.name,
-            result: result ? (typeof result === 'object' ? { ...result } : result) : null,
+            result: result
+              ? typeof result === 'object'
+                ? { ...result }
+                : result
+              : null,
             timestamp: new Date().toISOString(),
           },
           timestamp: new Date(),
@@ -1518,7 +1539,9 @@ export class DemoService {
         });
         await this.userBehaviorRepository.save(userBehavior);
       } catch (behaviorError) {
-        this.logger.warn(`Failed to log user behavior: ${behaviorError.message}`);
+        this.logger.warn(
+          `Failed to log user behavior: ${behaviorError.message}`,
+        );
       }
 
       return {

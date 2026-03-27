@@ -26,7 +26,12 @@ export class CustomerProfile implements TenantEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'tenant_id', type: 'varchar', length: 36, default: 'default-tenant' })
+  @Column({
+    name: 'tenant_id',
+    type: 'varchar',
+    length: 36,
+    default: 'default-tenant',
+  })
   tenantId: string;
 
   @Column({ name: 'user_id', type: 'varchar', length: 36 })

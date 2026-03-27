@@ -13,14 +13,20 @@ export interface RetryOptions {
 }
 
 export class RetryableError extends Error {
-  constructor(message: string, public readonly originalError?: Error) {
+  constructor(
+    message: string,
+    public readonly originalError?: Error,
+  ) {
     super(message);
     this.name = 'RetryableError';
   }
 }
 
 export class NonRetryableError extends Error {
-  constructor(message: string, public readonly originalError?: Error) {
+  constructor(
+    message: string,
+    public readonly originalError?: Error,
+  ) {
     super(message);
     this.name = 'NonRetryableError';
   }
@@ -31,7 +37,7 @@ export class NonRetryableError extends Error {
  */
 export async function withRetry<T>(
   operation: () => Promise<T>,
-  options: RetryOptions = {}
+  options: RetryOptions = {},
 ): Promise<T> {
   const {
     maxAttempts = 3,
@@ -39,7 +45,7 @@ export async function withRetry<T>(
     maxDelay = 10000,
     backoffFactor = 2,
     retryableErrors = [/网络错误/i, /超时/i, /服务不可用/i, /连接失败/i],
-    onRetry
+    onRetry,
   } = options;
 
   let lastError: Error;
@@ -57,7 +63,7 @@ export async function withRetry<T>(
       if (!isRetryable || attempt === maxAttempts) {
         throw new NonRetryableError(
           `操作失败，已重试 ${attempt - 1} 次: ${lastError.message}`,
-          lastError
+          lastError,
         );
       }
 
@@ -66,7 +72,9 @@ export async function withRetry<T>(
         onRetry(lastError, attempt, delay);
       }
 
-      console.warn(`[Retry] 操作失败，第 ${attempt}/${maxAttempts} 次重试，延迟 ${delay}ms: ${lastError.message}`);
+      console.warn(
+        `[Retry] 操作失败，第 ${attempt}/${maxAttempts} 次重试，延迟 ${delay}ms: ${lastError.message}`,
+      );
 
       // 等待延迟
       await sleep(delay);
@@ -83,7 +91,10 @@ export async function withRetry<T>(
 /**
  * 检查错误是否可重试
  */
-function isErrorRetryable(error: Error, retryablePatterns: Array<string | RegExp>): boolean {
+function isErrorRetryable(
+  error: Error,
+  retryablePatterns: Array<string | RegExp>,
+): boolean {
   const errorMessage = error.message.toLowerCase();
 
   // 如果错误是RetryableError，则总是可重试
@@ -114,7 +125,7 @@ function isErrorRetryable(error: Error, retryablePatterns: Array<string | RegExp
  * 延迟函数
  */
 export function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -144,9 +155,11 @@ export const cloudServiceRetryOptions: RetryOptions = {
     /rate limit/i,
     /service unavailable/i,
     /connection refused/i,
-    /timeout/i
+    /timeout/i,
   ],
   onRetry: (error, attempt, delay) => {
-    console.warn(`[CloudService Retry] 第 ${attempt} 次重试，延迟 ${delay}ms: ${error.message}`);
-  }
+    console.warn(
+      `[CloudService Retry] 第 ${attempt} 次重试，延迟 ${delay}ms: ${error.message}`,
+    );
+  },
 };

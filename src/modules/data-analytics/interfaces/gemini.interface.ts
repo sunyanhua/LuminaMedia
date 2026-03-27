@@ -10,7 +10,7 @@ import { CampaignType } from '../../../shared/enums/campaign-type.enum';
 export enum AIEngine {
   QWEN = 'QWEN',
   GEMINI = 'GEMINI',
-  FALLBACK = 'FALLBACK'
+  FALLBACK = 'FALLBACK',
 }
 
 /**

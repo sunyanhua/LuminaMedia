@@ -25,7 +25,12 @@ export class MarketingStrategy implements TenantEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'tenant_id', type: 'varchar', length: 36, default: 'default-tenant' })
+  @Column({
+    name: 'tenant_id',
+    type: 'varchar',
+    length: 36,
+    default: 'default-tenant',
+  })
   tenantId: string;
 
   @Column({ name: 'campaign_id', type: 'varchar', length: 36 })
@@ -68,7 +73,12 @@ export class MarketingStrategy implements TenantEntity {
   })
   expectedROI: string;
 
-  @Column({ name: 'confidence_score', type: 'varchar', length: 255, nullable: true })
+  @Column({
+    name: 'confidence_score',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
   confidenceScore: string;
 
   @Column({

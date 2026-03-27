@@ -61,7 +61,7 @@ import { AuthModule } from './modules/auth/auth.module';
         extra: {
           charset: 'utf8mb4',
           init: (connection) => {
-            connection.query("SET NAMES utf8mb4");
+            connection.query('SET NAMES utf8mb4');
           },
         },
       }),

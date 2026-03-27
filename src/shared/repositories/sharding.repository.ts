@@ -7,7 +7,9 @@ import { TenantRepository } from './tenant.repository';
  * 提供分表策略相关的工具方法和查询优化
  * 继承TenantRepository，具有多租户支持
  */
-export abstract class ShardingRepository<T extends TenantEntity> extends TenantRepository<T> {
+export abstract class ShardingRepository<
+  T extends TenantEntity,
+> extends TenantRepository<T> {
   /**
    * 默认分区数量
    */
@@ -29,12 +31,12 @@ export abstract class ShardingRepository<T extends TenantEntity> extends TenantR
    * 与MySQL的CRC32函数结果保持一致
    */
   private crc32(str: string): number {
-    let crc = 0 ^ (-1);
+    let crc = 0 ^ -1;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      crc = (crc >>> 8) ^ this.crc32Table[(crc ^ char) & 0xFF];
+      crc = (crc >>> 8) ^ this.crc32Table[(crc ^ char) & 0xff];
     }
-    return (crc ^ (-1)) >>> 0;
+    return (crc ^ -1) >>> 0;
   }
 
   /**
@@ -45,7 +47,7 @@ export abstract class ShardingRepository<T extends TenantEntity> extends TenantR
     for (let i = 0; i < 256; i++) {
       let c = i;
       for (let j = 0; j < 8; j++) {
-        c = (c & 1) ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+        c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
       }
       table[i] = c;
     }
@@ -55,7 +57,10 @@ export abstract class ShardingRepository<T extends TenantEntity> extends TenantR
   /**
    * 获取表的分区信息（需要数据库连接）
    */
-  async getPartitionInfo(connection: Connection, tableName: string): Promise<any[]> {
+  async getPartitionInfo(
+    connection: Connection,
+    tableName: string,
+  ): Promise<any[]> {
     const query = `
       SELECT
         partition_name,
@@ -76,7 +81,10 @@ export abstract class ShardingRepository<T extends TenantEntity> extends TenantR
   /**
    * 检查表是否已分区
    */
-  async isTablePartitioned(connection: Connection, tableName: string): Promise<boolean> {
+  async isTablePartitioned(
+    connection: Connection,
+    tableName: string,
+  ): Promise<boolean> {
     const query = `
       SELECT COUNT(*) as partition_count
       FROM information_schema.partitions
@@ -91,7 +99,10 @@ export abstract class ShardingRepository<T extends TenantEntity> extends TenantR
   /**
    * 获取租户数据分布统计
    */
-  async getTenantDistribution(connection: Connection, tableName: string): Promise<any[]> {
+  async getTenantDistribution(
+    connection: Connection,
+    tableName: string,
+  ): Promise<any[]> {
     const query = `
       SELECT
         tenant_id,
@@ -111,7 +122,7 @@ export abstract class ShardingRepository<T extends TenantEntity> extends TenantR
    */
   protected addPartitionHint(
     queryBuilder: SelectQueryBuilder<T>,
-    tenantId?: string
+    tenantId?: string,
   ): SelectQueryBuilder<T> {
     // 如果提供了tenantId，可以添加分区提示注释
     if (tenantId) {
@@ -125,7 +136,10 @@ export abstract class ShardingRepository<T extends TenantEntity> extends TenantR
   /**
    * 创建分表查询构建器（带分区优化）
    */
-  createShardingQueryBuilder(alias?: string, tenantId?: string): SelectQueryBuilder<T> {
+  createShardingQueryBuilder(
+    alias?: string,
+    tenantId?: string,
+  ): SelectQueryBuilder<T> {
     const queryBuilder = this.createQueryBuilder(alias);
     return this.addPartitionHint(queryBuilder, tenantId);
   }
@@ -154,14 +168,20 @@ export abstract class ShardingRepository<T extends TenantEntity> extends TenantR
   /**
    * 预估数据增长和分区平衡建议
    */
-  async getPartitionBalanceAdvice(connection: Connection, tableName: string): Promise<any> {
-    const distribution = await this.getTenantDistribution(connection, tableName);
+  async getPartitionBalanceAdvice(
+    connection: Connection,
+    tableName: string,
+  ): Promise<any> {
+    const distribution = await this.getTenantDistribution(
+      connection,
+      tableName,
+    );
     const partitionCounts = new Array(this.PARTITION_COUNT).fill(0);
     let totalRecords = 0;
     let maxRecordsPerTenant = 0;
     let maxRecordsTenantId = '';
 
-    distribution.forEach(item => {
+    distribution.forEach((item) => {
       const partition = item.partition_number;
       const count = item.record_count;
       partitionCounts[partition] = (partitionCounts[partition] || 0) + count;
@@ -173,12 +193,14 @@ export abstract class ShardingRepository<T extends TenantEntity> extends TenantR
     });
 
     const avgPerPartition = totalRecords / this.PARTITION_COUNT;
-    const imbalances = partitionCounts.map((count, index) => ({
-      partition: index,
-      count,
-      deviation: Math.abs(count - avgPerPartition),
-      percentage: avgPerPartition > 0 ? (count / avgPerPartition) * 100 : 0
-    })).filter(item => item.deviation > avgPerPartition * 0.3); // 偏差超过30%
+    const imbalances = partitionCounts
+      .map((count, index) => ({
+        partition: index,
+        count,
+        deviation: Math.abs(count - avgPerPartition),
+        percentage: avgPerPartition > 0 ? (count / avgPerPartition) * 100 : 0,
+      }))
+      .filter((item) => item.deviation > avgPerPartition * 0.3); // 偏差超过30%
 
     return {
       tableName,
@@ -186,14 +208,15 @@ export abstract class ShardingRepository<T extends TenantEntity> extends TenantR
       avgPerPartition,
       partitionCounts,
       imbalances,
-      suggestions: imbalances.length > 0 ?
-        `Consider rebalancing partitions or increasing PARTITION_COUNT to ${this.PARTITION_COUNT * 2}` :
-        'Partition distribution is balanced',
+      suggestions:
+        imbalances.length > 0
+          ? `Consider rebalancing partitions or increasing PARTITION_COUNT to ${this.PARTITION_COUNT * 2}`
+          : 'Partition distribution is balanced',
       largestTenant: {
         tenantId: maxRecordsTenantId,
         recordCount: maxRecordsPerTenant,
-        partition: this.calculatePartitionNumber(maxRecordsTenantId)
-      }
+        partition: this.calculatePartitionNumber(maxRecordsTenantId),
+      },
     };
   }
 }
@@ -207,7 +230,7 @@ export class ShardingUtils {
    */
   static shouldShardTable(
     estimatedRowCount: number,
-    rowSizeBytes: number = 1024
+    rowSizeBytes: number = 1024,
   ): { shouldShard: boolean; reason: string } {
     const estimatedSizeMB = (estimatedRowCount * rowSizeBytes) / (1024 * 1024);
 
@@ -215,17 +238,17 @@ export class ShardingUtils {
     if (estimatedRowCount > 1000000) {
       return {
         shouldShard: true,
-        reason: `Estimated ${estimatedRowCount.toLocaleString()} rows (${estimatedSizeMB.toFixed(2)} MB) exceeds 1M threshold`
+        reason: `Estimated ${estimatedRowCount.toLocaleString()} rows (${estimatedSizeMB.toFixed(2)} MB) exceeds 1M threshold`,
       };
     } else if (estimatedSizeMB > 1024) {
       return {
         shouldShard: true,
-        reason: `Estimated size ${estimatedSizeMB.toFixed(2)} MB exceeds 1GB threshold`
+        reason: `Estimated size ${estimatedSizeMB.toFixed(2)} MB exceeds 1GB threshold`,
       };
     } else {
       return {
         shouldShard: false,
-        reason: `Estimated ${estimatedRowCount.toLocaleString()} rows (${estimatedSizeMB.toFixed(2)} MB) below thresholds`
+        reason: `Estimated ${estimatedRowCount.toLocaleString()} rows (${estimatedSizeMB.toFixed(2)} MB) below thresholds`,
       };
     }
   }
@@ -235,7 +258,7 @@ export class ShardingUtils {
    */
   static generatePartitionDDL(
     tableName: string,
-    partitionCount: number = 16
+    partitionCount: number = 16,
   ): string {
     return `ALTER TABLE ${tableName}
 PARTITION BY HASH(MOD(CRC32(tenant_id), ${partitionCount}))
@@ -247,7 +270,7 @@ PARTITIONS ${partitionCount};`;
    */
   static generateMigrationPlan(
     sourceTable: string,
-    partitionCount: number = 16
+    partitionCount: number = 16,
   ): string[] {
     const steps = [
       `-- Step 1: 创建备份表`,
@@ -270,7 +293,7 @@ PARTITIONS ${partitionCount};`;
       ``,
       `-- Step 6: 清理备份（验证后执行）`,
       `-- DROP TABLE ${sourceTable}_old;`,
-      `-- DROP TABLE ${sourceTable}_backup;`
+      `-- DROP TABLE ${sourceTable}_backup;`,
     ];
     return steps;
   }

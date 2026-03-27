@@ -128,8 +128,10 @@ export class AnalyticsService {
 
     const averageConfidenceScore =
       strategies.length > 0
-        ? strategies.reduce((sum, s) => sum + (parseFloat(s.confidenceScore) || 0), 0) /
-          strategies.length
+        ? strategies.reduce(
+            (sum, s) => sum + (parseFloat(s.confidenceScore) || 0),
+            0,
+          ) / strategies.length
         : 0;
 
     const estimatedTotalROI = strategies.reduce(

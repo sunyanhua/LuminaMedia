@@ -37,11 +37,8 @@ export class TenantMiddleware implements NestMiddleware {
     }
 
     // 4. 设置AsyncLocalStorage上下文
-    TenantContextService.runWithContext(
-      { tenantId: req.tenantId },
-      () => {
-        next();
-      },
-    );
+    TenantContextService.runWithContext({ tenantId: req.tenantId }, () => {
+      next();
+    });
   }
 }

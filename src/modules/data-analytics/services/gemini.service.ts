@@ -51,15 +51,16 @@ export class GeminiService implements OnModuleInit {
 
     // 按逗号分隔，物理级清洗每个Key
     const rawKeys = apiKeyString;
-    const keys = rawKeys.split(',')
-      .map(k => {
+    const keys = rawKeys
+      .split(',')
+      .map((k) => {
         // 物理级正则表达式清洗：只保留字母、数字、下划线和破折号
         const cleaned = k.replace(/[^a-zA-Z0-9_-]/g, '');
         console.log(`正则表达式清洗后Key长度：${cleaned.length}`);
         return cleaned;
       })
-      .filter(k => k.length > 30)  // 长度过滤，确保密钥符合标准
-      .filter(k => k.startsWith('AIza'));    // 只保留以 AIza 开头的合法 Key
+      .filter((k) => k.length > 30) // 长度过滤，确保密钥符合标准
+      .filter((k) => k.startsWith('AIza')); // 只保留以 AIza 开头的合法 Key
     return keys;
   }
 
@@ -78,7 +79,9 @@ export class GeminiService implements OnModuleInit {
       }
 
       const key = this.apiKeys[this.currentKeyIndex];
-      console.log(`[Lumina AI] Using Key: ${key.substring(0, 6)}... (索引: ${this.currentKeyIndex})`);
+      console.log(
+        `[Lumina AI] Using Key: ${key.substring(0, 6)}... (索引: ${this.currentKeyIndex})`,
+      );
       const failures = this.keyFailures.get(key) || 0;
 
       if (failures < this.maxFailuresPerKey) {
@@ -100,11 +103,15 @@ export class GeminiService implements OnModuleInit {
   private recordKeyFailure(key: string): void {
     const currentFailures = this.keyFailures.get(key) || 0;
     this.keyFailures.set(key, currentFailures + 1);
-    this.logger.warn(`API Key失败记录: ${key.substring(0, 8)}... (失败次数: ${currentFailures + 1}/${this.maxFailuresPerKey})`);
+    this.logger.warn(
+      `API Key失败记录: ${key.substring(0, 8)}... (失败次数: ${currentFailures + 1}/${this.maxFailuresPerKey})`,
+    );
 
     // 如果达到最大失败次数，尝试切换到下一个key
     if (currentFailures + 1 >= this.maxFailuresPerKey) {
-      this.logger.warn(`API Key ${key.substring(0, 8)}... 已达到最大失败次数，将尝试下一个key`);
+      this.logger.warn(
+        `API Key ${key.substring(0, 8)}... 已达到最大失败次数，将尝试下一个key`,
+      );
       this.rotateToNextKey();
     }
   }
@@ -130,8 +137,10 @@ export class GeminiService implements OnModuleInit {
     const oldIndex = this.currentKeyIndex;
     this.currentKeyIndex = (this.currentKeyIndex + 1) % this.apiKeys.length;
 
-    this.logger.log(`轮转API Key: 从索引 ${oldIndex} 切换到 ${this.currentKeyIndex}`);
-    this.initializeWithCurrentKey().catch(error => {
+    this.logger.log(
+      `轮转API Key: 从索引 ${oldIndex} 切换到 ${this.currentKeyIndex}`,
+    );
+    this.initializeWithCurrentKey().catch((error) => {
       this.logger.error(`轮转后重新初始化失败: ${error.message}`);
     });
   }
@@ -141,7 +150,9 @@ export class GeminiService implements OnModuleInit {
    */
   private async initializeWithCurrentKey(): Promise<boolean> {
     const currentKey = this.apiKeys[this.currentKeyIndex];
-    console.log(`[Lumina AI] Initializing with Key: ${currentKey.substring(0, 6)}... (index: ${this.currentKeyIndex})`);
+    console.log(
+      `[Lumina AI] Initializing with Key: ${currentKey.substring(0, 6)}... (index: ${this.currentKeyIndex})`,
+    );
     if (!currentKey) {
       this.isAvailable = false;
       return false;
@@ -159,7 +170,9 @@ export class GeminiService implements OnModuleInit {
       };
 
       // 测试连接：使用直接 REST API 调用测试 API Key 有效性
-      console.log('>>> [DEPLOY CHECK] API Version: v1 | Model: gemini-2.5-flash');
+      console.log(
+        '>>> [DEPLOY CHECK] API Version: v1 | Model: gemini-2.5-flash',
+      );
       const apiUrl = 'https://generativelanguage.googleapis.com/v1/models';
       const response = await fetch(apiUrl, {
         method: 'GET',
@@ -181,12 +194,18 @@ export class GeminiService implements OnModuleInit {
       this.isAvailable = true;
       this.resetKeyFailure(currentKey);
 
-      this.logger.log(`GeminiService使用API Key索引 ${this.currentKeyIndex} 初始化成功，模型: ${this.config.model}`);
-      this.logger.debug(`当前可用API Key数量: ${this.apiKeys.length}, 当前索引: ${this.currentKeyIndex}`);
+      this.logger.log(
+        `GeminiService使用API Key索引 ${this.currentKeyIndex} 初始化成功，模型: ${this.config.model}`,
+      );
+      this.logger.debug(
+        `当前可用API Key数量: ${this.apiKeys.length}, 当前索引: ${this.currentKeyIndex}`,
+      );
 
       return true;
     } catch (error) {
-      this.logger.error(`使用API Key索引 ${this.currentKeyIndex} 初始化失败: ${error.message}`);
+      this.logger.error(
+        `使用API Key索引 ${this.currentKeyIndex} 初始化失败: ${error.message}`,
+      );
       this.recordKeyFailure(currentKey);
       this.isAvailable = false;
       return false;
@@ -194,13 +213,14 @@ export class GeminiService implements OnModuleInit {
   }
 
   private async initialize() {
-
     // 添加环境变量调试日志
-    console.log('>>> [DOCKER ENV DEBUG] Key length:', this.configService.get<string>('GEMINI_API_KEY', '')?.length || 0);
+    console.log(
+      '>>> [DOCKER ENV DEBUG] Key length:',
+      this.configService.get<string>('GEMINI_API_KEY', '')?.length || 0,
+    );
     console.log('>>> [DOCKER ENV DEBUG] Proxy:', process.env.HTTPS_PROXY);
     console.log('>>> [DOCKER ENV DEBUG] HTTP_PROXY:', process.env.HTTP_PROXY);
     console.log('>>> [DOCKER ENV DEBUG] NODE_ENV:', process.env.NODE_ENV);
-
 
     // 解析多个API Key
     const apiKeyString = this.configService.get<string>('GEMINI_API_KEY', '');
@@ -220,8 +240,12 @@ export class GeminiService implements OnModuleInit {
     // 原生Fetch对比测试（诊断密钥字符串污染问题）
     if (this.apiKeys.length > 0) {
       const testKey = this.apiKeys[0];
-      console.log(`>>> [原生Fetch测试] 开始测试Key: ${testKey.substring(0, 8)}...`);
-      console.log(`>>> [原生Fetch测试] 测试URL: https://generativelanguage.googleapis.com/v1/models?key=${testKey.substring(0, 8)}...`);
+      console.log(
+        `>>> [原生Fetch测试] 开始测试Key: ${testKey.substring(0, 8)}...`,
+      );
+      console.log(
+        `>>> [原生Fetch测试] 测试URL: https://generativelanguage.googleapis.com/v1/models?key=${testKey.substring(0, 8)}...`,
+      );
 
       try {
         const testUrl = `https://generativelanguage.googleapis.com/v1/models?key=${testKey}`;
@@ -234,13 +258,23 @@ export class GeminiService implements OnModuleInit {
 
         if (response.ok) {
           const data = await response.json();
-          console.log(`>>> [原生Fetch测试] ✅ 成功！HTTP ${response.status}，返回模型数量: ${data.models?.length || 0}`);
-          console.log(`>>> [原生Fetch测试] 诊断结论: 原生Fetch成功 → 如果SDK失败则为SDK配置问题`);
+          console.log(
+            `>>> [原生Fetch测试] ✅ 成功！HTTP ${response.status}，返回模型数量: ${data.models?.length || 0}`,
+          );
+          console.log(
+            `>>> [原生Fetch测试] 诊断结论: 原生Fetch成功 → 如果SDK失败则为SDK配置问题`,
+          );
         } else {
           const errorText = await response.text();
-          console.log(`>>> [原生Fetch测试] ❌ 失败！HTTP ${response.status} ${response.statusText}`);
-          console.log(`>>> [原生Fetch测试] 错误响应: ${errorText.substring(0, 200)}`);
-          console.log(`>>> [原生Fetch测试] 诊断结论: 原生Fetch也失败 → 密钥字符串或代理篡改问题`);
+          console.log(
+            `>>> [原生Fetch测试] ❌ 失败！HTTP ${response.status} ${response.statusText}`,
+          );
+          console.log(
+            `>>> [原生Fetch测试] 错误响应: ${errorText.substring(0, 200)}`,
+          );
+          console.log(
+            `>>> [原生Fetch测试] 诊断结论: 原生Fetch也失败 → 密钥字符串或代理篡改问题`,
+          );
         }
       } catch (error) {
         console.log(`>>> [原生Fetch测试] ❌ 异常！${error.message}`);
@@ -251,8 +285,11 @@ export class GeminiService implements OnModuleInit {
     }
 
     // 设置轮询模式（可以从环境变量读取，默认为顺序轮询）
-    const rotationMode = this.configService.get<string>('GEMINI_KEY_ROTATION', 'sequential');
-    this.keyRotationMode = (rotationMode === 'random' ? 'random' : 'sequential');
+    const rotationMode = this.configService.get<string>(
+      'GEMINI_KEY_ROTATION',
+      'sequential',
+    );
+    this.keyRotationMode = rotationMode === 'random' ? 'random' : 'sequential';
     this.logger.log(`API Key轮询模式: ${this.keyRotationMode}`);
 
     // 初始化失败次数记录
@@ -273,7 +310,9 @@ export class GeminiService implements OnModuleInit {
     }
 
     if (!initialized) {
-      this.logger.error('所有API Key初始化都失败。GeminiService将使用回退模式。');
+      this.logger.error(
+        '所有API Key初始化都失败。GeminiService将使用回退模式。',
+      );
       this.isAvailable = false;
     }
   }
@@ -301,7 +340,9 @@ export class GeminiService implements OnModuleInit {
   }> {
     // 添加：如果当前不可用，尝试重新初始化
     if (!this.isAvailable && retryCount === 0) {
-      this.logger.warn('GeminiService is not available, attempting re-initialization...');
+      this.logger.warn(
+        'GeminiService is not available, attempting re-initialization...',
+      );
       try {
         await this.initialize();
         // 重新初始化后，如果变为可用，直接返回成功
@@ -313,14 +354,14 @@ export class GeminiService implements OnModuleInit {
               reinitialized: true,
               apiKeys: {
                 total: this.apiKeys.length,
-                available: this.apiKeys.filter(key => {
+                available: this.apiKeys.filter((key) => {
                   const failures = this.keyFailures.get(key) || 0;
                   return failures < this.maxFailuresPerKey;
                 }).length,
                 currentIndex: this.currentKeyIndex,
-                failures: Object.fromEntries(this.keyFailures)
-              }
-            }
+                failures: Object.fromEntries(this.keyFailures),
+              },
+            },
           };
         }
       } catch (reinitError) {
@@ -337,8 +378,8 @@ export class GeminiService implements OnModuleInit {
           total: this.apiKeys.length,
           available: 0,
           currentIndex: this.currentKeyIndex,
-          failures: Object.fromEntries(this.keyFailures)
-        }
+          failures: Object.fromEntries(this.keyFailures),
+        },
       };
     }
 
@@ -353,15 +394,19 @@ export class GeminiService implements OnModuleInit {
             total: this.apiKeys.length,
             available: 0,
             currentIndex: this.currentKeyIndex,
-            failures: Object.fromEntries(this.keyFailures)
-          }
-        }
+            failures: Object.fromEntries(this.keyFailures),
+          },
+        },
       };
     }
 
     try {
-      this.logger.log(`Testing Gemini API with direct REST call using key index: ${this.currentKeyIndex}`);
-      console.log(`[Lumina AI] Health check using Key: ${currentKey.substring(0, 6)}... (index: ${this.currentKeyIndex})`);
+      this.logger.log(
+        `Testing Gemini API with direct REST call using key index: ${this.currentKeyIndex}`,
+      );
+      console.log(
+        `[Lumina AI] Health check using Key: ${currentKey.substring(0, 6)}... (index: ${this.currentKeyIndex})`,
+      );
 
       // 直接调用 Gemini REST API 模型列表端点（与 list-models.js 相同）
       const apiUrl = 'https://generativelanguage.googleapis.com/v1/models';
@@ -375,17 +420,24 @@ export class GeminiService implements OnModuleInit {
 
       if (!response.ok) {
         const errorText = await response.text();
-        this.logger.error(`Gemini API health check failed: HTTP ${response.status} ${response.statusText}`);
+        this.logger.error(
+          `Gemini API health check failed: HTTP ${response.status} ${response.statusText}`,
+        );
 
         // 记录当前key的失败
         this.recordKeyFailure(currentKey);
 
         // 检查是否为API Key无效错误
-        const isInvalidKeyError = response.status === 400 || response.status === 403 ||
-                                 errorText.includes('API_KEY_INVALID') || errorText.includes('API key not valid');
+        const isInvalidKeyError =
+          response.status === 400 ||
+          response.status === 403 ||
+          errorText.includes('API_KEY_INVALID') ||
+          errorText.includes('API key not valid');
 
         if (isInvalidKeyError) {
-          console.log(`[Lumina AI] Key ${currentKey.substring(0, 6)}... invalid, trying next Key`);
+          console.log(
+            `[Lumina AI] Key ${currentKey.substring(0, 6)}... invalid, trying next Key`,
+          );
           // 尝试切换到下一个key
           this.rotateToNextKey();
           // 递归调用健康检查（但限制深度避免无限循环）
@@ -397,12 +449,12 @@ export class GeminiService implements OnModuleInit {
 
         const apiKeyDetails = {
           total: this.apiKeys.length,
-          available: this.apiKeys.filter(key => {
+          available: this.apiKeys.filter((key) => {
             const failures = this.keyFailures.get(key) || 0;
             return failures < this.maxFailuresPerKey;
           }).length,
           currentIndex: this.currentKeyIndex,
-          failures: Object.fromEntries(this.keyFailures)
+          failures: Object.fromEntries(this.keyFailures),
         };
 
         return {
@@ -411,45 +463,53 @@ export class GeminiService implements OnModuleInit {
           details: {
             code: response.status,
             status: response.statusText,
-            apiKeys: apiKeyDetails
-          }
+            apiKeys: apiKeyDetails,
+          },
         };
       }
 
       const data = await response.json();
 
       if (!data || !data.models || data.models.length === 0) {
-        this.logger.error('Gemini API health check: No models found in response');
+        this.logger.error(
+          'Gemini API health check: No models found in response',
+        );
         this.recordKeyFailure(currentKey);
         this.rotateToNextKey();
 
         const apiKeyDetails = {
           total: this.apiKeys.length,
-          available: this.apiKeys.filter(key => {
+          available: this.apiKeys.filter((key) => {
             const failures = this.keyFailures.get(key) || 0;
             return failures < this.maxFailuresPerKey;
           }).length,
           currentIndex: this.currentKeyIndex,
-          failures: Object.fromEntries(this.keyFailures)
+          failures: Object.fromEntries(this.keyFailures),
         };
 
         return {
           available: false,
           error: 'No models found in API response',
-          details: { apiKeys: apiKeyDetails }
+          details: { apiKeys: apiKeyDetails },
         };
       }
 
       // 检查当前配置模型是否存在
       const configuredModel = this.config?.model || 'gemini-2.5-flash';
-      const modelExists = data.models.some((m: any) => m.name === `models/${configuredModel}` || m.name?.includes(configuredModel));
+      const modelExists = data.models.some(
+        (m: any) =>
+          m.name === `models/${configuredModel}` ||
+          m.name?.includes(configuredModel),
+      );
 
       if (!modelExists) {
-        this.logger.warn(`Configured model ${configuredModel} not found in available models`);
+        this.logger.warn(
+          `Configured model ${configuredModel} not found in available models`,
+        );
       }
 
       // 计算可用的API Key数量（失败次数小于最大限制的）
-      const availableKeys = this.apiKeys.filter(key => {
+      const availableKeys = this.apiKeys.filter((key) => {
         const failures = this.keyFailures.get(key) || 0;
         return failures < this.maxFailuresPerKey;
       }).length;
@@ -461,7 +521,7 @@ export class GeminiService implements OnModuleInit {
         total: this.apiKeys.length,
         available: availableKeys,
         currentIndex: this.currentKeyIndex,
-        failures: Object.fromEntries(this.keyFailures)
+        failures: Object.fromEntries(this.keyFailures),
       };
 
       return {
@@ -470,11 +530,13 @@ export class GeminiService implements OnModuleInit {
           apiKeys: apiKeyDetails,
           modelsCount: data.models.length,
           configuredModel,
-          modelExists
-        }
+          modelExists,
+        },
       };
     } catch (error) {
-      this.logger.error(`Gemini API health check failed with error: ${error.message}`);
+      this.logger.error(
+        `Gemini API health check failed with error: ${error.message}`,
+      );
 
       // 记录当前key的失败
       this.recordKeyFailure(currentKey);
@@ -484,12 +546,12 @@ export class GeminiService implements OnModuleInit {
 
       const apiKeyDetails = {
         total: this.apiKeys.length,
-        available: this.apiKeys.filter(key => {
+        available: this.apiKeys.filter((key) => {
           const failures = this.keyFailures.get(key) || 0;
           return failures < this.maxFailuresPerKey;
         }).length,
         currentIndex: this.currentKeyIndex,
-        failures: Object.fromEntries(this.keyFailures)
+        failures: Object.fromEntries(this.keyFailures),
       };
 
       return {
@@ -498,8 +560,8 @@ export class GeminiService implements OnModuleInit {
         details: {
           code: error.code,
           status: error.status,
-          apiKeys: apiKeyDetails
-        }
+          apiKeys: apiKeyDetails,
+        },
       };
     }
   }
@@ -540,7 +602,7 @@ export class GeminiService implements OnModuleInit {
     const result = await this.generateContentViaRest(prompt, {
       temperature: this.config?.temperature,
       maxTokens: this.config?.maxTokens,
-      model: this.config?.model
+      model: this.config?.model,
     });
 
     if (result.text) {
@@ -550,7 +612,7 @@ export class GeminiService implements OnModuleInit {
         // 添加引擎标识
         const dataWithEngine = {
           ...parsedResponse.data,
-          engine: AIEngine.GEMINI
+          engine: AIEngine.GEMINI,
         };
         return {
           success: true,
@@ -786,7 +848,10 @@ export class GeminiService implements OnModuleInit {
    */
   private cleanJsonResponse(raw: string): string {
     // 移除 ```json 和 ``` 标签，并去除首尾空格
-    return raw.replace(/```json/g, '').replace(/```/g, '').trim();
+    return raw
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim();
   }
 
   /**
@@ -795,7 +860,10 @@ export class GeminiService implements OnModuleInit {
   private repairTruncatedJson(str: string): any {
     let jsonStr = str.trim();
     // 移除 markdown 标签
-    jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
+    jsonStr = jsonStr
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim();
 
     // 如果没有以 } 结尾，暴力尝试补齐
     if (!jsonStr.endsWith('}')) {
@@ -825,7 +893,10 @@ export class GeminiService implements OnModuleInit {
       let rawText = text;
 
       // 2. 暴力清洗 Markdown 标签
-      rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+      rawText = rawText
+        .replace(/```json/g, '')
+        .replace(/```/g, '')
+        .trim();
 
       // 3. 使用物理级JSON修复函数
       const parsed = this.repairTruncatedJson(rawText);
@@ -847,10 +918,14 @@ export class GeminiService implements OnModuleInit {
       for (const field of requiredFields) {
         if (!parsed[field]) {
           console.error(`🚨 缺失必需字段: ${field}`);
-          console.error(`🚨 解析后的对象字段: ${Object.keys(parsed).join(', ')}`);
+          console.error(
+            `🚨 解析后的对象字段: ${Object.keys(parsed).join(', ')}`,
+          );
           console.error(`🚨 原始响应前500字符: ${text.substring(0, 500)}`);
           if (field === 'wechatFullPlan') {
-            console.error(`🚨 严重: wechatFullPlan字段缺失! AI未遵循指令生成微信全案方案`);
+            console.error(
+              `🚨 严重: wechatFullPlan字段缺失! AI未遵循指令生成微信全案方案`,
+            );
             console.error(`🚨 检查提示词中的强制要求是否足够明确`);
           }
           throw new Error(`Missing required field: ${field}`);
@@ -859,7 +934,11 @@ export class GeminiService implements OnModuleInit {
 
       // 特别检查wechatFullPlan的子字段
       if (parsed.wechatFullPlan) {
-        const wechatFields = ['articleSeries', 'offlineDecoration', 'membershipBenefits'];
+        const wechatFields = [
+          'articleSeries',
+          'offlineDecoration',
+          'membershipBenefits',
+        ];
         for (const field of wechatFields) {
           if (!parsed.wechatFullPlan[field]) {
             console.warn(`⚠️ wechatFullPlan缺少子字段: ${field}`);
@@ -867,9 +946,14 @@ export class GeminiService implements OnModuleInit {
         }
 
         // 检查articleSeries是否包含足够的内容
-        if (parsed.wechatFullPlan.articleSeries && Array.isArray(parsed.wechatFullPlan.articleSeries)) {
+        if (
+          parsed.wechatFullPlan.articleSeries &&
+          Array.isArray(parsed.wechatFullPlan.articleSeries)
+        ) {
           if (parsed.wechatFullPlan.articleSeries.length < 2) {
-            console.warn(`⚠️ wechatFullPlan.articleSeries只有${parsed.wechatFullPlan.articleSeries.length}篇文章，建议至少3篇`);
+            console.warn(
+              `⚠️ wechatFullPlan.articleSeries只有${parsed.wechatFullPlan.articleSeries.length}篇文章，建议至少3篇`,
+            );
           }
         }
       }
@@ -939,7 +1023,9 @@ export class GeminiService implements OnModuleInit {
 
     // 如果括号不平衡，尝试修复
     if (openBraces > 0 || openBrackets > 0) {
-      this.logger.debug(`尝试修复JSON: 缺少${openBraces}个}和${openBrackets}个]`);
+      this.logger.debug(
+        `尝试修复JSON: 缺少${openBraces}个}和${openBrackets}个]`,
+      );
 
       let repaired = trimmed;
       // 添加缺失的闭合括号
@@ -953,7 +1039,9 @@ export class GeminiService implements OnModuleInit {
       // 尝试验证修复后的JSON
       try {
         JSON.parse(repaired);
-        this.logger.warn(`JSON修复成功: 添加了${openBraces}个}和${openBrackets}个]`);
+        this.logger.warn(
+          `JSON修复成功: 添加了${openBraces}个}和${openBrackets}个]`,
+        );
         return repaired;
       } catch (repairError) {
         this.logger.debug(`JSON修复失败: ${repairError.message}`);
@@ -977,7 +1065,10 @@ export class GeminiService implements OnModuleInit {
     let text = raw.trim();
 
     // 1. 移除开头的```json和结尾的```
-    text = text.replace(/^```json\s*/i, '').replace(/```$/g, '').trim();
+    text = text
+      .replace(/^```json\s*/i, '')
+      .replace(/```$/g, '')
+      .trim();
 
     // 2. 检查是否需要修复
     if (!text.startsWith('{')) {
@@ -1024,7 +1115,9 @@ export class GeminiService implements OnModuleInit {
     }
 
     // 4. 高级修复策略：如果最后包含suggestedImages关键字且括号不平衡
-    const hasSuggestedImages = text.includes('"suggestedImages"') || text.toLowerCase().includes('suggestedimages');
+    const hasSuggestedImages =
+      text.includes('"suggestedImages"') ||
+      text.toLowerCase().includes('suggestedimages');
 
     // 5. 自动补齐缺失的闭合符号
     let repaired = text;
@@ -1039,13 +1132,17 @@ export class GeminiService implements OnModuleInit {
       }
 
       // 记录修复日志
-      console.log(`>>> [LUMINA REPAIR] Truncated JSON detected and auto-closed. Demo proceeding...`);
+      console.log(
+        `>>> [LUMINA REPAIR] Truncated JSON detected and auto-closed. Demo proceeding...`,
+      );
     }
 
     // 6. 简单检查：如果最后不是}，补齐一个}
     if (repaired.length > 0 && !repaired.endsWith('}')) {
       repaired += '}';
-      console.log(`>>> [LUMINA REPAIR] Truncated JSON detected and auto-closed. Demo proceeding...`);
+      console.log(
+        `>>> [LUMINA REPAIR] Truncated JSON detected and auto-closed. Demo proceeding...`,
+      );
     }
 
     return repaired;
@@ -1058,7 +1155,10 @@ export class GeminiService implements OnModuleInit {
   private repairJsonString(str: string): string {
     // 1. 强力标签清洗：不管responseMimeType是否生效，先清除所有Markdown标识
     let repaired = str.trim();
-    repaired = repaired.replace(/```json/g, '').replace(/```/g, '').trim();
+    repaired = repaired
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim();
 
     // 2. JSON结构自愈逻辑
     // 检查是否需要修复
@@ -1089,7 +1189,9 @@ export class GeminiService implements OnModuleInit {
         JSON.parse(repaired);
         // 如果解析成功，记录修复日志
         if (i > 0) {
-          console.log(`>>> [LUMINA REPAIR_JSON] JSON successfully repaired after ${i + 1} attempts`);
+          console.log(
+            `>>> [LUMINA REPAIR_JSON] JSON successfully repaired after ${i + 1} attempts`,
+          );
         }
         return repaired;
       } catch (error) {
@@ -1100,7 +1202,9 @@ export class GeminiService implements OnModuleInit {
           repaired += ']}';
         } else {
           // 无法修复，返回原始修复后的字符串
-          console.log(`>>> [LUMINA REPAIR_JSON] Failed to repair JSON after ${i + 1} attempts`);
+          console.log(
+            `>>> [LUMINA REPAIR_JSON] Failed to repair JSON after ${i + 1} attempts`,
+          );
           return repaired;
         }
       }
@@ -1116,11 +1220,16 @@ export class GeminiService implements OnModuleInit {
   private emergencyJsonRepair(str: string): string {
     let repaired = str.trim();
     // 移除可能存在的 Markdown 标签
-    repaired = repaired.replace(/```json/g, '').replace(/```/g, '').trim();
+    repaired = repaired
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim();
 
     // 暴力补全：如果没以 } 结尾，根据内容深度强制补齐
     if (!repaired.endsWith('}')) {
-      console.warn('>>> [LUMINA_REPAIR] Truncated JSON detected, performing emergency repair...');
+      console.warn(
+        '>>> [LUMINA_REPAIR] Truncated JSON detected, performing emergency repair...',
+      );
       if (repaired.includes('"xhsContent"')) {
         repaired += '"}}'; // 假设断在小红书文案字符串中
       } else {
@@ -1158,17 +1267,22 @@ export class GeminiService implements OnModuleInit {
         userPersonas: [
           {
             name: '时尚小白领莉莉',
-            description: '25-30岁，一线城市白领，注重生活品质，喜欢在社交平台分享生活方式',
-            behaviorTraits: ['高频使用小红书', '关注美妆穿搭', '喜欢参与线上活动'],
-            motivations: ['寻求认同感', '追求生活品质', '社交展示']
+            description:
+              '25-30岁，一线城市白领，注重生活品质，喜欢在社交平台分享生活方式',
+            behaviorTraits: [
+              '高频使用小红书',
+              '关注美妆穿搭',
+              '喜欢参与线上活动',
+            ],
+            motivations: ['寻求认同感', '追求生活品质', '社交展示'],
           },
           {
             name: '新手妈妈小雅',
             description: '28-35岁，注重育儿品质，关注健康安全，消费决策理性',
             behaviorTraits: ['关注母婴内容', '信任专家推荐', '重视产品安全性'],
-            motivations: ['宝宝健康', '育儿便利', '家庭幸福感']
-          }
-        ]
+            motivations: ['宝宝健康', '育儿便利', '家庭幸福感'],
+          },
+        ],
       },
       coreIdea: `这是一份基于 ${type} 的营销策略回退方案。由于 Gemini API 暂时不可用，我们提供了基于最佳实践的基础方案。建议在 API 恢复后重新生成更精准的策略。`,
       xhsContent: {
@@ -1182,21 +1296,23 @@ export class GeminiService implements OnModuleInit {
           {
             title: '【首发】探索新体验：XXXX的全新升级',
             theme: '品牌升级与创新',
-            keyPoints: ['品牌故事', '产品特色', '用户体验']
+            keyPoints: ['品牌故事', '产品特色', '用户体验'],
           },
           {
             title: '【深度】行业洞察：XXXX如何引领潮流',
             theme: '行业分析与趋势',
-            keyPoints: ['市场分析', '趋势预测', '竞争优势']
+            keyPoints: ['市场分析', '趋势预测', '竞争优势'],
           },
           {
             title: '【互动】邀请您参与：XXXX共创计划',
             theme: '用户参与与共创',
-            keyPoints: ['互动机制', '用户反馈', '共创成果']
-          }
+            keyPoints: ['互动机制', '用户反馈', '共创成果'],
+          },
         ],
-        offlineDecoration: '主题展区设计，结合品牌色系与互动装置，打造沉浸式体验空间',
-        membershipBenefits: '三级会员体系：基础会员（注册即享）、银卡会员（消费累计）、金卡会员（年度活跃），对应不同权益与专属服务'
+        offlineDecoration:
+          '主题展区设计，结合品牌色系与互动装置，打造沉浸式体验空间',
+        membershipBenefits:
+          '三级会员体系：基础会员（注册即享）、银卡会员（消费累计）、金卡会员（年度活跃），对应不同权益与专属服务',
       },
       recommendedExecutionTime: {
         timeline: [
@@ -1204,19 +1320,19 @@ export class GeminiService implements OnModuleInit {
             phase: '准备期',
             duration: '2周',
             activities: ['内容规划', '资源准备', '团队培训'],
-            milestones: ['方案定稿', '资源到位', '团队培训完成']
+            milestones: ['方案定稿', '资源到位', '团队培训完成'],
           },
           {
             phase: '执行期',
             duration: '4周',
             activities: ['内容发布', '活动运营', '数据监测'],
-            milestones: ['首波内容发布', '活动引爆', '数据达标']
+            milestones: ['首波内容发布', '活动引爆', '数据达标'],
           },
           {
             phase: '优化期',
             duration: '2周',
             activities: ['效果评估', '策略调整', '总结报告'],
-            milestones: ['效果报告完成', '策略优化方案', '项目总结']
+            milestones: ['效果报告完成', '策略优化方案', '项目总结'],
           },
         ],
         bestPostingTimes: ['09:00-11:00', '19:00-21:00', '周末上午'],
@@ -1239,35 +1355,35 @@ export class GeminiService implements OnModuleInit {
           description: '市场调研与竞品分析',
           responsible: '市场部',
           deadline: '第1周',
-          deliverables: ['竞品分析报告', '目标用户画像']
+          deliverables: ['竞品分析报告', '目标用户画像'],
         },
         {
           step: 2,
           description: '内容创意与脚本撰写',
           responsible: '内容团队',
           deadline: '第2周',
-          deliverables: ['内容日历', '创意脚本', '视觉概念']
+          deliverables: ['内容日历', '创意脚本', '视觉概念'],
         },
         {
           step: 3,
           description: '素材制作与审核',
           responsible: '设计部',
           deadline: '第3周',
-          deliverables: ['设计素材', '视频成品', '审核报告']
+          deliverables: ['设计素材', '视频成品', '审核报告'],
         },
         {
           step: 4,
           description: '渠道发布与推广',
           responsible: '运营部',
           deadline: '第4周',
-          deliverables: ['渠道发布记录', '推广数据', '用户反馈']
+          deliverables: ['渠道发布记录', '推广数据', '用户反馈'],
         },
         {
           step: 5,
           description: '数据监测与优化',
           responsible: '数据分析',
           deadline: '持续',
-          deliverables: ['数据日报', '优化建议', '结案报告']
+          deliverables: ['数据日报', '优化建议', '结案报告'],
         },
       ],
       riskAssessment: [
@@ -1276,21 +1392,21 @@ export class GeminiService implements OnModuleInit {
           probability: '中',
           impact: '高',
           mitigationStrategy: '多平台分发，降低单一平台依赖',
-          contingencyPlan: '准备备用渠道，调整内容策略'
+          contingencyPlan: '准备备用渠道，调整内容策略',
         },
         {
           risk: '预算超支',
           probability: '低',
           impact: '中',
           mitigationStrategy: '分阶段拨款，定期审计',
-          contingencyPlan: '预留10%应急预算，优化资源分配'
+          contingencyPlan: '预留10%应急预算，优化资源分配',
         },
         {
           risk: '内容效果不佳',
           probability: '中',
           impact: '中',
           mitigationStrategy: 'A/B测试，快速迭代',
-          contingencyPlan: '准备备选内容方案，调整发布时间'
+          contingencyPlan: '准备备选内容方案，调整发布时间',
         },
       ],
       budgetAllocation: [
@@ -1299,28 +1415,28 @@ export class GeminiService implements OnModuleInit {
           amount: campaignSummary.budget * 0.4,
           percentage: 40,
           justification: '高质量内容是营销成功的基础',
-          costBreakdown: ['文案撰写', '设计制作', '视频拍摄']
+          costBreakdown: ['文案撰写', '设计制作', '视频拍摄'],
         },
         {
           category: '渠道推广',
           amount: campaignSummary.budget * 0.3,
           percentage: 30,
           justification: '包括小红书推广、微信广告等',
-          costBreakdown: ['平台广告', 'KOL合作', '流量投放']
+          costBreakdown: ['平台广告', 'KOL合作', '流量投放'],
         },
         {
           category: '数据分析',
           amount: campaignSummary.budget * 0.15,
           percentage: 15,
           justification: '效果监测与优化调整',
-          costBreakdown: ['监测工具', '分析服务', '报告制作']
+          costBreakdown: ['监测工具', '分析服务', '报告制作'],
         },
         {
           category: '应急备用',
           amount: campaignSummary.budget * 0.15,
           percentage: 15,
           justification: '应对突发情况和机会',
-          costBreakdown: ['应急预算', '灵活调配', '机会捕捉']
+          costBreakdown: ['应急预算', '灵活调配', '机会捕捉'],
         },
       ],
     };
@@ -1354,7 +1470,9 @@ export class GeminiService implements OnModuleInit {
     } = options;
 
     // 检查 API 可用性
-    console.log(`>>> [generateContent] isGeminiAvailable: ${this.isGeminiAvailable()}`);
+    console.log(
+      `>>> [generateContent] isGeminiAvailable: ${this.isGeminiAvailable()}`,
+    );
     if (!this.isGeminiAvailable()) {
       this.logger.warn(
         'Gemini API not available, trying REST API for content generation',
@@ -1363,14 +1481,23 @@ export class GeminiService implements OnModuleInit {
       const result = await this.generateContentViaRest(prompt, {
         temperature: options.temperature || this.config?.temperature,
         maxTokens: options.maxTokens || this.config?.maxTokens,
-        model: this.config?.model
+        model: this.config?.model,
       });
 
-      console.log(`>>> [generateContent REST] Result: text=${result.text ? 'present' : 'empty'}, error=${result.error || 'none'}`);
+      console.log(
+        `>>> [generateContent REST] Result: text=${result.text ? 'present' : 'empty'}, error=${result.error || 'none'}`,
+      );
       if (result.text) {
         // 解析响应文本
-        const generatedContent = this.parseContentResponse(result.text, platform, options);
-        const qualityAssessment = this.assessContentQuality(generatedContent, platform);
+        const generatedContent = this.parseContentResponse(
+          result.text,
+          platform,
+          options,
+        );
+        const qualityAssessment = this.assessContentQuality(
+          generatedContent,
+          platform,
+        );
 
         return {
           success: true,
@@ -1380,7 +1507,9 @@ export class GeminiService implements OnModuleInit {
           modelUsed: this.config?.model || 'gemini-2.5-flash',
         };
       } else {
-        this.logger.warn(`REST API generation failed: ${result.error}, using fallback content`);
+        this.logger.warn(
+          `REST API generation failed: ${result.error}, using fallback content`,
+        );
         return this.generateFallbackContent(options);
       }
     }
@@ -1398,13 +1527,20 @@ export class GeminiService implements OnModuleInit {
     const result = await this.generateContentViaRest(contentPrompt, {
       temperature: options.temperature || this.config?.temperature,
       maxTokens: options.maxTokens || this.config?.maxTokens,
-      model: this.config?.model
+      model: this.config?.model,
     });
 
     if (result.text) {
       // 解析响应文本
-      const generatedContent = this.parseContentResponse(result.text, platform, options);
-      const qualityAssessment = this.assessContentQuality(generatedContent, platform);
+      const generatedContent = this.parseContentResponse(
+        result.text,
+        platform,
+        options,
+      );
+      const qualityAssessment = this.assessContentQuality(
+        generatedContent,
+        platform,
+      );
 
       return {
         success: true,
@@ -1415,14 +1551,19 @@ export class GeminiService implements OnModuleInit {
       };
     } else {
       // 检查是否是API Key配额或无效错误
-      if (result.error?.includes('API_KEY_INVALID') || result.error?.includes('QUOTA_EXCEEDED')) {
+      if (
+        result.error?.includes('API_KEY_INVALID') ||
+        result.error?.includes('QUOTA_EXCEEDED')
+      ) {
         const currentKey = this.apiKeys[this.currentKeyIndex];
         if (currentKey) {
           this.recordKeyFailure(currentKey);
           this.rotateToNextKey();
         }
       }
-      this.logger.warn(`REST API generation failed: ${result.error}, using fallback content`);
+      this.logger.warn(
+        `REST API generation failed: ${result.error}, using fallback content`,
+      );
       return this.generateFallbackContent(options);
     }
   }
@@ -1473,10 +1614,14 @@ export class GeminiService implements OnModuleInit {
 
           const result = await this.generateContent(contentOptions);
           if (result.success && result.content) {
-            this.logger.log(`Successfully generated content for ${platform}, modelUsed: ${result.modelUsed}`);
+            this.logger.log(
+              `Successfully generated content for ${platform}, modelUsed: ${result.modelUsed}`,
+            );
             contents.push(result.content);
           } else {
-            this.logger.error(`Failed to generate content for ${platform}: ${result.error?.message || 'Unknown error'}`);
+            this.logger.error(
+              `Failed to generate content for ${platform}: ${result.error?.message || 'Unknown error'}`,
+            );
           }
         }
       }
@@ -1529,7 +1674,10 @@ export class GeminiService implements OnModuleInit {
       );
 
       // 检查是否是API Key配额或无效错误
-      if (error.message?.includes('API_KEY_INVALID') || error.message?.includes('QUOTA_EXCEEDED')) {
+      if (
+        error.message?.includes('API_KEY_INVALID') ||
+        error.message?.includes('QUOTA_EXCEEDED')
+      ) {
         const currentKey = this.apiKeys[this.currentKeyIndex];
         if (currentKey) {
           this.recordKeyFailure(currentKey);
@@ -1631,7 +1779,10 @@ ${platformInstructions}
       let rawText = text;
 
       // 2. 暴力清洗 Markdown 标签
-      rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+      rawText = rawText
+        .replace(/```json/g, '')
+        .replace(/```/g, '')
+        .trim();
 
       // 3. 使用物理级JSON修复函数
       const parsed = this.repairTruncatedJson(rawText);
@@ -1938,11 +2089,14 @@ ${platformInstructions}
   /**
    * 使用直接REST API生成内容
    */
-  private async generateContentViaRest(prompt: string, options?: {
-    temperature?: number;
-    maxTokens?: number;
-    model?: string;
-  }): Promise<{ text: string; error?: string; isTruncated?: boolean }> {
+  private async generateContentViaRest(
+    prompt: string,
+    options?: {
+      temperature?: number;
+      maxTokens?: number;
+      model?: string;
+    },
+  ): Promise<{ text: string; error?: string; isTruncated?: boolean }> {
     const currentKey = this.apiKeys[this.currentKeyIndex];
     if (!currentKey) {
       return { text: '', error: 'No API key available' };
@@ -1956,20 +2110,27 @@ ${platformInstructions}
 
     // 强制使用硬编码的 Body 结构：generationConfig 处于根层级
     const payload = {
-      contents: [{
-        parts: [{ text: prompt }]
-      }],
+      contents: [
+        {
+          parts: [{ text: prompt }],
+        },
+      ],
       generationConfig: {
         maxOutputTokens: 8192, // 增加到8192以确保完整生成wechatFullPlan等所有字段
-        temperature: 0.7
-      }
+        temperature: 0.7,
+      },
     };
 
     try {
       this.logger.log(`Generating content via REST API with model: ${model}`);
-      console.log(`>>> [REST API Debug] URL: ${url}, Key: ${currentKey.substring(0, 8)}...`);
+      console.log(
+        `>>> [REST API Debug] URL: ${url}, Key: ${currentKey.substring(0, 8)}...`,
+      );
       // 必须添加此行日志，我要在控制台亲眼看到发出去的结构
-      console.log('>>> [CORE_CHECK] SENDING_TO_GOOGLE:', JSON.stringify(payload));
+      console.log(
+        '>>> [CORE_CHECK] SENDING_TO_GOOGLE:',
+        JSON.stringify(payload),
+      );
       // 设置60秒超时
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000);
@@ -1978,19 +2139,27 @@ ${platformInstructions}
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-goog-api-key': currentKey
+          'x-goog-api-key': currentKey,
         },
         body: JSON.stringify(payload),
-        signal: controller.signal
+        signal: controller.signal,
       });
 
       clearTimeout(timeoutId);
-      console.log(`>>> [REST API Debug] Response status: ${response.status} ${response.statusText}`);
+      console.log(
+        `>>> [REST API Debug] Response status: ${response.status} ${response.statusText}`,
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
-        this.logger.error(`REST API generation failed: HTTP ${response.status} ${response.statusText}`);
-        return { text: '', error: `HTTP ${response.status}: ${errorText.substring(0, 200)}`, isTruncated: false };
+        this.logger.error(
+          `REST API generation failed: HTTP ${response.status} ${response.statusText}`,
+        );
+        return {
+          text: '',
+          error: `HTTP ${response.status}: ${errorText.substring(0, 200)}`,
+          isTruncated: false,
+        };
       }
 
       const data = await response.json();
@@ -1999,22 +2168,38 @@ ${platformInstructions}
         const finishReason = data.candidates[0].finishReason;
 
         // 记录finishReason用于调试
-        this.logger.debug(`REST API generation completed. Finish reason: ${finishReason}, Text length: ${text.length}`);
+        this.logger.debug(
+          `REST API generation completed. Finish reason: ${finishReason}, Text length: ${text.length}`,
+        );
 
         if (finishReason === 'MAX_TOKENS') {
-          this.logger.warn(`Response may be truncated due to token limit. Finish reason: ${finishReason}, Text length: ${text.length}`);
+          this.logger.warn(
+            `Response may be truncated due to token limit. Finish reason: ${finishReason}, Text length: ${text.length}`,
+          );
         }
 
         // 添加成功日志
-        console.log(`>>> [Lumina Success] Marketing Strategy Generated! Length: ${text.length} chars`);
+        console.log(
+          `>>> [Lumina Success] Marketing Strategy Generated! Length: ${text.length} chars`,
+        );
         return { text, isTruncated: finishReason === 'MAX_TOKENS' };
       } else {
         this.logger.error('REST API response missing expected content');
         // 记录finishReason如果存在
-        if (data.candidates && data.candidates[0] && data.candidates[0].finishReason) {
-          this.logger.error(`Finish reason: ${data.candidates[0].finishReason}`);
+        if (
+          data.candidates &&
+          data.candidates[0] &&
+          data.candidates[0].finishReason
+        ) {
+          this.logger.error(
+            `Finish reason: ${data.candidates[0].finishReason}`,
+          );
         }
-        return { text: '', error: 'Invalid response format', isTruncated: false };
+        return {
+          text: '',
+          error: 'Invalid response format',
+          isTruncated: false,
+        };
       }
     } catch (error) {
       this.logger.error(`REST API generation error: ${error.message}`);
@@ -2028,7 +2213,9 @@ ${platformInstructions}
   private generateFallbackContent(
     options: ContentGenerationOptions,
   ): ContentGenerationResult {
-    this.logger.log(`Generating fallback content for platform: ${options.platform}, prompt: "${options.prompt.substring(0, 50)}..."`);
+    this.logger.log(
+      `Generating fallback content for platform: ${options.platform}, prompt: "${options.prompt.substring(0, 50)}..."`,
+    );
 
     const { prompt, platform, tone } = options;
 

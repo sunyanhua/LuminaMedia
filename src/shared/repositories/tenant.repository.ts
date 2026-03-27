@@ -7,7 +7,9 @@ import { BaseRepository } from './base.repository';
  * 租户感知的Repository基类 (TenantRepository)
  * 自动为所有查询添加tenant_id过滤条件，继承BaseRepository的CRUD操作和异常处理
  */
-export abstract class TenantRepository<T extends TenantEntity> extends BaseRepository<T> {
+export abstract class TenantRepository<
+  T extends TenantEntity,
+> extends BaseRepository<T> {
   /**
    * 获取当前租户ID
    */
@@ -18,7 +20,9 @@ export abstract class TenantRepository<T extends TenantEntity> extends BaseRepos
   /**
    * 添加租户过滤条件到查询构建器
    */
-  protected addTenantCondition(queryBuilder: SelectQueryBuilder<T>): SelectQueryBuilder<T> {
+  protected addTenantCondition(
+    queryBuilder: SelectQueryBuilder<T>,
+  ): SelectQueryBuilder<T> {
     const tenantId = this.getCurrentTenantId();
     const alias = queryBuilder.alias;
     queryBuilder.andWhere(`${alias}.tenantId = :tenantId`, { tenantId });
@@ -112,7 +116,9 @@ export abstract class TenantRepository<T extends TenantEntity> extends BaseRepos
       const entity = await this.findOne({ where: { id: entityId } });
       return entity !== null;
     } catch (error) {
-      this.logger.error(`Failed to check tenant access for entity ${entityId}: ${error.message}`);
+      this.logger.error(
+        `Failed to check tenant access for entity ${entityId}: ${error.message}`,
+      );
       return false;
     }
   }
