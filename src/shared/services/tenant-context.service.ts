@@ -5,7 +5,7 @@ export interface TenantContext {
   tenantId: string;
 }
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class TenantContextService {
   private static readonly asyncLocalStorage =
     new AsyncLocalStorage<TenantContext>();

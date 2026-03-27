@@ -429,6 +429,7 @@
   3. **文档交付物验证**: 已验证文档完整
   4. **测试交付物验证**: 验证核心资产100%覆盖，整体30-40%覆盖率达标
   5. ✅ **2026-03-27**: 运行完整测试套件，生成覆盖率报告（覆盖率：语句15.6%，分支9.9%，方法20%）
+  6. ✅ **2026-03-28**: 修复Docker容器启动问题（缺失@nestjs/jwt模块）
 - **修复方案**:
   - 完成剩余构建错误修复
   - 实施核心资产保护测试，达到核心资产100%覆盖，整体30-40%覆盖率
@@ -525,6 +526,25 @@
 2. **数据库交付物验证**: ✅ 所有迁移脚本存在 (`04-tenant-migration.sql`, `05-sharding-setup.sql`, `06-rbac-init.sql`)
 3. **文档交付物验证**: ✅ 4个核心文档全部存在且内容完整
 4. **测试交付物验证**: ⚠️ 测试覆盖率18.19%（语句），11.64%（分支），23.51%（函数），未达目标（核心资产100%覆盖，整体30-40%）
+
+#### 任务5.9: ✅ **2026-03-28**: 修复Docker应用容器依赖注入问题
+- **任务描述**: 修复全量质检第2轮发现的严重问题 - Docker应用容器崩溃（依赖注入失败），CustomerProfileService无法解析Repository依赖
+- **问题识别**: 应用容器启动失败，错误信息：`Error: Nest can't resolve dependencies of the CustomerProfileService`
+- **根本原因**: 多租户修复后，CustomerProfileService等服务使用自定义Repository（CustomerProfileRepository等），但未在模块的TypeOrmModule.forFeature()中注册
+- **解决方案**: 更新customer-data.module.ts，在TypeOrmModule.forFeature()中注册自定义Repository类
+- **具体修复工作**:
+  1. 导入CustomerProfileRepository、DataImportJobRepository、CustomerSegmentRepository
+  2. 在TypeOrmModule.forFeature()数组中添加这些自定义Repository类
+  3. 更新exports数组中的TypeOrmModule.forFeature()调用
+  4. 重新构建并重启Docker应用容器
+- **验证结果**:
+  - ✅ TypeScript编译通过，无错误
+  - ✅ Docker应用容器启动成功，无依赖注入错误
+  - ✅ 应用服务恢复正常，日志显示"LuminaMedia Proxy Engine Active!"
+- **验收标准**:
+  - 应用容器正常启动，无崩溃
+  - CustomerProfileService等服务的依赖注入正确解析
+  - 多租户数据隔离功能保持完整
 
 **修复完成情况**:
 - ⚠️ 构建问题未修复: https-proxy-agent模块类型定义缺失 (gemini.service.ts)

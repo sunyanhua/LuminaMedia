@@ -7,6 +7,8 @@ import { Tenant } from '../../entities/tenant.entity';
 import { Role } from '../../entities/role.entity';
 import { Permission } from '../../entities/permission.entity';
 import { UserRole } from '../../entities/user-role.entity';
+import { UserRepository } from '../../shared/repositories/user.repository';
+import { TenantContextService } from '../../shared/services/tenant-context.service';
 import { AuthService } from './services/auth.service';
 import { TenantService } from './services/tenant.service';
 import { RoleService } from './services/role.service';
@@ -22,7 +24,14 @@ import { TenantMiddleware } from './middlewares/tenant.middleware';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Tenant, Role, Permission, UserRole]),
+    TypeOrmModule.forFeature([
+      User,
+      Tenant,
+      Role,
+      Permission,
+      UserRole,
+      UserRepository,
+    ]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -44,8 +53,16 @@ import { TenantMiddleware } from './middlewares/tenant.middleware';
     JwtAuthGuard,
     RolesGuard,
     PermissionsGuard,
+    TenantContextService,
   ],
-  exports: [AuthService, JwtAuthGuard, RolesGuard, PermissionsGuard],
+  exports: [
+    AuthService,
+    JwtAuthGuard,
+    RolesGuard,
+    PermissionsGuard,
+    TenantContextService,
+    TypeOrmModule,
+  ],
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
