@@ -5,6 +5,7 @@ import { AgentWorkflowService } from './agent-workflow.service';
 import { AnalysisAgentService } from '../../analysis/services/analysis-agent.service';
 import { StrategyAgentService } from '../../strategy/services/strategy-agent.service';
 import { CopywritingAgentService } from '../../copywriting/services/copywriting-agent.service';
+import { KnowledgeRetrievalService } from '../../analysis/services/knowledge-retrieval.service';
 import { WorkflowExecutionStatus } from '../interfaces/workflow-agent.interface';
 
 // 模拟服务
@@ -22,6 +23,10 @@ const mockCopywritingAgentService = {
 
 const mockConfigService = {
   get: jest.fn(),
+};
+
+const mockKnowledgeRetrievalService = {
+  retrieveRelevantKnowledge: jest.fn(),
 };
 
 describe('AgentWorkflowService', () => {
@@ -51,6 +56,12 @@ describe('AgentWorkflowService', () => {
         return configMap[key] || defaultValue;
       },
     );
+
+    mockKnowledgeRetrievalService.retrieveRelevantKnowledge.mockResolvedValue([
+      '电商市场规模持续增长',
+      '个性化推荐提升转化率',
+      '社交媒体营销成为重要渠道',
+    ]);
 
     mockAnalysisAgentService.execute.mockResolvedValue({
       marketInsights: {
@@ -265,6 +276,10 @@ describe('AgentWorkflowService', () => {
           provide: ConfigService,
           useValue: mockConfigService,
         },
+        {
+          provide: KnowledgeRetrievalService,
+          useValue: mockKnowledgeRetrievalService,
+        },
       ],
     }).compile();
 
@@ -408,6 +423,10 @@ describe('AgentWorkflowService', () => {
             provide: ConfigService,
             useValue: mockConfigService,
           },
+          {
+            provide: KnowledgeRetrievalService,
+            useValue: mockKnowledgeRetrievalService,
+          },
         ],
       }).compile();
 
@@ -475,6 +494,10 @@ describe('AgentWorkflowService', () => {
           {
             provide: ConfigService,
             useValue: mockConfigService,
+          },
+          {
+            provide: KnowledgeRetrievalService,
+            useValue: mockKnowledgeRetrievalService,
           },
         ],
       }).compile();
@@ -597,6 +620,10 @@ describe('AgentWorkflowService', () => {
           {
             provide: ConfigService,
             useValue: mockConfigService,
+          },
+          {
+            provide: KnowledgeRetrievalService,
+            useValue: mockKnowledgeRetrievalService,
           },
         ],
       }).compile();

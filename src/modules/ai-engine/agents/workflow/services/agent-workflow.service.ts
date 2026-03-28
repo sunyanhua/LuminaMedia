@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { AnalysisAgentService } from '../../analysis/services/analysis-agent.service';
 import { StrategyAgentService } from '../../strategy/services/strategy-agent.service';
 import { CopywritingAgentService } from '../../copywriting/services/copywriting-agent.service';
+import { KnowledgeRetrievalService } from '../../analysis/services/knowledge-retrieval.service';
 import {
   AgentWorkflowInput,
   AgentWorkflowOutput,
@@ -56,6 +57,8 @@ export class AgentWorkflowService {
     private readonly strategyAgent: StrategyAgentService,
     @Inject(CopywritingAgentService)
     private readonly copywritingAgent: CopywritingAgentService,
+    @Inject(KnowledgeRetrievalService)
+    private readonly knowledgeRetrievalService: KnowledgeRetrievalService,
   ) {
     // 从配置中合并自定义配置
     this.mergeConfigFromEnvironment();
@@ -82,13 +85,21 @@ export class AgentWorkflowService {
       const analysisStep = this.createStepStatus('analysis');
       this.updateStepStatus(executionId, analysisStep);
 
+      // 检索相关知识库内容
+      const knowledgeQuery = `行业: ${input.industryContext}, 目标: ${input.businessGoals.join('、')}`;
+      const knowledgeBaseContext = await this.knowledgeRetrievalService.retrieveRelevantKnowledge(
+        knowledgeQuery,
+        input.industryContext,
+        5, // 限制返回5条相关知识
+      );
+
       const analysisResult = await this.executeWithTimeout(
         () =>
           this.analysisAgent.execute({
             customerData: input.customerData,
             industryContext: input.industryContext,
             businessGoals: input.businessGoals,
-            knowledgeBaseContext: [], // TODO: 集成知识库检索
+            knowledgeBaseContext,
           }),
         this.defaultConfig.timeouts.analysis,
         '分析阶段超时',

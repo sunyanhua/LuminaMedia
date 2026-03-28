@@ -24,7 +24,7 @@ describe('CopywritingAgentService', () => {
     };
 
     const mockConfigService = {
-      get: jest.fn(),
+      get: jest.fn().mockReturnValue('gemini'),
     };
 
     const module: TestingModule = await Test.createTestingModule({

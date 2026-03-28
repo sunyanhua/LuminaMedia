@@ -14,6 +14,10 @@ import { Tenant } from './entities/tenant.entity';
 import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
 import { UserRole } from './entities/user-role.entity';
+import { Workflow } from './modules/workflow/entities/workflow.entity';
+import { WorkflowNode } from './modules/workflow/entities/workflow-node.entity';
+import { ApprovalRecord } from './modules/workflow/entities/approval-record.entity';
+import { Notification } from './modules/workflow/entities/notification.entity';
 import { UserBehavior } from './modules/data-analytics/entities/user-behavior.entity';
 import { MarketingCampaign } from './modules/data-analytics/entities/marketing-campaign.entity';
 import { MarketingStrategy } from './modules/data-analytics/entities/marketing-strategy.entity';
@@ -23,6 +27,8 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { DataEngineModule } from './modules/data-engine/data-engine.module';
 import { AIEngineModule } from './modules/ai-engine/ai-engine.module';
+import { WorkflowModule } from './modules/workflow/workflow.module';
+import { PublishModule } from './modules/publish/publish.module';
 
 @Module({
   imports: [
@@ -55,6 +61,10 @@ import { AIEngineModule } from './modules/ai-engine/ai-engine.module';
           Role,
           Permission,
           UserRole,
+          Workflow,
+          WorkflowNode,
+          ApprovalRecord,
+          Notification,
         ],
         synchronize:
           configService.get('TYPEORM_SYNCHRONIZE', 'false') === 'true',
@@ -74,6 +84,8 @@ import { AIEngineModule } from './modules/ai-engine/ai-engine.module';
     AuthModule,
     DataEngineModule,
     AIEngineModule,
+    WorkflowModule,
+    PublishModule,
   ],
   controllers: [AppController],
   providers: [AppService],
