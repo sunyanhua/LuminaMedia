@@ -1,13 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { TenantRepository } from '../../../shared/repositories/tenant.repository';
 import { WorkflowNode } from '../entities/workflow-node.entity';
-import { WorkflowStatus, ApprovalNodeType } from '../../../shared/enums/workflow-status.enum';
+import {
+  WorkflowStatus,
+  ApprovalNodeType,
+} from '../../../shared/enums/workflow-status.enum';
 import { DataSource } from 'typeorm';
 
 @Injectable()
 export class WorkflowNodeRepository extends TenantRepository<WorkflowNode> {
   constructor(private dataSource: DataSource) {
-    super(WorkflowNode, dataSource.createEntityManager(), dataSource.createQueryRunner());
+    super(
+      WorkflowNode,
+      dataSource.createEntityManager(),
+      dataSource.createQueryRunner(),
+    );
   }
 
   /**
@@ -94,7 +101,10 @@ export class WorkflowNodeRepository extends TenantRepository<WorkflowNode> {
   /**
    * 更新节点状态
    */
-  async updateNodeStatus(nodeId: string, status: WorkflowStatus): Promise<void> {
+  async updateNodeStatus(
+    nodeId: string,
+    status: WorkflowStatus,
+  ): Promise<void> {
     await this.updateById(nodeId, { status });
   }
 
@@ -134,6 +144,6 @@ export class WorkflowNodeRepository extends TenantRepository<WorkflowNode> {
    */
   async isParallelGroupCompleted(parallelGroup: string): Promise<boolean> {
     const nodes = await this.findParallelGroupNodes(parallelGroup);
-    return nodes.every(node => node.status === WorkflowStatus.COMPLETED);
+    return nodes.every((node) => node.status === WorkflowStatus.COMPLETED);
   }
 }

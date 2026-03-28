@@ -36,7 +36,9 @@ export class DouyinAdapter implements PlatformAdapter {
 
   constructor(config: PlatformConfig) {
     if (config.type !== PlatformType.DOUYIN) {
-      throw new Error(`Invalid platform type for DouyinAdapter: ${config.type}`);
+      throw new Error(
+        `Invalid platform type for DouyinAdapter: ${config.type}`,
+      );
     }
 
     this.config = config;
@@ -64,16 +66,23 @@ export class DouyinAdapter implements PlatformAdapter {
       (response) => {
         const data = response.data;
         if (data.data?.error_code && data.data.error_code !== 0) {
-          throw new Error(`Douyin API error: ${data.data.description} (code: ${data.data.error_code})`);
+          throw new Error(
+            `Douyin API error: ${data.data.description} (code: ${data.data.error_code})`,
+          );
         }
         return response;
       },
       (error) => {
-        this.logger.error(`Douyin API request failed: ${error.message}`, error.stack);
+        this.logger.error(
+          `Douyin API request failed: ${error.message}`,
+          error.stack,
+        );
 
         // 处理token过期
         if (error.response?.data?.data?.error_code === 2190008) {
-          this.logger.warn('Douyin access token expired, attempting refresh...');
+          this.logger.warn(
+            'Douyin access token expired, attempting refresh...',
+          );
           // 这里应该触发token刷新逻辑
         }
 
@@ -102,7 +111,9 @@ export class DouyinAdapter implements PlatformAdapter {
   }
 
   async initialize(): Promise<void> {
-    this.logger.log(`Initializing Douyin adapter for: ${this.openId || 'unknown user'}`);
+    this.logger.log(
+      `Initializing Douyin adapter for: ${this.openId || 'unknown user'}`,
+    );
 
     // 验证token有效性
     if (this.accessToken && this.openId) {
@@ -110,17 +121,23 @@ export class DouyinAdapter implements PlatformAdapter {
         await this.verifyCredentials();
         this.logger.log('Douyin adapter initialized with existing token');
       } catch (error) {
-        this.logger.warn(`Existing token invalid: ${error.message}, attempting refresh...`);
+        this.logger.warn(
+          `Existing token invalid: ${error.message}, attempting refresh...`,
+        );
         if (this.refreshToken) {
           await this.refreshAccessToken();
         } else {
-          throw new Error('No valid access token and no refresh token available');
+          throw new Error(
+            'No valid access token and no refresh token available',
+          );
         }
       }
     } else if (this.refreshToken) {
       await this.refreshAccessToken();
     } else {
-      this.logger.warn('No credentials provided for Douyin, adapter will operate in limited mode');
+      this.logger.warn(
+        'No credentials provided for Douyin, adapter will operate in limited mode',
+      );
     }
   }
 
@@ -164,7 +181,9 @@ export class DouyinAdapter implements PlatformAdapter {
     this.logger.log(`Publishing content to Douyin: ${content.title}`);
 
     if (!this.accessToken || !this.openId) {
-      throw new Error('Douyin adapter is not authenticated. Please provide valid credentials.');
+      throw new Error(
+        'Douyin adapter is not authenticated. Please provide valid credentials.',
+      );
     }
 
     try {
@@ -185,8 +204,11 @@ export class DouyinAdapter implements PlatformAdapter {
       return {
         publishId: result.item_id || result.video_id || `douyin_${Date.now()}`,
         platform: PlatformType.DOUYIN,
-        status: result.share_id ? PublishStatusType.PUBLISHED : PublishStatusType.PENDING,
-        url: result.share_url || `https://www.douyin.com/video/${result.item_id}`,
+        status: result.share_id
+          ? PublishStatusType.PUBLISHED
+          : PublishStatusType.PENDING,
+        url:
+          result.share_url || `https://www.douyin.com/video/${result.item_id}`,
         rawResponse: result,
         publishedAt: new Date(),
         metadata: {
@@ -197,13 +219,18 @@ export class DouyinAdapter implements PlatformAdapter {
         },
       };
     } catch (error) {
-      this.logger.error(`Failed to publish content to Douyin: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to publish content to Douyin: ${error.message}`,
+        error.stack,
+      );
 
       // 抖音API有严格频率限制，失败后谨慎重试
       const maxRetries = Math.min(this.config.options?.maxRetries || 1, 2); // 最多重试2次
       for (let retry = 1; retry <= maxRetries; retry++) {
         try {
-          this.logger.log(`Retrying Douyin publish (attempt ${retry}/${maxRetries})`);
+          this.logger.log(
+            `Retrying Douyin publish (attempt ${retry}/${maxRetries})`,
+          );
           await this.delay(10000); // 抖音API频率限制严格，等待10秒
 
           let retryResult;
@@ -214,10 +241,17 @@ export class DouyinAdapter implements PlatformAdapter {
           }
 
           return {
-            publishId: retryResult.item_id || retryResult.video_id || `douyin_${Date.now()}`,
+            publishId:
+              retryResult.item_id ||
+              retryResult.video_id ||
+              `douyin_${Date.now()}`,
             platform: PlatformType.DOUYIN,
-            status: retryResult.share_id ? PublishStatusType.PUBLISHED : PublishStatusType.PENDING,
-            url: retryResult.share_url || `https://www.douyin.com/video/${retryResult.item_id}`,
+            status: retryResult.share_id
+              ? PublishStatusType.PUBLISHED
+              : PublishStatusType.PENDING,
+            url:
+              retryResult.share_url ||
+              `https://www.douyin.com/video/${retryResult.item_id}`,
             rawResponse: retryResult,
             publishedAt: new Date(),
             metadata: {
@@ -253,9 +287,12 @@ export class DouyinAdapter implements PlatformAdapter {
   async getPublishStatus(publishId: string): Promise<PublishStatus> {
     try {
       // 抖音不提供直接的状态查询API，可以通过视频信息接口查询
-      const response = await this.http.post('/api/douyin/v1/video/video_data/', {
-        item_ids: [publishId],
-      });
+      const response = await this.http.post(
+        '/api/douyin/v1/video/video_data/',
+        {
+          item_ids: [publishId],
+        },
+      );
 
       const videoData = response.data.data?.list?.[0];
 
@@ -268,14 +305,21 @@ export class DouyinAdapter implements PlatformAdapter {
         };
       }
 
-      const status = videoData.video_status === 1 ? PublishStatusType.PUBLISHED :
-        videoData.video_status === 2 ? PublishStatusType.PENDING :
-        videoData.video_status === 3 ? PublishStatusType.FAILED : PublishStatusType.PENDING;
+      const status =
+        videoData.video_status === 1
+          ? PublishStatusType.PUBLISHED
+          : videoData.video_status === 2
+            ? PublishStatusType.PENDING
+            : videoData.video_status === 3
+              ? PublishStatusType.FAILED
+              : PublishStatusType.PENDING;
 
       return {
         publishId,
         status,
-        progress: videoData.video_progress || (status === PublishStatusType.PUBLISHED ? 100 : 0),
+        progress:
+          videoData.video_progress ||
+          (status === PublishStatusType.PUBLISHED ? 100 : 0),
         message: this.getDouyinStatusMessage(videoData.video_status),
         lastUpdated: new Date(),
       };
@@ -289,10 +333,17 @@ export class DouyinAdapter implements PlatformAdapter {
     }
   }
 
-  async updateContent(publishId: string, content: Partial<PublishContentInput>): Promise<PublishResult> {
+  async updateContent(
+    publishId: string,
+    content: Partial<PublishContentInput>,
+  ): Promise<PublishResult> {
     // 抖音不支持更新已发布内容
-    this.logger.warn('Douyin does not support content update. Need to delete and republish.');
-    throw new Error('Douyin does not support content update. Use delete and republish instead.');
+    this.logger.warn(
+      'Douyin does not support content update. Need to delete and republish.',
+    );
+    throw new Error(
+      'Douyin does not support content update. Use delete and republish instead.',
+    );
   }
 
   async deleteContent(publishId: string): Promise<void> {
@@ -302,7 +353,10 @@ export class DouyinAdapter implements PlatformAdapter {
       });
       this.logger.log(`Deleted Douyin video: ${publishId}`);
     } catch (error) {
-      this.logger.error(`Failed to delete Douyin video: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to delete Douyin video: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -332,7 +386,9 @@ export class DouyinAdapter implements PlatformAdapter {
         },
       };
     } catch (error) {
-      this.logger.error(`Failed to get Douyin platform stats: ${error.message}`);
+      this.logger.error(
+        `Failed to get Douyin platform stats: ${error.message}`,
+      );
 
       // 返回默认统计信息
       return {
@@ -387,14 +443,18 @@ export class DouyinAdapter implements PlatformAdapter {
     }
 
     this.logger.log('Refreshing Douyin access token');
-    const response = await axios.post('https://open.douyin.com/oauth/refresh_token/', null, {
-      params: {
-        client_key: this.credentials.clientKey,
-        client_secret: this.credentials.clientSecret,
-        grant_type: 'refresh_token',
-        refresh_token: this.refreshToken,
+    const response = await axios.post(
+      'https://open.douyin.com/oauth/refresh_token/',
+      null,
+      {
+        params: {
+          client_key: this.credentials.clientKey,
+          client_secret: this.credentials.clientSecret,
+          grant_type: 'refresh_token',
+          refresh_token: this.refreshToken,
+        },
       },
-    });
+    );
 
     const data = response.data.data;
     this.accessToken = data.access_token;
@@ -410,7 +470,9 @@ export class DouyinAdapter implements PlatformAdapter {
     // 更新HTTP客户端header
     this.http.defaults.headers['access-token'] = this.accessToken;
 
-    this.logger.log(`Douyin access token refreshed for open_id: ${this.openId}`);
+    this.logger.log(
+      `Douyin access token refreshed for open_id: ${this.openId}`,
+    );
   }
 
   /**
@@ -427,14 +489,23 @@ export class DouyinAdapter implements PlatformAdapter {
     // 3. 发布视频
 
     // 步骤1: 创建视频
-    const createResponse = await this.http.post('/api/douyin/v1/video/create/', {
-      open_id: this.openId,
-      text: this.formatDouyinText(content.content, content.title, content.tags),
-    });
+    const createResponse = await this.http.post(
+      '/api/douyin/v1/video/create/',
+      {
+        open_id: this.openId,
+        text: this.formatDouyinText(
+          content.content,
+          content.title,
+          content.tags,
+        ),
+      },
+    );
 
     const videoId = createResponse.data.data?.video_id;
     if (!videoId) {
-      throw new Error('Failed to create video: ' + JSON.stringify(createResponse.data));
+      throw new Error(
+        'Failed to create video: ' + JSON.stringify(createResponse.data),
+      );
     }
 
     // 步骤2: 上传视频
@@ -442,10 +513,13 @@ export class DouyinAdapter implements PlatformAdapter {
     const uploadResult = await this.uploadVideo(videoId, videoData);
 
     // 步骤3: 发布视频
-    const publishResponse = await this.http.post('/api/douyin/v1/video/publish/', {
-      open_id: this.openId,
-      video_id: videoId,
-    });
+    const publishResponse = await this.http.post(
+      '/api/douyin/v1/video/publish/',
+      {
+        open_id: this.openId,
+        video_id: videoId,
+      },
+    );
 
     return {
       ...publishResponse.data.data,
@@ -490,7 +564,11 @@ export class DouyinAdapter implements PlatformAdapter {
   /**
    * 格式化抖音文本
    */
-  private formatDouyinText(content: string, title?: string, tags?: string[]): string {
+  private formatDouyinText(
+    content: string,
+    title?: string,
+    tags?: string[],
+  ): string {
     let formatted = '';
 
     // 添加标题（如果有）
@@ -503,7 +581,9 @@ export class DouyinAdapter implements PlatformAdapter {
 
     // 添加标签
     if (tags && tags.length > 0) {
-      const douyinTags = tags.map(tag => `#${tag.replace(/#/g, '')}`).join(' ');
+      const douyinTags = tags
+        .map((tag) => `#${tag.replace(/#/g, '')}`)
+        .join(' ');
       formatted += `\n\n${douyinTags}`;
     }
 
@@ -538,12 +618,16 @@ export class DouyinAdapter implements PlatformAdapter {
       contentType: 'video/mp4',
     });
 
-    const response = await this.http.post(`/api/douyin/v1/video/upload/${videoId}`, formData, {
-      headers: {
-        ...formData.getHeaders(),
-        'access-token': this.accessToken,
+    const response = await this.http.post(
+      `/api/douyin/v1/video/upload/${videoId}`,
+      formData,
+      {
+        headers: {
+          ...formData.getHeaders(),
+          'access-token': this.accessToken,
+        },
       },
-    });
+    );
 
     return response.data;
   }
@@ -559,12 +643,16 @@ export class DouyinAdapter implements PlatformAdapter {
       contentType: 'image/jpeg',
     });
 
-    const response = await this.http.post('/api/douyin/v1/image/upload/', formData, {
-      headers: {
-        ...formData.getHeaders(),
-        'access-token': this.accessToken,
+    const response = await this.http.post(
+      '/api/douyin/v1/image/upload/',
+      formData,
+      {
+        headers: {
+          ...formData.getHeaders(),
+          'access-token': this.accessToken,
+        },
       },
-    });
+    );
 
     return response.data.data?.image_id;
   }
@@ -609,7 +697,7 @@ export class DouyinAdapter implements PlatformAdapter {
    * 延迟函数
    */
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
@@ -628,11 +716,14 @@ export class DouyinAdapter implements PlatformAdapter {
    * 获取用户粉丝列表
    */
   async getUserFollowers(cursor = 0, count = 20): Promise<any> {
-    const response = await this.http.post('/api/douyin/v1/user/following/list/', {
-      open_id: this.openId,
-      cursor,
-      count,
-    });
+    const response = await this.http.post(
+      '/api/douyin/v1/user/following/list/',
+      {
+        open_id: this.openId,
+        cursor,
+        count,
+      },
+    );
     return response.data;
   }
 }

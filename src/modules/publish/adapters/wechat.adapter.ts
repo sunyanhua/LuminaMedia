@@ -35,7 +35,9 @@ export class WechatAdapter implements PlatformAdapter {
 
   constructor(config: PlatformConfig) {
     if (config.type !== PlatformType.WECHAT) {
-      throw new Error(`Invalid platform type for WechatAdapter: ${config.type}`);
+      throw new Error(
+        `Invalid platform type for WechatAdapter: ${config.type}`,
+      );
     }
 
     this.config = config;
@@ -66,12 +68,17 @@ export class WechatAdapter implements PlatformAdapter {
       (response) => {
         const data = response.data;
         if (data.errcode && data.errcode !== 0) {
-          throw new Error(`WeChat API error: ${data.errmsg} (code: ${data.errcode})`);
+          throw new Error(
+            `WeChat API error: ${data.errmsg} (code: ${data.errcode})`,
+          );
         }
         return response;
       },
       (error) => {
-        this.logger.error(`WeChat API request failed: ${error.message}`, error.stack);
+        this.logger.error(
+          `WeChat API request failed: ${error.message}`,
+          error.stack,
+        );
         throw error;
       },
     );
@@ -86,7 +93,9 @@ export class WechatAdapter implements PlatformAdapter {
   }
 
   async initialize(): Promise<void> {
-    this.logger.log(`Initializing WeChat adapter for: ${this.credentials.wechatId}`);
+    this.logger.log(
+      `Initializing WeChat adapter for: ${this.credentials.wechatId}`,
+    );
     await this.getAccessToken(); // 预获取token
     this.logger.log('WeChat adapter initialized successfully');
   }
@@ -132,7 +141,8 @@ export class WechatAdapter implements PlatformAdapter {
       // 1. 上传图片素材
       const imageMediaIds: string[] = [];
       if (content.coverImages && content.coverImages.length > 0) {
-        for (const imageUrl of content.coverImages.slice(0, 3)) { // 微信最多支持3张封面图
+        for (const imageUrl of content.coverImages.slice(0, 3)) {
+          // 微信最多支持3张封面图
           const mediaId = await this.uploadImage(imageUrl);
           imageMediaIds.push(mediaId);
         }
@@ -181,7 +191,10 @@ export class WechatAdapter implements PlatformAdapter {
         },
       };
     } catch (error) {
-      this.logger.error(`Failed to publish content to WeChat: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to publish content to WeChat: ${error.message}`,
+        error.stack,
+      );
       return {
         publishId: `error_${Date.now()}`,
         platform: PlatformType.WECHAT,
@@ -202,10 +215,17 @@ export class WechatAdapter implements PlatformAdapter {
     };
   }
 
-  async updateContent(publishId: string, content: Partial<PublishContentInput>): Promise<PublishResult> {
+  async updateContent(
+    publishId: string,
+    content: Partial<PublishContentInput>,
+  ): Promise<PublishResult> {
     // 微信不支持直接更新已发布内容，需要重新发布
-    this.logger.warn('WeChat does not support content update. Need to republish.');
-    throw new Error('WeChat does not support content update. Use delete and republish instead.');
+    this.logger.warn(
+      'WeChat does not support content update. Need to republish.',
+    );
+    throw new Error(
+      'WeChat does not support content update. Use delete and republish instead.',
+    );
   }
 
   async deleteContent(publishId: string): Promise<void> {
@@ -215,7 +235,10 @@ export class WechatAdapter implements PlatformAdapter {
       });
       this.logger.log(`Deleted WeChat content: ${publishId}`);
     } catch (error) {
-      this.logger.error(`Failed to delete WeChat content: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to delete WeChat content: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -242,7 +265,9 @@ export class WechatAdapter implements PlatformAdapter {
         },
       };
     } catch (error) {
-      this.logger.error(`Failed to get WeChat platform stats: ${error.message}`);
+      this.logger.error(
+        `Failed to get WeChat platform stats: ${error.message}`,
+      );
       // 返回默认统计信息
       return {
         platform: PlatformType.WECHAT,
@@ -294,7 +319,9 @@ export class WechatAdapter implements PlatformAdapter {
     this.credentials.accessToken = this.accessToken;
     this.credentials.accessTokenExpiresAt = this.accessTokenExpiresAt;
 
-    this.logger.log(`WeChat access token refreshed, expires at: ${this.accessTokenExpiresAt}`);
+    this.logger.log(
+      `WeChat access token refreshed, expires at: ${this.accessTokenExpiresAt}`,
+    );
     return this.accessToken;
   }
 
@@ -315,16 +342,23 @@ export class WechatAdapter implements PlatformAdapter {
         contentType: imageResponse.headers['content-type'] || 'image/jpeg',
       });
 
-      const response = await this.http.post('/material/add_material', formData, {
-        headers: formData.getHeaders(),
-        params: {
-          type: 'image',
+      const response = await this.http.post(
+        '/material/add_material',
+        formData,
+        {
+          headers: formData.getHeaders(),
+          params: {
+            type: 'image',
+          },
         },
-      });
+      );
 
       return response.data.media_id;
     } catch (error) {
-      this.logger.error(`Failed to upload image to WeChat: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to upload image to WeChat: ${error.message}`,
+        error.stack,
+      );
       throw new Error(`Image upload failed: ${error.message}`);
     }
   }
@@ -351,7 +385,9 @@ export class WechatAdapter implements PlatformAdapter {
   /**
    * 立即发布
    */
-  private async publishNow(mediaId: string): Promise<{ publishId: string; url?: string; rawResponse: any }> {
+  private async publishNow(
+    mediaId: string,
+  ): Promise<{ publishId: string; url?: string; rawResponse: any }> {
     const response = await this.http.post('/message/mass/sendall', {
       filter: {
         is_to_all: true,
@@ -371,7 +407,10 @@ export class WechatAdapter implements PlatformAdapter {
   /**
    * 定时发布
    */
-  private async schedulePublish(mediaId: string, publishAt: Date): Promise<{ publishId: string; url?: string; rawResponse: any }> {
+  private async schedulePublish(
+    mediaId: string,
+    publishAt: Date,
+  ): Promise<{ publishId: string; url?: string; rawResponse: any }> {
     // 微信定时发布API
     const response = await this.http.post('/message/mass/send', {
       touser: [], // 空数组表示发给所有用户
@@ -404,7 +443,12 @@ export class WechatAdapter implements PlatformAdapter {
   /**
    * 获取公众号用户列表（测试用）
    */
-  async getUsers(nextOpenId?: string): Promise<{ total: number; count: number; data: { openid: string[] }; next_openid: string }> {
+  async getUsers(nextOpenId?: string): Promise<{
+    total: number;
+    count: number;
+    data: { openid: string[] };
+    next_openid: string;
+  }> {
     const response = await this.http.get('/user/get', {
       params: nextOpenId ? { next_openid: nextOpenId } : {},
     });
@@ -414,7 +458,11 @@ export class WechatAdapter implements PlatformAdapter {
   /**
    * 获取素材列表
    */
-  async getMaterials(type: 'image' | 'video' | 'voice' | 'news', offset = 0, count = 20): Promise<any> {
+  async getMaterials(
+    type: 'image' | 'video' | 'voice' | 'news',
+    offset = 0,
+    count = 20,
+  ): Promise<any> {
     const response = await this.http.post('/material/batchget_material', {
       type,
       offset,

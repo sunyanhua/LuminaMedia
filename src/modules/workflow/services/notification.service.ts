@@ -26,7 +26,9 @@ export class NotificationService {
    */
   async sendNotification(notification: Notification): Promise<boolean> {
     try {
-      this.logger.debug(`Sending notification: ${notification.id} via channels: ${notification.channels.join(', ')}`);
+      this.logger.debug(
+        `Sending notification: ${notification.id} via channels: ${notification.channels.join(', ')}`,
+      );
 
       // 根据渠道发送通知
       for (const channel of notification.channels) {
@@ -65,10 +67,16 @@ export class NotificationService {
       this.logger.log(`Notification sent successfully: ${notification.id}`);
       return true;
     } catch (error) {
-      this.logger.error(`Failed to send notification ${notification.id}: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to send notification ${notification.id}: ${error.message}`,
+        error.stack,
+      );
 
       // 标记为失败
-      await this.notificationRepository.markAsFailed(notification.id, error.message);
+      await this.notificationRepository.markAsFailed(
+        notification.id,
+        error.message,
+      );
 
       // 检查是否需要重试
       if (notification.retryCount < notification.maxRetries) {
@@ -86,7 +94,9 @@ export class NotificationService {
   /**
    * 批量发送通知
    */
-  async sendNotifications(notifications: Notification[]): Promise<{ success: number; failed: number }> {
+  async sendNotifications(
+    notifications: Notification[],
+  ): Promise<{ success: number; failed: number }> {
     let success = 0;
     let failed = 0;
 
@@ -116,7 +126,8 @@ export class NotificationService {
     priority?: number;
     metadata?: any;
   }): Promise<Notification> {
-    const notification = await this.notificationRepository.createNotification(data);
+    const notification =
+      await this.notificationRepository.createNotification(data);
     await this.sendNotification(notification);
     return notification;
   }
@@ -131,14 +142,20 @@ export class NotificationService {
   /**
    * 标记通知为已读
    */
-  async markNotificationAsRead(notificationId: string, userId: string): Promise<void> {
-    const notification = await this.notificationRepository.findById(notificationId);
+  async markNotificationAsRead(
+    notificationId: string,
+    userId: string,
+  ): Promise<void> {
+    const notification =
+      await this.notificationRepository.findById(notificationId);
     if (!notification) {
       throw new Error(`Notification not found: ${notificationId}`);
     }
 
     if (notification.recipientId !== userId) {
-      throw new Error('User does not have permission to mark this notification as read');
+      throw new Error(
+        'User does not have permission to mark this notification as read',
+      );
     }
 
     await this.notificationRepository.markAsRead(notificationId);
@@ -147,14 +164,20 @@ export class NotificationService {
   /**
    * 标记通知为已处理
    */
-  async markNotificationAsActioned(notificationId: string, userId: string): Promise<void> {
-    const notification = await this.notificationRepository.findById(notificationId);
+  async markNotificationAsActioned(
+    notificationId: string,
+    userId: string,
+  ): Promise<void> {
+    const notification =
+      await this.notificationRepository.findById(notificationId);
     if (!notification) {
       throw new Error(`Notification not found: ${notificationId}`);
     }
 
     if (notification.recipientId !== userId) {
-      throw new Error('User does not have permission to mark this notification as actioned');
+      throw new Error(
+        'User does not have permission to mark this notification as actioned',
+      );
     }
 
     await this.notificationRepository.markAsActioned(notificationId);
@@ -163,14 +186,20 @@ export class NotificationService {
   /**
    * 删除用户通知
    */
-  async deleteUserNotification(notificationId: string, userId: string): Promise<void> {
-    const notification = await this.notificationRepository.findById(notificationId);
+  async deleteUserNotification(
+    notificationId: string,
+    userId: string,
+  ): Promise<void> {
+    const notification =
+      await this.notificationRepository.findById(notificationId);
     if (!notification) {
       throw new Error(`Notification not found: ${notificationId}`);
     }
 
     if (notification.recipientId !== userId) {
-      throw new Error('User does not have permission to delete this notification');
+      throw new Error(
+        'User does not have permission to delete this notification',
+      );
     }
 
     await this.notificationRepository.deleteById(notificationId);
@@ -184,20 +213,29 @@ export class NotificationService {
     try {
       this.logger.debug('Processing pending notifications...');
 
-      const pendingNotifications = await this.notificationRepository.findPendingNotifications();
-      this.logger.debug(`Found ${pendingNotifications.length} pending notifications`);
+      const pendingNotifications =
+        await this.notificationRepository.findPendingNotifications();
+      this.logger.debug(
+        `Found ${pendingNotifications.length} pending notifications`,
+      );
 
       const now = new Date();
       const notificationsToSend = pendingNotifications.filter(
-        notification => !notification.nextSendAt || notification.nextSendAt <= now,
+        (notification) =>
+          !notification.nextSendAt || notification.nextSendAt <= now,
       );
 
       if (notificationsToSend.length > 0) {
         const result = await this.sendNotifications(notificationsToSend);
-        this.logger.log(`Sent ${result.success} notifications, ${result.failed} failed`);
+        this.logger.log(
+          `Sent ${result.success} notifications, ${result.failed} failed`,
+        );
       }
     } catch (error) {
-      this.logger.error(`Error processing pending notifications: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error processing pending notifications: ${error.message}`,
+        error.stack,
+      );
     }
   }
 
@@ -209,15 +247,23 @@ export class NotificationService {
     try {
       this.logger.debug('Retrying failed notifications...');
 
-      const failedNotifications = await this.notificationRepository.findRetryNotifications();
-      this.logger.debug(`Found ${failedNotifications.length} notifications to retry`);
+      const failedNotifications =
+        await this.notificationRepository.findRetryNotifications();
+      this.logger.debug(
+        `Found ${failedNotifications.length} notifications to retry`,
+      );
 
       if (failedNotifications.length > 0) {
         const result = await this.sendNotifications(failedNotifications);
-        this.logger.log(`Retried ${result.success} notifications, ${result.failed} still failed`);
+        this.logger.log(
+          `Retried ${result.success} notifications, ${result.failed} still failed`,
+        );
       }
     } catch (error) {
-      this.logger.error(`Error retrying failed notifications: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error retrying failed notifications: ${error.message}`,
+        error.stack,
+      );
     }
   }
 
@@ -229,10 +275,14 @@ export class NotificationService {
     try {
       this.logger.debug('Cleaning up old notifications...');
 
-      const deletedCount = await this.notificationRepository.deleteOldNotifications(30);
+      const deletedCount =
+        await this.notificationRepository.deleteOldNotifications(30);
       this.logger.log(`Deleted ${deletedCount} old notifications`);
     } catch (error) {
-      this.logger.error(`Error cleaning up old notifications: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error cleaning up old notifications: ${error.message}`,
+        error.stack,
+      );
     }
   }
 
@@ -241,29 +291,37 @@ export class NotificationService {
   /**
    * 发送应用内通知
    */
-  private async sendInAppNotification(notification: Notification): Promise<void> {
+  private async sendInAppNotification(
+    notification: Notification,
+  ): Promise<void> {
     // 这里实现应用内通知逻辑，例如：
     // 1. 将通知推送到WebSocket
     // 2. 存储到用户的通知中心
     // 3. 触发前端事件
 
-    this.logger.debug(`In-app notification sent: ${notification.title} to user ${notification.recipientId}`);
+    this.logger.debug(
+      `In-app notification sent: ${notification.title} to user ${notification.recipientId}`,
+    );
 
     // 模拟发送延迟
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   /**
    * 发送邮件通知
    */
-  private async sendEmailNotification(notification: Notification): Promise<void> {
+  private async sendEmailNotification(
+    notification: Notification,
+  ): Promise<void> {
     // 这里实现邮件发送逻辑
     // 可以使用Nodemailer或其他邮件服务
 
-    this.logger.debug(`Email notification sent: ${notification.title} to user ${notification.recipientId}`);
+    this.logger.debug(
+      `Email notification sent: ${notification.title} to user ${notification.recipientId}`,
+    );
 
     // 模拟发送延迟
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
   /**
@@ -273,36 +331,46 @@ export class NotificationService {
     // 这里实现短信发送逻辑
     // 可以使用阿里云、腾讯云等短信服务
 
-    this.logger.debug(`SMS notification sent: ${notification.title} to user ${notification.recipientId}`);
+    this.logger.debug(
+      `SMS notification sent: ${notification.title} to user ${notification.recipientId}`,
+    );
 
     // 模拟发送延迟
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 300));
   }
 
   /**
    * 发送微信通知
    */
-  private async sendWechatNotification(notification: Notification): Promise<void> {
+  private async sendWechatNotification(
+    notification: Notification,
+  ): Promise<void> {
     // 这里实现微信通知逻辑
     // 可以使用企业微信、微信公众号等
 
-    this.logger.debug(`WeChat notification sent: ${notification.title} to user ${notification.recipientId}`);
+    this.logger.debug(
+      `WeChat notification sent: ${notification.title} to user ${notification.recipientId}`,
+    );
 
     // 模拟发送延迟
-    await new Promise(resolve => setTimeout(resolve, 400));
+    await new Promise((resolve) => setTimeout(resolve, 400));
   }
 
   /**
    * 发送钉钉通知
    */
-  private async sendDingtalkNotification(notification: Notification): Promise<void> {
+  private async sendDingtalkNotification(
+    notification: Notification,
+  ): Promise<void> {
     // 这里实现钉钉通知逻辑
     // 可以使用钉钉机器人、钉钉工作通知等
 
-    this.logger.debug(`DingTalk notification sent: ${notification.title} to user ${notification.recipientId}`);
+    this.logger.debug(
+      `DingTalk notification sent: ${notification.title} to user ${notification.recipientId}`,
+    );
 
     // 模拟发送延迟
-    await new Promise(resolve => setTimeout(resolve, 400));
+    await new Promise((resolve) => setTimeout(resolve, 400));
   }
 
   /**

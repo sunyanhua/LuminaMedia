@@ -21,9 +21,7 @@ import { AIImageGeneratorService } from './services/ai-image-generator.service';
 // import { PublishRecordRepository } from './repositories/publish-record.repository';
 
 @Module({
-  imports: [
-    EventEmitterModule.forRoot(),
-  ],
+  imports: [EventEmitterModule.forRoot()],
   controllers: [
     // PublishController,
   ],

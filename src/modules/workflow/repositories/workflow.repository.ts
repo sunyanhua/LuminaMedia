@@ -7,7 +7,11 @@ import { DataSource } from 'typeorm';
 @Injectable()
 export class WorkflowRepository extends TenantRepository<Workflow> {
   constructor(private dataSource: DataSource) {
-    super(Workflow, dataSource.createEntityManager(), dataSource.createQueryRunner());
+    super(
+      Workflow,
+      dataSource.createEntityManager(),
+      dataSource.createQueryRunner(),
+    );
   }
 
   /**
@@ -21,7 +25,10 @@ export class WorkflowRepository extends TenantRepository<Workflow> {
    * 根据创建者查找工作流
    */
   async findByCreator(userId: string): Promise<Workflow[]> {
-    return this.find({ where: { createdBy: userId }, order: { createdAt: 'DESC' } });
+    return this.find({
+      where: { createdBy: userId },
+      order: { createdAt: 'DESC' },
+    });
   }
 
   /**
@@ -39,7 +46,9 @@ export class WorkflowRepository extends TenantRepository<Workflow> {
         ],
       })
       .andWhere('node.assignedTo = :userId', { userId })
-      .andWhere('node.status = :nodeStatus', { nodeStatus: WorkflowStatus.EDITOR_REVIEW })
+      .andWhere('node.status = :nodeStatus', {
+        nodeStatus: WorkflowStatus.EDITOR_REVIEW,
+      })
       .orderBy('workflow.priority', 'DESC')
       .addOrderBy('workflow.createdAt', 'ASC');
 
@@ -50,7 +59,10 @@ export class WorkflowRepository extends TenantRepository<Workflow> {
    * 查找加急工作流
    */
   async findExpedited(): Promise<Workflow[]> {
-    return this.find({ where: { isExpedited: true }, order: { priority: 'DESC' } });
+    return this.find({
+      where: { isExpedited: true },
+      order: { priority: 'DESC' },
+    });
   }
 
   /**
@@ -63,13 +75,16 @@ export class WorkflowRepository extends TenantRepository<Workflow> {
       .groupBy('workflow.status')
       .getRawMany();
 
-    const stats: Record<WorkflowStatus, number> = {} as Record<WorkflowStatus, number>;
+    const stats: Record<WorkflowStatus, number> = {} as Record<
+      WorkflowStatus,
+      number
+    >;
     // 初始化所有状态为0
-    Object.values(WorkflowStatus).forEach(status => {
+    Object.values(WorkflowStatus).forEach((status) => {
       stats[status] = 0;
     });
 
-    result.forEach(row => {
+    result.forEach((row) => {
       stats[row.status as WorkflowStatus] = parseInt(row.count, 10);
     });
 

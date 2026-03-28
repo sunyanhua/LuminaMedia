@@ -1,5 +1,13 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsBoolean, IsNumber, IsDate, IsEnum, IsArray } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsNumber,
+  IsDate,
+  IsEnum,
+  IsArray,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { WorkflowStatus } from '../../../shared/enums/workflow-status.enum';
 
@@ -12,7 +20,7 @@ export class WorkflowFilterDto {
   @ApiPropertyOptional({
     type: [WorkflowStatus],
     enumName: 'WorkflowStatus',
-    description: '工作流状态列表'
+    description: '工作流状态列表',
   })
   @IsOptional()
   @IsArray()

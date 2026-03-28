@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PublishService } from './publish.service';
 import { PlatformAdapterFactory } from '../adapters/platform-adapter.factory';
-import { PlatformType, PublishContentInput, PublishStatusType } from '../interfaces/platform-adapter.interface';
+import {
+  PlatformType,
+  PublishContentInput,
+  PublishStatusType,
+} from '../interfaces/platform-adapter.interface';
 import { WechatFormatterService } from './wechat-formatter.service';
 import { AIImageGeneratorService } from './ai-image-generator.service';
 
@@ -63,18 +67,20 @@ const mockXHSAdapter = {
 
 // Mock services
 const mockWechatFormatterService = {
-  formatContent: jest.fn().mockResolvedValue({
-    html: '<p>Formatted content</p>',
-    plainText: 'Formatted content',
-    wordCount: 2,
-    imageCount: 0,
-    qualityReport: {
-      score: 85,
-      issues: [],
-      suggestions: [],
-    },
-    formattedAt: new Date(),
-  }),
+  formatContent: jest.fn().mockImplementation((content) =>
+    Promise.resolve({
+      html: content.content || '<p>Formatted content</p>',
+      plainText: content.content || 'Formatted content',
+      wordCount: (content.content || '').split(/\s+/).length || 2,
+      imageCount: 0,
+      qualityReport: {
+        score: 85,
+        issues: [],
+        suggestions: [],
+      },
+      formattedAt: new Date(),
+    }),
+  ),
 };
 
 const mockAiImageGeneratorService = {
@@ -101,10 +107,13 @@ describe('PublishService', () => {
             ),
             initializeAdapters: jest.fn().mockResolvedValue(undefined),
             cleanupAdapters: jest.fn().mockResolvedValue(undefined),
-            validateConfig: jest.fn().mockReturnValue({ valid: true, errors: [] }),
+            validateConfig: jest
+              .fn()
+              .mockReturnValue({ valid: true, errors: [] }),
             createAdapter: jest.fn().mockImplementation((config) => {
               if (config.type === PlatformType.WECHAT) return mockWechatAdapter;
-              if (config.type === PlatformType.XIAOHONGSHU) return mockXHSAdapter;
+              if (config.type === PlatformType.XIAOHONGSHU)
+                return mockXHSAdapter;
               throw new Error(`Unknown platform type: ${config.type}`);
             }),
           },
@@ -154,14 +163,29 @@ describe('PublishService', () => {
     };
 
     it('should publish content to a single platform', async () => {
-      const result = await service.publishToPlatform(PlatformType.WECHAT, mockContent);
+      const result = await service.publishToPlatform(
+        PlatformType.WECHAT,
+        mockContent,
+      );
 
-      expect(mockWechatAdapter.publishContent).toHaveBeenCalledWith(mockContent);
+      expect(mockWechatAdapter.publishContent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: mockContent.title,
+          coverImages: mockContent.coverImages,
+          tags: mockContent.tags,
+        }),
+      );
       expect(result.publishId).toBe('wechat_123');
       expect(result.platform).toBe(PlatformType.WECHAT);
       expect(result.status).toBe(PublishStatusType.PUBLISHED);
-      expect(eventEmitter.emit).toHaveBeenCalledWith('publish.before', expect.any(Object));
-      expect(eventEmitter.emit).toHaveBeenCalledWith('publish.after', expect.any(Object));
+      expect(eventEmitter.emit).toHaveBeenCalledWith(
+        'publish.before',
+        expect.any(Object),
+      );
+      expect(eventEmitter.emit).toHaveBeenCalledWith(
+        'publish.after',
+        expect.any(Object),
+      );
     });
 
     it('should throw error when platform adapter is not available', async () => {
@@ -169,7 +193,7 @@ describe('PublishService', () => {
 
       await expect(
         service.publishToPlatform(PlatformType.WECHAT, mockContent),
-      ).rejects.toThrow('No adapter available for platform: WECHAT');
+      ).rejects.toThrow('No adapter available for platform: wechat');
     });
 
     it('should emit failure event when publish fails', async () => {
@@ -180,8 +204,14 @@ describe('PublishService', () => {
         service.publishToPlatform(PlatformType.WECHAT, mockContent),
       ).rejects.toThrow('Publish failed');
 
-      expect(eventEmitter.emit).toHaveBeenCalledWith('publish.before', expect.any(Object));
-      expect(eventEmitter.emit).toHaveBeenCalledWith('publish.failed', expect.any(Object));
+      expect(eventEmitter.emit).toHaveBeenCalledWith(
+        'publish.before',
+        expect.any(Object),
+      );
+      expect(eventEmitter.emit).toHaveBeenCalledWith(
+        'publish.failed',
+        expect.any(Object),
+      );
     });
   });
 
@@ -195,30 +225,48 @@ describe('PublishService', () => {
       const platforms = [PlatformType.WECHAT, PlatformType.XIAOHONGSHU];
       const results = await service.publishToPlatforms(platforms, mockContent);
 
-      expect(mockWechatAdapter.publishContent).toHaveBeenCalledWith(mockContent);
-      expect(mockXHSAdapter.publishContent).toHaveBeenCalledWith(mockContent);
+      expect(mockWechatAdapter.publishContent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: mockContent.title,
+        }),
+      );
+      expect(mockXHSAdapter.publishContent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: mockContent.title,
+        }),
+      );
       expect(results.size).toBe(2);
       expect(results.get(PlatformType.WECHAT)?.publishId).toBe('wechat_123');
       expect(results.get(PlatformType.XIAOHONGSHU)?.publishId).toBe('xhs_456');
     });
 
     it('should handle partial failures gracefully', async () => {
-      mockWechatAdapter.publishContent.mockRejectedValueOnce(new Error('WeChat API error'));
+      mockWechatAdapter.publishContent.mockRejectedValueOnce(
+        new Error('WeChat API error'),
+      );
 
       const platforms = [PlatformType.WECHAT, PlatformType.XIAOHONGSHU];
       const results = await service.publishToPlatforms(platforms, mockContent);
 
       expect(results.size).toBe(1); // Only XHS succeeded
       expect(results.get(PlatformType.XIAOHONGSHU)?.publishId).toBe('xhs_456');
-      expect(eventEmitter.emit).toHaveBeenCalledWith('publish.partial_failure', expect.any(Object));
+      expect(eventEmitter.emit).toHaveBeenCalledWith(
+        'publish.partial_failure',
+        expect.any(Object),
+      );
     });
   });
 
   describe('getPublishStatus', () => {
     it('should get publish status from adapter', async () => {
-      const status = await service.getPublishStatus(PlatformType.WECHAT, 'wechat_123');
+      const status = await service.getPublishStatus(
+        PlatformType.WECHAT,
+        'wechat_123',
+      );
 
-      expect(mockWechatAdapter.getPublishStatus).toHaveBeenCalledWith('wechat_123');
+      expect(mockWechatAdapter.getPublishStatus).toHaveBeenCalledWith(
+        'wechat_123',
+      );
       expect(status.publishId).toBe('wechat_123');
       expect(status.status).toBe(PublishStatusType.PUBLISHED);
     });
@@ -228,8 +276,13 @@ describe('PublishService', () => {
     it('should delete content from platform', async () => {
       await service.deleteContent(PlatformType.WECHAT, 'wechat_123');
 
-      expect(mockWechatAdapter.deleteContent).toHaveBeenCalledWith('wechat_123');
-      expect(eventEmitter.emit).toHaveBeenCalledWith('publish.deleted', expect.any(Object));
+      expect(mockWechatAdapter.deleteContent).toHaveBeenCalledWith(
+        'wechat_123',
+      );
+      expect(eventEmitter.emit).toHaveBeenCalledWith(
+        'publish.deleted',
+        expect.any(Object),
+      );
     });
   });
 
@@ -248,7 +301,9 @@ describe('PublishService', () => {
 
       expect(healthStatuses.size).toBe(2);
       expect(healthStatuses.get(PlatformType.WECHAT)?.status).toBe('healthy');
-      expect(healthStatuses.get(PlatformType.XIAOHONGSHU)?.status).toBe('healthy');
+      expect(healthStatuses.get(PlatformType.XIAOHONGSHU)?.status).toBe(
+        'healthy',
+      );
     });
   });
 

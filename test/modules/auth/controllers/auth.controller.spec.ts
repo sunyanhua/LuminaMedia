@@ -5,6 +5,7 @@ import { LoginDto } from '../../../../src/modules/auth/dto/login.dto';
 import { RegisterDto } from '../../../../src/modules/auth/dto/register.dto';
 import { RefreshTokenDto } from '../../../../src/modules/auth/dto/refresh-token.dto';
 import { UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Request } from 'express';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -190,7 +191,7 @@ describe('AuthController', () => {
           email: 'test@example.com',
           tenantId: 'tenant-id',
         },
-      };
+      } as unknown as Request & { user: { id: string } };
       const expectedResult = {
         id: 'user-id',
         username: 'testuser',
@@ -218,9 +219,9 @@ describe('AuthController', () => {
         new UnauthorizedException(),
       );
 
-      await expect(controller.getProfile(mockRequest)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(
+        controller.getProfile(mockRequest as unknown as Request),
+      ).rejects.toThrow(UnauthorizedException);
       expect(authService.getProfile).toHaveBeenCalledWith('non-existent-id');
     });
 

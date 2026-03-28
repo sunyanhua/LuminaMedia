@@ -29,6 +29,9 @@ import { DataEngineModule } from './modules/data-engine/data-engine.module';
 import { AIEngineModule } from './modules/ai-engine/ai-engine.module';
 import { WorkflowModule } from './modules/workflow/workflow.module';
 import { PublishModule } from './modules/publish/publish.module';
+import { KnowledgeModule } from './modules/knowledge/knowledge.module';
+import { MonitorModule } from './modules/monitor/monitor.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -86,6 +89,9 @@ import { PublishModule } from './modules/publish/publish.module';
     AIEngineModule,
     WorkflowModule,
     PublishModule,
+    KnowledgeModule,
+    MonitorModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

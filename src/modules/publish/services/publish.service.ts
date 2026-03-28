@@ -1,4 +1,11 @@
-import { Injectable, Logger, Inject, forwardRef, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  Inject,
+  forwardRef,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PlatformAdapterFactory } from '../adapters/platform-adapter.factory';
 import {
@@ -10,8 +17,14 @@ import {
   PlatformConfig,
   PublishStatusType,
 } from '../interfaces/platform-adapter.interface';
-import { WechatFormatterService, WechatFormatOptions } from './wechat-formatter.service';
-import { AIImageGeneratorService, ImageGenerationOptions } from './ai-image-generator.service';
+import {
+  WechatFormatterService,
+  WechatFormatOptions,
+} from './wechat-formatter.service';
+import {
+  AIImageGeneratorService,
+  ImageGenerationOptions,
+} from './ai-image-generator.service';
 
 /**
  * 发布服务
@@ -45,9 +58,14 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
       this.adapters = this.adapterFactory.createAdapters(this.platformConfigs);
       await this.adapterFactory.initializeAdapters(this.adapters);
 
-      this.logger.log(`PublishService initialized with ${this.adapters.size} platform adapters`);
+      this.logger.log(
+        `PublishService initialized with ${this.adapters.size} platform adapters`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to initialize PublishService: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to initialize PublishService: ${error.message}`,
+        error.stack,
+      );
       // 即使初始化失败，服务仍然可以运行（适配器可以稍后动态添加）
     }
   }
@@ -101,10 +119,15 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
       // 记录发布结果（这里应该保存到数据库）
       await this.recordPublishResult(platformType, processedContent, result);
 
-      this.logger.log(`Content published to ${platformType}, publishId: ${result.publishId}`);
+      this.logger.log(
+        `Content published to ${platformType}, publishId: ${result.publishId}`,
+      );
       return result;
     } catch (error) {
-      this.logger.error(`Failed to publish content to ${platformType}: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to publish content to ${platformType}: ${error.message}`,
+        error.stack,
+      );
 
       // 触发发布失败事件
       this.eventEmitter.emit('publish.failed', {
@@ -137,7 +160,9 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
         results.set(platformType, result);
       } catch (error) {
         errors.push({ platform: platformType, error: error.message });
-        this.logger.error(`Failed to publish to ${platformType}: ${error.message}`);
+        this.logger.error(
+          `Failed to publish to ${platformType}: ${error.message}`,
+        );
       }
     });
 
@@ -145,7 +170,9 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
 
     // 如果有错误，记录但继续返回成功的结果
     if (errors.length > 0) {
-      this.logger.warn(`Publish completed with ${errors.length} errors out of ${platformTypes.length} platforms`);
+      this.logger.warn(
+        `Publish completed with ${errors.length} errors out of ${platformTypes.length} platforms`,
+      );
       // 触发部分失败事件
       this.eventEmitter.emit('publish.partial_failure', {
         content,
@@ -154,7 +181,9 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
         timestamp: new Date(),
       });
     } else {
-      this.logger.log(`Successfully published to all ${platformTypes.length} platforms`);
+      this.logger.log(
+        `Successfully published to all ${platformTypes.length} platforms`,
+      );
     }
 
     return results;
@@ -163,7 +192,9 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
   /**
    * 发布内容到所有可用平台
    */
-  async publishToAllPlatforms(content: PublishContentInput): Promise<Map<PlatformType, PublishResult>> {
+  async publishToAllPlatforms(
+    content: PublishContentInput,
+  ): Promise<Map<PlatformType, PublishResult>> {
     const enabledPlatforms = this.getEnabledPlatforms();
     return this.publishToPlatforms(enabledPlatforms, content);
   }
@@ -190,11 +221,18 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
     publishRecords: Array<{ platformType: PlatformType; publishId: string }>,
   ): Promise<Map<PlatformType, PublishStatus>> {
     const statuses = new Map<PlatformType, PublishStatus>();
-    const errors: Array<{ platform: PlatformType; publishId: string; error: string }> = [];
+    const errors: Array<{
+      platform: PlatformType;
+      publishId: string;
+      error: string;
+    }> = [];
 
     const statusPromises = publishRecords.map(async (record) => {
       try {
-        const status = await this.getPublishStatus(record.platformType, record.publishId);
+        const status = await this.getPublishStatus(
+          record.platformType,
+          record.publishId,
+        );
         statuses.set(record.platformType, status);
       } catch (error) {
         errors.push({
@@ -208,7 +246,9 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
     await Promise.allSettled(statusPromises);
 
     if (errors.length > 0) {
-      this.logger.warn(`Failed to get status for ${errors.length} publish records`);
+      this.logger.warn(
+        `Failed to get status for ${errors.length} publish records`,
+      );
     }
 
     return statuses;
@@ -236,9 +276,14 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
         timestamp: new Date(),
       });
 
-      this.logger.log(`Content deleted from ${platformType}, publishId: ${publishId}`);
+      this.logger.log(
+        `Content deleted from ${platformType}, publishId: ${publishId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to delete content from ${platformType}: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to delete content from ${platformType}: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -256,7 +301,9 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
         await this.deleteContent(record.platformType, record.publishId);
         results.set(record.platformType, true);
       } catch (error) {
-        this.logger.error(`Failed to delete content from ${record.platformType}: ${error.message}`);
+        this.logger.error(
+          `Failed to delete content from ${record.platformType}: ${error.message}`,
+        );
         results.set(record.platformType, false);
       }
     });
@@ -288,7 +335,9 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
         const health = await adapter.healthCheck();
         healthStatuses.set(platformType, health);
       } catch (error) {
-        this.logger.error(`Failed to get health for platform ${platformType}: ${error.message}`);
+        this.logger.error(
+          `Failed to get health for platform ${platformType}: ${error.message}`,
+        );
         healthStatuses.set(platformType, {
           status: 'unhealthy',
           message: `Failed to check health: ${error.message}`,
@@ -323,7 +372,9 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
         const platformStats = await adapter.getPlatformStats();
         stats.set(platformType, platformStats);
       } catch (error) {
-        this.logger.error(`Failed to get stats for platform ${platformType}: ${error.message}`);
+        this.logger.error(
+          `Failed to get stats for platform ${platformType}: ${error.message}`,
+        );
       }
     }
 
@@ -337,11 +388,15 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
     // 验证配置
     const validation = this.adapterFactory.validateConfig(config);
     if (!validation.valid) {
-      throw new Error(`Invalid platform config: ${validation.errors.join(', ')}`);
+      throw new Error(
+        `Invalid platform config: ${validation.errors.join(', ')}`,
+      );
     }
 
     // 检查是否已存在
-    const existingIndex = this.platformConfigs.findIndex(c => c.type === config.type);
+    const existingIndex = this.platformConfigs.findIndex(
+      (c) => c.type === config.type,
+    );
     if (existingIndex >= 0) {
       // 更新现有配置
       this.platformConfigs[existingIndex] = config;
@@ -357,14 +412,18 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
       const adapter = this.adapterFactory.createAdapter(config);
       await adapter.initialize();
       this.adapters.set(config.type, adapter);
-      this.logger.log(`Adapter created and initialized for platform: ${config.type}`);
+      this.logger.log(
+        `Adapter created and initialized for platform: ${config.type}`,
+      );
     } else {
       // 如果禁用，移除适配器
       if (this.adapters.has(config.type)) {
         const adapter = this.adapters.get(config.type)!;
         await adapter.cleanup();
         this.adapters.delete(config.type);
-        this.logger.log(`Adapter removed for disabled platform: ${config.type}`);
+        this.logger.log(
+          `Adapter removed for disabled platform: ${config.type}`,
+        );
       }
     }
   }
@@ -381,7 +440,9 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
     }
 
     // 移除配置
-    this.platformConfigs = this.platformConfigs.filter(c => c.type !== platformType);
+    this.platformConfigs = this.platformConfigs.filter(
+      (c) => c.type !== platformType,
+    );
     this.logger.log(`Removed platform config for: ${platformType}`);
   }
 
@@ -397,8 +458,8 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
    */
   getEnabledPlatforms(): PlatformType[] {
     return this.platformConfigs
-      .filter(config => config.enabled)
-      .map(config => config.type);
+      .filter((config) => config.enabled)
+      .map((config) => config.type);
   }
 
   /**
@@ -456,7 +517,9 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
   ): Promise<void> {
     // 这里应该将发布结果保存到数据库
     // 暂时只记录日志
-    this.logger.log(`Publish recorded: ${platformType} - ${result.publishId} - ${result.status}`);
+    this.logger.log(
+      `Publish recorded: ${platformType} - ${result.publishId} - ${result.status}`,
+    );
 
     // 示例数据库记录：
     // const publishRecord = {
@@ -518,13 +581,17 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
         };
 
         // 2. 如果没有封面图，生成AI图片建议
-        if ((!processedContent.coverImages || processedContent.coverImages.length === 0) &&
-            formattedResult.qualityReport.score >= 60) {
+        if (
+          (!processedContent.coverImages ||
+            processedContent.coverImages.length === 0) &&
+          formattedResult.qualityReport.score >= 60
+        ) {
           try {
-            const imageSuggestions = await this.aiImageGeneratorService.generateImageSuggestions(
-              formattedResult.plainText,
-              3, // 生成3个建议
-            );
+            const imageSuggestions =
+              await this.aiImageGeneratorService.generateImageSuggestions(
+                formattedResult.plainText,
+                3, // 生成3个建议
+              );
 
             if (imageSuggestions.length > 0) {
               // 选择相关性最高的图片
@@ -534,7 +601,7 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
                 // 暂时记录建议，实际使用需要进一步处理
                 processedContent.metadata = {
                   ...processedContent.metadata,
-                  aiImageSuggestions: imageSuggestions.map(suggestion => ({
+                  aiImageSuggestions: imageSuggestions.map((suggestion) => ({
                     prompt: suggestion.prompt,
                     description: suggestion.description,
                     relevanceScore: suggestion.relevanceScore,
@@ -542,18 +609,27 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
                   })),
                 };
 
-                this.logger.log(`AI image suggestions generated for WeChat content: ${imageSuggestions.length} options`);
+                this.logger.log(
+                  `AI image suggestions generated for WeChat content: ${imageSuggestions.length} options`,
+                );
               }
             }
           } catch (imageError) {
-            this.logger.warn(`Failed to generate AI image suggestions: ${imageError.message}`);
+            this.logger.warn(
+              `Failed to generate AI image suggestions: ${imageError.message}`,
+            );
             // 不影响主要发布流程
           }
         }
 
-        this.logger.log(`WeChat content preprocessed: quality score ${formattedResult.qualityReport.score}`);
+        this.logger.log(
+          `WeChat content preprocessed: quality score ${formattedResult.qualityReport.score}`,
+        );
       } catch (formatError) {
-        this.logger.error(`Failed to preprocess WeChat content: ${formatError.message}`, formatError.stack);
+        this.logger.error(
+          `Failed to preprocess WeChat content: ${formatError.message}`,
+          formatError.stack,
+        );
         // 预处理失败不影响发布，使用原始内容
       }
     }
@@ -567,7 +643,10 @@ export class PublishService implements OnModuleInit, OnModuleDestroy {
   /**
    * 验证发布内容
    */
-  private validatePublishContent(content: PublishContentInput): { valid: boolean; errors: string[] } {
+  private validatePublishContent(content: PublishContentInput): {
+    valid: boolean;
+    errors: string[];
+  } {
     const errors: string[] = [];
 
     if (!content.title || content.title.trim().length === 0) {

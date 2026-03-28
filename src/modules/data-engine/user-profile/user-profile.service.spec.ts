@@ -97,7 +97,7 @@ describe('UserProfileService', () => {
 
       const filters = {
         basicLifecycle: {
-          ageGroup: '26-35',
+          ageGroup: '26-35' as const,
         },
       };
 

@@ -1,5 +1,12 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsNumber, IsBoolean, IsDate, IsEnum } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  IsDate,
+  IsEnum,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { WorkflowStatus } from '../../../shared/enums/workflow-status.enum';
 

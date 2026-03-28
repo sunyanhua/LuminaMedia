@@ -7,30 +7,32 @@ import { DataSource } from 'typeorm';
 @Injectable()
 export class NotificationRepository extends TenantRepository<Notification> {
   constructor(private dataSource: DataSource) {
-    super(Notification, dataSource.createEntityManager(), dataSource.createQueryRunner());
+    super(
+      Notification,
+      dataSource.createEntityManager(),
+      dataSource.createQueryRunner(),
+    );
   }
 
   /**
    * 根据接收人ID查找通知
    */
   async findByRecipient(recipientId: string): Promise<Notification[]> {
-    return this.find({
-      where: { recipientId },
-      order: { createdAt: 'DESC' },
-    });
+    return this.createQueryBuilder('notification')
+      .where('notification.recipient_id = :recipientId', { recipientId })
+      .orderBy('notification.createdAt', 'DESC')
+      .getMany();
   }
 
   /**
    * 查找未读通知
    */
   async findUnreadByRecipient(recipientId: string): Promise<Notification[]> {
-    return this.find({
-      where: {
-        recipientId,
-        status: 'PENDING',
-      },
-      order: { createdAt: 'DESC' },
-    });
+    return this.createQueryBuilder('notification')
+      .where('notification.recipient_id = :recipientId', { recipientId })
+      .andWhere('notification.status = :status', { status: 'PENDING' })
+      .orderBy('notification.createdAt', 'DESC')
+      .getMany();
   }
 
   /**
@@ -44,20 +46,21 @@ export class NotificationRepository extends TenantRepository<Notification> {
    * 查找待发送的通知
    */
   async findPendingNotifications(): Promise<Notification[]> {
-    return this.find({
-      where: { status: 'PENDING' },
-      order: { priority: 'DESC', createdAt: 'ASC' },
-    });
+    return this.createQueryBuilder('notification')
+      .where('notification.status = :status', { status: 'PENDING' })
+      .orderBy('notification.priority', 'DESC')
+      .addOrderBy('notification.createdAt', 'ASC')
+      .getMany();
   }
 
   /**
    * 查找失败的通知
    */
   async findFailedNotifications(): Promise<Notification[]> {
-    return this.find({
-      where: { status: 'FAILED' },
-      order: { createdAt: 'DESC' },
-    });
+    return this.createQueryBuilder('notification')
+      .where('notification.status = :status', { status: 'FAILED' })
+      .orderBy('notification.createdAt', 'DESC')
+      .getMany();
   }
 
   /**
@@ -152,12 +155,15 @@ export class NotificationRepository extends TenantRepository<Notification> {
     const allNotifications = await this.findByRecipient(recipientId);
     const unreadNotifications = await this.findUnreadByRecipient(recipientId);
 
-    const byType: Record<NotificationType, number> = {} as Record<NotificationType, number>;
-    Object.values(NotificationType).forEach(type => {
+    const byType: Record<NotificationType, number> = {} as Record<
+      NotificationType,
+      number
+    >;
+    Object.values(NotificationType).forEach((type) => {
       byType[type] = 0;
     });
 
-    allNotifications.forEach(notification => {
+    allNotifications.forEach((notification) => {
       byType[notification.type] = (byType[notification.type] || 0) + 1;
     });
 

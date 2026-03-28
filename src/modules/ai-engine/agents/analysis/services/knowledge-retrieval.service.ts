@@ -100,7 +100,9 @@ export class KnowledgeRetrievalService {
       }
     }
 
-    this.logger.log(`知识库初始化完成，共加载 ${this.knowledgeBase.length} 条知识`);
+    this.logger.log(
+      `知识库初始化完成，共加载 ${this.knowledgeBase.length} 条知识`,
+    );
   }
 
   /**
@@ -356,19 +358,22 @@ ${baseAnalysis}
       }
 
       // 使用Gemini Embedding API
-      const response = await fetch('https://generativelanguage.googleapis.com/v1/models/embedding-001:embedContent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey,
-        },
-        body: JSON.stringify({
-          model: 'models/embedding-001',
-          content: {
-            parts: [{ text }],
+      const response = await fetch(
+        'https://generativelanguage.googleapis.com/v1/models/embedding-001:embedContent',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey,
           },
-        }),
-      });
+          body: JSON.stringify({
+            model: 'models/embedding-001',
+            content: {
+              parts: [{ text }],
+            },
+          }),
+        },
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -386,7 +391,10 @@ ${baseAnalysis}
     } catch (error) {
       this.logger.warn(`嵌入生成失败: ${error.message}，使用随机嵌入回退`);
       // 返回随机嵌入作为回退（仅用于开发）
-      const randomEmbedding = Array.from({ length: 768 }, () => Math.random() * 2 - 1);
+      const randomEmbedding = Array.from(
+        { length: 768 },
+        () => Math.random() * 2 - 1,
+      );
       this.embeddingsCache.set(cacheKey, randomEmbedding);
       return randomEmbedding;
     }
@@ -414,7 +422,11 @@ ${baseAnalysis}
   /**
    * 向量检索：基于嵌入相似度查找相关知识
    */
-  async retrieveByVector(query: string, industry: string, limit: number = 5): Promise<string[]> {
+  async retrieveByVector(
+    query: string,
+    industry: string,
+    limit: number = 5,
+  ): Promise<string[]> {
     this.logger.log(`向量检索: query="${query}", industry="${industry}"`);
 
     try {
@@ -422,8 +434,8 @@ ${baseAnalysis}
       const queryEmbedding = await this.generateEmbedding(query);
 
       // 筛选行业相关的知识
-      const industryKnowledge = this.knowledgeBase.filter(kb =>
-        kb.industry === industry || industry === '通用'
+      const industryKnowledge = this.knowledgeBase.filter(
+        (kb) => kb.industry === industry || industry === '通用',
       );
 
       if (industryKnowledge.length === 0) {
@@ -442,17 +454,19 @@ ${baseAnalysis}
           }
           const similarity = this.cosineSimilarity(queryEmbedding, embedding);
           return { ...kb, similarity };
-        })
+        }),
       );
 
       // 按相似度降序排序
       scoredKnowledge.sort((a, b) => b.similarity - a.similarity);
 
       // 返回前limit个结果
-      const rawResults = scoredKnowledge.slice(0, limit).map(kb => kb.text);
+      const rawResults = scoredKnowledge.slice(0, limit).map((kb) => kb.text);
       // 应用上下文窗口管理优化
       const results = this.manageContextWindow(rawResults);
-      this.logger.debug(`向量检索返回 ${results.length} 条结果（原始${rawResults.length}条），最高相似度: ${scoredKnowledge[0]?.similarity?.toFixed(3)}`);
+      this.logger.debug(
+        `向量检索返回 ${results.length} 条结果（原始${rawResults.length}条），最高相似度: ${scoredKnowledge[0]?.similarity?.toFixed(3)}`,
+      );
       return results;
     } catch (error) {
       this.logger.error(`向量检索失败: ${error.message}，回退到关键词检索`);
@@ -494,7 +508,9 @@ ${baseAnalysis}
       selectedTexts.push(firstText.substring(0, maxChars));
     }
 
-    this.logger.debug(`上下文窗口管理: 原始${knowledgeTexts.length}条，选择${selectedTexts.length}条，使用${totalTokens} tokens`);
+    this.logger.debug(
+      `上下文窗口管理: 原始${knowledgeTexts.length}条，选择${selectedTexts.length}条，使用${totalTokens} tokens`,
+    );
     return selectedTexts;
   }
 
@@ -506,12 +522,14 @@ ${baseAnalysis}
     retrievedKnowledge: string[],
     feedback: {
       relevanceScores?: number[]; // 每条结果的相关性评分（0-1）
-      clickedIndex?: number;      // 用户点击的结果索引
+      clickedIndex?: number; // 用户点击的结果索引
       searchSatisfaction?: number; // 搜索满意度（0-1）
     },
   ): Promise<void> {
     try {
-      this.logger.log(`记录知识库反馈: query="${query.substring(0, 50)}..."，满意度: ${feedback.searchSatisfaction ?? '未提供'}`);
+      this.logger.log(
+        `记录知识库反馈: query="${query.substring(0, 50)}..."，满意度: ${feedback.searchSatisfaction ?? '未提供'}`,
+      );
 
       // 存储反馈到数据库（此处仅日志记录，实际可存入数据库）
       const feedbackRecord = {
@@ -526,12 +544,16 @@ ${baseAnalysis}
       // 根据反馈调整知识库权重（简单示例）
       if (feedback.clickedIndex !== undefined && feedback.clickedIndex >= 0) {
         const clickedKnowledge = retrievedKnowledge[feedback.clickedIndex];
-        this.logger.log(`用户点击了索引 ${feedback.clickedIndex} 的知识: "${clickedKnowledge.substring(0, 100)}..."`);
+        this.logger.log(
+          `用户点击了索引 ${feedback.clickedIndex} 的知识: "${clickedKnowledge.substring(0, 100)}..."`,
+        );
         // 在实际应用中，可以增加该知识的权重或更新其嵌入表示
       }
 
       if (feedback.relevanceScores) {
-        const avgRelevance = feedback.relevanceScores.reduce((a, b) => a + b, 0) / feedback.relevanceScores.length;
+        const avgRelevance =
+          feedback.relevanceScores.reduce((a, b) => a + b, 0) /
+          feedback.relevanceScores.length;
         this.logger.log(`平均相关性评分: ${avgRelevance.toFixed(2)}`);
         // 可以根据评分调整检索算法参数
       }
@@ -543,7 +565,11 @@ ${baseAnalysis}
   /**
    * 关键词检索（原有逻辑）
    */
-  private retrieveByKeywords(query: string, industry: string, limit: number): string[] {
+  private retrieveByKeywords(
+    query: string,
+    industry: string,
+    limit: number,
+  ): string[] {
     // 复用原有的getMockKnowledge逻辑
     const rawResults = this.getMockKnowledge(query, industry, limit);
     // 应用上下文窗口管理优化

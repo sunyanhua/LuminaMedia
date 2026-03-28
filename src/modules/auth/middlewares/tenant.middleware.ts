@@ -20,7 +20,7 @@ export class TenantMiddleware implements NestMiddleware {
 
   use(req: TenantRequest, res: Response, next: NextFunction) {
     // 1. 尝试从JWT令牌获取tenantId（已认证用户）
-    const authHeader = req.headers.authorization;
+    const authHeader = (req as Request).headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
       try {
@@ -34,8 +34,8 @@ export class TenantMiddleware implements NestMiddleware {
     }
 
     // 2. 尝试从请求头获取（用于服务间调用或未认证请求）
-    if (!req.tenantId && req.headers['x-tenant-id']) {
-      req.tenantId = req.headers['x-tenant-id'] as string;
+    if (!req.tenantId && (req as Request).headers['x-tenant-id']) {
+      req.tenantId = (req as Request).headers['x-tenant-id'] as string;
     }
 
     // 3. 默认租户（如果都没有）

@@ -25,13 +25,17 @@ export class WechatFormatterService {
       h3: '<h3 style="font-size: 16px; font-weight: bold; color: #333; line-height: 1.4; margin: 16px 0 8px; border-left: 2px solid #faad14; padding-left: 10px;">$content</h3>',
     },
     // 正文模板
-    paragraph: '<p style="font-size: 15px; color: #555; line-height: 1.8; margin: 0 0 15px; text-align: justify;">$content</p>',
+    paragraph:
+      '<p style="font-size: 15px; color: #555; line-height: 1.8; margin: 0 0 15px; text-align: justify;">$content</p>',
     // 引用模板
-    blockquote: '<blockquote style="border-left: 4px solid #d9d9d9; margin: 15px 0; padding: 10px 15px; background-color: #f9f9f9; color: #666; font-style: italic;">$content</blockquote>',
+    blockquote:
+      '<blockquote style="border-left: 4px solid #d9d9d9; margin: 15px 0; padding: 10px 15px; background-color: #f9f9f9; color: #666; font-style: italic;">$content</blockquote>',
     // 代码块模板
     code: {
-      inline: '<code style="font-family: Consolas, Monaco, monospace; background-color: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-size: 14px; color: #c7254e;">$content</code>',
-      block: '<pre style="font-family: Consolas, Monaco, monospace; background-color: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 14px; line-height: 1.5; margin: 15px 0;"><code>$content</code></pre>',
+      inline:
+        '<code style="font-family: Consolas, Monaco, monospace; background-color: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-size: 14px; color: #c7254e;">$content</code>',
+      block:
+        '<pre style="font-family: Consolas, Monaco, monospace; background-color: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 14px; line-height: 1.5; margin: 15px 0;"><code>$content</code></pre>',
     },
     // 列表模板
     list: {
@@ -42,12 +46,16 @@ export class WechatFormatterService {
     // 分隔线
     hr: '<hr style="border: none; border-top: 1px solid #e8e8e8; margin: 20px 0;">',
     // 图片容器
-    image: '<div style="margin: 20px 0; text-align: center;"><img src="$src" alt="$alt" style="max-width: 100%; height: auto; border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"><p style="font-size: 13px; color: #999; margin-top: 8px;">$caption</p></div>',
+    image:
+      '<div style="margin: 20px 0; text-align: center;"><img src="$src" alt="$alt" style="max-width: 100%; height: auto; border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"><p style="font-size: 13px; color: #999; margin-top: 8px;">$caption</p></div>',
     // 表格模板
-    table: '<div style="overflow-x: auto; margin: 20px 0;"><table style="width: 100%; border-collapse: collapse; font-size: 14px;">$content</table></div>',
+    table:
+      '<div style="overflow-x: auto; margin: 20px 0;"><table style="width: 100%; border-collapse: collapse; font-size: 14px;">$content</table></div>',
     tableRow: '<tr>$content</tr>',
-    tableHeader: '<th style="border: 1px solid #d9d9d9; padding: 10px; background-color: #fafafa; font-weight: bold; text-align: left;">$content</th>',
-    tableCell: '<td style="border: 1px solid #d9d9d9; padding: 10px;">$content</td>',
+    tableHeader:
+      '<th style="border: 1px solid #d9d9d9; padding: 10px; background-color: #fafafa; font-weight: bold; text-align: left;">$content</th>',
+    tableCell:
+      '<td style="border: 1px solid #d9d9d9; padding: 10px;">$content</td>',
   };
 
   /**
@@ -94,7 +102,10 @@ export class WechatFormatterService {
         formattedAt: new Date(),
       };
     } catch (error) {
-      this.logger.error(`Failed to format content: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to format content: ${error.message}`,
+        error.stack,
+      );
       throw new Error(`Content formatting failed: ${error.message}`);
     }
   }
@@ -102,7 +113,10 @@ export class WechatFormatterService {
   /**
    * 预处理内容（Markdown转HTML等）
    */
-  private async preprocessContent(content: string, options: WechatFormatOptions): Promise<string> {
+  private async preprocessContent(
+    content: string,
+    options: WechatFormatOptions,
+  ): Promise<string> {
     // 如果内容包含Markdown语法，转换为HTML
     if (this.isMarkdown(content)) {
       return this.markdownToHtml(content);
@@ -121,11 +135,20 @@ export class WechatFormatterService {
    * 清理HTML，移除不安全标签和属性
    */
   private cleanHtml(html: string): string {
-    const $ = cheerio.load(html, { decodeEntities: false });
+    const $ = cheerio.load(html, { decodeEntities: false } as any);
 
     // 移除危险标签
-    const dangerousTags = ['script', 'style', 'iframe', 'frame', 'frameset', 'object', 'embed', 'applet'];
-    dangerousTags.forEach(tag => $(tag).remove());
+    const dangerousTags = [
+      'script',
+      'style',
+      'iframe',
+      'frame',
+      'frameset',
+      'object',
+      'embed',
+      'applet',
+    ];
+    dangerousTags.forEach((tag) => $(tag).remove());
 
     // 移除危险属性
     $('*').each((_, element) => {
@@ -133,7 +156,7 @@ export class WechatFormatterService {
       const attrs = $elem.attr();
 
       if (attrs) {
-        Object.keys(attrs).forEach(attr => {
+        Object.keys(attrs).forEach((attr) => {
           // 移除on*事件处理器和javascript:协议
           if (attr.startsWith('on') || attrs[attr]?.startsWith('javascript:')) {
             $elem.removeAttr(attr);
@@ -150,7 +173,7 @@ export class WechatFormatterService {
    * 应用排版模板
    */
   private applyTemplates(html: string, options: WechatFormatOptions): string {
-    const $ = cheerio.load(html, { decodeEntities: false });
+    const $ = cheerio.load(html, { decodeEntities: false } as any);
 
     // 处理标题
     $('h1').each((_, element) => {
@@ -193,10 +216,14 @@ export class WechatFormatterService {
 
       if (isBlock) {
         // 代码块
-        $elem.parent().replaceWith(this.templates.code.block.replace('$content', content));
+        $elem
+          .parent()
+          .replaceWith(this.templates.code.block.replace('$content', content));
       } else {
         // 行内代码
-        $elem.replaceWith(this.templates.code.inline.replace('$content', content));
+        $elem.replaceWith(
+          this.templates.code.inline.replace('$content', content),
+        );
       }
     });
 
@@ -263,16 +290,24 @@ export class WechatFormatterService {
           const content = $cell.html() || '';
           const isHeader = $cell.is('th');
 
-          const cellTemplate = isHeader ? this.templates.tableHeader : this.templates.tableCell;
+          const cellTemplate = isHeader
+            ? this.templates.tableHeader
+            : this.templates.tableCell;
           const cellHtml = cellTemplate.replace('$content', content);
           processedCells.push(cellHtml);
         });
 
-        const rowHtml = this.templates.tableRow.replace('$content', processedCells.join(''));
+        const rowHtml = this.templates.tableRow.replace(
+          '$content',
+          processedCells.join(''),
+        );
         processedRows.push(rowHtml);
       });
 
-      const tableHtml = this.templates.table.replace('$content', processedRows.join(''));
+      const tableHtml = this.templates.table.replace(
+        '$content',
+        processedRows.join(''),
+      );
       $table.replaceWith(tableHtml);
     });
 
@@ -282,8 +317,11 @@ export class WechatFormatterService {
   /**
    * 优化图片（生成图片建议、压缩等）
    */
-  private async optimizeImages(html: string, options: WechatFormatOptions): Promise<string> {
-    const $ = cheerio.load(html, { decodeEntities: false });
+  private async optimizeImages(
+    html: string,
+    options: WechatFormatOptions,
+  ): Promise<string> {
+    const $ = cheerio.load(html, { decodeEntities: false } as any);
     const images = $('img');
 
     if (images.length === 0) {
@@ -314,7 +352,7 @@ export class WechatFormatterService {
    * 内容质量检查
    */
   private checkContentQuality(html: string): ContentQualityReport {
-    const $ = cheerio.load(html, { decodeEntities: false });
+    const $ = cheerio.load(html, { decodeEntities: false } as any);
     const text = $.root().text();
 
     const issues: ContentQualityIssue[] = [];
@@ -388,9 +426,11 @@ export class WechatFormatterService {
     }
 
     // 检查可读性（简单的句子长度检查）
-    const sentences = text.split(/[。！？.!?]/).filter(s => s.trim().length > 0);
+    const sentences = text
+      .split(/[。！？.!?]/)
+      .filter((s) => s.trim().length > 0);
     let longSentenceCount = 0;
-    sentences.forEach(sentence => {
+    sentences.forEach((sentence) => {
       if (sentence.length > 100) {
         longSentenceCount++;
       }
@@ -449,7 +489,7 @@ export class WechatFormatterService {
    * 统计图片数量
    */
   private countImages(html: string): number {
-    const $ = cheerio.load(html, { decodeEntities: false });
+    const $ = cheerio.load(html, { decodeEntities: false } as any);
     return $('img').length;
   }
 
@@ -459,9 +499,10 @@ export class WechatFormatterService {
   private countWords(text: string): number {
     // 中文按字符数，英文按单词数
     const chineseChars = text.match(/[\u4e00-\u9fa5]/g) || [];
-    const englishWords = text.replace(/[\u4e00-\u9fa5]/g, ' ')
+    const englishWords = text
+      .replace(/[\u4e00-\u9fa5]/g, ' ')
       .split(/\s+/)
-      .filter(word => word.length > 0);
+      .filter((word) => word.length > 0);
 
     return chineseChars.length + englishWords.length;
   }
@@ -472,15 +513,15 @@ export class WechatFormatterService {
   private isMarkdown(content: string): boolean {
     const markdownPatterns = [
       /^#{1,6}\s/, // 标题
-      /^[-*]\s/,   // 列表
-      /^\d+\.\s/,  // 有序列表
-      /^>/,        // 引用
-      /```/,       // 代码块
+      /^[-*]\s/, // 列表
+      /^\d+\.\s/, // 有序列表
+      /^>/, // 引用
+      /```/, // 代码块
       /\[.*\]\(.*\)/, // 链接
       /!\[.*\]\(.*\)/, // 图片
     ];
 
-    return markdownPatterns.some(pattern => pattern.test(content));
+    return markdownPatterns.some((pattern) => pattern.test(content));
   }
 
   /**
@@ -489,10 +530,10 @@ export class WechatFormatterService {
   private isHtml(content: string): boolean {
     const htmlPatterns = [
       /<[a-z][\s\S]*>/i, // HTML标签
-      /&[a-z]+;/i,       // HTML实体
+      /&[a-z]+;/i, // HTML实体
     ];
 
-    return htmlPatterns.some(pattern => pattern.test(content));
+    return htmlPatterns.some((pattern) => pattern.test(content));
   }
 
   /**
@@ -550,8 +591,10 @@ export class WechatFormatterService {
    */
   private textToHtml(text: string): string {
     // 将换行转换为段落
-    const paragraphs = text.split(/\n\n+/).filter(p => p.trim().length > 0);
-    const htmlParagraphs = paragraphs.map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`);
+    const paragraphs = text.split(/\n\n+/).filter((p) => p.trim().length > 0);
+    const htmlParagraphs = paragraphs.map(
+      (p) => `<p>${p.replace(/\n/g, '<br>')}</p>`,
+    );
     return htmlParagraphs.join('');
   }
 

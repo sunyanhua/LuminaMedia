@@ -10,7 +10,6 @@ import { AnalysisAgentOutput } from '../../analysis/interfaces/analysis-agent.in
 describe('StrategyAgentService', () => {
   let service: StrategyAgentService;
   let geminiService: jest.Mocked<GeminiService>;
-  let qwenService: jest.Mocked<QwenService>;
   let configService: jest.Mocked<ConfigService>;
 
   beforeEach(async () => {
@@ -24,7 +23,7 @@ describe('StrategyAgentService', () => {
     };
 
     const mockConfigService = {
-      get: jest.fn(),
+      get: jest.fn().mockReturnValue('gemini'),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -38,7 +37,6 @@ describe('StrategyAgentService', () => {
 
     service = module.get<StrategyAgentService>(StrategyAgentService);
     geminiService = module.get(GeminiService);
-    qwenService = module.get(QwenService);
     configService = module.get(ConfigService);
   });
 

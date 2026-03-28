@@ -87,11 +87,12 @@ export class AgentWorkflowService {
 
       // 检索相关知识库内容
       const knowledgeQuery = `行业: ${input.industryContext}, 目标: ${input.businessGoals.join('、')}`;
-      const knowledgeBaseContext = await this.knowledgeRetrievalService.retrieveRelevantKnowledge(
-        knowledgeQuery,
-        input.industryContext,
-        5, // 限制返回5条相关知识
-      );
+      const knowledgeBaseContext =
+        await this.knowledgeRetrievalService.retrieveRelevantKnowledge(
+          knowledgeQuery,
+          input.industryContext,
+          5, // 限制返回5条相关知识
+        );
 
       const analysisResult = await this.executeWithTimeout(
         () =>
@@ -131,36 +132,77 @@ export class AgentWorkflowService {
             analysisResults: analysisResult,
             currentEvents,
             holidays,
-            budgetConstraints: input.budgetConstraints ? {
-              totalBudget: input.budgetConstraints.maxBudget,
-              currency: input.budgetConstraints.currency || 'CNY',
-              breakdown: [
-                { channel: 'content_creation', amount: Math.floor(input.budgetConstraints.maxBudget * 0.4), percentage: 40 },
-                { channel: 'advertising', amount: Math.floor(input.budgetConstraints.maxBudget * 0.3), percentage: 30 },
-                { channel: 'influencer', amount: Math.floor(input.budgetConstraints.maxBudget * 0.2), percentage: 20 },
-                { channel: 'analytics', amount: Math.floor(input.budgetConstraints.maxBudget * 0.1), percentage: 10 },
-              ],
-              constraints: [`max_budget_${input.budgetConstraints.maxBudget}`, 'no_offline_ads'],
-            } : {
-              totalBudget: 50000,
-              currency: 'CNY',
-              breakdown: [
-                { channel: 'content_creation', amount: 20000, percentage: 40 },
-                { channel: 'advertising', amount: 15000, percentage: 30 },
-                { channel: 'influencer', amount: 10000, percentage: 20 },
-                { channel: 'analytics', amount: 5000, percentage: 10 },
-              ],
-              constraints: ['max_budget_50000', 'no_offline_ads'],
-            },
-            timeline: input.timeline ? {
-              startDate: input.timeline.startDate.toISOString(),
-              endDate: input.timeline.endDate.toISOString(),
-              durationDays: Math.ceil((input.timeline.endDate.getTime() - input.timeline.startDate.getTime()) / (1000 * 60 * 60 * 24)),
-            } : {
-              startDate: new Date().toISOString(),
-              endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30天后
-              durationDays: 30,
-            },
+            budgetConstraints: input.budgetConstraints
+              ? {
+                  totalBudget: input.budgetConstraints.maxBudget,
+                  currency: input.budgetConstraints.currency || 'CNY',
+                  breakdown: [
+                    {
+                      channel: 'content_creation',
+                      amount: Math.floor(
+                        input.budgetConstraints.maxBudget * 0.4,
+                      ),
+                      percentage: 40,
+                    },
+                    {
+                      channel: 'advertising',
+                      amount: Math.floor(
+                        input.budgetConstraints.maxBudget * 0.3,
+                      ),
+                      percentage: 30,
+                    },
+                    {
+                      channel: 'influencer',
+                      amount: Math.floor(
+                        input.budgetConstraints.maxBudget * 0.2,
+                      ),
+                      percentage: 20,
+                    },
+                    {
+                      channel: 'analytics',
+                      amount: Math.floor(
+                        input.budgetConstraints.maxBudget * 0.1,
+                      ),
+                      percentage: 10,
+                    },
+                  ],
+                  constraints: [
+                    `max_budget_${input.budgetConstraints.maxBudget}`,
+                    'no_offline_ads',
+                  ],
+                }
+              : {
+                  totalBudget: 50000,
+                  currency: 'CNY',
+                  breakdown: [
+                    {
+                      channel: 'content_creation',
+                      amount: 20000,
+                      percentage: 40,
+                    },
+                    { channel: 'advertising', amount: 15000, percentage: 30 },
+                    { channel: 'influencer', amount: 10000, percentage: 20 },
+                    { channel: 'analytics', amount: 5000, percentage: 10 },
+                  ],
+                  constraints: ['max_budget_50000', 'no_offline_ads'],
+                },
+            timeline: input.timeline
+              ? {
+                  startDate: input.timeline.startDate.toISOString(),
+                  endDate: input.timeline.endDate.toISOString(),
+                  durationDays: Math.ceil(
+                    (input.timeline.endDate.getTime() -
+                      input.timeline.startDate.getTime()) /
+                      (1000 * 60 * 60 * 24),
+                  ),
+                }
+              : {
+                  startDate: new Date().toISOString(),
+                  endDate: new Date(
+                    Date.now() + 30 * 24 * 60 * 60 * 1000,
+                  ).toISOString(), // 30天后
+                  durationDays: 30,
+                },
           }),
         this.defaultConfig.timeouts.strategy,
         '策划阶段超时',
@@ -204,7 +246,8 @@ export class AgentWorkflowService {
       copywritingStep.status = WorkflowExecutionStatus.COMPLETED;
       copywritingStep.endTime = new Date();
       copywritingStep.duration =
-        copywritingStep.endTime.getTime() - copywritingStep.startTime!.getTime();
+        copywritingStep.endTime.getTime() -
+        copywritingStep.startTime!.getTime();
       copywritingStep.output = copywritingResult;
       this.updateStepStatus(executionId, copywritingStep);
 

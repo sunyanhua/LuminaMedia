@@ -65,12 +65,17 @@ export class WeiboAdapter implements PlatformAdapter {
       (response) => {
         const data = response.data;
         if (data.error_code && data.error_code !== 0) {
-          throw new Error(`Weibo API error: ${data.error} (code: ${data.error_code})`);
+          throw new Error(
+            `Weibo API error: ${data.error} (code: ${data.error_code})`,
+          );
         }
         return response;
       },
       (error) => {
-        this.logger.error(`Weibo API request failed: ${error.message}`, error.stack);
+        this.logger.error(
+          `Weibo API request failed: ${error.message}`,
+          error.stack,
+        );
 
         // 处理token过期
         if (error.response?.data?.error_code === 21332) {
@@ -100,7 +105,9 @@ export class WeiboAdapter implements PlatformAdapter {
   }
 
   async initialize(): Promise<void> {
-    this.logger.log(`Initializing Weibo adapter for: ${this.credentials.uid || 'unknown user'}`);
+    this.logger.log(
+      `Initializing Weibo adapter for: ${this.credentials.uid || 'unknown user'}`,
+    );
 
     // 验证token有效性
     if (this.accessToken) {
@@ -108,17 +115,23 @@ export class WeiboAdapter implements PlatformAdapter {
         await this.verifyCredentials();
         this.logger.log('Weibo adapter initialized with existing token');
       } catch (error) {
-        this.logger.warn(`Existing token invalid: ${error.message}, attempting refresh...`);
+        this.logger.warn(
+          `Existing token invalid: ${error.message}, attempting refresh...`,
+        );
         if (this.refreshToken) {
           await this.refreshAccessToken();
         } else {
-          throw new Error('No valid access token and no refresh token available');
+          throw new Error(
+            'No valid access token and no refresh token available',
+          );
         }
       }
     } else if (this.refreshToken) {
       await this.refreshAccessToken();
     } else {
-      this.logger.warn('No credentials provided for Weibo, adapter will operate in limited mode');
+      this.logger.warn(
+        'No credentials provided for Weibo, adapter will operate in limited mode',
+      );
     }
   }
 
@@ -162,7 +175,9 @@ export class WeiboAdapter implements PlatformAdapter {
     this.logger.log(`Publishing content to Weibo: ${content.title}`);
 
     if (!this.accessToken) {
-      throw new Error('Weibo adapter is not authenticated. Please provide valid credentials.');
+      throw new Error(
+        'Weibo adapter is not authenticated. Please provide valid credentials.',
+      );
     }
 
     try {
@@ -184,7 +199,9 @@ export class WeiboAdapter implements PlatformAdapter {
         publishId: result.idstr || result.id.toString(),
         platform: PlatformType.WEIBO,
         status: PublishStatusType.PUBLISHED,
-        url: result.url || `https://weibo.com/${result.user?.idstr}/status/${result.idstr}`,
+        url:
+          result.url ||
+          `https://weibo.com/${result.user?.idstr}/status/${result.idstr}`,
         rawResponse: result,
         publishedAt: new Date(result.created_at || Date.now()),
         metadata: {
@@ -196,13 +213,18 @@ export class WeiboAdapter implements PlatformAdapter {
         },
       };
     } catch (error) {
-      this.logger.error(`Failed to publish content to Weibo: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to publish content to Weibo: ${error.message}`,
+        error.stack,
+      );
 
       // 微博API有频率限制，失败后可以重试
       const maxRetries = this.config.options?.maxRetries || 2;
       for (let retry = 1; retry <= maxRetries; retry++) {
         try {
-          this.logger.log(`Retrying Weibo publish (attempt ${retry}/${maxRetries})`);
+          this.logger.log(
+            `Retrying Weibo publish (attempt ${retry}/${maxRetries})`,
+          );
           await this.delay(5000); // 微博API频率限制，需要等待
 
           let retryResult;
@@ -218,7 +240,9 @@ export class WeiboAdapter implements PlatformAdapter {
             publishId: retryResult.idstr || retryResult.id.toString(),
             platform: PlatformType.WEIBO,
             status: PublishStatusType.PUBLISHED,
-            url: retryResult.url || `https://weibo.com/${retryResult.user?.idstr}/status/${retryResult.idstr}`,
+            url:
+              retryResult.url ||
+              `https://weibo.com/${retryResult.user?.idstr}/status/${retryResult.idstr}`,
             rawResponse: retryResult,
             publishedAt: new Date(retryResult.created_at || Date.now()),
             metadata: {
@@ -264,9 +288,13 @@ export class WeiboAdapter implements PlatformAdapter {
 
       return {
         publishId,
-        status: weibo.deleted ? PublishStatusType.DELETED : PublishStatusType.PUBLISHED,
+        status: weibo.deleted
+          ? PublishStatusType.DELETED
+          : PublishStatusType.PUBLISHED,
         progress: 100,
-        message: weibo.deleted ? 'Weibo has been deleted' : 'Weibo is published',
+        message: weibo.deleted
+          ? 'Weibo has been deleted'
+          : 'Weibo is published',
         lastUpdated: new Date(weibo.created_at || Date.now()),
       };
     } catch (error) {
@@ -289,10 +317,17 @@ export class WeiboAdapter implements PlatformAdapter {
     }
   }
 
-  async updateContent(publishId: string, content: Partial<PublishContentInput>): Promise<PublishResult> {
+  async updateContent(
+    publishId: string,
+    content: Partial<PublishContentInput>,
+  ): Promise<PublishResult> {
     // 微博不支持更新已发布内容，只能删除后重新发布
-    this.logger.warn('Weibo does not support content update. Need to delete and republish.');
-    throw new Error('Weibo does not support content update. Use delete and republish instead.');
+    this.logger.warn(
+      'Weibo does not support content update. Need to delete and republish.',
+    );
+    throw new Error(
+      'Weibo does not support content update. Use delete and republish instead.',
+    );
   }
 
   async deleteContent(publishId: string): Promise<void> {
@@ -302,7 +337,10 @@ export class WeiboAdapter implements PlatformAdapter {
       });
       this.logger.log(`Deleted Weibo: ${publishId}`);
     } catch (error) {
-      this.logger.error(`Failed to delete Weibo: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to delete Weibo: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -385,14 +423,18 @@ export class WeiboAdapter implements PlatformAdapter {
     }
 
     this.logger.log('Refreshing Weibo access token');
-    const response = await axios.post('https://api.weibo.com/oauth2/access_token', null, {
-      params: {
-        client_id: this.credentials.appKey,
-        client_secret: this.credentials.appSecret,
-        grant_type: 'refresh_token',
-        refresh_token: this.refreshToken,
+    const response = await axios.post(
+      'https://api.weibo.com/oauth2/access_token',
+      null,
+      {
+        params: {
+          client_id: this.credentials.appKey,
+          client_secret: this.credentials.appSecret,
+          grant_type: 'refresh_token',
+          refresh_token: this.refreshToken,
+        },
       },
-    });
+    );
 
     this.accessToken = response.data.access_token;
     this.refreshToken = response.data.refresh_token;
@@ -409,7 +451,11 @@ export class WeiboAdapter implements PlatformAdapter {
    * 发布纯文本微博
    */
   private async publishText(content: PublishContentInput): Promise<any> {
-    const status = this.formatWeiboContent(content.content, content.title, content.tags);
+    const status = this.formatWeiboContent(
+      content.content,
+      content.title,
+      content.tags,
+    );
 
     const response = await this.http.post('/statuses/share.json', {
       status,
@@ -428,7 +474,11 @@ export class WeiboAdapter implements PlatformAdapter {
    * 发布带图片的微博
    */
   private async publishWithImages(content: PublishContentInput): Promise<any> {
-    const status = this.formatWeiboContent(content.content, content.title, content.tags);
+    const status = this.formatWeiboContent(
+      content.content,
+      content.title,
+      content.tags,
+    );
 
     // 微博最多支持9张图片
     const images = content.coverImages?.slice(0, 9) || [];
@@ -476,7 +526,11 @@ export class WeiboAdapter implements PlatformAdapter {
       throw new Error('Video URL is required for video weibo');
     }
 
-    const status = this.formatWeiboContent(content.content, content.title, content.tags);
+    const status = this.formatWeiboContent(
+      content.content,
+      content.title,
+      content.tags,
+    );
 
     // 微博视频发布较复杂，需要先上传视频到微博服务器
     // 这里简化处理，假设视频已经在可访问的URL
@@ -491,7 +545,11 @@ export class WeiboAdapter implements PlatformAdapter {
   /**
    * 格式化微博内容
    */
-  private formatWeiboContent(content: string, title?: string, tags?: string[]): string {
+  private formatWeiboContent(
+    content: string,
+    title?: string,
+    tags?: string[],
+  ): string {
     let formatted = '';
 
     // 添加标题（如果有）
@@ -504,7 +562,9 @@ export class WeiboAdapter implements PlatformAdapter {
 
     // 添加标签
     if (tags && tags.length > 0) {
-      const weiboTags = tags.map(tag => `#${tag.replace(/#/g, '')}#`).join(' ');
+      const weiboTags = tags
+        .map((tag) => `#${tag.replace(/#/g, '')}#`)
+        .join(' ');
       formatted += `\n\n${weiboTags}`;
     }
 
@@ -538,9 +598,13 @@ export class WeiboAdapter implements PlatformAdapter {
       contentType: 'image/jpeg',
     });
 
-    const response = await this.http.post('/statuses/upload_pic.json', formData, {
-      headers: formData.getHeaders(),
-    });
+    const response = await this.http.post(
+      '/statuses/upload_pic.json',
+      formData,
+      {
+        headers: formData.getHeaders(),
+      },
+    );
 
     return response.data.pic_id;
   }
@@ -560,7 +624,7 @@ export class WeiboAdapter implements PlatformAdapter {
    * 延迟函数
    */
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**

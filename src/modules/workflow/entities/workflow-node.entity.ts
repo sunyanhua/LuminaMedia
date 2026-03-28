@@ -11,7 +11,10 @@ import {
 } from 'typeorm';
 import { Workflow } from './workflow.entity';
 import { User } from '../../../entities/user.entity';
-import { WorkflowStatus, ApprovalNodeType } from '../../../shared/enums/workflow-status.enum';
+import {
+  WorkflowStatus,
+  ApprovalNodeType,
+} from '../../../shared/enums/workflow-status.enum';
 
 /**
  * 工作流节点实体

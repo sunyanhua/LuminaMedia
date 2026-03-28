@@ -33,7 +33,8 @@ export class AIImageGeneratorService {
     // API端点（可配置）
     apiEndpoints: {
       openai: 'https://api.openai.com/v1/images/generations',
-      stabilityai: 'https://api.stability.ai/v1/generation/stable-diffusion-v1-6/text-to-image',
+      stabilityai:
+        'https://api.stability.ai/v1/generation/stable-diffusion-v1-6/text-to-image',
       // 其他AI图片生成API
     },
   };
@@ -52,7 +53,9 @@ export class AIImageGeneratorService {
     prompt: string,
     options: ImageGenerationOptions = {},
   ): Promise<ImageGenerationResult> {
-    this.logger.log(`Generating AI image with prompt: ${prompt.substring(0, 50)}...`);
+    this.logger.log(
+      `Generating AI image with prompt: ${prompt.substring(0, 50)}...`,
+    );
 
     const startTime = Date.now();
 
@@ -73,7 +76,10 @@ export class AIImageGeneratorService {
           result = await this.generateWithOpenAI(prompt, generationOptions);
           break;
         case 'stabilityai':
-          result = await this.generateWithStabilityAI(prompt, generationOptions);
+          result = await this.generateWithStabilityAI(
+            prompt,
+            generationOptions,
+          );
           break;
         case 'mock':
           result = await this.generateMockImage(prompt, generationOptions);
@@ -88,7 +94,9 @@ export class AIImageGeneratorService {
       }
 
       const processingTime = Date.now() - startTime;
-      this.logger.log(`AI image generated in ${processingTime}ms, provider: ${provider}`);
+      this.logger.log(
+        `AI image generated in ${processingTime}ms, provider: ${provider}`,
+      );
 
       return {
         ...result,
@@ -96,7 +104,10 @@ export class AIImageGeneratorService {
         generatedAt: new Date(),
       };
     } catch (error) {
-      this.logger.error(`Failed to generate AI image: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to generate AI image: ${error.message}`,
+        error.stack,
+      );
       throw new Error(`AI image generation failed: ${error.message}`);
     }
   }
@@ -123,7 +134,9 @@ export class AIImageGeneratorService {
           results.push(result);
         } catch (error) {
           errors.push({ prompt, error: error.message });
-          this.logger.error(`Failed to generate image for prompt: ${prompt.substring(0, 50)}...`);
+          this.logger.error(
+            `Failed to generate image for prompt: ${prompt.substring(0, 50)}...`,
+          );
         }
       });
 
@@ -136,7 +149,9 @@ export class AIImageGeneratorService {
     }
 
     if (errors.length > 0) {
-      this.logger.warn(`Batch generation completed with ${errors.length} errors`);
+      this.logger.warn(
+        `Batch generation completed with ${errors.length} errors`,
+      );
     }
 
     return results;
@@ -163,7 +178,10 @@ export class AIImageGeneratorService {
       let imageBuffer: Buffer;
       if (imageResult.imageData) {
         // Base64数据
-        const base64Data = imageResult.imageData.replace(/^data:image\/\w+;base64,/, '');
+        const base64Data = imageResult.imageData.replace(
+          /^data:image\/\w+;base64,/,
+          '',
+        );
         imageBuffer = Buffer.from(base64Data, 'base64');
       } else if (imageResult.imageUrl) {
         // 从URL下载
@@ -222,9 +240,12 @@ export class AIImageGeneratorService {
       // 计算优化效果
       const originalSize = imageBuffer.length;
       const optimizedSize = optimizedBuffer.length;
-      const compressionRatio = ((originalSize - optimizedSize) / originalSize) * 100;
+      const compressionRatio =
+        ((originalSize - optimizedSize) / originalSize) * 100;
 
-      this.logger.log(`Image optimized: ${originalSize} bytes -> ${optimizedSize} bytes (${compressionRatio.toFixed(1)}% reduction)`);
+      this.logger.log(
+        `Image optimized: ${originalSize} bytes -> ${optimizedSize} bytes (${compressionRatio.toFixed(1)}% reduction)`,
+      );
 
       // 转换为Base64
       const mimeType = `image/${format}`;
@@ -249,7 +270,10 @@ export class AIImageGeneratorService {
         },
       };
     } catch (error) {
-      this.logger.error(`Failed to optimize image: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to optimize image: ${error.message}`,
+        error.stack,
+      );
       // 优化失败时返回原始结果
       return imageResult;
     }
@@ -283,7 +307,9 @@ export class AIImageGeneratorService {
     }
 
     if (errors.length > 0) {
-      this.logger.warn(`Batch optimization completed with ${errors.length} errors`);
+      this.logger.warn(
+        `Batch optimization completed with ${errors.length} errors`,
+      );
     }
 
     return optimizedResults;
@@ -313,19 +339,25 @@ export class AIImageGeneratorService {
     });
 
     // 转换为建议格式
-    const suggestions: ImageSuggestion[] = imageResults.map((result, index) => ({
-      id: uuidv4(),
-      prompt: prompts[index],
-      imageUrl: result.imageUrl,
-      imageData: result.imageData,
-      description: this.generateImageDescription(prompts[index]),
-      relevanceScore: this.calculateRelevanceScore(prompts[index], content),
-      suggestedPosition: this.suggestImagePosition(content, index, imageResults.length),
-      metadata: {
-        ...result.metadata,
-        keywords: keywords.slice(0, 3), // 前3个关键词
-      },
-    }));
+    const suggestions: ImageSuggestion[] = imageResults.map(
+      (result, index) => ({
+        id: uuidv4(),
+        prompt: prompts[index],
+        imageUrl: result.imageUrl,
+        imageData: result.imageData,
+        description: this.generateImageDescription(prompts[index]),
+        relevanceScore: this.calculateRelevanceScore(prompts[index], content),
+        suggestedPosition: this.suggestImagePosition(
+          content,
+          index,
+          imageResults.length,
+        ),
+        metadata: {
+          ...result.metadata,
+          keywords: keywords.slice(0, 3), // 前3个关键词
+        },
+      }),
+    );
 
     // 按相关性排序
     suggestions.sort((a, b) => b.relevanceScore - a.relevanceScore);
@@ -390,7 +422,10 @@ export class AIImageGeneratorService {
 
       return `data:image/jpeg;base64,${watermarkedBuffer.toString('base64')}`;
     } catch (error) {
-      this.logger.error(`Failed to generate watermarked image: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to generate watermarked image: ${error.message}`,
+        error.stack,
+      );
       throw new Error(`Watermark generation failed: ${error.message}`);
     }
   }
@@ -443,7 +478,7 @@ export class AIImageGeneratorService {
         requestData,
         {
           headers: {
-            'Authorization': `Bearer ${apiKey}`,
+            Authorization: `Bearer ${apiKey}`,
             'Content-Type': 'application/json',
           },
           timeout: 60000,
@@ -487,7 +522,9 @@ export class AIImageGeneratorService {
     }
 
     // 解析尺寸
-    const [width, height] = options.size?.split('x').map(Number) || [1024, 1024];
+    const [width, height] = options.size?.split('x').map(Number) || [
+      1024, 1024,
+    ];
 
     const requestData = {
       text_prompts: [{ text: prompt, weight: 1 }],
@@ -504,8 +541,8 @@ export class AIImageGeneratorService {
         requestData,
         {
           headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Accept': 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+            Accept: 'application/json',
             'Content-Type': 'application/json',
           },
           timeout: 60000,
@@ -545,7 +582,9 @@ export class AIImageGeneratorService {
     options: ImageGenerationOptions,
   ): Promise<ImageGenerationResult> {
     // 创建模拟图片（简单的彩色渐变）
-    const [width, height] = options.size?.split('x').map(Number) || [1024, 1024];
+    const [width, height] = options.size?.split('x').map(Number) || [
+      1024, 1024,
+    ];
 
     // 使用sharp创建渐变图片
     const svg = `
@@ -609,13 +648,44 @@ export class AIImageGeneratorService {
     const chineseWords = content.match(/[\u4e00-\u9fa5]{2,4}/g) || [];
 
     // 去除停用词
-    const stopWords = ['的', '了', '在', '是', '我', '有', '和', '就', '不', '人', '都', '一', '一个', '上', '也', '很', '到', '说', '要', '去', '你', '会', '着', '没有', '看', '好', '自己', '这'];
+    const stopWords = [
+      '的',
+      '了',
+      '在',
+      '是',
+      '我',
+      '有',
+      '和',
+      '就',
+      '不',
+      '人',
+      '都',
+      '一',
+      '一个',
+      '上',
+      '也',
+      '很',
+      '到',
+      '说',
+      '要',
+      '去',
+      '你',
+      '会',
+      '着',
+      '没有',
+      '看',
+      '好',
+      '自己',
+      '这',
+    ];
 
-    const filteredWords = chineseWords.filter(word => !stopWords.includes(word));
+    const filteredWords = chineseWords.filter(
+      (word) => !stopWords.includes(word),
+    );
 
     // 统计词频
     const wordCount: Record<string, number> = {};
-    filteredWords.forEach(word => {
+    filteredWords.forEach((word) => {
       wordCount[word] = (wordCount[word] || 0) + 1;
     });
 
@@ -644,7 +714,9 @@ export class AIImageGeneratorService {
         .sort(() => Math.random() - 0.5)
         .slice(0, 2 + Math.floor(Math.random() * 2));
 
-      const style = ['简约设计', '现代风格', '艺术感', '高质量', '专业摄影'][i % 5];
+      const style = ['简约设计', '现代风格', '艺术感', '高质量', '专业摄影'][
+        i % 5
+      ];
       const prompt = `${selectedKeywords.join('、')}，${style}，高清，4K`;
       prompts.push(prompt);
     }
@@ -671,8 +743,11 @@ export class AIImageGeneratorService {
       return 0.5;
     }
 
-    const matches = promptKeywords.filter(keyword =>
-      contentKeywords.some(contentKeyword => contentKeyword.includes(keyword) || keyword.includes(contentKeyword))
+    const matches = promptKeywords.filter((keyword) =>
+      contentKeywords.some(
+        (contentKeyword) =>
+          contentKeyword.includes(keyword) || keyword.includes(contentKeyword),
+      ),
     ).length;
 
     return matches / promptKeywords.length;
@@ -681,8 +756,18 @@ export class AIImageGeneratorService {
   /**
    * 建议图片位置
    */
-  private suggestImagePosition(content: string, index: number, total: number): string {
-    const positions = ['文章开头', '第一段后', '中间位置', '结尾前', '文章结尾'];
+  private suggestImagePosition(
+    content: string,
+    index: number,
+    total: number,
+  ): string {
+    const positions = [
+      '文章开头',
+      '第一段后',
+      '中间位置',
+      '结尾前',
+      '文章结尾',
+    ];
     return positions[index % positions.length];
   }
 
@@ -690,7 +775,7 @@ export class AIImageGeneratorService {
    * 延迟函数
    */
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 

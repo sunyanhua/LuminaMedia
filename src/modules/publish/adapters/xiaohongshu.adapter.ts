@@ -42,7 +42,8 @@ export class XHSAdapter implements PlatformAdapter {
       baseURL: 'https://www.xiaohongshu.com/',
       timeout: config.options?.timeout || 60000, // 小红书操作较慢，超时时间较长
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Content-Type': 'application/json',
         ...config.options?.customHeaders,
       },
@@ -61,7 +62,9 @@ export class XHSAdapter implements PlatformAdapter {
   }
 
   async initialize(): Promise<void> {
-    this.logger.log(`Initializing Xiaohongshu adapter for: ${this.credentials.username}`);
+    this.logger.log(
+      `Initializing Xiaohongshu adapter for: ${this.credentials.username}`,
+    );
 
     try {
       // 尝试使用现有session token登录
@@ -70,12 +73,17 @@ export class XHSAdapter implements PlatformAdapter {
       } else if (this.credentials.username && this.credentials.password) {
         await this.loginWithCredentials();
       } else {
-        this.logger.warn('No credentials provided for Xiaohongshu, adapter will operate in limited mode');
+        this.logger.warn(
+          'No credentials provided for Xiaohongshu, adapter will operate in limited mode',
+        );
       }
 
       this.logger.log('Xiaohongshu adapter initialized successfully');
     } catch (error) {
-      this.logger.error(`Failed to initialize Xiaohongshu adapter: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to initialize Xiaohongshu adapter: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -123,7 +131,9 @@ export class XHSAdapter implements PlatformAdapter {
     this.logger.log(`Publishing content to Xiaohongshu: ${content.title}`);
 
     if (!this.isLoggedIn) {
-      throw new Error('Xiaohongshu adapter is not logged in. Please login first.');
+      throw new Error(
+        'Xiaohongshu adapter is not logged in. Please login first.',
+      );
     }
 
     try {
@@ -144,13 +154,18 @@ export class XHSAdapter implements PlatformAdapter {
         },
       };
     } catch (error) {
-      this.logger.error(`Failed to publish content to Xiaohongshu: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to publish content to Xiaohongshu: ${error.message}`,
+        error.stack,
+      );
 
       // 尝试重试（小红书发布容易失败）
       const maxRetries = this.config.options?.maxRetries || 3;
       for (let retry = 1; retry <= maxRetries; retry++) {
         try {
-          this.logger.log(`Retrying Xiaohongshu publish (attempt ${retry}/${maxRetries})`);
+          this.logger.log(
+            `Retrying Xiaohongshu publish (attempt ${retry}/${maxRetries})`,
+          );
           const result = await this.publishWithBrowserAgent(content);
 
           return {
@@ -203,8 +218,12 @@ export class XHSAdapter implements PlatformAdapter {
 
       return {
         publishId,
-        status: isPublished ? PublishStatusType.PUBLISHED : PublishStatusType.FAILED,
-        message: isPublished ? 'Note is published and accessible' : 'Note not found or not accessible',
+        status: isPublished
+          ? PublishStatusType.PUBLISHED
+          : PublishStatusType.FAILED,
+        message: isPublished
+          ? 'Note is published and accessible'
+          : 'Note not found or not accessible',
         lastUpdated: new Date(),
       };
     } catch (error) {
@@ -217,10 +236,17 @@ export class XHSAdapter implements PlatformAdapter {
     }
   }
 
-  async updateContent(publishId: string, content: Partial<PublishContentInput>): Promise<PublishResult> {
+  async updateContent(
+    publishId: string,
+    content: Partial<PublishContentInput>,
+  ): Promise<PublishResult> {
     // 小红书不支持直接更新已发布内容，需要删除后重新发布
-    this.logger.warn('Xiaohongshu does not support content update. Need to delete and republish.');
-    throw new Error('Xiaohongshu does not support content update. Use delete and republish instead.');
+    this.logger.warn(
+      'Xiaohongshu does not support content update. Need to delete and republish.',
+    );
+    throw new Error(
+      'Xiaohongshu does not support content update. Use delete and republish instead.',
+    );
   }
 
   async deleteContent(publishId: string): Promise<void> {
@@ -229,7 +255,10 @@ export class XHSAdapter implements PlatformAdapter {
       await this.deleteNoteWithBrowserAgent(publishId);
       this.logger.log(`Deleted Xiaohongshu note: ${publishId}`);
     } catch (error) {
-      this.logger.error(`Failed to delete Xiaohongshu note: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to delete Xiaohongshu note: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -340,7 +369,9 @@ export class XHSAdapter implements PlatformAdapter {
   private async loginWithCredentials(): Promise<void> {
     try {
       if (!this.credentials.username || !this.credentials.password) {
-        throw new Error('Username and password are required for credential login');
+        throw new Error(
+          'Username and password are required for credential login',
+        );
       }
 
       // 使用Browser Agent进行登录
@@ -449,7 +480,7 @@ export class XHSAdapter implements PlatformAdapter {
    * 延迟函数
    */
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**

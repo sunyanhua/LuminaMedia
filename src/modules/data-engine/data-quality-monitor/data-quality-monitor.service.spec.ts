@@ -4,7 +4,10 @@ import { Repository } from 'typeorm';
 import { DataQualityMonitorService } from './data-quality-monitor.service';
 import { DataQualityRule } from './entities/data-quality-rule.entity';
 import { DataQualityResult } from './entities/data-quality-result.entity';
-import { CreateDataQualityRuleDto, RuleSeverity } from './dto/create-data-quality-rule.dto';
+import {
+  CreateDataQualityRuleDto,
+  RuleSeverity,
+} from './dto/create-data-quality-rule.dto';
 import { DataSource } from 'typeorm';
 
 describe('DataQualityMonitorService', () => {

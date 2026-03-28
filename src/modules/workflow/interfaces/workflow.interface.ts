@@ -1,4 +1,9 @@
-import { WorkflowStatus, ApprovalAction, ApprovalNodeType, NotificationType } from '../../../shared/enums/workflow-status.enum';
+import {
+  WorkflowStatus,
+  ApprovalAction,
+  ApprovalNodeType,
+  NotificationType,
+} from '../../../shared/enums/workflow-status.enum';
 
 /**
  * 工作流创建DTO

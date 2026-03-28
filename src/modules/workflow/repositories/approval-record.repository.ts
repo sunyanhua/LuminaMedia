@@ -7,7 +7,11 @@ import { DataSource } from 'typeorm';
 @Injectable()
 export class ApprovalRecordRepository extends TenantRepository<ApprovalRecord> {
   constructor(private dataSource: DataSource) {
-    super(ApprovalRecord, dataSource.createEntityManager(), dataSource.createQueryRunner());
+    super(
+      ApprovalRecord,
+      dataSource.createEntityManager(),
+      dataSource.createQueryRunner(),
+    );
   }
 
   /**
@@ -67,13 +71,16 @@ export class ApprovalRecordRepository extends TenantRepository<ApprovalRecord> {
       .groupBy('record.action')
       .getRawMany();
 
-    const stats: Record<ApprovalAction, number> = {} as Record<ApprovalAction, number>;
+    const stats: Record<ApprovalAction, number> = {} as Record<
+      ApprovalAction,
+      number
+    >;
     // 初始化所有动作为0
-    Object.values(ApprovalAction).forEach(action => {
+    Object.values(ApprovalAction).forEach((action) => {
       stats[action] = 0;
     });
 
-    result.forEach(row => {
+    result.forEach((row) => {
       stats[row.action as ApprovalAction] = parseInt(row.count, 10);
     });
 
@@ -83,7 +90,10 @@ export class ApprovalRecordRepository extends TenantRepository<ApprovalRecord> {
   /**
    * 查找时间范围内的审批记录
    */
-  async findByTimeRange(startDate: Date, endDate: Date): Promise<ApprovalRecord[]> {
+  async findByTimeRange(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<ApprovalRecord[]> {
     return this.find({
       where: {
         createdAt: { $gte: startDate, $lte: endDate } as any,
@@ -101,16 +111,19 @@ export class ApprovalRecordRepository extends TenantRepository<ApprovalRecord> {
     averageProcessingTime: number;
   }> {
     const records = await this.findByActorId(actorId);
-    const byAction: Record<ApprovalAction, number> = {} as Record<ApprovalAction, number>;
+    const byAction: Record<ApprovalAction, number> = {} as Record<
+      ApprovalAction,
+      number
+    >;
 
-    Object.values(ApprovalAction).forEach(action => {
+    Object.values(ApprovalAction).forEach((action) => {
       byAction[action] = 0;
     });
 
     let totalProcessingTime = 0;
     let countWithTime = 0;
 
-    records.forEach(record => {
+    records.forEach((record) => {
       byAction[record.action] = (byAction[record.action] || 0) + 1;
 
       // 如果有元数据中的处理时间
@@ -123,7 +136,8 @@ export class ApprovalRecordRepository extends TenantRepository<ApprovalRecord> {
     return {
       total: records.length,
       byAction,
-      averageProcessingTime: countWithTime > 0 ? totalProcessingTime / countWithTime : 0,
+      averageProcessingTime:
+        countWithTime > 0 ? totalProcessingTime / countWithTime : 0,
     };
   }
 

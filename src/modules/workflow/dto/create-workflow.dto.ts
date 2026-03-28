@@ -1,5 +1,14 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsNumber, IsBoolean, IsDate, IsArray, ValidateNested, IsEnum } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  IsDate,
+  IsArray,
+  ValidateNested,
+  IsEnum,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApprovalNodeType } from '../../../shared/enums/workflow-status.enum';
 
@@ -98,14 +107,20 @@ export class CreateWorkflowDto {
   @Type(() => Date)
   expectedCompletionAt?: Date;
 
-  @ApiPropertyOptional({ type: [WorkflowNodeConfigDto], description: '节点配置' })
+  @ApiPropertyOptional({
+    type: [WorkflowNodeConfigDto],
+    description: '节点配置',
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => WorkflowNodeConfigDto)
   nodes?: WorkflowNodeConfigDto[];
 
-  @ApiPropertyOptional({ type: WorkflowRulesConfigDto, description: '审批规则配置' })
+  @ApiPropertyOptional({
+    type: WorkflowRulesConfigDto,
+    description: '审批规则配置',
+  })
   @IsOptional()
   @ValidateNested()
   @Type(() => WorkflowRulesConfigDto)

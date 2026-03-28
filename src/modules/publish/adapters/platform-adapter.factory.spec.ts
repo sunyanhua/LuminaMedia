@@ -116,7 +116,7 @@ describe('PlatformAdapterFactory', () => {
       const disabledConfig = { ...wechatConfig, enabled: false };
 
       expect(() => factory.createAdapter(disabledConfig)).toThrow(
-        'Platform WECHAT is disabled',
+        'Platform wechat is disabled',
       );
     });
 
@@ -135,12 +135,14 @@ describe('PlatformAdapterFactory', () => {
 
     it('should handle adapter creation errors', () => {
       const error = new Error('Adapter creation failed');
-      (WechatAdapter as jest.MockedClass<typeof WechatAdapter>).mockImplementationOnce(() => {
+      (
+        WechatAdapter as jest.MockedClass<typeof WechatAdapter>
+      ).mockImplementationOnce(() => {
         throw error;
       });
 
       expect(() => factory.createAdapter(wechatConfig)).toThrow(
-        'Failed to create adapter for platform WECHAT: Adapter creation failed',
+        'Failed to create adapter for platform wechat: Adapter creation failed',
       );
     });
   });
@@ -151,7 +153,12 @@ describe('PlatformAdapterFactory', () => {
         type: PlatformType.WECHAT,
         name: 'WeChat',
         enabled: true,
-        credentials: { appId: 'id1', appSecret: 'secret1', wechatId: 'wid1', wechatName: 'WeChat1' } as WechatCredentials,
+        credentials: {
+          appId: 'id1',
+          appSecret: 'secret1',
+          wechatId: 'wid1',
+          wechatName: 'WeChat1',
+        } as WechatCredentials,
       },
       {
         type: PlatformType.XIAOHONGSHU,
@@ -163,13 +170,21 @@ describe('PlatformAdapterFactory', () => {
         type: PlatformType.WEIBO,
         name: 'Weibo',
         enabled: true,
-        credentials: { appKey: 'key1', appSecret: 'secret1', accessToken: 'token1' } as WeiboCredentials,
+        credentials: {
+          appKey: 'key1',
+          appSecret: 'secret1',
+          accessToken: 'token1',
+        } as WeiboCredentials,
       },
       {
         type: PlatformType.DOUYIN,
         name: 'Douyin',
         enabled: true,
-        credentials: { clientKey: 'ckey1', clientSecret: 'csecret1', accessToken: 'token1' } as DouyinCredentials,
+        credentials: {
+          clientKey: 'ckey1',
+          clientSecret: 'csecret1',
+          accessToken: 'token1',
+        } as DouyinCredentials,
       },
     ];
 
@@ -185,7 +200,9 @@ describe('PlatformAdapterFactory', () => {
 
     it('should continue creating adapters even if one fails', () => {
       const error = new Error('WeChat adapter creation failed');
-      (WechatAdapter as jest.MockedClass<typeof WechatAdapter>).mockImplementationOnce(() => {
+      (
+        WechatAdapter as jest.MockedClass<typeof WechatAdapter>
+      ).mockImplementationOnce(() => {
         throw error;
       });
 
@@ -219,7 +236,9 @@ describe('PlatformAdapterFactory', () => {
     });
 
     it('should return false for unsupported platform types', () => {
-      expect(factory.isPlatformSupported('UNSUPPORTED' as PlatformType)).toBe(false);
+      expect(factory.isPlatformSupported('UNSUPPORTED' as PlatformType)).toBe(
+        false,
+      );
     });
   });
 
@@ -291,7 +310,9 @@ describe('PlatformAdapterFactory', () => {
 
       expect(result.valid).toBe(false);
       expect(result.errors).toContain('Xiaohongshu username is required');
-      expect(result.errors).toContain('Xiaohongshu requires password, sessionToken, or cookies');
+      expect(result.errors).toContain(
+        'Xiaohongshu requires password, sessionToken, or cookies',
+      );
     });
   });
 
@@ -314,7 +335,7 @@ describe('PlatformAdapterFactory', () => {
         type: customPlatformType,
         name: 'Custom Platform',
         enabled: true,
-        credentials: {},
+        credentials: { type: 'custom' },
       };
 
       const adapter = factory.createAdapter(config);

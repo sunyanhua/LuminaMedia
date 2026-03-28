@@ -36,7 +36,10 @@ export interface PlatformAdapter {
   /**
    * 更新已发布内容
    */
-  updateContent(publishId: string, content: Partial<PublishContentInput>): Promise<PublishResult>;
+  updateContent(
+    publishId: string,
+    content: Partial<PublishContentInput>,
+  ): Promise<PublishResult>;
 
   /**
    * 删除已发布内容
@@ -58,14 +61,14 @@ export interface PlatformAdapter {
  * 平台类型枚举
  */
 export enum PlatformType {
-  WECHAT = 'wechat',       // 微信公众号
+  WECHAT = 'wechat', // 微信公众号
   XIAOHONGSHU = 'xiaohongshu', // 小红书
-  WEIBO = 'weibo',         // 微博
-  DOUYIN = 'douyin',       // 抖音
-  TIKTOK = 'tiktok',       // TikTok（国际版）
-  BILIBILI = 'bilibili',   // B站
-  KUAISHOU = 'kuaishou',   // 快手
-  OTHER = 'other',         // 其他平台
+  WEIBO = 'weibo', // 微博
+  DOUYIN = 'douyin', // 抖音
+  TIKTOK = 'tiktok', // TikTok（国际版）
+  BILIBILI = 'bilibili', // B站
+  KUAISHOU = 'kuaishou', // 快手
+  OTHER = 'other', // 其他平台
 }
 
 /**
@@ -134,13 +137,13 @@ export interface PublishResult {
  * 发布状态类型
  */
 export enum PublishStatusType {
-  DRAFT = 'draft',           // 草稿
-  PENDING = 'pending',       // 等待发布
+  DRAFT = 'draft', // 草稿
+  PENDING = 'pending', // 等待发布
   PUBLISHING = 'publishing', // 发布中
-  PUBLISHED = 'published',   // 已发布
-  FAILED = 'failed',         // 发布失败
-  DELETED = 'deleted',       // 已删除
-  SCHEDULED = 'scheduled',   // 定时发布
+  PUBLISHED = 'published', // 已发布
+  FAILED = 'failed', // 发布失败
+  DELETED = 'deleted', // 已删除
+  SCHEDULED = 'scheduled', // 定时发布
 }
 
 /**

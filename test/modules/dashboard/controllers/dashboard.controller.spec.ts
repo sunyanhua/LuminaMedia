@@ -8,7 +8,7 @@ import {
   RealTimeMetrics,
   ChartData,
   DashboardReportResponse,
-} from '../interfaces/dashboard.interface';
+} from '../../../../src/modules/dashboard/interfaces/dashboard.interface';
 
 describe('DashboardController', () => {
   let dashboardController: DashboardController;
@@ -328,7 +328,7 @@ describe('DashboardController', () => {
 
   describe('generateDashboardReport', () => {
     it('should generate dashboard report', async () => {
-      const mockBody = { reportType: 'pdf', period: 'monthly' };
+      const mockBody = {};
       const mockResponse: DashboardReportResponse = {
         reportUrl: 'https://api.lumina-media.com/reports/dashboard-123.pdf',
       };
@@ -349,7 +349,7 @@ describe('DashboardController', () => {
 
   describe('exportDashboardData', () => {
     it('should export dashboard data', async () => {
-      const mockQuery = { format: 'csv' };
+      const mockQuery = { format: 'csv' as const };
       const mockResponse = {
         downloadUrl: 'https://api.lumina-media.com/exports/dashboard-123.csv',
       };

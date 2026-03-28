@@ -47,7 +47,10 @@ export class WorkflowController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: '创建工作流', description: '为内容草稿创建三审三校工作流' })
+  @ApiOperation({
+    summary: '创建工作流',
+    description: '为内容草稿创建三审三校工作流',
+  })
   @ApiResponse({ status: 201, description: '工作流创建成功', type: Workflow })
   @ApiResponse({ status: 400, description: '请求参数错误' })
   @ApiResponse({ status: 404, description: '内容草稿不存在' })
@@ -59,7 +62,10 @@ export class WorkflowController {
   }
 
   @Post(':id/submit')
-  @ApiOperation({ summary: '提交工作流审批', description: '将工作流从草稿状态提交开始审批流程' })
+  @ApiOperation({
+    summary: '提交工作流审批',
+    description: '将工作流从草稿状态提交开始审批流程',
+  })
   @ApiParam({ name: 'id', description: '工作流ID' })
   @ApiResponse({ status: 200, description: '提交成功', type: Workflow })
   @ApiResponse({ status: 400, description: '工作流状态不符合提交条件' })
@@ -72,7 +78,10 @@ export class WorkflowController {
   }
 
   @Post(':workflowId/nodes/:nodeId/approve')
-  @ApiOperation({ summary: '审批节点', description: '对工作流节点进行审批操作' })
+  @ApiOperation({
+    summary: '审批节点',
+    description: '对工作流节点进行审批操作',
+  })
   @ApiParam({ name: 'workflowId', description: '工作流ID' })
   @ApiParam({ name: 'nodeId', description: '节点ID' })
   @ApiResponse({ status: 200, description: '审批成功' })
@@ -84,7 +93,11 @@ export class WorkflowController {
     @Param('nodeId') nodeId: string,
     @Body() approvalDto: ApprovalRequestDto,
     @Request() req,
-  ): Promise<{ workflow: Workflow; node: WorkflowNode; record: ApprovalRecord }> {
+  ): Promise<{
+    workflow: Workflow;
+    node: WorkflowNode;
+    record: ApprovalRecord;
+  }> {
     return this.workflowService.processApproval(
       workflowId,
       nodeId,
@@ -94,7 +107,10 @@ export class WorkflowController {
   }
 
   @Get()
-  @ApiOperation({ summary: '查询工作流列表', description: '根据条件查询工作流，支持分页和过滤' })
+  @ApiOperation({
+    summary: '查询工作流列表',
+    description: '根据条件查询工作流，支持分页和过滤',
+  })
   @ApiQuery({ type: WorkflowFilterDto })
   @ApiResponse({ status: 200, description: '查询成功' })
   async findWorkflows(
@@ -105,14 +121,20 @@ export class WorkflowController {
   }
 
   @Get('stats')
-  @ApiOperation({ summary: '获取工作流统计', description: '获取工作流的状态统计信息' })
+  @ApiOperation({
+    summary: '获取工作流统计',
+    description: '获取工作流的状态统计信息',
+  })
   @ApiResponse({ status: 200, description: '统计信息', type: Object })
   async getWorkflowStats(): Promise<WorkflowStats> {
     return this.workflowService.getWorkflowStats();
   }
 
   @Get(':id')
-  @ApiOperation({ summary: '获取工作流详情', description: '根据ID获取工作流详细信息' })
+  @ApiOperation({
+    summary: '获取工作流详情',
+    description: '根据ID获取工作流详细信息',
+  })
   @ApiParam({ name: 'id', description: '工作流ID' })
   @ApiResponse({ status: 200, description: '工作流详情', type: Workflow })
   @ApiResponse({ status: 404, description: '工作流不存在' })
@@ -121,18 +143,32 @@ export class WorkflowController {
   }
 
   @Get(':id/nodes')
-  @ApiOperation({ summary: '获取工作流节点', description: '获取工作流的所有节点' })
+  @ApiOperation({
+    summary: '获取工作流节点',
+    description: '获取工作流的所有节点',
+  })
   @ApiParam({ name: 'id', description: '工作流ID' })
   @ApiResponse({ status: 200, description: '节点列表', type: [WorkflowNode] })
-  async getWorkflowNodes(@Param('id') workflowId: string): Promise<WorkflowNode[]> {
+  async getWorkflowNodes(
+    @Param('id') workflowId: string,
+  ): Promise<WorkflowNode[]> {
     return this.workflowService.getWorkflowNodes(workflowId);
   }
 
   @Get(':id/approvals')
-  @ApiOperation({ summary: '获取审批记录', description: '获取工作流的所有审批记录' })
+  @ApiOperation({
+    summary: '获取审批记录',
+    description: '获取工作流的所有审批记录',
+  })
   @ApiParam({ name: 'id', description: '工作流ID' })
-  @ApiResponse({ status: 200, description: '审批记录列表', type: [ApprovalRecord] })
-  async getApprovalRecords(@Param('id') workflowId: string): Promise<ApprovalRecord[]> {
+  @ApiResponse({
+    status: 200,
+    description: '审批记录列表',
+    type: [ApprovalRecord],
+  })
+  async getApprovalRecords(
+    @Param('id') workflowId: string,
+  ): Promise<ApprovalRecord[]> {
     return this.workflowService.getApprovalRecords(workflowId);
   }
 
@@ -150,7 +186,10 @@ export class WorkflowController {
   ): Promise<Workflow> {
     // 这里应该添加权限检查，只有创建者或管理员可以更新
     const workflow = await this.workflowService.getWorkflowById(workflowId);
-    if (workflow.createdBy !== req.user.id && !req.user.roles.includes(UserRole.ADMIN)) {
+    if (
+      workflow.createdBy !== req.user.id &&
+      !req.user.roles.includes(UserRole.ADMIN)
+    ) {
       throw new Error('没有权限更新此工作流');
     }
 
@@ -174,7 +213,10 @@ export class WorkflowController {
   }
 
   @Get('my/pending')
-  @ApiOperation({ summary: '获取我的待办任务', description: '获取当前用户需要审批的工作流节点' })
+  @ApiOperation({
+    summary: '获取我的待办任务',
+    description: '获取当前用户需要审批的工作流节点',
+  })
   @ApiResponse({ status: 200, description: '待办任务列表', type: [Workflow] })
   async getMyPendingWorkflows(@Request() req): Promise<Workflow[]> {
     // 这里调用repository方法获取当前用户的待办任务
@@ -183,14 +225,24 @@ export class WorkflowController {
   }
 
   @Get('notifications/unread')
-  @ApiOperation({ summary: '获取未读通知', description: '获取当前用户的未读通知' })
-  @ApiResponse({ status: 200, description: '未读通知列表', type: [Notification] })
+  @ApiOperation({
+    summary: '获取未读通知',
+    description: '获取当前用户的未读通知',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '未读通知列表',
+    type: [Notification],
+  })
   async getUnreadNotifications(@Request() req): Promise<Notification[]> {
     return this.notificationService.getUserUnreadNotifications(req.user.id);
   }
 
   @Put('notifications/:id/read')
-  @ApiOperation({ summary: '标记通知为已读', description: '将通知标记为已读状态' })
+  @ApiOperation({
+    summary: '标记通知为已读',
+    description: '将通知标记为已读状态',
+  })
   @ApiParam({ name: 'id', description: '通知ID' })
   @ApiResponse({ status: 200, description: '标记成功' })
   @ApiResponse({ status: 403, description: '没有权限标记此通知' })
@@ -198,11 +250,17 @@ export class WorkflowController {
     @Param('id') notificationId: string,
     @Request() req,
   ): Promise<void> {
-    return this.notificationService.markNotificationAsRead(notificationId, req.user.id);
+    return this.notificationService.markNotificationAsRead(
+      notificationId,
+      req.user.id,
+    );
   }
 
   @Put('notifications/:id/actioned')
-  @ApiOperation({ summary: '标记通知为已处理', description: '将通知标记为已处理状态' })
+  @ApiOperation({
+    summary: '标记通知为已处理',
+    description: '将通知标记为已处理状态',
+  })
   @ApiParam({ name: 'id', description: '通知ID' })
   @ApiResponse({ status: 200, description: '标记成功' })
   @ApiResponse({ status: 403, description: '没有权限标记此通知' })
@@ -210,7 +268,10 @@ export class WorkflowController {
     @Param('id') notificationId: string,
     @Request() req,
   ): Promise<void> {
-    return this.notificationService.markNotificationAsActioned(notificationId, req.user.id);
+    return this.notificationService.markNotificationAsActioned(
+      notificationId,
+      req.user.id,
+    );
   }
 
   @Delete('notifications/:id')
@@ -223,6 +284,9 @@ export class WorkflowController {
     @Param('id') notificationId: string,
     @Request() req,
   ): Promise<void> {
-    return this.notificationService.deleteUserNotification(notificationId, req.user.id);
+    return this.notificationService.deleteUserNotification(
+      notificationId,
+      req.user.id,
+    );
   }
 }

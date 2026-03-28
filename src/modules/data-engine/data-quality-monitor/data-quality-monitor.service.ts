@@ -51,7 +51,9 @@ export class DataQualityMonitorService {
     updateDto: UpdateDataQualityRuleDto,
   ): Promise<DataQualityRule> {
     await this.ruleRepository.update(id, updateDto);
-    return this.ruleRepository.findOne({ where: { id } }) as Promise<DataQualityRule>;
+    return this.ruleRepository.findOne({
+      where: { id },
+    }) as Promise<DataQualityRule>;
   }
 
   async deleteRule(id: string): Promise<void> {

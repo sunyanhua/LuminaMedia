@@ -9,7 +9,6 @@ import { AnalysisAgentInput } from '../interfaces/analysis-agent.interface';
 describe('AnalysisAgentService', () => {
   let service: AnalysisAgentService;
   let geminiService: jest.Mocked<GeminiService>;
-  let qwenService: jest.Mocked<QwenService>;
   let configService: jest.Mocked<ConfigService>;
 
   beforeEach(async () => {
@@ -23,7 +22,7 @@ describe('AnalysisAgentService', () => {
     };
 
     const mockConfigService = {
-      get: jest.fn(),
+      get: jest.fn().mockReturnValue('gemini'),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -37,7 +36,6 @@ describe('AnalysisAgentService', () => {
 
     service = module.get<AnalysisAgentService>(AnalysisAgentService);
     geminiService = module.get(GeminiService);
-    qwenService = module.get(QwenService);
     configService = module.get(ConfigService);
   });
 
@@ -205,7 +203,7 @@ describe('AnalysisAgentService', () => {
   });
 
   describe('buildAnalysisPrompt', () => {
-    it('应生成包含所有输入信息的提示词', () => {
+    it('应生成包含所有输入信息的提示词', async () => {
       const input: AnalysisAgentInput = {
         customerData: [
           {
@@ -243,7 +241,7 @@ describe('AnalysisAgentService', () => {
       configService.get.mockReturnValue('gemini');
 
       // 执行服务，会调用buildAnalysisPrompt
-      service.execute(input);
+      await service.execute(input);
 
       // 验证Gemini服务是否被调用（虽然会失败，但prompt会构建）
       // 实际上由于isGeminiAvailable返回false，不会调用generateContent
@@ -253,7 +251,7 @@ describe('AnalysisAgentService', () => {
   });
 
   describe('parseAnalysisResponse', () => {
-    it('应正确解析有效的AI响应', () => {
+    it('应正确解析有效的AI响应', async () => {
       const validResponse = JSON.stringify({
         marketInsights: {
           trends: ['趋势1'],
@@ -341,7 +339,7 @@ describe('AnalysisAgentService', () => {
       };
 
       // 应该成功执行而不抛出异常
-      expect(service.execute(input)).resolves.toBeDefined();
+      await expect(service.execute(input)).resolves.toBeDefined();
     });
 
     it('当AI响应无效时应抛出错误', async () => {

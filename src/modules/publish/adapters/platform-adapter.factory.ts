@@ -16,7 +16,10 @@ import { DouyinAdapter } from './douyin.adapter';
 @Injectable()
 export class PlatformAdapterFactory {
   private readonly logger = new Logger(PlatformAdapterFactory.name);
-  private readonly adapterRegistry: Map<PlatformType, new (config: PlatformConfig) => PlatformAdapter>;
+  private readonly adapterRegistry: Map<
+    PlatformType,
+    new (config: PlatformConfig) => PlatformAdapter
+  >;
 
   constructor() {
     // 注册所有可用的适配器
@@ -38,23 +41,34 @@ export class PlatformAdapterFactory {
 
     const AdapterClass = this.adapterRegistry.get(config.type);
     if (!AdapterClass) {
-      throw new NotFoundException(`No adapter found for platform type: ${config.type}`);
+      throw new NotFoundException(
+        `No adapter found for platform type: ${config.type}`,
+      );
     }
 
     try {
-      this.logger.log(`Creating adapter for platform: ${config.type} (${config.name})`);
+      this.logger.log(
+        `Creating adapter for platform: ${config.type} (${config.name})`,
+      );
       const adapter = new AdapterClass(config);
       return adapter;
     } catch (error) {
-      this.logger.error(`Failed to create adapter for platform ${config.type}: ${error.message}`, error.stack);
-      throw new Error(`Failed to create adapter for platform ${config.type}: ${error.message}`);
+      this.logger.error(
+        `Failed to create adapter for platform ${config.type}: ${error.message}`,
+        error.stack,
+      );
+      throw new Error(
+        `Failed to create adapter for platform ${config.type}: ${error.message}`,
+      );
     }
   }
 
   /**
    * 批量创建适配器实例
    */
-  createAdapters(configs: PlatformConfig[]): Map<PlatformType, PlatformAdapter> {
+  createAdapters(
+    configs: PlatformConfig[],
+  ): Map<PlatformType, PlatformAdapter> {
     const adapters = new Map<PlatformType, PlatformAdapter>();
 
     for (const config of configs) {
@@ -68,7 +82,9 @@ export class PlatformAdapterFactory {
         adapters.set(config.type, adapter);
         this.logger.log(`Adapter created for platform: ${config.type}`);
       } catch (error) {
-        this.logger.error(`Failed to create adapter for platform ${config.type}: ${error.message}`);
+        this.logger.error(
+          `Failed to create adapter for platform ${config.type}: ${error.message}`,
+        );
         // 继续创建其他适配器，不中断整个流程
       }
     }
@@ -93,10 +109,14 @@ export class PlatformAdapterFactory {
   /**
    * 获取适配器类（用于测试或其他用途）
    */
-  getAdapterClass(platformType: PlatformType): new (config: PlatformConfig) => PlatformAdapter {
+  getAdapterClass(
+    platformType: PlatformType,
+  ): new (config: PlatformConfig) => PlatformAdapter {
     const AdapterClass = this.adapterRegistry.get(platformType);
     if (!AdapterClass) {
-      throw new NotFoundException(`No adapter class found for platform type: ${platformType}`);
+      throw new NotFoundException(
+        `No adapter class found for platform type: ${platformType}`,
+      );
     }
     return AdapterClass;
   }
@@ -104,9 +124,14 @@ export class PlatformAdapterFactory {
   /**
    * 注册自定义适配器
    */
-  registerAdapter(platformType: PlatformType, adapterClass: new (config: PlatformConfig) => PlatformAdapter): void {
+  registerAdapter(
+    platformType: PlatformType,
+    adapterClass: new (config: PlatformConfig) => PlatformAdapter,
+  ): void {
     if (this.adapterRegistry.has(platformType)) {
-      this.logger.warn(`Overriding existing adapter for platform type: ${platformType}`);
+      this.logger.warn(
+        `Overriding existing adapter for platform type: ${platformType}`,
+      );
     }
     this.adapterRegistry.set(platformType, adapterClass);
     this.logger.log(`Custom adapter registered for platform: ${platformType}`);
@@ -201,7 +226,10 @@ export class PlatformAdapterFactory {
       errors.push('Platform credentials are required');
     } else {
       // 根据平台类型验证凭证
-      const credentialErrors = this.validateCredentials(config.type, config.credentials);
+      const credentialErrors = this.validateCredentials(
+        config.type,
+        config.credentials,
+      );
       errors.push(...credentialErrors);
     }
 
@@ -214,7 +242,10 @@ export class PlatformAdapterFactory {
   /**
    * 验证平台凭证
    */
-  private validateCredentials(platformType: PlatformType, credentials: any): string[] {
+  private validateCredentials(
+    platformType: PlatformType,
+    credentials: any,
+  ): string[] {
     const errors: string[] = [];
 
     switch (platformType) {
@@ -225,10 +256,17 @@ export class PlatformAdapterFactory {
         break;
 
       case PlatformType.XIAOHONGSHU:
-        if (!credentials.username) errors.push('Xiaohongshu username is required');
+        if (!credentials.username)
+          errors.push('Xiaohongshu username is required');
         // 密码或session token至少需要一个
-        if (!credentials.password && !credentials.sessionToken && !credentials.cookies) {
-          errors.push('Xiaohongshu requires password, sessionToken, or cookies');
+        if (
+          !credentials.password &&
+          !credentials.sessionToken &&
+          !credentials.cookies
+        ) {
+          errors.push(
+            'Xiaohongshu requires password, sessionToken, or cookies',
+          );
         }
         break;
 
@@ -243,7 +281,8 @@ export class PlatformAdapterFactory {
 
       case PlatformType.DOUYIN:
         if (!credentials.clientKey) errors.push('Douyin clientKey is required');
-        if (!credentials.clientSecret) errors.push('Douyin clientSecret is required');
+        if (!credentials.clientSecret)
+          errors.push('Douyin clientSecret is required');
         // accessToken或refresh token至少需要一个
         if (!credentials.accessToken && !credentials.refreshToken) {
           errors.push('Douyin requires accessToken or refreshToken');
@@ -251,7 +290,9 @@ export class PlatformAdapterFactory {
         break;
 
       default:
-        errors.push(`Validation not implemented for platform type: ${platformType}`);
+        errors.push(
+          `Validation not implemented for platform type: ${platformType}`,
+        );
     }
 
     return errors;
@@ -260,14 +301,18 @@ export class PlatformAdapterFactory {
   /**
    * 初始化所有适配器
    */
-  async initializeAdapters(adapters: Map<PlatformType, PlatformAdapter>): Promise<void> {
+  async initializeAdapters(
+    adapters: Map<PlatformType, PlatformAdapter>,
+  ): Promise<void> {
     const initializationPromises: Promise<void>[] = [];
 
     for (const [platformType, adapter] of adapters.entries()) {
       this.logger.log(`Initializing adapter for platform: ${platformType}`);
       initializationPromises.push(
         adapter.initialize().catch((error) => {
-          this.logger.error(`Failed to initialize adapter for platform ${platformType}: ${error.message}`);
+          this.logger.error(
+            `Failed to initialize adapter for platform ${platformType}: ${error.message}`,
+          );
           throw error;
         }),
       );
@@ -285,14 +330,18 @@ export class PlatformAdapterFactory {
   /**
    * 清理所有适配器资源
    */
-  async cleanupAdapters(adapters: Map<PlatformType, PlatformAdapter>): Promise<void> {
+  async cleanupAdapters(
+    adapters: Map<PlatformType, PlatformAdapter>,
+  ): Promise<void> {
     const cleanupPromises: Promise<void>[] = [];
 
     for (const [platformType, adapter] of adapters.entries()) {
       this.logger.log(`Cleaning up adapter for platform: ${platformType}`);
       cleanupPromises.push(
         adapter.cleanup().catch((error) => {
-          this.logger.error(`Failed to cleanup adapter for platform ${platformType}: ${error.message}`);
+          this.logger.error(
+            `Failed to cleanup adapter for platform ${platformType}: ${error.message}`,
+          );
         }),
       );
     }

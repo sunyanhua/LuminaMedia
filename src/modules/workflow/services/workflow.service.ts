@@ -1,4 +1,10 @@
-import { Injectable, Logger, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WorkflowRepository } from '../repositories/workflow.repository';
 import { WorkflowNodeRepository } from '../repositories/workflow-node.repository';
@@ -58,20 +64,29 @@ export class WorkflowService {
   /**
    * 创建工作流
    */
-  async createWorkflow(createDto: CreateWorkflowDto, creatorId: string): Promise<Workflow> {
+  async createWorkflow(
+    createDto: CreateWorkflowDto,
+    creatorId: string,
+  ): Promise<Workflow> {
     // 验证内容草稿是否存在
     const contentDraft = await this.contentDraftRepository.findOne({
       where: { id: createDto.contentDraftId },
     });
 
     if (!contentDraft) {
-      throw new NotFoundException(`Content draft not found: ${createDto.contentDraftId}`);
+      throw new NotFoundException(
+        `Content draft not found: ${createDto.contentDraftId}`,
+      );
     }
 
     // 检查是否已存在工作流
-    const existingWorkflow = await this.workflowRepository.findByContentDraft(createDto.contentDraftId);
+    const existingWorkflow = await this.workflowRepository.findByContentDraft(
+      createDto.contentDraftId,
+    );
     if (existingWorkflow) {
-      throw new BadRequestException(`Workflow already exists for content draft: ${createDto.contentDraftId}`);
+      throw new BadRequestException(
+        `Workflow already exists for content draft: ${createDto.contentDraftId}`,
+      );
     }
 
     // 创建默认配置
@@ -135,7 +150,9 @@ export class WorkflowService {
       priority: 3,
     });
 
-    this.logger.log(`Workflow created: ${savedWorkflow.id} for draft: ${createDto.contentDraftId}`);
+    this.logger.log(
+      `Workflow created: ${savedWorkflow.id} for draft: ${createDto.contentDraftId}`,
+    );
     return savedWorkflow;
   }
 
@@ -146,7 +163,9 @@ export class WorkflowService {
     const workflow = await this.getWorkflowById(workflowId);
 
     if (workflow.status !== WorkflowStatus.DRAFT) {
-      throw new BadRequestException(`Workflow cannot be submitted. Current status: ${workflow.status}`);
+      throw new BadRequestException(
+        `Workflow cannot be submitted. Current status: ${workflow.status}`,
+      );
     }
 
     if (workflow.createdBy !== userId) {
@@ -203,7 +222,11 @@ export class WorkflowService {
     nodeId: string,
     approvalDto: ApprovalRequestDto,
     userId: string,
-  ): Promise<{ workflow: Workflow; node: WorkflowNode; record: ApprovalRecord }> {
+  ): Promise<{
+    workflow: Workflow;
+    node: WorkflowNode;
+    record: ApprovalRecord;
+  }> {
     const workflow = await this.getWorkflowById(workflowId);
     const node = await this.workflowNodeRepository.findById(nodeId);
 
@@ -213,11 +236,15 @@ export class WorkflowService {
 
     // 检查用户是否有审批权限
     if (node.assignedTo !== userId) {
-      throw new ForbiddenException('User does not have permission to approve this node');
+      throw new ForbiddenException(
+        'User does not have permission to approve this node',
+      );
     }
 
     if (node.status !== WorkflowStatus.EDITOR_REVIEW) {
-      throw new BadRequestException(`Node cannot be approved. Current status: ${node.status}`);
+      throw new BadRequestException(
+        `Node cannot be approved. Current status: ${node.status}`,
+      );
     }
 
     // 创建审批记录
@@ -233,7 +260,9 @@ export class WorkflowService {
       previousStatus: node.status,
       newStatus: WorkflowStatus.COMPLETED,
       metadata: {
-        processingTimeMs: node.startedAt ? Date.now() - node.startedAt.getTime() : 0,
+        processingTimeMs: node.startedAt
+          ? Date.now() - node.startedAt.getTime()
+          : 0,
         autoApproved: false,
       },
     });
@@ -345,7 +374,9 @@ export class WorkflowService {
       priority: 3,
     });
 
-    this.logger.log(`Approval processed: ${approvalDto.action} for workflow ${workflowId}, node ${nodeId}`);
+    this.logger.log(
+      `Approval processed: ${approvalDto.action} for workflow ${workflowId}, node ${nodeId}`,
+    );
 
     return {
       workflow: savedWorkflow,
@@ -382,46 +413,69 @@ export class WorkflowService {
   /**
    * 查询工作流（带过滤）
    */
-  async findWorkflows(filter: WorkflowFilter, page = 1, limit = 20): Promise<{ data: Workflow[]; total: number }> {
+  async findWorkflows(
+    filter: WorkflowFilter,
+    page = 1,
+    limit = 20,
+  ): Promise<{ data: Workflow[]; total: number }> {
     const queryBuilder = this.workflowRepository.createQueryBuilder('workflow');
 
     // 应用过滤器
     if (filter.status) {
       if (Array.isArray(filter.status)) {
-        queryBuilder.andWhere('workflow.status IN (:...statuses)', { statuses: filter.status });
+        queryBuilder.andWhere('workflow.status IN (:...statuses)', {
+          statuses: filter.status,
+        });
       } else {
-        queryBuilder.andWhere('workflow.status = :status', { status: filter.status });
+        queryBuilder.andWhere('workflow.status = :status', {
+          status: filter.status,
+        });
       }
     }
 
     if (filter.createdBy) {
-      queryBuilder.andWhere('workflow.createdBy = :createdBy', { createdBy: filter.createdBy });
+      queryBuilder.andWhere('workflow.createdBy = :createdBy', {
+        createdBy: filter.createdBy,
+      });
     }
 
     if (filter.isExpedited !== undefined) {
-      queryBuilder.andWhere('workflow.isExpedited = :isExpedited', { isExpedited: filter.isExpedited });
+      queryBuilder.andWhere('workflow.isExpedited = :isExpedited', {
+        isExpedited: filter.isExpedited,
+      });
     }
 
     if (filter.priority) {
-      queryBuilder.andWhere('workflow.priority >= :priority', { priority: filter.priority });
+      queryBuilder.andWhere('workflow.priority >= :priority', {
+        priority: filter.priority,
+      });
     }
 
     if (filter.startDate) {
-      queryBuilder.andWhere('workflow.createdAt >= :startDate', { startDate: filter.startDate });
+      queryBuilder.andWhere('workflow.createdAt >= :startDate', {
+        startDate: filter.startDate,
+      });
     }
 
     if (filter.endDate) {
-      queryBuilder.andWhere('workflow.createdAt <= :endDate', { endDate: filter.endDate });
+      queryBuilder.andWhere('workflow.createdAt <= :endDate', {
+        endDate: filter.endDate,
+      });
     }
 
     if (filter.contentDraftId) {
-      queryBuilder.andWhere('workflow.contentDraftId = :contentDraftId', { contentDraftId: filter.contentDraftId });
+      queryBuilder.andWhere('workflow.contentDraftId = :contentDraftId', {
+        contentDraftId: filter.contentDraftId,
+      });
     }
 
     if (filter.search) {
-      queryBuilder.andWhere('(workflow.title LIKE :search OR workflow.description LIKE :search)', {
-        search: `%${filter.search}%`,
-      });
+      queryBuilder.andWhere(
+        '(workflow.title LIKE :search OR workflow.description LIKE :search)',
+        {
+          search: `%${filter.search}%`,
+        },
+      );
     }
 
     // 排序和分页
@@ -441,7 +495,10 @@ export class WorkflowService {
   async getWorkflowStats(): Promise<WorkflowStats> {
     const statusStats = await this.workflowRepository.getStatusStats();
 
-    const total = Object.values(statusStats).reduce((sum, count) => sum + count, 0);
+    const total = Object.values(statusStats).reduce(
+      (sum, count) => sum + count,
+      0,
+    );
     const pending = [
       WorkflowStatus.EDITOR_REVIEW,
       WorkflowStatus.AI_CHECK,
@@ -478,11 +535,16 @@ export class WorkflowService {
   /**
    * 撤回工作流
    */
-  async withdrawWorkflow(workflowId: string, userId: string): Promise<Workflow> {
+  async withdrawWorkflow(
+    workflowId: string,
+    userId: string,
+  ): Promise<Workflow> {
     const workflow = await this.getWorkflowById(workflowId);
 
     if (workflow.createdBy !== userId) {
-      throw new ForbiddenException('Only the creator can withdraw the workflow');
+      throw new ForbiddenException(
+        'Only the creator can withdraw the workflow',
+      );
     }
 
     const withdrawableStatuses = [
@@ -492,7 +554,9 @@ export class WorkflowService {
     ];
 
     if (!withdrawableStatuses.includes(workflow.status)) {
-      throw new BadRequestException(`Workflow cannot be withdrawn in status: ${workflow.status}`);
+      throw new BadRequestException(
+        `Workflow cannot be withdrawn in status: ${workflow.status}`,
+      );
     }
 
     const previousStatus = workflow.status;
@@ -517,8 +581,13 @@ export class WorkflowService {
   /**
    * 分配节点给用户
    */
-  async assignNode(assignRequest: AssignNodeRequest, userId: string): Promise<WorkflowNode> {
-    const node = await this.workflowNodeRepository.findById(assignRequest.nodeId);
+  async assignNode(
+    assignRequest: AssignNodeRequest,
+    userId: string,
+  ): Promise<WorkflowNode> {
+    const node = await this.workflowNodeRepository.findById(
+      assignRequest.nodeId,
+    );
     if (!node) {
       throw new NotFoundException(`Node not found: ${assignRequest.nodeId}`);
     }
@@ -678,15 +747,25 @@ export class WorkflowService {
   /**
    * 检查是否为最后一个节点
    */
-  private async isLastNode(workflow: Workflow, node: WorkflowNode): Promise<boolean> {
-    const nodes = await this.workflowNodeRepository.findByWorkflowId(workflow.id);
+  private async isLastNode(
+    workflow: Workflow,
+    node: WorkflowNode,
+  ): Promise<boolean> {
+    const nodes = await this.workflowNodeRepository.findByWorkflowId(
+      workflow.id,
+    );
     const sortedNodes = nodes.sort((a, b) => a.nodeIndex - b.nodeIndex);
     const lastNode = sortedNodes[sortedNodes.length - 1];
 
     // 如果是并行节点，需要检查整个并行组是否完成
     if (node.parallelGroup) {
-      const parallelNodes = await this.workflowNodeRepository.findParallelGroupNodes(node.parallelGroup);
-      const allCompleted = parallelNodes.every(n => n.status === WorkflowStatus.COMPLETED);
+      const parallelNodes =
+        await this.workflowNodeRepository.findParallelGroupNodes(
+          node.parallelGroup,
+        );
+      const allCompleted = parallelNodes.every(
+        (n) => n.status === WorkflowStatus.COMPLETED,
+      );
       return allCompleted && node.nodeIndex === lastNode.nodeIndex;
     }
 
@@ -696,11 +775,16 @@ export class WorkflowService {
   /**
    * 激活下一个节点
    */
-  private async activateNextNode(workflow: Workflow, currentNode: WorkflowNode): Promise<void> {
-    const nodes = await this.workflowNodeRepository.findByWorkflowId(workflow.id);
+  private async activateNextNode(
+    workflow: Workflow,
+    currentNode: WorkflowNode,
+  ): Promise<void> {
+    const nodes = await this.workflowNodeRepository.findByWorkflowId(
+      workflow.id,
+    );
     const sortedNodes = nodes.sort((a, b) => a.nodeIndex - b.nodeIndex);
 
-    const currentIndex = sortedNodes.findIndex(n => n.id === currentNode.id);
+    const currentIndex = sortedNodes.findIndex((n) => n.id === currentNode.id);
     if (currentIndex === -1 || currentIndex >= sortedNodes.length - 1) {
       return;
     }
@@ -709,8 +793,12 @@ export class WorkflowService {
 
     // 检查依赖关系
     if (nextNode.dependencies && nextNode.dependencies.length > 0) {
-      const dependencyNodes = nodes.filter(n => nextNode.dependencies.includes(n.id));
-      const allDependenciesCompleted = dependencyNodes.every(n => n.status === WorkflowStatus.COMPLETED);
+      const dependencyNodes = nodes.filter((n) =>
+        nextNode.dependencies.includes(n.id),
+      );
+      const allDependenciesCompleted = dependencyNodes.every(
+        (n) => n.status === WorkflowStatus.COMPLETED,
+      );
       if (!allDependenciesCompleted) {
         return;
       }
@@ -757,7 +845,10 @@ export class WorkflowService {
     try {
       return await this.notificationRepository.createNotification(data);
     } catch (error) {
-      this.logger.error(`Failed to create notification: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to create notification: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }

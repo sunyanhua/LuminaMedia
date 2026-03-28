@@ -5,4 +5,5 @@ export enum Platform {
   ANALYSIS = 'ANALYSIS', // AI分析Agent专用
   STRATEGY = 'STRATEGY', // AI策划Agent专用
   GENERAL = 'GENERAL', // 通用平台
+  CONTENT_GENERATION = 'content_generation', // 内容生成专用
 }

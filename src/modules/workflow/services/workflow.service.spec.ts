@@ -12,7 +12,11 @@ import { ApprovalRecord } from '../entities/approval-record.entity';
 import { Notification } from '../entities/notification.entity';
 import { User } from '../../../entities/user.entity';
 import { ContentDraft } from '../../../entities/content-draft.entity';
-import { WorkflowStatus, ApprovalAction, ApprovalNodeType } from '../../../shared/enums/workflow-status.enum';
+import {
+  WorkflowStatus,
+  ApprovalAction,
+  ApprovalNodeType,
+} from '../../../shared/enums/workflow-status.enum';
 import { TenantContextService } from '../../../shared/services/tenant-context.service';
 import { DataSource } from 'typeorm';
 
@@ -124,13 +128,21 @@ describe('WorkflowService', () => {
 
     service = module.get<WorkflowService>(WorkflowService);
     workflowRepository = module.get(getRepositoryToken(WorkflowRepository));
-    workflowNodeRepository = module.get(getRepositoryToken(WorkflowNodeRepository));
-    approvalRecordRepository = module.get(getRepositoryToken(ApprovalRecordRepository));
-    notificationRepository = module.get(getRepositoryToken(NotificationRepository));
+    workflowNodeRepository = module.get(
+      getRepositoryToken(WorkflowNodeRepository),
+    );
+    approvalRecordRepository = module.get(
+      getRepositoryToken(ApprovalRecordRepository),
+    );
+    notificationRepository = module.get(
+      getRepositoryToken(NotificationRepository),
+    );
     eventEmitter = module.get(EventEmitter2);
 
     // Mock TenantContextService
-    jest.spyOn(TenantContextService, 'getCurrentTenantIdStatic').mockReturnValue('test-tenant');
+    jest
+      .spyOn(TenantContextService, 'getCurrentTenantIdStatic')
+      .mockReturnValue('test-tenant');
   });
 
   afterEach(() => {
@@ -169,7 +181,9 @@ describe('WorkflowService', () => {
       expect(mockContentDraftRepository.findOne).toHaveBeenCalledWith({
         where: { id: createDto.contentDraftId },
       });
-      expect(mockWorkflowRepository.findByContentDraft).toHaveBeenCalledWith(createDto.contentDraftId);
+      expect(mockWorkflowRepository.findByContentDraft).toHaveBeenCalledWith(
+        createDto.contentDraftId,
+      );
       expect(mockWorkflowRepository.create).toHaveBeenCalled();
       expect(mockWorkflowRepository.save).toHaveBeenCalled();
       expect(eventEmitter.emit).toHaveBeenCalled();
@@ -182,9 +196,9 @@ describe('WorkflowService', () => {
 
       mockContentDraftRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.createWorkflow(createDto, 'user-123')).rejects.toThrow(
-        'Content draft not found',
-      );
+      await expect(
+        service.createWorkflow(createDto, 'user-123'),
+      ).rejects.toThrow('Content draft not found');
     });
 
     it('should throw error when workflow already exists for draft', async () => {
@@ -201,11 +215,13 @@ describe('WorkflowService', () => {
       };
 
       mockContentDraftRepository.findOne.mockResolvedValue(mockContentDraft);
-      mockWorkflowRepository.findByContentDraft.mockResolvedValue(mockExistingWorkflow);
-
-      await expect(service.createWorkflow(createDto, 'user-123')).rejects.toThrow(
-        'Workflow already exists',
+      mockWorkflowRepository.findByContentDraft.mockResolvedValue(
+        mockExistingWorkflow,
       );
+
+      await expect(
+        service.createWorkflow(createDto, 'user-123'),
+      ).rejects.toThrow('Workflow already exists');
     });
   });
 
@@ -230,7 +246,10 @@ describe('WorkflowService', () => {
 
       mockWorkflowRepository.findById.mockResolvedValue(mockWorkflow);
       mockWorkflowNodeRepository.findOne.mockResolvedValue(mockNode);
-      mockWorkflowRepository.save.mockResolvedValue({ ...mockWorkflow, status: WorkflowStatus.EDITOR_REVIEW });
+      mockWorkflowRepository.save.mockResolvedValue({
+        ...mockWorkflow,
+        status: WorkflowStatus.EDITOR_REVIEW,
+      });
 
       const result = await service.submitWorkflow(workflowId, userId);
 
@@ -310,12 +329,22 @@ describe('WorkflowService', () => {
 
       mockWorkflowRepository.findById.mockResolvedValue(mockWorkflow);
       mockWorkflowNodeRepository.findById.mockResolvedValue(mockNode);
-      mockApprovalRecordRepository.createRecord.mockResolvedValue(mockApprovalRecord);
-      mockWorkflowNodeRepository.save.mockResolvedValue({ ...mockNode, status: WorkflowStatus.COMPLETED });
+      mockApprovalRecordRepository.createRecord.mockResolvedValue(
+        mockApprovalRecord,
+      );
+      mockWorkflowNodeRepository.save.mockResolvedValue({
+        ...mockNode,
+        status: WorkflowStatus.COMPLETED,
+      });
       mockWorkflowRepository.save.mockResolvedValue(mockWorkflow);
       mockWorkflowNodeRepository.findByWorkflowId.mockResolvedValue([mockNode]);
 
-      const result = await service.processApproval(workflowId, nodeId, approvalDto, userId);
+      const result = await service.processApproval(
+        workflowId,
+        nodeId,
+        approvalDto,
+        userId,
+      );
 
       expect(result.workflow).toBeDefined();
       expect(result.node).toBeDefined();
@@ -349,9 +378,9 @@ describe('WorkflowService', () => {
       mockWorkflowRepository.findById.mockResolvedValue(mockWorkflow);
       mockWorkflowNodeRepository.findById.mockResolvedValue(mockNode);
 
-      await expect(service.processApproval(workflowId, nodeId, approvalDto, userId)).rejects.toThrow(
-        'User does not have permission',
-      );
+      await expect(
+        service.processApproval(workflowId, nodeId, approvalDto, userId),
+      ).rejects.toThrow('User does not have permission');
     });
   });
 
