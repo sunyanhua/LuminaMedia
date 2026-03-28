@@ -440,10 +440,8 @@ export class WechatFormatterService {
    * 提取纯文本
    */
   private extractPlainText(html: string): string {
-    return htmlToText.convert(html, {
+    return htmlToText(html, {
       wordwrap: false,
-      ignoreHref: true,
-      ignoreImage: true,
     });
   }
 

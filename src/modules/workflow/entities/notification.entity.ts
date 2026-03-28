@@ -143,7 +143,7 @@ export class Notification {
     tags?: string[]; // 标签
   };
 
-  @CreateDateColumn({ name: 'created_at' })
+  @Column({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })

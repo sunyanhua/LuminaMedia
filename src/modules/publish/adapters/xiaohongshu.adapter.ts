@@ -10,8 +10,8 @@ import {
   PlatformHealthStatus,
   PlatformStats,
   XHSCredentials,
-  PlatformConfig,
 } from '../interfaces/platform-adapter.interface';
+import type { PlatformConfig } from '../interfaces/platform-adapter.interface';
 
 /**
  * 小红书适配器

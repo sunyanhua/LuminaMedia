@@ -25,12 +25,14 @@
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
-    "@nestjs/event-emitter": "^1.0.0",
+    "@nestjs/event-emitter": "^3.0.0",
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/schedule": "^6.1.1",
     "@nestjs/swagger": "^11.0.0",
     "@nestjs/typeorm": "^11.0.0",
+    "axios": "^1.14.0",
     "bcrypt": "^6.0.0",
     "cheerio": "^1.2.0",
     "class-transformer": "^0.5.1",
@@ -51,11 +53,11 @@
   "overrides": {
     "path-to-regexp": "^8.4.0",
     "picomatch": "^4.0.4",
-    "ajv": "^8.18.0"
+    "ajv": "^7.2.4"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.5",
-    "@eslint/js": "^9.18.0",
+    "@eslint/eslintrc": "3.2.0",
+    "@eslint/js": "^9.39.4",
     "@nestjs/cli": "^11.0.16",
     "@nestjs/schematics": "^11.0.9",
     "@nestjs/testing": "^11.0.1",
@@ -65,7 +67,9 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^22.10.7",
     "@types/supertest": "^6.0.2",
-    "eslint": "^9.18.0",
+    "@typescript-eslint/eslint-plugin": "^8.57.2",
+    "@typescript-eslint/parser": "^8.57.2",
+    "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^16.0.0",
@@ -95,6 +99,9 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(uuid)/)"
+    ],
     "collectCoverageFrom": [
       "src/**/*.(t|j)s",
       "test/**/*.(t|j)s"

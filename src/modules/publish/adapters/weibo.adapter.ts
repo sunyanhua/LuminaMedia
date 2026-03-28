@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
-import * as FormData from 'form-data';
+import FormData from 'form-data';
 import {
   PlatformAdapter,
   PlatformType,
@@ -11,8 +11,8 @@ import {
   PlatformHealthStatus,
   PlatformStats,
   WeiboCredentials,
-  PlatformConfig,
 } from '../interfaces/platform-adapter.interface';
+import type { PlatformConfig } from '../interfaces/platform-adapter.interface';
 
 /**
  * 微博适配器
@@ -450,7 +450,7 @@ export class WeiboAdapter implements PlatformAdapter {
       return response.data;
     } else if (images.length > 1) {
       // 多张图片（需要先上传图片，再发布微博）
-      const picIds = [];
+      const picIds: string[] = [];
       for (const imageUrl of images) {
         const picId = await this.uploadImage(imageUrl);
         picIds.push(picId);

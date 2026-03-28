@@ -23,6 +23,9 @@ export enum WorkflowStatus {
   /** 已发布 - 内容已发布到平台 */
   PUBLISHED = 'PUBLISHED',
 
+  /** 已完成 - 节点审批完成 */
+  COMPLETED = 'COMPLETED',
+
   /** 被拒绝 - 内容被拒绝 */
   REJECTED = 'REJECTED',
 

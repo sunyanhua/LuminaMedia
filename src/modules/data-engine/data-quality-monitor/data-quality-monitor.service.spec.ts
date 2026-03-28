@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { DataQualityMonitorService } from './data-quality-monitor.service';
 import { DataQualityRule } from './entities/data-quality-rule.entity';
 import { DataQualityResult } from './entities/data-quality-result.entity';
-import { CreateDataQualityRuleDto } from './dto/create-data-quality-rule.dto';
+import { CreateDataQualityRuleDto, RuleSeverity } from './dto/create-data-quality-rule.dto';
 import { DataSource } from 'typeorm';
 
 describe('DataQualityMonitorService', () => {
@@ -77,7 +77,7 @@ describe('DataQualityMonitorService', () => {
         fieldName: 'test_field',
         condition: 'test_field IS NOT NULL',
         threshold: 0.95,
-        severity: 'warning',
+        severity: RuleSeverity.WARNING,
         description: 'Test rule description',
         isActive: true,
       };
@@ -137,7 +137,7 @@ describe('DataQualityMonitorService', () => {
         fieldName: 'test_field',
         condition: 'test_field IS NOT NULL',
         threshold: 0.9,
-        severity: 'warning',
+        severity: RuleSeverity.WARNING,
       };
 
       const mockQueryResult = [
@@ -155,7 +155,7 @@ describe('DataQualityMonitorService', () => {
         fieldName: 'test_field',
         metricValue: 0.95,
         threshold: 0.9,
-        severity: 'warning',
+        severity: RuleSeverity.WARNING,
         passed: true,
         executionTime: new Date(),
         details: {},
@@ -185,7 +185,7 @@ describe('DataQualityMonitorService', () => {
         fieldName: 'test_field',
         condition: 'test_field IS NOT NULL',
         threshold: 0.9,
-        severity: 'error',
+        severity: RuleSeverity.ERROR,
       };
 
       const mockQueryResult = [
@@ -203,7 +203,7 @@ describe('DataQualityMonitorService', () => {
         fieldName: 'test_field',
         metricValue: 0.8,
         threshold: 0.9,
-        severity: 'error',
+        severity: RuleSeverity.ERROR,
         passed: false,
         executionTime: new Date(),
         details: {},

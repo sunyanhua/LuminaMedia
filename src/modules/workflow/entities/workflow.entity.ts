@@ -12,6 +12,8 @@ import {
 import { User } from '../../../entities/user.entity';
 import { ContentDraft } from '../../../entities/content-draft.entity';
 import { WorkflowStatus, ApprovalNodeType } from '../../../shared/enums/workflow-status.enum';
+import { WorkflowNode } from './workflow-node.entity';
+import { ApprovalRecord } from './approval-record.entity';
 
 /**
  * 三审三校工作流实体

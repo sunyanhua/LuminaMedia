@@ -241,7 +241,19 @@
 <a name='L176'></a><a href='#L176'>176</a>
 <a name='L177'></a><a href='#L177'>177</a>
 <a name='L178'></a><a href='#L178'>178</a>
-<a name='L179'></a><a href='#L179'>179</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L179'></a><a href='#L179'>179</a>
+<a name='L180'></a><a href='#L180'>180</a>
+<a name='L181'></a><a href='#L181'>181</a>
+<a name='L182'></a><a href='#L182'>182</a>
+<a name='L183'></a><a href='#L183'>183</a>
+<a name='L184'></a><a href='#L184'>184</a>
+<a name='L185'></a><a href='#L185'>185</a>
+<a name='L186'></a><a href='#L186'>186</a>
+<a name='L187'></a><a href='#L187'>187</a>
+<a name='L188'></a><a href='#L188'>188</a>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -283,8 +295,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -316,8 +333,9 @@
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -374,6 +392,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -404,17 +424,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -460,14 +484,19 @@ export class DataQualityMonitorService {
     private readonly dataSource: DataSource<span class="branch-1 cbranch-no" title="branch not covered" >,</span>
   ) {}
 &nbsp;
-  async createRule(createDto: CreateDataQualityRuleDto): Promise&lt;DataQualityRule&gt; {
+  async createRule(
+    createDto: CreateDataQualityRuleDto,
+  ): Promise&lt;DataQualityRule&gt; {
     const rule = this.ruleRepository.create(createDto);
     return await this.ruleRepository.save(rule);
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>updateRule(id: string, updateDto: UpdateDataQualityRuleDto): Promise&lt;DataQualityRule&gt; {
+<span class="fstat-no" title="function not covered" >  async </span>updateRule(
+    id: string,
+    updateDto: UpdateDataQualityRuleDto,
+  ): Promise&lt;DataQualityRule&gt; {
 <span class="cstat-no" title="statement not covered" >    await this.ruleRepository.update(id, updateDto);</span>
-<span class="cstat-no" title="statement not covered" >    return this.ruleRepository.findOne({ where: { id } });</span>
+<span class="cstat-no" title="statement not covered" >    return this.ruleRepository.findOne({ where: { id } }) as Promise&lt;DataQualityRule&gt;;</span>
   }
 &nbsp;
 <span class="fstat-no" title="function not covered" >  async </span>deleteRule(id: string): Promise&lt;void&gt; {
@@ -487,15 +516,16 @@ export class DataQualityMonitorService {
       const queryResult = await this.dataSource.query(
         `SELECT COUNT(*) as total_count,
                 SUM(CASE WHEN ${rule.condition} THEN 1 ELSE 0 END) as valid_count
-         FROM ${rule.tableName}`
+         FROM ${rule.tableName}`,
       );
 &nbsp;
       const total = parseInt(queryResult[0].total_count);
       const valid = parseInt(queryResult[0].valid_count);
       metricValue = total &gt; 0 ? valid / total : <span class="branch-1 cbranch-no" title="branch not covered" >1;</span>
-&nbsp;
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      this.logger.error(`Failed to execute rule ${rule.name}: ${error.message}`);</span>
+<span class="cstat-no" title="statement not covered" >      this.logger.error(</span>
+        `Failed to execute rule ${rule.name}: ${error.message}`,
+      );
 <span class="cstat-no" title="statement not covered" >      throw error;</span>
     }
 &nbsp;
@@ -524,7 +554,7 @@ export class DataQualityMonitorService {
         ruleId: rule.id,
         ruleName: rule.name,
         message: `数据质量规则 "${rule.name}" 未通过: ${metricValue.toFixed(2)} &lt; ${rule.threshold}`,
-        severity: rule.severity,
+        severity: rule.severity as 'error' | 'warning' | 'info',
         timestamp: new Date(),
         details: {
           tableName: rule.tableName,
@@ -548,7 +578,9 @@ export class DataQualityMonitorService {
         const result = await this.executeRule(rule);
         results.push(result);
       } catch (error) {
-        this.logger.error(`Failed to execute rule ${rule.name}: ${error.message}`);
+        this.logger.error(
+          `Failed to execute rule ${rule.name}: ${error.message}`,
+        );
       }
     }
 &nbsp;
@@ -581,7 +613,10 @@ export class DataQualityMonitorService {
     });
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>getRuleCompliance(ruleId: string, days: number = <span class="branch-0 cbranch-no" title="branch not covered" >30)</span>: Promise&lt;{ date: string; compliance: number }[]&gt; {
+<span class="fstat-no" title="function not covered" >  async </span>getRuleCompliance(
+    ruleId: string,
+    days: number = <span class="branch-0 cbranch-no" title="branch not covered" >30,</span>
+  ): Promise&lt;{ date: string; compliance: number }[]&gt; {
     const startDate = <span class="cstat-no" title="statement not covered" >new Date();</span>
 <span class="cstat-no" title="statement not covered" >    startDate.setDate(startDate.getDate() - days);</span>
 &nbsp;
@@ -592,19 +627,20 @@ export class DataQualityMonitorService {
       .orderBy('result.executionTime', 'ASC')
       .getMany();
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return results.map(<span class="fstat-no" title="function not covered" >result </span>=&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+<span class="cstat-no" title="statement not covered" >    return results.map(<span class="fstat-no" title="function not covered" >(r</span>esult) =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
       date: result.executionTime.toISOString().split('T')[0],
       compliance: result.passed ? 100 : 0,
     }));
   }
-}</pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-28T12:54:51.531Z
+                at 2026-03-28T16:38:31.353Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

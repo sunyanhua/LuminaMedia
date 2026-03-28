@@ -9,7 +9,11 @@ export class WorkflowFilterDto {
   @IsEnum(WorkflowStatus)
   status?: WorkflowStatus;
 
-  @ApiPropertyOptional({ type: [WorkflowStatus], description: '工作流状态列表' })
+  @ApiPropertyOptional({
+    type: [WorkflowStatus],
+    enumName: 'WorkflowStatus',
+    description: '工作流状态列表'
+  })
   @IsOptional()
   @IsArray()
   @IsEnum(WorkflowStatus, { each: true })

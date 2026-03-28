@@ -1,7 +1,7 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import axios from 'axios';
-import * as sharp from 'sharp';
-import { v4 as uuidv4 } from 'uuid';
+import sharp from 'sharp';
+const { v4: uuidv4 } = require('uuid');
 
 /**
  * AI图片生成服务

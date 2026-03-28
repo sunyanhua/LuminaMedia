@@ -31,12 +31,6 @@ import { AIImageGeneratorService } from './services/ai-image-generator.service';
     // 适配器工厂
     PlatformAdapterFactory,
 
-    // 适配器（工厂会创建实例，这里注册类以便依赖注入）
-    WechatAdapter,
-    XHSAdapter,
-    WeiboAdapter,
-    DouyinAdapter,
-
     // 服务
     PublishService,
     WechatFormatterService,
@@ -51,12 +45,6 @@ import { AIImageGeneratorService } from './services/ai-image-generator.service';
     PlatformAdapterFactory,
     WechatFormatterService,
     AIImageGeneratorService,
-
-    // 导出适配器（可选）
-    WechatAdapter,
-    XHSAdapter,
-    WeiboAdapter,
-    DouyinAdapter,
   ],
 })
 export class PublishModule {}

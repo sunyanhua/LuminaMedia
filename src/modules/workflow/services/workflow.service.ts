@@ -578,6 +578,7 @@ export class WorkflowService {
    */
   private createDefaultNodes(): Array<{
     type: ApprovalNodeType;
+    name?: string;
     assignee?: string;
     role?: string;
     timeoutHours?: number;
@@ -623,6 +624,7 @@ export class WorkflowService {
     workflow: Workflow,
     nodeConfigs: Array<{
       type: ApprovalNodeType;
+      name?: string;
       assignee?: string;
       role?: string;
       timeoutHours?: number;

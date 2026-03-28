@@ -174,8 +174,8 @@ export class NotificationRepository extends TenantRepository<Notification> {
   async findRetryNotifications(): Promise<Notification[]> {
     return this.createQueryBuilder('notification')
       .where('notification.status = :status', { status: 'FAILED' })
-      .andWhere('notification.retryCount < notification.maxRetries')
-      .andWhere('notification.nextSendAt <= :now', { now: new Date() })
+      .andWhere('notification.retry_count < notification.max_retries')
+      .andWhere('notification.next_send_at <= :now', { now: new Date() })
       .getMany();
   }
 }

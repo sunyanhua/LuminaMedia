@@ -131,7 +131,17 @@ export class AgentWorkflowService {
             analysisResults: analysisResult,
             currentEvents,
             holidays,
-            budgetConstraints: input.budgetConstraints || {
+            budgetConstraints: input.budgetConstraints ? {
+              totalBudget: input.budgetConstraints.maxBudget,
+              currency: input.budgetConstraints.currency || 'CNY',
+              breakdown: [
+                { channel: 'content_creation', amount: Math.floor(input.budgetConstraints.maxBudget * 0.4), percentage: 40 },
+                { channel: 'advertising', amount: Math.floor(input.budgetConstraints.maxBudget * 0.3), percentage: 30 },
+                { channel: 'influencer', amount: Math.floor(input.budgetConstraints.maxBudget * 0.2), percentage: 20 },
+                { channel: 'analytics', amount: Math.floor(input.budgetConstraints.maxBudget * 0.1), percentage: 10 },
+              ],
+              constraints: [`max_budget_${input.budgetConstraints.maxBudget}`, 'no_offline_ads'],
+            } : {
               totalBudget: 50000,
               currency: 'CNY',
               breakdown: [
@@ -142,7 +152,11 @@ export class AgentWorkflowService {
               ],
               constraints: ['max_budget_50000', 'no_offline_ads'],
             },
-            timeline: input.timeline || {
+            timeline: input.timeline ? {
+              startDate: input.timeline.startDate.toISOString(),
+              endDate: input.timeline.endDate.toISOString(),
+              durationDays: Math.ceil((input.timeline.endDate.getTime() - input.timeline.startDate.getTime()) / (1000 * 60 * 60 * 24)),
+            } : {
               startDate: new Date().toISOString(),
               endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30天后
               durationDays: 30,

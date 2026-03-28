@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
-import * as FormData from 'form-data';
+import FormData from 'form-data';
+import type { PlatformConfig } from '../interfaces/platform-adapter.interface';
 import {
   PlatformAdapter,
   PlatformType,
@@ -11,7 +12,6 @@ import {
   PlatformHealthStatus,
   PlatformStats,
   DouyinCredentials,
-  PlatformConfig,
 } from '../interfaces/platform-adapter.interface';
 
 /**

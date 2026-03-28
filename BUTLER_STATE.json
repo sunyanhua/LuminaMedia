@@ -1,6 +1,4 @@
 {
-  "status": "RUNNING",
-  "task_index": 17,
-  "current_task": "里程碑7.1：第二阶段集成功能测试",
-  "attempt": 1
+  "status": "VERIFYING",
+  "round": 4
 }

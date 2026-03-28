@@ -1,6 +1,7 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GeminiService } from '../../data-analytics/services/gemini.service';
+import { Platform } from '../../../shared/enums/platform.enum';
 
 export interface FieldMappingRule {
   sourceHeader: string;

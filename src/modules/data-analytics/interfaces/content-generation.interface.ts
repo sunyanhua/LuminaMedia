@@ -116,4 +116,9 @@ export interface ContentGenerationResult {
   };
   processingTime?: number; // 毫秒
   modelUsed?: string;
+  tokenUsage?: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
 }

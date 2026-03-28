@@ -13,6 +13,7 @@ export interface CreateWorkflowDto {
   config?: {
     nodes?: Array<{
       type: ApprovalNodeType;
+      name?: string;
       assignee?: string;
       role?: string;
       timeoutHours?: number;

@@ -3,6 +3,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PublishService } from './publish.service';
 import { PlatformAdapterFactory } from '../adapters/platform-adapter.factory';
 import { PlatformType, PublishContentInput, PublishStatusType } from '../interfaces/platform-adapter.interface';
+import { WechatFormatterService } from './wechat-formatter.service';
+import { AIImageGeneratorService } from './ai-image-generator.service';
 
 // Mock adapters
 const mockWechatAdapter = {
@@ -59,6 +61,26 @@ const mockXHSAdapter = {
   cleanup: jest.fn().mockResolvedValue(undefined),
 };
 
+// Mock services
+const mockWechatFormatterService = {
+  formatContent: jest.fn().mockResolvedValue({
+    html: '<p>Formatted content</p>',
+    plainText: 'Formatted content',
+    wordCount: 2,
+    imageCount: 0,
+    qualityReport: {
+      score: 85,
+      issues: [],
+      suggestions: [],
+    },
+    formattedAt: new Date(),
+  }),
+};
+
+const mockAiImageGeneratorService = {
+  generateImageSuggestions: jest.fn().mockResolvedValue([]),
+};
+
 describe('PublishService', () => {
   let service: PublishService;
   let adapterFactory: PlatformAdapterFactory;
@@ -92,6 +114,14 @@ describe('PublishService', () => {
           useValue: {
             emit: jest.fn(),
           },
+        },
+        {
+          provide: WechatFormatterService,
+          useValue: mockWechatFormatterService,
+        },
+        {
+          provide: AIImageGeneratorService,
+          useValue: mockAiImageGeneratorService,
         },
       ],
     }).compile();
