@@ -70,7 +70,9 @@ describe('TenantMiddleware Integration', () => {
         .expect(200);
 
       expect(response.body.tenantId).toBe(tenantId);
-      expect(jwtService.verify).toHaveBeenCalledWith('valid-jwt-token');
+      expect(jest.mocked(jwtService.verify)).toHaveBeenCalledWith(
+        'valid-jwt-token',
+      );
     });
 
     it('当JWT令牌不包含tenantId时应使用默认租户', async () => {
@@ -110,7 +112,7 @@ describe('TenantMiddleware Integration', () => {
         .expect(200);
 
       expect(response.body.tenantId).toBe(tenantId);
-      expect(jwtService.verify).not.toHaveBeenCalled();
+      expect(jest.mocked(jwtService.verify)).not.toHaveBeenCalled();
     });
 
     it('x-tenant-id头应优先于无效JWT令牌', async () => {
@@ -136,7 +138,7 @@ describe('TenantMiddleware Integration', () => {
         .expect(200);
 
       expect(response.body.tenantId).toBe('default-tenant');
-      expect(jwtService.verify).not.toHaveBeenCalled();
+      expect(jest.mocked(jwtService.verify)).not.toHaveBeenCalled();
     });
 
     it('当JWT令牌无效且没有x-tenant-id头时应使用默认租户', async () => {
@@ -156,7 +158,9 @@ describe('TenantMiddleware Integration', () => {
   describe('租户上下文隔离', () => {
     it('不同请求应有独立的租户上下文', async () => {
       // 第一个请求
-      (jwtService.verify as jest.Mock).mockReturnValue({ tenantId: 'tenant-a' });
+      (jwtService.verify as jest.Mock).mockReturnValue({
+        tenantId: 'tenant-a',
+      });
       const response1 = await request(app.getHttpServer())
         .get('/test-tenant')
         .set('Authorization', 'Bearer token-a')
@@ -164,7 +168,9 @@ describe('TenantMiddleware Integration', () => {
       expect(response1.body.tenantId).toBe('tenant-a');
 
       // 第二个请求
-      (jwtService.verify as jest.Mock).mockReturnValue({ tenantId: 'tenant-b' });
+      (jwtService.verify as jest.Mock).mockReturnValue({
+        tenantId: 'tenant-b',
+      });
       const response2 = await request(app.getHttpServer())
         .get('/test-tenant')
         .set('Authorization', 'Bearer token-b')
@@ -189,7 +195,7 @@ describe('TenantMiddleware Integration', () => {
         .expect(200);
 
       expect(response.body.tenantId).toBe('default-tenant');
-      expect(jwtService.verify).not.toHaveBeenCalled();
+      expect(jest.mocked(jwtService.verify)).not.toHaveBeenCalled();
     });
 
     it('应该正确处理非Bearer格式的Authorization头', async () => {
@@ -199,7 +205,7 @@ describe('TenantMiddleware Integration', () => {
         .expect(200);
 
       expect(response.body.tenantId).toBe('default-tenant');
-      expect(jwtService.verify).not.toHaveBeenCalled();
+      expect(jest.mocked(jwtService.verify)).not.toHaveBeenCalled();
     });
 
     it('应该正确处理空的Authorization头', async () => {
@@ -209,7 +215,7 @@ describe('TenantMiddleware Integration', () => {
         .expect(200);
 
       expect(response.body.tenantId).toBe('default-tenant');
-      expect(jwtService.verify).not.toHaveBeenCalled();
+      expect(jest.mocked(jwtService.verify)).not.toHaveBeenCalled();
     });
   });
 });

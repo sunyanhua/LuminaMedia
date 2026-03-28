@@ -1,5 +1,9 @@
 import { Reflector } from '@nestjs/core';
-import { PermissionsGuard, PERMISSIONS_KEY, RequiredPermission } from './permissions.guard';
+import {
+  PermissionsGuard,
+  PERMISSIONS_KEY,
+  RequiredPermission,
+} from './permissions.guard';
 import { ExecutionContext } from '@nestjs/common';
 
 describe('PermissionsGuard', () => {
@@ -12,7 +16,18 @@ describe('PermissionsGuard', () => {
   });
 
   describe('canActivate', () => {
-    const createMockContext = (metadata: RequiredPermission[] | null, user: any = null) => {
+    const createMockContext = (
+      metadata: RequiredPermission[] | null,
+      user: {
+        id?: string;
+        username?: string;
+        permissions?: Array<{
+          id?: string;
+          module: string;
+          action: string;
+        }> | null;
+      } | null = null,
+    ) => {
       const mockHandler = {};
       const mockClass = {};
       const request = { user };
@@ -118,10 +133,10 @@ describe('PermissionsGuard', () => {
 
       const result = guard.canActivate(context);
 
-      expect(reflector.getAllAndOverride).toHaveBeenCalledWith(PERMISSIONS_KEY, [
-        context.getHandler(),
-        context.getClass(),
-      ]);
+      expect(jest.mocked(reflector.getAllAndOverride)).toHaveBeenCalledWith(
+        PERMISSIONS_KEY,
+        [context.getHandler(), context.getClass()],
+      );
       expect(result).toBe(true);
     });
 
@@ -138,27 +153,36 @@ describe('PermissionsGuard', () => {
       };
 
       // Test with all permissions present
-      const context1 = createMockContext([
-        { module: 'users', action: 'read' },
-        { module: 'users', action: 'create' },
-        { module: 'content', action: 'edit' },
-      ], user);
+      const context1 = createMockContext(
+        [
+          { module: 'users', action: 'read' },
+          { module: 'users', action: 'create' },
+          { module: 'content', action: 'edit' },
+        ],
+        user,
+      );
       expect(guard.canActivate(context1)).toBe(true);
 
       // Test with missing permission
-      const context2 = createMockContext([
-        { module: 'users', action: 'read' },
-        { module: 'users', action: 'delete' }, // Missing
-      ], user);
+      const context2 = createMockContext(
+        [
+          { module: 'users', action: 'read' },
+          { module: 'users', action: 'delete' }, // Missing
+        ],
+        user,
+      );
       expect(guard.canActivate(context2)).toBe(false);
 
       // Test with partial match but not all required
-      const context3 = createMockContext([
-        { module: 'users', action: 'read' },
-        { module: 'users', action: 'create' },
-        { module: 'content', action: 'publish' },
-        { module: 'analytics', action: 'view' }, // Missing
-      ], user);
+      const context3 = createMockContext(
+        [
+          { module: 'users', action: 'read' },
+          { module: 'users', action: 'create' },
+          { module: 'content', action: 'publish' },
+          { module: 'analytics', action: 'view' }, // Missing
+        ],
+        user,
+      );
       expect(guard.canActivate(context3)).toBe(false);
     });
 
@@ -167,8 +191,18 @@ describe('PermissionsGuard', () => {
         id: 'user-id',
         username: 'testuser',
         permissions: [
-          { id: 'perm-1', module: 'users', action: 'read', extraField: 'ignored' },
-          { id: 'perm-2', module: 'users', action: 'create', description: 'test' },
+          {
+            id: 'perm-1',
+            module: 'users',
+            action: 'read',
+            extraField: 'ignored',
+          },
+          {
+            id: 'perm-2',
+            module: 'users',
+            action: 'create',
+            description: 'test',
+          },
         ],
       };
       const requiredPermissions: RequiredPermission[] = [
@@ -191,6 +225,50 @@ describe('PermissionsGuard', () => {
       };
       const context = createMockContext([], user);
       const result = guard.canActivate(context);
+      expect(result).toBe(true);
+    });
+
+    it('should return false when user.permissions is null', () => {
+      const user = { id: 'user-id', username: 'testuser', permissions: null };
+      const requiredPermissions: RequiredPermission[] = [
+        { module: 'users', action: 'read' },
+      ];
+      const context = createMockContext(requiredPermissions, user);
+      const result = guard.canActivate(context);
+      expect(result).toBe(false);
+    });
+
+    it('should return false when user.permissions is not an array', () => {
+      const user = {
+        id: 'user-id',
+        username: 'testuser',
+        permissions: { module: 'users', action: 'read' },
+      };
+      const requiredPermissions: RequiredPermission[] = [
+        { module: 'users', action: 'read' },
+      ];
+      const context = createMockContext(requiredPermissions, user);
+      const result = guard.canActivate(context);
+      expect(result).toBe(false);
+    });
+
+    it('should handle user.permissions array containing elements without module or action', () => {
+      const user = {
+        id: 'user-id',
+        username: 'testuser',
+        permissions: [
+          { id: 'perm-1', module: 'users', action: 'read' },
+          { id: 'perm-2', notModule: 'users', notAction: 'create' }, // missing module/action
+          { id: 'perm-3' }, // empty object
+        ],
+      };
+      const requiredPermissions: RequiredPermission[] = [
+        { module: 'users', action: 'read' },
+      ];
+      const context = createMockContext(requiredPermissions, user);
+      const result = guard.canActivate(context);
+      // The guard extracts module and action, missing fields become undefined
+      // But the first permission has correct module/action, so result should be true
       expect(result).toBe(true);
     });
   });

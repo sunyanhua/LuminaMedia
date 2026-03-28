@@ -12,7 +12,14 @@ describe('RolesGuard', () => {
   });
 
   describe('canActivate', () => {
-    const createMockContext = (metadata: any, user: any = null) => {
+    const createMockContext = (
+      metadata: string[] | null,
+      user: {
+        id?: string;
+        username?: string;
+        roles?: Array<{ id?: string; name: string }> | null;
+      } | null = null,
+    ) => {
       const mockHandler = {};
       const mockClass = {};
       const request = { user };
@@ -97,10 +104,10 @@ describe('RolesGuard', () => {
 
       const result = guard.canActivate(context);
 
-      expect(reflector.getAllAndOverride).toHaveBeenCalledWith(ROLES_KEY, [
-        context.getHandler(),
-        context.getClass(),
-      ]);
+      expect(jest.mocked(reflector.getAllAndOverride)).toHaveBeenCalledWith(
+        ROLES_KEY,
+        [context.getHandler(), context.getClass()],
+      );
       expect(result).toBe(true);
     });
 
@@ -122,6 +129,37 @@ describe('RolesGuard', () => {
       // Test without matching role
       const context2 = createMockContext(['admin', 'superadmin'], user);
       expect(guard.canActivate(context2)).toBe(false);
+    });
+
+    it('should return false when user.roles is null', () => {
+      const user = { id: 'user-id', username: 'testuser', roles: null };
+      const context = createMockContext(['admin'], user);
+      const result = guard.canActivate(context);
+      expect(result).toBe(false);
+    });
+
+    it('should return false when user.roles is not an array', () => {
+      const user = {
+        id: 'user-id',
+        username: 'testuser',
+        roles: { name: 'admin' },
+      };
+      const context = createMockContext(['admin'], user);
+      const result = guard.canActivate(context);
+      expect(result).toBe(false);
+    });
+
+    it('should handle user.roles array containing non-object elements', () => {
+      const user = {
+        id: 'user-id',
+        username: 'testuser',
+        roles: ['admin', 'editor'],
+      };
+      const context = createMockContext(['admin'], user);
+      const result = guard.canActivate(context);
+      // The guard expects roles to be objects with name property, so .map will produce undefined names
+      // This will cause userRoles to be [undefined, undefined] and include check will fail
+      expect(result).toBe(false);
     });
   });
 });

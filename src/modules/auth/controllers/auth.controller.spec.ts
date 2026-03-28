@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from '../services/auth.service';
@@ -65,9 +66,13 @@ describe('AuthController', () => {
         password: 'wrongpassword',
       };
 
-      (authService.login as jest.Mock).mockRejectedValue(new UnauthorizedException());
+      (authService.login as jest.Mock).mockRejectedValue(
+        new UnauthorizedException(),
+      );
 
-      await expect(controller.login(loginDto)).rejects.toThrow(UnauthorizedException);
+      await expect(controller.login(loginDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
       expect(authService.login).toHaveBeenCalledWith(loginDto);
     });
   });
@@ -106,9 +111,13 @@ describe('AuthController', () => {
         password: 'password123',
       };
 
-      (authService.register as jest.Mock).mockRejectedValue(new ConflictException());
+      (authService.register as jest.Mock).mockRejectedValue(
+        new ConflictException(),
+      );
 
-      await expect(controller.register(registerDto)).rejects.toThrow(ConflictException);
+      await expect(controller.register(registerDto)).rejects.toThrow(
+        ConflictException,
+      );
       expect(authService.register).toHaveBeenCalledWith(registerDto);
     });
 
@@ -162,9 +171,13 @@ describe('AuthController', () => {
         refresh_token: 'invalid-token',
       };
 
-      (authService.refreshToken as jest.Mock).mockRejectedValue(new UnauthorizedException());
+      (authService.refreshToken as jest.Mock).mockRejectedValue(
+        new UnauthorizedException(),
+      );
 
-      await expect(controller.refresh(refreshTokenDto)).rejects.toThrow(UnauthorizedException);
+      await expect(controller.refresh(refreshTokenDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
       expect(authService.refreshToken).toHaveBeenCalledWith(refreshTokenDto);
     });
   });
@@ -202,9 +215,13 @@ describe('AuthController', () => {
         },
       };
 
-      (authService.getProfile as jest.Mock).mockRejectedValue(new UnauthorizedException());
+      (authService.getProfile as jest.Mock).mockRejectedValue(
+        new UnauthorizedException(),
+      );
 
-      await expect(controller.getProfile(mockRequest)).rejects.toThrow(UnauthorizedException);
+      await expect(controller.getProfile(mockRequest)).rejects.toThrow(
+        UnauthorizedException,
+      );
       expect(authService.getProfile).toHaveBeenCalledWith('non-existent-id');
     });
 

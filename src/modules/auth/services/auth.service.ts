@@ -2,18 +2,23 @@ import {
   Injectable,
   UnauthorizedException,
   ConflictException,
-  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { User } from '../../../entities/user.entity';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
+import type { User } from '../../../entities/user.entity';
 import { UserRepository } from '../../../shared/repositories/user.repository';
 import { TenantContextService } from '../../../shared/services/tenant-context.service';
+
+interface JwtPayload {
+  sub: string;
+  username?: string;
+  email?: string;
+  tenantId: string;
+}
 
 @Injectable()
 export class AuthService {
@@ -24,15 +29,23 @@ export class AuthService {
     private tenantContextService: TenantContextService,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<any> {
+  async validateUser(
+    username: string,
+    password: string,
+  ): Promise<Omit<User, 'passwordHash'> | null> {
     const tenantId = this.tenantContextService.getCurrentTenantId();
     const user = await this.userRepository.findOne({
       where: { username, tenantId },
       select: ['id', 'username', 'passwordHash', 'email', 'tenantId'],
     });
 
-    if (user && (await bcrypt.compare(password, user.passwordHash))) {
-      const { passwordHash, ...result } = user;
+    if (
+      user &&
+      (await (
+        bcrypt.compare as (plaintext: string, hash: string) => Promise<boolean>
+      )(password, user.passwordHash))
+    ) {
+      const { passwordHash: __, ...result } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
       return result;
     }
     return null;
@@ -121,7 +134,9 @@ export class AuthService {
 
   async refreshToken(refreshTokenDto: RefreshTokenDto) {
     try {
-      const payload = this.jwtService.verify(refreshTokenDto.refresh_token);
+      const payload: JwtPayload = this.jwtService.verify(
+        refreshTokenDto.refresh_token,
+      );
 
       // 检查用户是否存在且属于正确的租户
       const user = await this.userRepository.findOne({
@@ -144,7 +159,8 @@ export class AuthService {
         access_token: this.jwtService.sign(newPayload),
         refresh_token: this.jwtService.sign(newPayload, { expiresIn: '7d' }),
       };
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_error) {
       throw new UnauthorizedException('无效的刷新令牌');
     }
   }

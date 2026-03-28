@@ -27,8 +27,17 @@ describe('ShardingService', () => {
       mockConnection.query.mockResolvedValueOnce([{ partition_count: 0 }]); // not partitioned
       mockConnection.query.mockResolvedValueOnce([{ column_count: 1 }]); // has tenant_id
       mockConnection.query.mockResolvedValueOnce({ affectedRows: 1 }); // DDL execution
-      mockConnection.query.mockResolvedValueOnce([ // partition info
-        { partition_name: 'p0', position: 1, table_rows: 0, data_size_mb: 0, index_size_mb: 0, total_size_mb: 0, create_time: new Date() }
+      mockConnection.query.mockResolvedValueOnce([
+        // partition info
+        {
+          partition_name: 'p0',
+          position: 1,
+          table_rows: 0,
+          data_size_mb: 0,
+          index_size_mb: 0,
+          total_size_mb: 0,
+          create_time: new Date(),
+        },
       ]);
 
       const results = await service.initializePartitions();
@@ -44,7 +53,7 @@ describe('ShardingService', () => {
       expect(result).toBe(true);
       expect(mockConnection.query).toHaveBeenCalledWith(
         expect.stringContaining('SELECT COUNT(*) as partition_count'),
-        ['customer_profiles']
+        ['customer_profiles'],
       );
     });
 
@@ -58,14 +67,22 @@ describe('ShardingService', () => {
   describe('getPartitionInfo', () => {
     it('should return partition information', async () => {
       const mockPartitions = [
-        { partition_name: 'p0', position: 1, table_rows: 100, data_size_mb: 1.5, index_size_mb: 0.5, total_size_mb: 2.0, create_time: new Date() }
+        {
+          partition_name: 'p0',
+          position: 1,
+          table_rows: 100,
+          data_size_mb: 1.5,
+          index_size_mb: 0.5,
+          total_size_mb: 2.0,
+          create_time: new Date(),
+        },
       ];
       mockConnection.query.mockResolvedValueOnce(mockPartitions);
       const result = await service.getPartitionInfo('customer_profiles');
       expect(result).toEqual(mockPartitions);
       expect(mockConnection.query).toHaveBeenCalledWith(
         expect.stringContaining('information_schema.partitions'),
-        ['customer_profiles']
+        ['customer_profiles'],
       );
     });
   });
@@ -105,15 +122,28 @@ describe('ShardingService', () => {
   describe('getTenantDistribution', () => {
     it('should return tenant distribution', async () => {
       const mockDistribution = [
-        { tenant_id: 'tenant1', record_count: 100, percentage: 50.0, partition_number: 5 },
-        { tenant_id: 'tenant2', record_count: 100, percentage: 50.0, partition_number: 10 },
+        {
+          tenant_id: 'tenant1',
+          record_count: 100,
+          percentage: 50.0,
+          partition_number: 5,
+        },
+        {
+          tenant_id: 'tenant2',
+          record_count: 100,
+          percentage: 50.0,
+          partition_number: 10,
+        },
       ];
       mockConnection.query.mockResolvedValueOnce(mockDistribution);
-      const result = await service.getTenantDistribution('customer_profiles', 20);
+      const result = await service.getTenantDistribution(
+        'customer_profiles',
+        20,
+      );
       expect(result).toEqual(mockDistribution);
       expect(mockConnection.query).toHaveBeenCalledWith(
         expect.stringContaining('tenant_id'),
-        ['customer_profiles', 'customer_profiles', 20]
+        ['customer_profiles', 'customer_profiles', 20],
       );
     });
   });
@@ -121,7 +151,13 @@ describe('ShardingService', () => {
   describe('getAllPartitionStats', () => {
     it('should return all partition statistics', async () => {
       const mockStats = [
-        { table_name: 'customer_profiles', partition_count: 16, total_rows: 10000, total_data_mb: 10.5, total_index_mb: 2.5 }
+        {
+          table_name: 'customer_profiles',
+          partition_count: 16,
+          total_rows: 10000,
+          total_data_mb: 10.5,
+          total_index_mb: 2.5,
+        },
       ];
       mockConnection.query.mockResolvedValueOnce(mockStats);
       const result = await service.getAllPartitionStats();

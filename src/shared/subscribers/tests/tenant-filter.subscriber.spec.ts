@@ -10,7 +10,8 @@ describe('TenantFilterSubscriber', () => {
 
   beforeEach(async () => {
     // 模拟静态方法
-    getCurrentTenantIdStaticSpy = jest.spyOn(TenantContextService, 'getCurrentTenantIdStatic')
+    getCurrentTenantIdStaticSpy = jest
+      .spyOn(TenantContextService, 'getCurrentTenantIdStatic')
       .mockReturnValue('test-tenant-id');
 
     dataSource = {

@@ -1,12 +1,17 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
+import { Request } from 'express';
 
 export const PERMISSIONS_KEY = 'permissions';
 
 export interface RequiredPermission {
   module: string;
   action: string;
+}
+
+interface UserWithPermissions {
+  permissions?: Array<{ module: string; action: string }>;
 }
 
 @Injectable()
@@ -24,14 +29,14 @@ export class PermissionsGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
-    const user = request.user;
+    const request: Request = context.switchToHttp().getRequest();
+    const user: UserWithPermissions = request.user as UserWithPermissions;
 
-    if (!user || !user.permissions) {
+    if (!user || !user.permissions || !Array.isArray(user.permissions)) {
       return false;
     }
 
-    const userPermissions = user.permissions.map((perm: any) => ({
+    const userPermissions = user.permissions.map((perm) => ({
       module: perm.module,
       action: perm.action,
     }));

@@ -172,7 +172,15 @@
 <a name='L107'></a><a href='#L107'>107</a>
 <a name='L108'></a><a href='#L108'>108</a>
 <a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -213,10 +221,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -237,15 +259,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -278,6 +291,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -321,7 +337,9 @@ export class PermissionController {
     description: '成功获取权限列表',
     type: [Permission],
   })
-  async <span class="fstat-no" title="function not covered" >findAll(</span>@Request() req: any): Promise<span class="branch-1 cbranch-no" title="branch not covered" >&lt;Permission[]&gt; {</span>
+  async <span class="fstat-no" title="function not covered" >findAll(</span>
+    @Request() req: { user: { tenantId: string } },
+  ): Promise<span class="branch-1 cbranch-no" title="branch not covered" >&lt;Permission[]&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    return this.permissionService.findAll(req.user.tenantId);</span>
   }
 &nbsp;
@@ -335,7 +353,7 @@ export class PermissionController {
   })
   async <span class="fstat-no" title="function not covered" >findByModule(</span>
     @Param('module') module: string,
-    @Request() req: any,
+    @Request() req: { user: { tenantId: string } },
   ): Promise<span class="branch-1 cbranch-no" title="branch not covered" >&lt;Permission[]&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    return this.permissionService.findByModule(module, req.user.tenantId);</span>
   }
@@ -345,7 +363,10 @@ export class PermissionController {
   @ApiOperation({ summary: '获取权限详情' })
   @ApiResponse({ status: 200, description: '成功获取权限', type: Permission })
   @ApiResponse({ status: 404, description: '权限不存在' })
-  async <span class="fstat-no" title="function not covered" >findOne(</span>@Param('id') id: string, @Request() req: any): Promise<span class="branch-1 cbranch-no" title="branch not covered" >&lt;Permission&gt; {</span>
+  async <span class="fstat-no" title="function not covered" >findOne(</span>
+    @Param('id') id: string,
+    @Request() req: { user: { tenantId: string } },
+  ): Promise<span class="branch-1 cbranch-no" title="branch not covered" >&lt;Permission&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    return this.permissionService.findOne(id, req.user.tenantId);</span>
   }
 &nbsp;
@@ -356,7 +377,7 @@ export class PermissionController {
   @ApiResponse({ status: 400, description: '请求参数错误' })
   async <span class="fstat-no" title="function not covered" >create(</span>
     @Body() createPermissionDto: CreatePermissionDto<span class="branch-1 cbranch-no" title="branch not covered" >,</span>
-    @Request() req: any,
+    @Request() req: { user: { tenantId: string } },
   ): Promise<span class="branch-1 cbranch-no" title="branch not covered" >&lt;Permission&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    return this.permissionService.create(</span>
       createPermissionDto,
@@ -372,7 +393,7 @@ export class PermissionController {
   async <span class="fstat-no" title="function not covered" >update(</span>
     @Param('id') id: string,
     @Body() updatePermissionDto: UpdatePermissionDto<span class="branch-1 cbranch-no" title="branch not covered" >,</span>
-    @Request() req: any,
+    @Request() req: { user: { tenantId: string } },
   ): Promise<span class="branch-1 cbranch-no" title="branch not covered" >&lt;Permission&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    return this.permissionService.update(</span>
       id,
@@ -386,7 +407,10 @@ export class PermissionController {
   @ApiOperation({ summary: '删除权限' })
   @ApiResponse({ status: 204, description: '成功删除权限' })
   @ApiResponse({ status: 404, description: '权限不存在' })
-  async <span class="fstat-no" title="function not covered" >remove(</span>@Param('id') id: string, @Request() req: any): Promise<span class="branch-1 cbranch-no" title="branch not covered" >&lt;void&gt; {</span>
+  async <span class="fstat-no" title="function not covered" >remove(</span>
+    @Param('id') id: string,
+    @Request() req: { user: { tenantId: string } },
+  ): Promise<span class="branch-1 cbranch-no" title="branch not covered" >&lt;void&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    return this.permissionService.remove(id, req.user.tenantId);</span>
   }
 }
@@ -397,7 +421,7 @@ export class PermissionController {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-28T00:38:48.225Z
+                at 2026-03-28T03:53:35.672Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

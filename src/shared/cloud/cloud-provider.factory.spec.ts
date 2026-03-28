@@ -1,4 +1,11 @@
-import { CloudProviderFactory, getCloudProvider, getStorageService, getAIService, getDatabaseService, getMessagingService } from './cloud-provider.factory';
+import {
+  CloudProviderFactory,
+  getCloudProvider,
+  getStorageService,
+  getAIService,
+  getDatabaseService,
+  getMessagingService,
+} from './cloud-provider.factory';
 import { CloudProvider } from './cloud-provider.interface';
 
 // 模拟整个模块
@@ -123,7 +130,9 @@ describe('CloudProviderFactory', () => {
       const provider = await CloudProviderFactory.getInstance();
 
       expect(provider.getName()).toBe('private');
-      const { PrivateDeployAdapter } = require('./adapters/private-deploy.adapter');
+      const {
+        PrivateDeployAdapter,
+      } = require('./adapters/private-deploy.adapter');
       expect(PrivateDeployAdapter).toHaveBeenCalledTimes(1);
     });
 

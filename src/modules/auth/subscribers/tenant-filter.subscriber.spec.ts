@@ -13,7 +13,10 @@ describe('TenantFilterSubscriber', () => {
     };
 
     subscriber = new TenantFilterSubscriber(mockDataSource as DataSource);
-    getCurrentTenantIdSpy = jest.spyOn(TenantContextService, 'getCurrentTenantIdStatic');
+    getCurrentTenantIdSpy = jest.spyOn(
+      TenantContextService,
+      'getCurrentTenantIdStatic',
+    );
   });
 
   afterEach(() => {
@@ -156,7 +159,9 @@ describe('TenantFilterSubscriber', () => {
       // 模拟多个租户上下文
       const tenantIds = ['tenant-a', 'tenant-b'];
       let callCount = 0;
-      getCurrentTenantIdSpy.mockImplementation(() => tenantIds[callCount++ % tenantIds.length]);
+      getCurrentTenantIdSpy.mockImplementation(
+        () => tenantIds[callCount++ % tenantIds.length],
+      );
 
       const entity1 = { id: '1', name: 'Test1', tenantId: undefined };
       const entity2 = { id: '2', name: 'Test2', tenantId: undefined };

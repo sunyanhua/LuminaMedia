@@ -191,7 +191,11 @@ describe('CloudProvider Interface Integration', () => {
           const { storage } = adapter;
 
           // 测试uploadFile
-          const uploadResult = await storage.uploadFile('test-bucket', 'test-key', Buffer.from('test'));
+          const uploadResult = await storage.uploadFile(
+            'test-bucket',
+            'test-key',
+            Buffer.from('test'),
+          );
           expect(uploadResult).toBeDefined();
           expect(uploadResult.key).toBe('test-key');
           expect(uploadResult.bucket).toBe('test-bucket');
@@ -199,10 +203,14 @@ describe('CloudProvider Interface Integration', () => {
           expect(typeof uploadResult.size).toBe('number');
 
           // 测试downloadFile（需要先上传文件）
-          await expect(storage.downloadFile('test-bucket', 'test-key')).resolves.toBeDefined();
+          await expect(
+            storage.downloadFile('test-bucket', 'test-key'),
+          ).resolves.toBeDefined();
 
           // 测试deleteFile
-          await expect(storage.deleteFile('test-bucket', 'test-key')).resolves.not.toThrow();
+          await expect(
+            storage.deleteFile('test-bucket', 'test-key'),
+          ).resolves.not.toThrow();
 
           // 测试getFileUrl
           const url = await storage.getFileUrl('test-bucket', 'test-key');
@@ -225,7 +233,10 @@ describe('CloudProvider Interface Integration', () => {
           expect(typeof modelResponse.text).toBe('string');
 
           // 测试callLocalModel
-          const localResponse = await ai.callLocalModel('local-model', 'test prompt');
+          const localResponse = await ai.callLocalModel(
+            'local-model',
+            'test prompt',
+          );
           expect(localResponse).toBeDefined();
           expect(localResponse.text).toBeDefined();
 
@@ -253,7 +264,9 @@ describe('CloudProvider Interface Integration', () => {
           expect(Array.isArray(queryResult)).toBe(true);
 
           // 测试execute
-          const executeResult = await database.execute('UPDATE test SET value = 1');
+          const executeResult = await database.execute(
+            'UPDATE test SET value = 1',
+          );
           expect(typeof executeResult).toBe('number');
 
           // 测试beginTransaction
@@ -271,7 +284,10 @@ describe('CloudProvider Interface Integration', () => {
 
           // 测试sharding服务
           expect(database.sharding).toBeDefined();
-          const partition = await database.sharding.getTablePartition('test-table', 'tenant-1');
+          const partition = await database.sharding.getTablePartition(
+            'test-table',
+            'tenant-1',
+          );
           expect(typeof partition).toBe('string');
         });
 
@@ -279,7 +295,9 @@ describe('CloudProvider Interface Integration', () => {
           const { messaging } = adapter;
 
           // 测试sendMessage
-          const messageId = await messaging.sendMessage('test-queue', { data: 'test' });
+          const messageId = await messaging.sendMessage('test-queue', {
+            data: 'test',
+          });
           expect(typeof messageId).toBe('string');
 
           // 测试receiveMessage
@@ -292,15 +310,22 @@ describe('CloudProvider Interface Integration', () => {
 
           // 测试acknowledgeMessage
           if (message !== null) {
-            await expect(messaging.acknowledgeMessage('test-queue', message.id)).resolves.not.toThrow();
+            await expect(
+              messaging.acknowledgeMessage('test-queue', message.id),
+            ).resolves.not.toThrow();
           }
 
           // 测试publishEvent
-          await expect(messaging.publishEvent('test-topic', { event: 'test' })).resolves.not.toThrow();
+          await expect(
+            messaging.publishEvent('test-topic', { event: 'test' }),
+          ).resolves.not.toThrow();
 
           // 测试subscribeEvent
           const handler = jest.fn();
-          const subscription = await messaging.subscribeEvent('test-topic', handler);
+          const subscription = await messaging.subscribeEvent(
+            'test-topic',
+            handler,
+          );
           expect(subscription).toBeDefined();
           expect(typeof subscription.unsubscribe).toBe('function');
         });

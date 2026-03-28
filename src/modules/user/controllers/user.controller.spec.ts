@@ -38,8 +38,18 @@ describe('UserController', () => {
       const limit = 10;
       const expectedResult = {
         data: [
-          { id: 'user-1', username: 'user1', email: 'user1@example.com', tenantId: 'tenant-1' },
-          { id: 'user-2', username: 'user2', email: 'user2@example.com', tenantId: 'tenant-1' },
+          {
+            id: 'user-1',
+            username: 'user1',
+            email: 'user1@example.com',
+            tenantId: 'tenant-1',
+          },
+          {
+            id: 'user-2',
+            username: 'user2',
+            email: 'user2@example.com',
+            tenantId: 'tenant-1',
+          },
         ],
         total: 2,
         page,

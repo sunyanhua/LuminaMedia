@@ -50,7 +50,9 @@ describe('JwtStrategy', () => {
     jwtStrategy = module.get<JwtStrategy>(JwtStrategy);
     configService = module.get<ConfigService>(ConfigService);
     userRepository = module.get<UserRepository>(UserRepository);
-    userRoleRepository = module.get<Repository<UserRole>>(getRepositoryToken(UserRole));
+    userRoleRepository = module.get<Repository<UserRole>>(
+      getRepositoryToken(UserRole),
+    );
     roleRepository = module.get<Repository<Role>>(getRepositoryToken(Role));
   });
 
@@ -61,7 +63,10 @@ describe('JwtStrategy', () => {
   describe('constructor', () => {
     it('should initialize with correct options', () => {
       expect(jwtStrategy).toBeDefined();
-      expect(configService.get).toHaveBeenCalledWith('JWT_SECRET', 'your-secret-key');
+      expect(configService.get).toHaveBeenCalledWith(
+        'JWT_SECRET',
+        'your-secret-key',
+      );
     });
   });
 
@@ -81,8 +86,16 @@ describe('JwtStrategy', () => {
         tenantId: 'tenant-id',
       };
       const mockUserRoles = [
-        { userId: 'user-id', roleId: 'role-1', role: { id: 'role-1', name: 'admin' } },
-        { userId: 'user-id', roleId: 'role-2', role: { id: 'role-2', name: 'editor' } },
+        {
+          userId: 'user-id',
+          roleId: 'role-1',
+          role: { id: 'role-1', name: 'admin' },
+        },
+        {
+          userId: 'user-id',
+          roleId: 'role-2',
+          role: { id: 'role-2', name: 'editor' },
+        },
       ];
       const mockRoles = [
         {
@@ -190,8 +203,16 @@ describe('JwtStrategy', () => {
         tenantId: 'tenant-id',
       };
       const mockUserRoles = [
-        { userId: 'user-id', roleId: 'role-1', role: { id: 'role-1', name: 'admin' } },
-        { userId: 'user-id', roleId: 'role-2', role: { id: 'role-2', name: 'editor' } },
+        {
+          userId: 'user-id',
+          roleId: 'role-1',
+          role: { id: 'role-1', name: 'admin' },
+        },
+        {
+          userId: 'user-id',
+          roleId: 'role-2',
+          role: { id: 'role-2', name: 'editor' },
+        },
       ];
       const mockRoles = [
         {
@@ -231,7 +252,11 @@ describe('JwtStrategy', () => {
       );
       // perm-1 (duplicate users:create) should not appear (overwritten by perm-3)
       expect(result.permissions).not.toContainEqual(
-        expect.objectContaining({ id: 'perm-1', module: 'users', action: 'create' }),
+        expect.objectContaining({
+          id: 'perm-1',
+          module: 'users',
+          action: 'create',
+        }),
       );
     });
   });

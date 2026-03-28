@@ -38,7 +38,9 @@ export class PermissionController {
     description: '成功获取权限列表',
     type: [Permission],
   })
-  async findAll(@Request() req: any): Promise<Permission[]> {
+  async findAll(
+    @Request() req: { user: { tenantId: string } },
+  ): Promise<Permission[]> {
     return this.permissionService.findAll(req.user.tenantId);
   }
 
@@ -52,7 +54,7 @@ export class PermissionController {
   })
   async findByModule(
     @Param('module') module: string,
-    @Request() req: any,
+    @Request() req: { user: { tenantId: string } },
   ): Promise<Permission[]> {
     return this.permissionService.findByModule(module, req.user.tenantId);
   }
@@ -64,7 +66,7 @@ export class PermissionController {
   @ApiResponse({ status: 404, description: '权限不存在' })
   async findOne(
     @Param('id') id: string,
-    @Request() req: any,
+    @Request() req: { user: { tenantId: string } },
   ): Promise<Permission> {
     return this.permissionService.findOne(id, req.user.tenantId);
   }
@@ -76,7 +78,7 @@ export class PermissionController {
   @ApiResponse({ status: 400, description: '请求参数错误' })
   async create(
     @Body() createPermissionDto: CreatePermissionDto,
-    @Request() req: any,
+    @Request() req: { user: { tenantId: string } },
   ): Promise<Permission> {
     return this.permissionService.create(
       createPermissionDto,
@@ -92,7 +94,7 @@ export class PermissionController {
   async update(
     @Param('id') id: string,
     @Body() updatePermissionDto: UpdatePermissionDto,
-    @Request() req: any,
+    @Request() req: { user: { tenantId: string } },
   ): Promise<Permission> {
     return this.permissionService.update(
       id,
@@ -106,7 +108,10 @@ export class PermissionController {
   @ApiOperation({ summary: '删除权限' })
   @ApiResponse({ status: 204, description: '成功删除权限' })
   @ApiResponse({ status: 404, description: '权限不存在' })
-  async remove(@Param('id') id: string, @Request() req: any): Promise<void> {
+  async remove(
+    @Param('id') id: string,
+    @Request() req: { user: { tenantId: string } },
+  ): Promise<void> {
     return this.permissionService.remove(id, req.user.tenantId);
   }
 }

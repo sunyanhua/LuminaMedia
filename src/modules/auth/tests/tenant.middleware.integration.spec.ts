@@ -4,7 +4,7 @@ import * as request from 'supertest';
 import { AppModule } from '../../../app.module';
 import { TenantContextService } from '../../../shared/services/tenant-context.service';
 
-describe.skip('TenantMiddleware Integration', () => {
+describe('TenantMiddleware Integration', () => {
   let app: INestApplication;
   let tenantContextService: TenantContextService;
 
@@ -16,7 +16,8 @@ describe.skip('TenantMiddleware Integration', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
 
-    tenantContextService = moduleFixture.get<TenantContextService>(TenantContextService);
+    tenantContextService =
+      moduleFixture.get<TenantContextService>(TenantContextService);
   });
 
   afterAll(async () => {

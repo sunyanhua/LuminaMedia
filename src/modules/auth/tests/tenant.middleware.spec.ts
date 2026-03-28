@@ -1,6 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
-import { TenantMiddleware, TenantRequest } from '../middlewares/tenant.middleware';
+import {
+  TenantMiddleware,
+  TenantRequest,
+} from '../middlewares/tenant.middleware';
 import { TenantContextService } from '../../../shared/services/tenant-context.service';
 
 describe('TenantMiddleware', () => {
@@ -38,8 +41,13 @@ describe('TenantMiddleware', () => {
         authorization: 'Bearer valid-jwt-token',
       },
     };
-    (jwtService.verify as jest.Mock).mockReturnValue({ tenantId: 'tenant-from-jwt' });
-    const runWithContextSpy = jest.spyOn(TenantContextService, 'runWithContext');
+    (jwtService.verify as jest.Mock).mockReturnValue({
+      tenantId: 'tenant-from-jwt',
+    });
+    const runWithContextSpy = jest.spyOn(
+      TenantContextService,
+      'runWithContext',
+    );
 
     middleware.use(mockReq, mockRes, mockNext);
 
@@ -58,7 +66,10 @@ describe('TenantMiddleware', () => {
         'x-tenant-id': 'header-tenant-id',
       },
     };
-    const runWithContextSpy = jest.spyOn(TenantContextService, 'runWithContext');
+    const runWithContextSpy = jest.spyOn(
+      TenantContextService,
+      'runWithContext',
+    );
 
     middleware.use(mockReq, mockRes, mockNext);
 
@@ -79,7 +90,10 @@ describe('TenantMiddleware', () => {
       },
     };
     (jwtService.verify as jest.Mock).mockReturnValue({}); // no tenantId
-    const runWithContextSpy = jest.spyOn(TenantContextService, 'runWithContext');
+    const runWithContextSpy = jest.spyOn(
+      TenantContextService,
+      'runWithContext',
+    );
 
     middleware.use(mockReq, mockRes, mockNext);
 
@@ -96,7 +110,10 @@ describe('TenantMiddleware', () => {
     const mockReq: TenantRequest = {
       headers: {},
     };
-    const runWithContextSpy = jest.spyOn(TenantContextService, 'runWithContext');
+    const runWithContextSpy = jest.spyOn(
+      TenantContextService,
+      'runWithContext',
+    );
 
     middleware.use(mockReq, mockRes, mockNext);
 
@@ -119,7 +136,10 @@ describe('TenantMiddleware', () => {
     (jwtService.verify as jest.Mock).mockImplementation(() => {
       throw new Error('invalid token');
     });
-    const runWithContextSpy = jest.spyOn(TenantContextService, 'runWithContext');
+    const runWithContextSpy = jest.spyOn(
+      TenantContextService,
+      'runWithContext',
+    );
 
     middleware.use(mockReq, mockRes, mockNext);
 
@@ -141,7 +161,10 @@ describe('TenantMiddleware', () => {
     (jwtService.verify as jest.Mock).mockImplementation(() => {
       throw new Error('invalid token');
     });
-    const runWithContextSpy = jest.spyOn(TenantContextService, 'runWithContext');
+    const runWithContextSpy = jest.spyOn(
+      TenantContextService,
+      'runWithContext',
+    );
 
     middleware.use(mockReq, mockRes, mockNext);
 

@@ -1,5 +1,11 @@
 import { MockAdapter } from './mock.adapter';
-import { StorageOptions, AIModelOptions, LocalModelOptions, ReceiveOptions, MessageOptions } from '../cloud-provider.interface';
+import {
+  StorageOptions,
+  AIModelOptions,
+  LocalModelOptions,
+  ReceiveOptions,
+  MessageOptions,
+} from '../cloud-provider.interface';
 
 describe('MockAdapter', () => {
   let adapter: MockAdapter;
@@ -48,7 +54,12 @@ describe('MockAdapter', () => {
 
     describe('uploadFile', () => {
       it('应该成功上传文件', async () => {
-        const result = await adapter.storage.uploadFile(bucket, key, fileContent, storageOptions);
+        const result = await adapter.storage.uploadFile(
+          bucket,
+          key,
+          fileContent,
+          storageOptions,
+        );
 
         expect(result.key).toBe(key);
         expect(result.bucket).toBe(bucket);
@@ -59,7 +70,11 @@ describe('MockAdapter', () => {
       });
 
       it('应该在没有options时成功上传文件', async () => {
-        const result = await adapter.storage.uploadFile(bucket, key, fileContent);
+        const result = await adapter.storage.uploadFile(
+          bucket,
+          key,
+          fileContent,
+        );
 
         expect(result.key).toBe(key);
         expect(result.bucket).toBe(bucket);
@@ -82,24 +97,29 @@ describe('MockAdapter', () => {
       });
 
       it('应该对不存在的文件抛出错误', async () => {
-        await expect(adapter.storage.downloadFile(bucket, 'nonexistent.txt'))
-          .rejects.toThrow(/文件不存在/);
+        await expect(
+          adapter.storage.downloadFile(bucket, 'nonexistent.txt'),
+        ).rejects.toThrow(/文件不存在/);
       });
     });
 
     describe('deleteFile', () => {
       it('应该成功删除文件', async () => {
         await adapter.storage.uploadFile(bucket, key, fileContent);
-        await expect(adapter.storage.deleteFile(bucket, key)).resolves.not.toThrow();
+        await expect(
+          adapter.storage.deleteFile(bucket, key),
+        ).resolves.not.toThrow();
 
         // 文件应该被删除
-        await expect(adapter.storage.downloadFile(bucket, key))
-          .rejects.toThrow(/文件不存在/);
+        await expect(adapter.storage.downloadFile(bucket, key)).rejects.toThrow(
+          /文件不存在/,
+        );
       });
 
       it('应该安全地删除不存在的文件', async () => {
-        await expect(adapter.storage.deleteFile(bucket, 'nonexistent.txt'))
-          .resolves.not.toThrow();
+        await expect(
+          adapter.storage.deleteFile(bucket, 'nonexistent.txt'),
+        ).resolves.not.toThrow();
       });
     });
 
@@ -129,17 +149,29 @@ describe('MockAdapter', () => {
     describe('listFiles', () => {
       beforeEach(async () => {
         // 上传一些测试文件
-        await adapter.storage.uploadFile(bucket, 'file1.txt', Buffer.from('content1'));
-        await adapter.storage.uploadFile(bucket, 'folder/file2.txt', Buffer.from('content2'));
-        await adapter.storage.uploadFile('other-bucket', 'file3.txt', Buffer.from('content3'));
+        await adapter.storage.uploadFile(
+          bucket,
+          'file1.txt',
+          Buffer.from('content1'),
+        );
+        await adapter.storage.uploadFile(
+          bucket,
+          'folder/file2.txt',
+          Buffer.from('content2'),
+        );
+        await adapter.storage.uploadFile(
+          'other-bucket',
+          'file3.txt',
+          Buffer.from('content3'),
+        );
       });
 
       it('应该列出指定bucket中的所有文件', async () => {
         const files = await adapter.storage.listFiles(bucket);
 
         expect(files).toHaveLength(2);
-        expect(files.map(f => f.key)).toEqual(
-          expect.arrayContaining(['file1.txt', 'folder/file2.txt'])
+        expect(files.map((f) => f.key)).toEqual(
+          expect.arrayContaining(['file1.txt', 'folder/file2.txt']),
         );
       });
 
@@ -217,7 +249,11 @@ describe('MockAdapter', () => {
     describe('callLocalModel', () => {
       it('应该成功调用本地模型并返回响应', async () => {
         const localModel = 'qwen-7b-local';
-        const response = await adapter.ai.callLocalModel(localModel, prompt, localOptions);
+        const response = await adapter.ai.callLocalModel(
+          localModel,
+          prompt,
+          localOptions,
+        );
 
         expect(response.text).toBeDefined();
         expect(response.text).toContain('本地');
@@ -227,7 +263,11 @@ describe('MockAdapter', () => {
       });
 
       it('应该支持GPU选项', async () => {
-        const response = await adapter.ai.callLocalModel('qwen-7b-local', prompt, { gpu: true });
+        const response = await adapter.ai.callLocalModel(
+          'qwen-7b-local',
+          prompt,
+          { gpu: true },
+        );
 
         expect(response.text).toBeDefined();
       });
@@ -248,20 +288,24 @@ describe('MockAdapter', () => {
 
         expect(models).toHaveLength(3);
 
-        const geminiModel = models.find(m => m.provider === 'gemini');
+        const geminiModel = models.find((m) => m.provider === 'gemini');
         expect(geminiModel).toBeDefined();
         expect(geminiModel?.id).toBe('gemini-2.0-pro');
         expect(geminiModel?.name).toBe('Gemini 2.0 Pro');
         expect(geminiModel?.capabilities).toEqual(
-          expect.arrayContaining(['text-generation', 'code-generation', 'translation'])
+          expect.arrayContaining([
+            'text-generation',
+            'code-generation',
+            'translation',
+          ]),
         );
         expect(geminiModel?.maxTokens).toBe(32768);
 
-        const qwenModel = models.find(m => m.provider === 'qwen');
+        const qwenModel = models.find((m) => m.provider === 'qwen');
         expect(qwenModel).toBeDefined();
         expect(qwenModel?.id).toBe('qwen-max');
 
-        const localModel = models.find(m => m.provider === 'local');
+        const localModel = models.find((m) => m.provider === 'local');
         expect(localModel).toBeDefined();
         expect(localModel?.id).toBe('qwen-7b-local');
       });
@@ -309,7 +353,10 @@ describe('MockAdapter', () => {
       });
 
       it('应该对INSERT语句返回1', async () => {
-        const result = await adapter.database.execute('INSERT INTO users VALUES (?)', ['new-user']);
+        const result = await adapter.database.execute(
+          'INSERT INTO users VALUES (?)',
+          ['new-user'],
+        );
 
         expect(result).toBe(1);
       });
@@ -360,7 +407,10 @@ describe('MockAdapter', () => {
           const table = 'customer_profiles';
           const tenantId = 'tenant-123';
 
-          const partition = await adapter.database.sharding.getTablePartition(table, tenantId);
+          const partition = await adapter.database.sharding.getTablePartition(
+            table,
+            tenantId,
+          );
 
           expect(partition).toContain(table);
           expect(partition).toContain('partition_');
@@ -374,8 +424,14 @@ describe('MockAdapter', () => {
           const table = 'customer_profiles';
           const tenantId = 'tenant-456';
 
-          const partition1 = await adapter.database.sharding.getTablePartition(table, tenantId);
-          const partition2 = await adapter.database.sharding.getTablePartition(table, tenantId);
+          const partition1 = await adapter.database.sharding.getTablePartition(
+            table,
+            tenantId,
+          );
+          const partition2 = await adapter.database.sharding.getTablePartition(
+            table,
+            tenantId,
+          );
 
           expect(partition1).toBe(partition2);
         });
@@ -383,8 +439,14 @@ describe('MockAdapter', () => {
         it('应该对不同tenantId可能返回不同分区', async () => {
           const table = 'customer_profiles';
 
-          const partition1 = await adapter.database.sharding.getTablePartition(table, 'tenant-a');
-          const partition2 = await adapter.database.sharding.getTablePartition(table, 'tenant-b');
+          const partition1 = await adapter.database.sharding.getTablePartition(
+            table,
+            'tenant-a',
+          );
+          const partition2 = await adapter.database.sharding.getTablePartition(
+            table,
+            'tenant-b',
+          );
 
           // 可能相同也可能不同，但都是有效分区
           expect(partition1).toContain('partition_');
@@ -397,7 +459,10 @@ describe('MockAdapter', () => {
           const sourceTable = 'old_table';
           const targetTable = 'new_table';
 
-          const result = await adapter.database.sharding.migrateData(sourceTable, targetTable);
+          const result = await adapter.database.sharding.migrateData(
+            sourceTable,
+            targetTable,
+          );
 
           expect(result.migratedRows).toBeGreaterThanOrEqual(100);
           expect(result.migratedRows).toBeLessThanOrEqual(1099); // 100 + 999
@@ -416,7 +481,8 @@ describe('MockAdapter', () => {
 
       describe('analyzePartitionBalance', () => {
         it('应该返回分区平衡报告', async () => {
-          const report = await adapter.database.sharding.analyzePartitionBalance();
+          const report =
+            await adapter.database.sharding.analyzePartitionBalance();
 
           expect(report.table).toBe('customer_profiles');
           expect(report.partitions).toHaveLength(16);
@@ -426,7 +492,8 @@ describe('MockAdapter', () => {
         });
 
         it('每个分区应有有效数据', async () => {
-          const report = await adapter.database.sharding.analyzePartitionBalance();
+          const report =
+            await adapter.database.sharding.analyzePartitionBalance();
 
           for (const partition of report.partitions) {
             expect(partition.name).toContain('partition_');
@@ -467,7 +534,11 @@ describe('MockAdapter', () => {
       });
 
       it('应该支持消息选项', async () => {
-        const messageId = await adapter.messaging.sendMessage(queue, message, messageOptions);
+        const messageId = await adapter.messaging.sendMessage(
+          queue,
+          message,
+          messageOptions,
+        );
 
         expect(messageId).toBeDefined();
       });
@@ -493,7 +564,10 @@ describe('MockAdapter', () => {
 
       it('应该支持接收选项', async () => {
         await adapter.messaging.sendMessage(queue, message);
-        const received = await adapter.messaging.receiveMessage(queue, receiveOptions);
+        const received = await adapter.messaging.receiveMessage(
+          queue,
+          receiveOptions,
+        );
 
         expect(received).not.toBeNull();
       });
@@ -518,13 +592,15 @@ describe('MockAdapter', () => {
       it('应该成功确认消息', async () => {
         const messageId = await adapter.messaging.sendMessage(queue, message);
 
-        await expect(adapter.messaging.acknowledgeMessage(queue, messageId))
-          .resolves.not.toThrow();
+        await expect(
+          adapter.messaging.acknowledgeMessage(queue, messageId),
+        ).resolves.not.toThrow();
       });
 
       it('应该安全地确认不存在的消息', async () => {
-        await expect(adapter.messaging.acknowledgeMessage(queue, 'nonexistent-id'))
-          .resolves.not.toThrow();
+        await expect(
+          adapter.messaging.acknowledgeMessage(queue, 'nonexistent-id'),
+        ).resolves.not.toThrow();
       });
     });
 
@@ -532,8 +608,9 @@ describe('MockAdapter', () => {
       it('应该发布事件到主题', async () => {
         const event = { type: 'user.created', userId: '123' };
 
-        await expect(adapter.messaging.publishEvent(topic, event))
-          .resolves.not.toThrow();
+        await expect(
+          adapter.messaging.publishEvent(topic, event),
+        ).resolves.not.toThrow();
       });
 
       it('应该触发已注册的处理程序', async () => {
@@ -544,7 +621,7 @@ describe('MockAdapter', () => {
         await adapter.messaging.publishEvent(topic, event);
 
         // 处理程序应该被异步调用
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
         expect(handler).toHaveBeenCalledWith(event);
       });
 
@@ -557,7 +634,7 @@ describe('MockAdapter', () => {
         await adapter.messaging.subscribeEvent(topic, handler2);
         await adapter.messaging.publishEvent(topic, event);
 
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
         expect(handler1).toHaveBeenCalledWith(event);
         expect(handler2).toHaveBeenCalledWith(event);
       });
@@ -566,7 +643,10 @@ describe('MockAdapter', () => {
     describe('subscribeEvent', () => {
       it('应该订阅主题并返回subscription对象', async () => {
         const handler = jest.fn();
-        const subscription = await adapter.messaging.subscribeEvent(topic, handler);
+        const subscription = await adapter.messaging.subscribeEvent(
+          topic,
+          handler,
+        );
 
         expect(subscription).toBeDefined();
         expect(typeof subscription.unsubscribe).toBe('function');
@@ -574,13 +654,16 @@ describe('MockAdapter', () => {
 
       it('应该支持取消订阅', async () => {
         const handler = jest.fn();
-        const subscription = await adapter.messaging.subscribeEvent(topic, handler);
+        const subscription = await adapter.messaging.subscribeEvent(
+          topic,
+          handler,
+        );
 
         await expect(subscription.unsubscribe()).resolves.not.toThrow();
 
         // 取消订阅后，处理程序不应被调用
         await adapter.messaging.publishEvent(topic, {});
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
         expect(handler).not.toHaveBeenCalled();
       });
 
@@ -591,7 +674,9 @@ describe('MockAdapter', () => {
         await adapter.messaging.subscribeEvent(topic, handler1);
         await adapter.messaging.subscribeEvent(topic, handler2);
 
-        const subscriptions = (adapter.messaging as any).subscriptions.get(topic);
+        const subscriptions = (adapter.messaging as any).subscriptions.get(
+          topic,
+        );
         expect(subscriptions).toHaveLength(2);
       });
     });

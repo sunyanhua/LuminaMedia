@@ -56,7 +56,10 @@ describe('TenantRepository', () => {
     } as any;
 
     // 模拟TenantContextService.getCurrentTenantIdStatic
-    getCurrentTenantIdSpy = jest.spyOn(TenantContextService, 'getCurrentTenantIdStatic');
+    getCurrentTenantIdSpy = jest.spyOn(
+      TenantContextService,
+      'getCurrentTenantIdStatic',
+    );
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -90,10 +93,14 @@ describe('TenantRepository', () => {
       const tenantId = 'test-tenant-123';
       getCurrentTenantIdSpy.mockReturnValue(tenantId);
 
-      const queryBuilder = mockQueryBuilder as SelectQueryBuilder<TestTenantEntity>;
+      const queryBuilder =
+        mockQueryBuilder as SelectQueryBuilder<TestTenantEntity>;
       testRepository['addTenantCondition'](queryBuilder);
 
-      expect(queryBuilder.andWhere).toHaveBeenCalledWith('testEntity.tenantId = :tenantId', { tenantId });
+      expect(queryBuilder.andWhere).toHaveBeenCalledWith(
+        'testEntity.tenantId = :tenantId',
+        { tenantId },
+      );
       expect(getCurrentTenantIdSpy).toHaveBeenCalled();
     });
   });
@@ -107,8 +114,13 @@ describe('TenantRepository', () => {
 
       const result = await testRepository.find();
 
-      expect(mockTypeOrmRepository.manager.createQueryBuilder).toHaveBeenCalledWith(TestTenantEntity, 'TestTenantEntity', undefined);
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('testEntity.tenantId = :tenantId', { tenantId });
+      expect(
+        mockTypeOrmRepository.manager.createQueryBuilder,
+      ).toHaveBeenCalledWith(TestTenantEntity, 'TestTenantEntity', undefined);
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'testEntity.tenantId = :tenantId',
+        { tenantId },
+      );
       expect(mockQueryBuilder.getMany).toHaveBeenCalled();
       expect(result).toEqual(entities);
     });
@@ -134,7 +146,10 @@ describe('TenantRepository', () => {
 
       const result = await testRepository.findOne();
 
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('testEntity.tenantId = :tenantId', { tenantId });
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'testEntity.tenantId = :tenantId',
+        { tenantId },
+      );
       expect(result).toEqual(entity);
     });
   });
@@ -149,8 +164,14 @@ describe('TenantRepository', () => {
 
       const result = await testRepository.findByIds(ids);
 
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('testEntity.tenantId = :tenantId', { tenantId });
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('testEntity.id IN (:...ids)', { ids });
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'testEntity.tenantId = :tenantId',
+        { tenantId },
+      );
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'testEntity.id IN (:...ids)',
+        { ids },
+      );
       expect(result).toEqual(entities);
     });
   });
@@ -164,7 +185,10 @@ describe('TenantRepository', () => {
 
       const result = await testRepository.count();
 
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('testEntity.tenantId = :tenantId', { tenantId });
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'testEntity.tenantId = :tenantId',
+        { tenantId },
+      );
       expect(result).toBe(count);
     });
   });
@@ -176,8 +200,13 @@ describe('TenantRepository', () => {
 
       const queryBuilder = testRepository.createQueryBuilder('alias');
 
-      expect(mockTypeOrmRepository.manager.createQueryBuilder).toHaveBeenCalledWith(TestTenantEntity, 'alias', undefined);
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('testEntity.tenantId = :tenantId', { tenantId });
+      expect(
+        mockTypeOrmRepository.manager.createQueryBuilder,
+      ).toHaveBeenCalledWith(TestTenantEntity, 'alias', undefined);
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'testEntity.tenantId = :tenantId',
+        { tenantId },
+      );
       expect(queryBuilder).toBe(mockQueryBuilder);
     });
   });
@@ -189,7 +218,9 @@ describe('TenantRepository', () => {
         { id: '2', name: 'Test2', tenantId: 'tenant-2' },
       ];
       // 模拟BaseRepository的find方法（不添加租户条件）
-      const baseFindSpy = jest.spyOn(BaseRepository.prototype, 'find').mockResolvedValue(entities);
+      const baseFindSpy = jest
+        .spyOn(BaseRepository.prototype, 'find')
+        .mockResolvedValue(entities);
 
       const result = await testRepository.findAllTenants();
 
@@ -214,7 +245,9 @@ describe('TenantRepository', () => {
 
       const result = await testRepository.checkTenantAccess(entityId);
 
-      expect(testRepository.findOne).toHaveBeenCalledWith({ where: { id: entityId } });
+      expect(testRepository.findOne).toHaveBeenCalledWith({
+        where: { id: entityId },
+      });
       expect(result).toBe(true);
     });
 
@@ -233,7 +266,9 @@ describe('TenantRepository', () => {
       const tenantId = 'tenant-1';
       const entityId = '123';
       getCurrentTenantIdSpy.mockReturnValue(tenantId);
-      jest.spyOn(testRepository, 'findOne').mockRejectedValue(new Error('DB error'));
+      jest
+        .spyOn(testRepository, 'findOne')
+        .mockRejectedValue(new Error('DB error'));
 
       const result = await testRepository.checkTenantAccess(entityId);
 
@@ -245,7 +280,12 @@ describe('TenantRepository', () => {
     it('should return stats for current tenant', async () => {
       const tenantId = 'tenant-1';
       const count = 10;
-      const latestEntity = { id: '1', name: 'Test', tenantId, updatedAt: new Date('2026-03-27') };
+      const latestEntity = {
+        id: '1',
+        name: 'Test',
+        tenantId,
+        updatedAt: new Date('2026-03-27'),
+      };
       getCurrentTenantIdSpy.mockReturnValue(tenantId);
       jest.spyOn(testRepository, 'count').mockResolvedValue(count);
       jest.spyOn(testRepository, 'createQueryBuilder').mockReturnValue({

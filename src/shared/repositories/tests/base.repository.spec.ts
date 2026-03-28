@@ -1,6 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository, SelectQueryBuilder, DeepPartial, SaveOptions, ObjectLiteral } from 'typeorm';
+import {
+  Repository,
+  SelectQueryBuilder,
+  DeepPartial,
+  SaveOptions,
+  ObjectLiteral,
+} from 'typeorm';
 import { Logger } from '@nestjs/common';
 import { BaseRepository } from '../base.repository';
 
@@ -99,7 +105,9 @@ describe('BaseRepository', () => {
     });
 
     // 替换logger为spy
-    loggerSpy = jest.spyOn(testRepository['logger'], 'debug').mockImplementation(() => {});
+    loggerSpy = jest
+      .spyOn(testRepository['logger'], 'debug')
+      .mockImplementation(() => {});
     // 模拟error日志，防止测试输出噪声
     jest.spyOn(testRepository['logger'], 'error').mockImplementation(() => {});
   });
@@ -119,11 +127,17 @@ describe('BaseRepository', () => {
         { id: 'id2', name: 'Entity2', tenantId: 'tenant1' },
       ];
       // 模拟manager.save，因为Repository.save会调用this.manager.save
-      (mockTypeOrmRepository.manager.save as jest.Mock).mockResolvedValue(savedEntities);
+      (mockTypeOrmRepository.manager.save as jest.Mock).mockResolvedValue(
+        savedEntities,
+      );
 
       const result = await testRepository.saveMany(entities);
       // Repository.save调用this.manager.save，所以我们期望manager.save被调用
-      expect(mockTypeOrmRepository.manager.save).toHaveBeenCalledWith(TestEntity, entities, undefined);
+      expect(mockTypeOrmRepository.manager.save).toHaveBeenCalledWith(
+        TestEntity,
+        entities,
+        undefined,
+      );
       expect(loggerSpy).toHaveBeenCalledWith('Saving 2 entities');
       expect(loggerSpy).toHaveBeenCalledWith('Successfully saved 2 entities');
       expect(result).toEqual(savedEntities);
@@ -132,8 +146,12 @@ describe('BaseRepository', () => {
     it('should wrap database errors', async () => {
       const entities: DeepPartial<TestEntity>[] = [{ name: 'Entity1' }];
       const dbError = new Error('Database error');
-      (mockTypeOrmRepository.manager.save as jest.Mock).mockRejectedValue(dbError);
-      await expect(testRepository.saveMany(entities)).rejects.toThrow('Database error');
+      (mockTypeOrmRepository.manager.save as jest.Mock).mockRejectedValue(
+        dbError,
+      );
+      await expect(testRepository.saveMany(entities)).rejects.toThrow(
+        'Database error',
+      );
     });
   });
 
@@ -143,11 +161,18 @@ describe('BaseRepository', () => {
       const foundEntities = [
         { id: 'id1', name: 'Entity1', tenantId: 'tenant1' },
       ];
-      (mockTypeOrmRepository.manager.find as jest.Mock).mockResolvedValue(foundEntities);
+      (mockTypeOrmRepository.manager.find as jest.Mock).mockResolvedValue(
+        foundEntities,
+      );
 
       const result = await testRepository.find(options);
-      expect(mockTypeOrmRepository.manager.find).toHaveBeenCalledWith(TestEntity, options);
-      expect(loggerSpy).toHaveBeenCalledWith('Finding entities with options: {"where":{"tenantId":"tenant1"}}');
+      expect(mockTypeOrmRepository.manager.find).toHaveBeenCalledWith(
+        TestEntity,
+        options,
+      );
+      expect(loggerSpy).toHaveBeenCalledWith(
+        'Finding entities with options: {"where":{"tenantId":"tenant1"}}',
+      );
       expect(loggerSpy).toHaveBeenCalledWith('Found 1 entities');
       expect(result).toEqual(foundEntities);
     });
@@ -155,21 +180,34 @@ describe('BaseRepository', () => {
 
   describe('findById', () => {
     it('should find entity by id', async () => {
-      const entity = { id: 'test-id', name: 'Test Entity', tenantId: 'tenant1' };
-      (mockTypeOrmRepository.manager.findOne as jest.Mock).mockResolvedValue(entity);
+      const entity = {
+        id: 'test-id',
+        name: 'Test Entity',
+        tenantId: 'tenant1',
+      };
+      (mockTypeOrmRepository.manager.findOne as jest.Mock).mockResolvedValue(
+        entity,
+      );
 
       const result = await testRepository.findById('test-id');
-      expect(mockTypeOrmRepository.manager.findOne).toHaveBeenCalledWith(TestEntity, { where: { id: 'test-id' } });
+      expect(mockTypeOrmRepository.manager.findOne).toHaveBeenCalledWith(
+        TestEntity,
+        { where: { id: 'test-id' } },
+      );
       expect(loggerSpy).toHaveBeenCalledWith('Finding entity by id: test-id');
       expect(loggerSpy).toHaveBeenCalledWith('Entity found with id: test-id');
       expect(result).toEqual(entity);
     });
 
     it('should return null when entity not found', async () => {
-      (mockTypeOrmRepository.manager.findOne as jest.Mock).mockResolvedValue(null);
+      (mockTypeOrmRepository.manager.findOne as jest.Mock).mockResolvedValue(
+        null,
+      );
       const result = await testRepository.findById('non-existent-id');
       expect(result).toBeNull();
-      expect(loggerSpy).toHaveBeenCalledWith('Entity not found with id: non-existent-id');
+      expect(loggerSpy).toHaveBeenCalledWith(
+        'Entity not found with id: non-existent-id',
+      );
     });
   });
 
@@ -177,10 +215,15 @@ describe('BaseRepository', () => {
     it('should find one entity with options', async () => {
       const options = { where: { name: 'Test', tenantId: 'tenant1' } };
       const entity = { id: 'id1', name: 'Test', tenantId: 'tenant1' };
-      (mockTypeOrmRepository.manager.findOne as jest.Mock).mockResolvedValue(entity);
+      (mockTypeOrmRepository.manager.findOne as jest.Mock).mockResolvedValue(
+        entity,
+      );
 
       const result = await testRepository.findOne(options);
-      expect(mockTypeOrmRepository.manager.findOne).toHaveBeenCalledWith(TestEntity, options);
+      expect(mockTypeOrmRepository.manager.findOne).toHaveBeenCalledWith(
+        TestEntity,
+        options,
+      );
       expect(result).toEqual(entity);
     });
   });
@@ -188,11 +231,18 @@ describe('BaseRepository', () => {
   describe('deleteById', () => {
     it('should delete entity by id', async () => {
       const deleteResult = { affected: 1, raw: [] };
-      (mockTypeOrmRepository.manager.delete as jest.Mock).mockResolvedValue(deleteResult);
+      (mockTypeOrmRepository.manager.delete as jest.Mock).mockResolvedValue(
+        deleteResult,
+      );
 
       await testRepository.deleteById('test-id');
-      expect(mockTypeOrmRepository.manager.delete).toHaveBeenCalledWith(TestEntity, 'test-id');
-      expect(loggerSpy).toHaveBeenCalledWith('Delete operation affected 1 rows');
+      expect(mockTypeOrmRepository.manager.delete).toHaveBeenCalledWith(
+        TestEntity,
+        'test-id',
+      );
+      expect(loggerSpy).toHaveBeenCalledWith(
+        'Delete operation affected 1 rows',
+      );
     });
   });
 
@@ -200,11 +250,19 @@ describe('BaseRepository', () => {
     it('should update entity by id', async () => {
       const updateResult = { affected: 1, raw: [] };
       const partialEntity = { name: 'Updated Name' };
-      (mockTypeOrmRepository.manager.update as jest.Mock).mockResolvedValue(updateResult);
+      (mockTypeOrmRepository.manager.update as jest.Mock).mockResolvedValue(
+        updateResult,
+      );
 
       await testRepository.updateById('test-id', partialEntity);
-      expect(mockTypeOrmRepository.manager.update).toHaveBeenCalledWith(TestEntity, 'test-id', partialEntity);
-      expect(loggerSpy).toHaveBeenCalledWith('Update operation affected 1 rows');
+      expect(mockTypeOrmRepository.manager.update).toHaveBeenCalledWith(
+        TestEntity,
+        'test-id',
+        partialEntity,
+      );
+      expect(loggerSpy).toHaveBeenCalledWith(
+        'Update operation affected 1 rows',
+      );
     });
   });
 
@@ -213,7 +271,10 @@ describe('BaseRepository', () => {
       const options = { where: { tenantId: 'tenant1' } };
       (mockTypeOrmRepository.manager.count as jest.Mock).mockResolvedValue(5);
       const result = await testRepository.count(options);
-      expect(mockTypeOrmRepository.manager.count).toHaveBeenCalledWith(TestEntity, options);
+      expect(mockTypeOrmRepository.manager.count).toHaveBeenCalledWith(
+        TestEntity,
+        options,
+      );
       expect(loggerSpy).toHaveBeenCalledWith('Count result: 5');
       expect(result).toBe(5);
     });
@@ -239,9 +300,13 @@ describe('BaseRepository', () => {
   describe('createQueryBuilder', () => {
     it('should create query builder with alias', () => {
       const alias = 'test';
-      (mockTypeOrmRepository.manager.createQueryBuilder as jest.Mock).mockReturnValue(mockQueryBuilder);
+      (
+        mockTypeOrmRepository.manager.createQueryBuilder as jest.Mock
+      ).mockReturnValue(mockQueryBuilder);
       const result = testRepository.createQueryBuilder(alias);
-      expect(mockTypeOrmRepository.manager.createQueryBuilder).toHaveBeenCalledWith(TestEntity, alias, undefined);
+      expect(
+        mockTypeOrmRepository.manager.createQueryBuilder,
+      ).toHaveBeenCalledWith(TestEntity, alias, undefined);
       expect(result).toBe(mockQueryBuilder);
     });
   });
@@ -259,7 +324,9 @@ describe('BaseRepository', () => {
           getRepository: jest.fn().mockReturnValue(mockTypeOrmRepository),
         },
       };
-      (mockTypeOrmRepository.manager.connection.createQueryRunner as jest.Mock).mockReturnValue(mockQueryRunner);
+      (
+        mockTypeOrmRepository.manager.connection.createQueryRunner as jest.Mock
+      ).mockReturnValue(mockQueryRunner);
 
       const result = await testRepository.transaction(operation);
       expect(mockQueryRunner.connect).toHaveBeenCalled();
@@ -271,7 +338,9 @@ describe('BaseRepository', () => {
     });
 
     it('should rollback on error', async () => {
-      const operation = jest.fn().mockRejectedValue(new Error('Transaction failed'));
+      const operation = jest
+        .fn()
+        .mockRejectedValue(new Error('Transaction failed'));
       const mockQueryRunner = {
         connect: jest.fn(),
         startTransaction: jest.fn(),
@@ -282,9 +351,13 @@ describe('BaseRepository', () => {
           getRepository: jest.fn().mockReturnValue(mockTypeOrmRepository),
         },
       };
-      (mockTypeOrmRepository.manager.connection.createQueryRunner as jest.Mock).mockReturnValue(mockQueryRunner);
+      (
+        mockTypeOrmRepository.manager.connection.createQueryRunner as jest.Mock
+      ).mockReturnValue(mockQueryRunner);
 
-      await expect(testRepository.transaction(operation)).rejects.toThrow('Transaction failed');
+      await expect(testRepository.transaction(operation)).rejects.toThrow(
+        'Transaction failed',
+      );
       expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
       expect(mockQueryRunner.release).toHaveBeenCalled();
     });
@@ -298,9 +371,14 @@ describe('BaseRepository', () => {
     });
 
     it('should handle foreign key error', () => {
-      const error = { code: 'ER_NO_REFERENCED_ROW_2', message: 'Foreign key fails' };
+      const error = {
+        code: 'ER_NO_REFERENCED_ROW_2',
+        message: 'Foreign key fails',
+      };
       const wrapped = testRepository['wrapDatabaseError'](error, 'SAVE');
-      expect(wrapped.message).toBe('Foreign key constraint fails: Foreign key fails');
+      expect(wrapped.message).toBe(
+        'Foreign key constraint fails: Foreign key fails',
+      );
     });
 
     it('should return original error if already Error instance', () => {

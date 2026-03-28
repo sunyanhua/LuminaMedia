@@ -37,7 +37,11 @@ describe('TenantContextService', () => {
         capturedIds.push(TenantContextService.getCurrentTenantIdStatic());
       });
 
-      expect(capturedIds).toEqual(['outer-tenant', 'inner-tenant', 'outer-tenant']);
+      expect(capturedIds).toEqual([
+        'outer-tenant',
+        'inner-tenant',
+        'outer-tenant',
+      ]);
     });
   });
 

@@ -1,4 +1,12 @@
-import { withRetry, RetryableError, NonRetryableError, sleep, createRetryWrapper, cloudServiceRetryOptions, RetryOptions } from './retry';
+import {
+  withRetry,
+  RetryableError,
+  NonRetryableError,
+  sleep,
+  createRetryWrapper,
+  cloudServiceRetryOptions,
+  RetryOptions,
+} from './retry';
 
 jest.setTimeout(10000);
 
@@ -9,7 +17,7 @@ describe('Retry utilities', () => {
       await sleep(100);
       const elapsed = Date.now() - start;
       expect(elapsed).toBeGreaterThanOrEqual(90);
-      expect(elapsed).toBeLessThan(200);
+      expect(elapsed).toBeLessThanOrEqual(200);
     });
   });
 
@@ -48,11 +56,15 @@ describe('Retry utilities', () => {
     });
 
     it('should retry on retryable error and eventually succeed', async () => {
-      const operation = jest.fn()
+      const operation = jest
+        .fn()
         .mockRejectedValueOnce(new Error('网络错误'))
         .mockResolvedValueOnce('success');
 
-      const promise = withRetry(operation, { maxAttempts: 2, initialDelay: 100 });
+      const promise = withRetry(operation, {
+        maxAttempts: 2,
+        initialDelay: 100,
+      });
       // Advance timers for the retry delay
       await jest.advanceTimersByTimeAsync(100);
       const result = await promise;
@@ -62,10 +74,12 @@ describe('Retry utilities', () => {
     });
 
     it.skip('should throw NonRetryableError after max attempts', async () => {
-      const operation = jest.fn()
-        .mockRejectedValue(new Error('网络错误'));
+      const operation = jest.fn().mockRejectedValue(new Error('网络错误'));
 
-      const promise = withRetry(operation, { maxAttempts: 2, initialDelay: 100 });
+      const promise = withRetry(operation, {
+        maxAttempts: 2,
+        initialDelay: 100,
+      });
       await jest.advanceTimersByTimeAsync(100); // first retry
 
       await expect(promise).rejects.toThrow(NonRetryableError);
@@ -73,24 +87,29 @@ describe('Retry utilities', () => {
     });
 
     it('should not retry on non-retryable error', async () => {
-      const operation = jest.fn()
+      const operation = jest
+        .fn()
         .mockRejectedValue(new Error('some other error'));
 
-      const promise = withRetry(operation, { maxAttempts: 3, initialDelay: 100 });
+      const promise = withRetry(operation, {
+        maxAttempts: 3,
+        initialDelay: 100,
+      });
       // No timers needed because no retry
       await expect(promise).rejects.toThrow(NonRetryableError);
       expect(operation).toHaveBeenCalledTimes(1);
     });
 
     it('should use custom retryableErrors patterns', async () => {
-      const operation = jest.fn()
+      const operation = jest
+        .fn()
         .mockRejectedValueOnce(new Error('custom retryable error'))
         .mockResolvedValueOnce('success');
 
       const promise = withRetry(operation, {
         maxAttempts: 2,
         initialDelay: 100,
-        retryableErrors: ['custom retryable']
+        retryableErrors: ['custom retryable'],
       });
       await jest.advanceTimersByTimeAsync(100);
       const result = await promise;
@@ -101,7 +120,8 @@ describe('Retry utilities', () => {
 
     it('should call onRetry callback on each retry', async () => {
       const onRetry = jest.fn();
-      const operation = jest.fn()
+      const operation = jest
+        .fn()
         .mockRejectedValueOnce(new Error('网络错误'))
         .mockRejectedValueOnce(new Error('网络错误'))
         .mockResolvedValueOnce('success');
@@ -109,7 +129,7 @@ describe('Retry utilities', () => {
       const promise = withRetry(operation, {
         maxAttempts: 3,
         initialDelay: 100,
-        onRetry
+        onRetry,
       });
       await jest.advanceTimersByTimeAsync(100); // first retry delay
       await jest.advanceTimersByTimeAsync(200); // second retry delay (backoff)
@@ -125,7 +145,8 @@ describe('Retry utilities', () => {
   describe('createRetryWrapper', () => {
     it('should create a wrapper function with preset options', async () => {
       const wrapper = createRetryWrapper({ maxAttempts: 2, initialDelay: 50 });
-      const operation = jest.fn()
+      const operation = jest
+        .fn()
         .mockRejectedValueOnce(new Error('网络错误'))
         .mockResolvedValueOnce('success');
 

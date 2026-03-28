@@ -8,7 +8,11 @@ import { TenantContextService } from '../../../shared/services/tenant-context.se
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
-import { UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  UnauthorizedException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 jest.mock('bcrypt');
@@ -50,7 +54,8 @@ describe('AuthService', () => {
     authService = module.get<AuthService>(AuthService);
     userRepository = module.get<UserRepository>(UserRepository);
     jwtService = module.get<JwtService>(JwtService);
-    tenantContextService = module.get<TenantContextService>(TenantContextService);
+    tenantContextService =
+      module.get<TenantContextService>(TenantContextService);
   });
 
   afterEach(() => {
@@ -99,7 +104,10 @@ describe('AuthService', () => {
       };
       (userRepository.findOne as jest.Mock).mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
-      const result = await authService.validateUser('testuser', 'wrongpassword');
+      const result = await authService.validateUser(
+        'testuser',
+        'wrongpassword',
+      );
       expect(result).toBeNull();
     });
   });
@@ -113,13 +121,18 @@ describe('AuthService', () => {
         email: 'test@example.com',
         tenantId: 'tenant-id',
       };
-      jest.spyOn(authService, 'validateUser').mockResolvedValue(mockUser as any);
+      jest
+        .spyOn(authService, 'validateUser')
+        .mockResolvedValue(mockUser as any);
       (jwtService.sign as jest.Mock)
         .mockReturnValueOnce('access-token')
         .mockReturnValueOnce('refresh-token');
 
       const result = await authService.login(loginDto);
-      expect(authService.validateUser).toHaveBeenCalledWith('testuser', 'password');
+      expect(authService.validateUser).toHaveBeenCalledWith(
+        'testuser',
+        'password',
+      );
       expect(jwtService.sign).toHaveBeenCalledWith({
         sub: 'user-id',
         username: 'testuser',
@@ -148,9 +161,14 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException when credentials are invalid', async () => {
-      const loginDto: LoginDto = { username: 'testuser', password: 'wrongpassword' };
+      const loginDto: LoginDto = {
+        username: 'testuser',
+        password: 'wrongpassword',
+      };
       jest.spyOn(authService, 'validateUser').mockResolvedValue(null);
-      await expect(authService.login(loginDto)).rejects.toThrow(UnauthorizedException);
+      await expect(authService.login(loginDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
@@ -214,8 +232,12 @@ describe('AuthService', () => {
         email: 'existing@example.com',
         password: 'password',
       };
-      (userRepository.findOne as jest.Mock).mockResolvedValue({ id: 'existing-id' });
-      await expect(authService.register(registerDto)).rejects.toThrow(ConflictException);
+      (userRepository.findOne as jest.Mock).mockResolvedValue({
+        id: 'existing-id',
+      });
+      await expect(authService.register(registerDto)).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('should use default tenant when tenantId not provided', async () => {
@@ -247,7 +269,9 @@ describe('AuthService', () => {
 
   describe('refreshToken', () => {
     it('should return new tokens when refresh token is valid', async () => {
-      const refreshTokenDto: RefreshTokenDto = { refresh_token: 'valid-refresh-token' };
+      const refreshTokenDto: RefreshTokenDto = {
+        refresh_token: 'valid-refresh-token',
+      };
       const payload = {
         sub: 'user-id',
         username: 'testuser',
@@ -294,7 +318,9 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException when refresh token is invalid', async () => {
-      const refreshTokenDto: RefreshTokenDto = { refresh_token: 'invalid-token' };
+      const refreshTokenDto: RefreshTokenDto = {
+        refresh_token: 'invalid-token',
+      };
       (jwtService.verify as jest.Mock).mockImplementation(() => {
         throw new Error('invalid token');
       });
