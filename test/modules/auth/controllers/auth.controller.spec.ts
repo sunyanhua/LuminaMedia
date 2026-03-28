@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from '../../../src/modules/auth/controllers/auth.controller';
-import { AuthService } from '../../../src/modules/auth/services/auth.service';
-import { LoginDto } from '../../../src/modules/auth/dto/login.dto';
-import { RegisterDto } from '../../../src/modules/auth/dto/register.dto';
-import { RefreshTokenDto } from '../../../src/modules/auth/dto/refresh-token.dto';
+import { AuthController } from '../../../../src/modules/auth/controllers/auth.controller';
+import { AuthService } from '../../../../src/modules/auth/services/auth.service';
+import { LoginDto } from '../../../../src/modules/auth/dto/login.dto';
+import { RegisterDto } from '../../../../src/modules/auth/dto/register.dto';
+import { RefreshTokenDto } from '../../../../src/modules/auth/dto/refresh-token.dto';
 import { UnauthorizedException, ConflictException } from '@nestjs/common';
 
 describe('AuthController', () => {

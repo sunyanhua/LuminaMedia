@@ -3,7 +3,7 @@ import {
   PermissionsGuard,
   PERMISSIONS_KEY,
   RequiredPermission,
-} from '../../../src/modules/auth/guards/permissions.guard';
+} from '../../../../src/modules/auth/guards/permissions.guard';
 import { ExecutionContext } from '@nestjs/common';
 
 describe('PermissionsGuard', () => {

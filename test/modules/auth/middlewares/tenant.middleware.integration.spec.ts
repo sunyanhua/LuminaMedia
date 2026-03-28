@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, Controller, Get, Module } from '@nestjs/common';
 import { Request } from 'express';
 import request from 'supertest';
-import { TenantMiddleware } from '../../../src/modules/auth/middlewares/tenant.middleware';
+import { TenantMiddleware } from '../../../../src/modules/auth/middlewares/tenant.middleware';
 import { JwtService } from '@nestjs/jwt';
 import { TenantContextService } from '../../../../src/shared/services/tenant-context.service';
 

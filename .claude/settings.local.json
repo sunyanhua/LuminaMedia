@@ -41,7 +41,8 @@
       "Bash(node scripts/verify-sharding-design.js)",
       "Bash(grep:*)",
       "Bash(npm audit:*)",
-      "Bash(docker-compose exec:*)"
+      "Bash(docker-compose exec:*)",
+      "Read(//tmp/**)"
     ]
   }
 }

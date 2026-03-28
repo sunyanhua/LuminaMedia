@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1774675440886" clover="3.2.0">
-  <project timestamp="1774675440886" name="All files">
-    <metrics statements="4757" coveredstatements="1803" conditionals="3144" coveredconditionals="1102" methods="912" coveredmethods="276" elements="8813" coveredelements="3181" complexity="0" loc="4757" ncloc="4757" packages="44" files="128" classes="128"/>
+<coverage generated="1774681640148" clover="3.2.0">
+  <project timestamp="1774681640148" name="All files">
+    <metrics statements="4767" coveredstatements="1800" conditionals="3144" coveredconditionals="1100" methods="915" coveredmethods="275" elements="8826" coveredelements="3175" complexity="0" loc="4767" ncloc="4767" packages="45" files="129" classes="129"/>
     <package name="src">
       <metrics statements="49" coveredstatements="33" conditionals="8" coveredconditionals="3" methods="6" coveredmethods="3"/>
       <file name="app.controller.ts" path="D:\GitHub\LuminaMedia\src\app.controller.ts">
@@ -4306,9 +4306,9 @@
       </file>
     </package>
     <package name="src.shared.cloud.adapters">
-      <metrics statements="312" coveredstatements="269" conditionals="139" coveredconditionals="92" methods="124" coveredmethods="104"/>
+      <metrics statements="312" coveredstatements="268" conditionals="139" coveredconditionals="91" methods="124" coveredmethods="104"/>
       <file name="alicloud.adapter.ts" path="D:\GitHub\LuminaMedia\src\shared\cloud\adapters\alicloud.adapter.ts">
-        <metrics statements="129" coveredstatements="102" conditionals="72" coveredconditionals="37" methods="47" coveredmethods="37"/>
+        <metrics statements="129" coveredstatements="101" conditionals="72" coveredconditionals="36" methods="47" coveredmethods="37"/>
         <line num="27" count="1" type="stmt"/>
         <line num="37" count="1" type="stmt"/>
         <line num="47" count="21" type="cond" truecount="2" falsecount="1"/>
@@ -4364,9 +4364,9 @@
         <line num="209" count="21" type="stmt"/>
         <line num="210" count="21" type="stmt"/>
         <line num="220" count="1" type="stmt"/>
-        <line num="222" count="2" type="stmt"/>
-        <line num="227" count="2" type="cond" truecount="4" falsecount="0"/>
-        <line num="228" count="1" type="stmt"/>
+        <line num="222" count="1" type="stmt"/>
+        <line num="227" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="228" count="0" type="stmt"/>
         <line num="232" count="1" type="stmt"/>
         <line num="243" count="2" type="stmt"/>
         <line num="245" count="2" type="stmt"/>
@@ -4630,13 +4630,13 @@
       </file>
     </package>
     <package name="src.shared.cloud.utils">
-      <metrics statements="43" coveredstatements="41" conditionals="24" coveredconditionals="21" methods="9" coveredmethods="9"/>
+      <metrics statements="43" coveredstatements="39" conditionals="24" coveredconditionals="20" methods="9" coveredmethods="8"/>
       <file name="retry.ts" path="D:\GitHub\LuminaMedia\src\shared\cloud\utils\retry.ts">
-        <metrics statements="43" coveredstatements="41" conditionals="24" coveredconditionals="21" methods="9" coveredmethods="9"/>
+        <metrics statements="43" coveredstatements="39" conditionals="24" coveredconditionals="20" methods="9" coveredmethods="8"/>
         <line num="15" count="2" type="stmt"/>
-        <line num="18" count="2" type="stmt"/>
-        <line num="20" count="2" type="stmt"/>
-        <line num="21" count="2" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
         <line num="25" count="2" type="stmt"/>
         <line num="28" count="2" type="stmt"/>
         <line num="30" count="2" type="stmt"/>
@@ -4645,21 +4645,21 @@
         <line num="49" count="10" type="stmt"/>
         <line num="52" count="10" type="stmt"/>
         <line num="54" count="10" type="stmt"/>
-        <line num="55" count="16" type="stmt"/>
-        <line num="56" count="16" type="stmt"/>
-        <line num="58" count="7" type="cond" truecount="1" falsecount="1"/>
-        <line num="61" count="7" type="stmt"/>
-        <line num="63" count="7" type="cond" truecount="4" falsecount="0"/>
+        <line num="55" count="15" type="stmt"/>
+        <line num="56" count="15" type="stmt"/>
+        <line num="58" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="61" count="6" type="stmt"/>
+        <line num="63" count="6" type="cond" truecount="4" falsecount="0"/>
         <line num="64" count="1" type="stmt"/>
-        <line num="71" count="6" type="cond" truecount="2" falsecount="0"/>
-        <line num="72" count="3" type="stmt"/>
-        <line num="75" count="6" type="stmt"/>
-        <line num="80" count="6" type="stmt"/>
-        <line num="83" count="6" type="stmt"/>
+        <line num="71" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="72" count="2" type="stmt"/>
+        <line num="75" count="5" type="stmt"/>
+        <line num="80" count="5" type="stmt"/>
+        <line num="83" count="5" type="stmt"/>
         <line num="88" count="0" type="stmt"/>
-        <line num="98" count="7" type="stmt"/>
-        <line num="101" count="7" type="cond" truecount="2" falsecount="0"/>
-        <line num="102" count="1" type="stmt"/>
+        <line num="98" count="6" type="stmt"/>
+        <line num="101" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="102" count="0" type="stmt"/>
         <line num="106" count="6" type="cond" truecount="1" falsecount="1"/>
         <line num="107" count="0" type="stmt"/>
         <line num="111" count="6" type="stmt"/>
@@ -4670,12 +4670,12 @@
         <line num="117" count="4" type="stmt"/>
         <line num="121" count="1" type="stmt"/>
         <line num="127" count="2" type="stmt"/>
-        <line num="128" count="7" type="stmt"/>
+        <line num="128" count="6" type="stmt"/>
         <line num="134" count="2" type="stmt"/>
         <line num="135" count="1" type="stmt"/>
         <line num="136" count="1" type="stmt"/>
         <line num="143" count="2" type="stmt"/>
-        <line num="161" count="1" type="stmt"/>
+        <line num="161" count="0" type="stmt"/>
       </file>
     </package>
     <package name="src.shared.enums">
@@ -5273,6 +5273,22 @@
       <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       <file name="express.d.ts" path="D:\GitHub\LuminaMedia\src\types\express.d.ts">
         <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      </file>
+    </package>
+    <package name="test">
+      <metrics statements="10" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="0"/>
+      <file name="app.e2e-spec.ts" path="D:\GitHub\LuminaMedia\test\app.e2e-spec.ts">
+        <metrics statements="10" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="0"/>
+        <line num="1" count="0" type="stmt"/>
+        <line num="3" count="0" type="stmt"/>
+        <line num="5" count="0" type="stmt"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
       </file>
     </package>
   </project>

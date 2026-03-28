@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { AuthService } from '../services/auth.service';
-import { User } from '../../../entities/user.entity';
-import { UserRepository } from '../../../shared/repositories/user.repository';
-import { TenantContextService } from '../../../shared/services/tenant-context.service';
-import { LoginDto } from '../dto/login.dto';
-import { RegisterDto } from '../dto/register.dto';
-import { RefreshTokenDto } from '../dto/refresh-token.dto';
+import { AuthService } from '../../../../src/modules/auth/services/auth.service';
+import { User } from '../../../../src/entities/user.entity';
+import { UserRepository } from '../../../../src/shared/repositories/user.repository';
+import { TenantContextService } from '../../../../src/shared/services/tenant-context.service';
+import { LoginDto } from '../../../../src/modules/auth/dto/login.dto';
+import { RegisterDto } from '../../../../src/modules/auth/dto/register.dto';
+import { RefreshTokenDto } from '../../../../src/modules/auth/dto/refresh-token.dto';
 import {
   UnauthorizedException,
   ConflictException,
