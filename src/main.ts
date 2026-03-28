@@ -1,16 +1,18 @@
 // 全局代理初始化（必须在应用启动前执行）
-let setGlobalDispatcher: any, ProxyAgent: any;
+import { setGlobalDispatcher, ProxyAgent } from 'undici';
+
 try {
-  const undici = require('undici');
-  setGlobalDispatcher = undici.setGlobalDispatcher;
-  ProxyAgent = undici.ProxyAgent;
   if (process.env.HTTPS_PROXY) {
     const agent = new ProxyAgent(process.env.HTTPS_PROXY);
     setGlobalDispatcher(agent);
     console.log('>>> [SUCCESS] LuminaMedia Proxy Engine Active! (全局初始化)');
   }
-} catch (e) {
-  console.error('>>> [FAILED] undici is still missing in runtime!', e.message);
+} catch (e: unknown) {
+  const error = e as Error;
+  console.error(
+    '>>> [FAILED] undici is still missing in runtime!',
+    error.message,
+  );
 }
 
 import { NestFactory } from '@nestjs/core';
@@ -36,7 +38,7 @@ async function bootstrap() {
 
   await app.listen(process.env.APP_PORT ?? 3003, '0.0.0.0');
 }
-bootstrap();
+void bootstrap();
 // [Hot reload test] Modified at $(date) to verify Docker watch mode
 // SECOND TEST: Modified at $(date) to check if hot reload works
 // NODEMON HOT RELOAD TEST: Modified at $(date) to verify nodemon watch mode

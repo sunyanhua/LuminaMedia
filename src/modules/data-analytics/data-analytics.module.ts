@@ -68,6 +68,7 @@ import { AuthModule } from '../auth/auth.module';
     QwenService,
     ContentGenerationService,
     DemoService,
+    TenantContextService,
   ],
   exports: [
     AnalyticsService,

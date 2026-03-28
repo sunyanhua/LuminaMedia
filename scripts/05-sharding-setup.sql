@@ -72,7 +72,7 @@ BEGIN
         -- 构建分区SQL
         SET sql_stmt = CONCAT(
             'ALTER TABLE ', table_name, ' ',
-            'PARTITION BY HASH(MOD(CRC32(tenant_id), ', partition_count, ')) ',
+            'PARTITION BY KEY(tenant_id) ',
             'PARTITIONS ', partition_count
         );
 
@@ -143,10 +143,10 @@ SELECT '=' AS separator;
 SELECT 'Sharding Management Examples:' AS title;
 SELECT '=' AS separator;
 
--- 示例1: 查询特定租户所在的分区
+-- 示例1: KEY分区示例 - 分区由MySQL内部处理
 SELECT
-    'Example 1: Find partition for tenant_id "default-tenant"' AS example,
-    MOD(CRC32('default-tenant'), 16) AS partition_number;
+    'Example 1: KEY partitioning uses MySQL internal hash function' AS example,
+    'Partition determined by MySQL automatically' AS partition_info;
 
 -- 示例2: 检查分区表状态
 SELECT

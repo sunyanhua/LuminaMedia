@@ -6,6 +6,7 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
 import { AuthService } from '../services/auth.service';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
@@ -53,7 +54,7 @@ export class AuthController {
   @ApiOperation({ summary: '获取当前用户信息' })
   @ApiResponse({ status: 200, description: '返回用户信息' })
   @ApiResponse({ status: 401, description: '未认证' })
-  async getProfile(@Request() req) {
+  async getProfile(@Request() req: ExpressRequest & { user: { id: string } }) {
     return this.authService.getProfile(req.user.id);
   }
 }

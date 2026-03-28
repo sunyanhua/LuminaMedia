@@ -16,7 +16,6 @@ import { CustomerSegment } from './customer-segment.entity';
 import { MarketingCampaign } from '../modules/data-analytics/entities/marketing-campaign.entity';
 import { MarketingStrategy } from '../modules/data-analytics/entities/marketing-strategy.entity';
 import { TenantEntity } from '../shared/interfaces/tenant-entity.interface';
-import { CustomerProfileRepository } from '../shared/repositories/customer-profile.repository';
 
 @Entity('customer_profiles')
 @Index(['userId', 'customerType'])

@@ -17,6 +17,7 @@ services:
       - ./scripts/02-analytics-migration.sql:/docker-entrypoint-initdb.d/02-analytics-migration.sql
       - ./scripts/03-content-generation-migration.sql:/docker-entrypoint-initdb.d/03-content-generation-migration.sql
       - ./scripts/customer-data-migration.sql:/docker-entrypoint-initdb.d/04-customer-data-migration.sql
+      - ./scripts/05-sharding-setup.sql:/docker-entrypoint-initdb.d/05-sharding-setup.sql
     command: >
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_unicode_ci

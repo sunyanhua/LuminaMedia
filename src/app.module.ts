@@ -60,7 +60,7 @@ import { AuthModule } from './modules/auth/auth.module';
         charset: 'utf8mb4',
         extra: {
           charset: 'utf8mb4',
-          init: (connection) => {
+          init: (connection: import('mysql2').Connection) => {
             connection.query('SET NAMES utf8mb4');
           },
         },
