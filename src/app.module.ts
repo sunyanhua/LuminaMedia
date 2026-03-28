@@ -21,6 +21,8 @@ import { DataAnalyticsModule } from './modules/data-analytics/data-analytics.mod
 import { CustomerDataModule } from './modules/customer-data/customer-data.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { DataEngineModule } from './modules/data-engine/data-engine.module';
+import { AIEngineModule } from './modules/ai-engine/ai-engine.module';
 
 @Module({
   imports: [
@@ -70,6 +72,8 @@ import { AuthModule } from './modules/auth/auth.module';
     CustomerDataModule,
     DashboardModule,
     AuthModule,
+    DataEngineModule,
+    AIEngineModule,
   ],
   controllers: [AppController],
   providers: [AppService],

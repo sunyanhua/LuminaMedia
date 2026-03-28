@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">4.34% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>10/230</span>
+                <span class='fraction'>0/230</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">5.26% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>9/171</span>
+                <span class='fraction'>0/171</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">3.88% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>8/206</span>
+                <span class='fraction'>0/206</span>
             </div>
         
             
@@ -1149,16 +1149,16 @@
 <a name='L1084'></a><a href='#L1084'>1084</a>
 <a name='L1085'></a><a href='#L1085'>1085</a>
 <a name='L1086'></a><a href='#L1086'>1086</a>
-<a name='L1087'></a><a href='#L1087'>1087</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L1087'></a><a href='#L1087'>1087</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -2235,23 +2235,23 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CustomerProfile } from '../../../entities/customer-profile.entity';
-import { CustomerSegment } from '../../../entities/customer-segment.entity';
-import { DataImportJob } from '../../../entities/data-import-job.entity';
-import { DataImportStatus } from '../../../shared/enums/data-import-status.enum';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { Injectable, NotFoundException } from '@nestjs/common';</span>
+<span class="cstat-no" title="statement not covered" >import { InjectRepository } from '@nestjs/typeorm';</span>
+<span class="cstat-no" title="statement not covered" >import { Repository } from 'typeorm';</span>
+<span class="cstat-no" title="statement not covered" >import { CustomerProfile } from '../../../entities/customer-profile.entity';</span>
+<span class="cstat-no" title="statement not covered" >import { CustomerSegment } from '../../../entities/customer-segment.entity';</span>
+<span class="cstat-no" title="statement not covered" >import { DataImportJob } from '../../../entities/data-import-job.entity';</span>
+<span class="cstat-no" title="statement not covered" >import { DataImportStatus } from '../../../shared/enums/data-import-status.enum';</span>
 &nbsp;
 @Injectable()
-export class CustomerAnalyticsService {
+export <span class="cstat-no" title="statement not covered" >class <span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" >CustomerAnalyticsService </span>{</span></span>
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     @InjectRepository(CustomerProfile)
-    private <span class="cstat-no" title="statement not covered" >customerProfileRepository: R</span>epository<span class="branch-1 cbranch-no" title="branch not covered" >&lt;CustomerProfile&gt;,</span>
+    private <span class="cstat-no" title="statement not covered" >customerProfileRepository: R</span>epository&lt;CustomerProfile&gt;,
     @InjectRepository(CustomerSegment)
-    private <span class="cstat-no" title="statement not covered" >customerSegmentRepository: R</span>epository<span class="branch-1 cbranch-no" title="branch not covered" >&lt;CustomerSegment&gt;,</span>
+    private <span class="cstat-no" title="statement not covered" >customerSegmentRepository: R</span>epository&lt;CustomerSegment&gt;,
     @InjectRepository(DataImportJob)
-    private <span class="cstat-no" title="statement not covered" >dataImportJobRepository: R</span>epository<span class="branch-1 cbranch-no" title="branch not covered" >&lt;DataImportJob&gt;,</span>
+    private <span class="cstat-no" title="statement not covered" >dataImportJobRepository: R</span>epository&lt;DataImportJob&gt;,
   ) {}
 &nbsp;
   /**
@@ -3328,7 +3328,7 @@ export class CustomerAnalyticsService {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-28T10:01:02.808Z
+                at 2026-03-28T12:54:51.531Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

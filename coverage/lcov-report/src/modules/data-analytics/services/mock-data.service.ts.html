@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">15.9% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>14/88</span>
+                <span class='fraction'>0/88</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">32.14% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>9/28</span>
+                <span class='fraction'>0/28</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">14.63% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>12/82</span>
+                <span class='fraction'>0/82</span>
             </div>
         
             
@@ -378,23 +378,23 @@
 <a name='L313'></a><a href='#L313'>313</a>
 <a name='L314'></a><a href='#L314'>314</a>
 <a name='L315'></a><a href='#L315'>315</a>
-<a name='L316'></a><a href='#L316'>316</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L316'></a><a href='#L316'>316</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -693,30 +693,30 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { Injectable } from '@nestjs/common';</span>
+<span class="cstat-no" title="statement not covered" >import { InjectRepository } from '@nestjs/typeorm';</span>
 import { UserBehavior } from '../entities/user-behavior.entity';
 import { MarketingCampaign } from '../entities/marketing-campaign.entity';
 import { MarketingStrategy } from '../entities/marketing-strategy.entity';
-import { UserBehaviorRepository } from '../../../shared/repositories/user-behavior.repository';
-import { MarketingCampaignRepository } from '../../../shared/repositories/marketing-campaign.repository';
-import { MarketingStrategyRepository } from '../../../shared/repositories/marketing-strategy.repository';
-import { TenantContextService } from '../../../shared/services/tenant-context.service';
-import { UserBehaviorEvent } from '../../../shared/enums/user-behavior-event.enum';
-import { CampaignType } from '../../../shared/enums/campaign-type.enum';
-import { CampaignStatus } from '../../../shared/enums/campaign-status.enum';
-import { StrategyType } from '../../../shared/enums/strategy-type.enum';
-import { GenerationMethod } from '../../../shared/enums/generation-method.enum';
+<span class="cstat-no" title="statement not covered" >import { UserBehaviorRepository } from '../../../shared/repositories/user-behavior.repository';</span>
+<span class="cstat-no" title="statement not covered" >import { MarketingCampaignRepository } from '../../../shared/repositories/marketing-campaign.repository';</span>
+<span class="cstat-no" title="statement not covered" >import { MarketingStrategyRepository } from '../../../shared/repositories/marketing-strategy.repository';</span>
+<span class="cstat-no" title="statement not covered" >import { TenantContextService } from '../../../shared/services/tenant-context.service';</span>
+<span class="cstat-no" title="statement not covered" >import { UserBehaviorEvent } from '../../../shared/enums/user-behavior-event.enum';</span>
+<span class="cstat-no" title="statement not covered" >import { CampaignType } from '../../../shared/enums/campaign-type.enum';</span>
+<span class="cstat-no" title="statement not covered" >import { CampaignStatus } from '../../../shared/enums/campaign-status.enum';</span>
+<span class="cstat-no" title="statement not covered" >import { StrategyType } from '../../../shared/enums/strategy-type.enum';</span>
+<span class="cstat-no" title="statement not covered" >import { GenerationMethod } from '../../../shared/enums/generation-method.enum';</span>
 &nbsp;
 @Injectable()
-export class MockDataService {
+export <span class="cstat-no" title="statement not covered" >class <span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" >MockDataService </span>{</span></span>
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     @InjectRepository(UserBehaviorRepository)
-    private <span class="cstat-no" title="statement not covered" >userBehaviorRepository: U</span>serBehaviorRepository<span class="branch-1 cbranch-no" title="branch not covered" >,</span>
+    private <span class="cstat-no" title="statement not covered" >userBehaviorRepository: U</span>serBehaviorRepository,
     @InjectRepository(MarketingCampaignRepository)
-    private <span class="cstat-no" title="statement not covered" >campaignRepository: M</span>arketingCampaignRepository<span class="branch-1 cbranch-no" title="branch not covered" >,</span>
+    private <span class="cstat-no" title="statement not covered" >campaignRepository: M</span>arketingCampaignRepository,
     @InjectRepository(MarketingStrategyRepository)
-    private <span class="cstat-no" title="statement not covered" >strategyRepository: M</span>arketingStrategyRepository<span class="branch-1 cbranch-no" title="branch not covered" >,</span>
+    private <span class="cstat-no" title="statement not covered" >strategyRepository: M</span>arketingStrategyRepository,
   ) {}
 &nbsp;
 <span class="fstat-no" title="function not covered" >  async </span>generateMockData(userId: string): Promise&lt;{
@@ -1015,7 +1015,7 @@ export class MockDataService {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-28T10:01:02.808Z
+                at 2026-03-28T12:54:51.531Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

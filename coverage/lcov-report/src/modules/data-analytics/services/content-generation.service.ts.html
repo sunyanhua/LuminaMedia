@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">2.01% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>6/298</span>
+                <span class='fraction'>0/298</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">1.57% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>3/190</span>
+                <span class='fraction'>0/190</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">1.42% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>4/280</span>
+                <span class='fraction'>0/280</span>
             </div>
         
             
@@ -1156,8 +1156,8 @@
 <a name='L1091'></a><a href='#L1091'>1091</a>
 <a name='L1092'></a><a href='#L1092'>1092</a>
 <a name='L1093'></a><a href='#L1093'>1093</a>
-<a name='L1094'></a><a href='#L1094'>1094</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L1094'></a><a href='#L1094'>1094</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1167,7 +1167,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1179,7 +1179,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2249,8 +2249,8 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { GeminiService } from './gemini.service';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';</span>
+<span class="cstat-no" title="statement not covered" >import { GeminiService } from './gemini.service';</span>
 import {
   ContentGenerationOptions,
   MarketingContentOptions,
@@ -2260,7 +2260,7 @@ import {
   ContentTemplate,
   ContentQualityAssessment,
 } from '../interfaces/content-generation.interface';
-import { Platform } from '../../../shared/enums/platform.enum';
+<span class="cstat-no" title="statement not covered" >import { Platform } from '../../../shared/enums/platform.enum';</span>
 &nbsp;
 /**
  * 内容生成服务
@@ -2272,7 +2272,7 @@ import { Platform } from '../../../shared/enums/platform.enum';
  * 4. 批量内容生成
  */
 @Injectable()
-export class ContentGenerationService {
+export class <span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" >ContentGenerationService<span class="cstat-no" title="statement not covered" > </span>{</span></span>
   private readonly logger = <span class="cstat-no" title="statement not covered" >new Logger(ContentGenerationService.name);</span>
 &nbsp;
   // 内容模板库
@@ -2323,7 +2323,7 @@ export class ContentGenerationService {
 &nbsp;
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     @Inject(forwardRef(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >GeminiService)</span>)
-    private readonly <span class="cstat-no" title="statement not covered" >geminiService: G</span>eminiService<span class="branch-1 cbranch-no" title="branch not covered" >,</span>
+    private readonly <span class="cstat-no" title="statement not covered" >geminiService: G</span>eminiService,
   ) {}
 &nbsp;
   /**
@@ -3349,7 +3349,7 @@ export class ContentGenerationService {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-28T10:01:02.808Z
+                at 2026-03-28T12:54:51.531Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

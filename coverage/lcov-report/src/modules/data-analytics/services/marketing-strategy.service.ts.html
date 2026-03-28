@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">7.97% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>13/163</span>
+                <span class='fraction'>0/163</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">10.63% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>15/141</span>
+                <span class='fraction'>0/141</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">7.23% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>11/152</span>
+                <span class='fraction'>0/152</span>
             </div>
         
             
@@ -672,22 +672,22 @@
 <a name='L607'></a><a href='#L607'>607</a>
 <a name='L608'></a><a href='#L608'>608</a>
 <a name='L609'></a><a href='#L609'>609</a>
-<a name='L610'></a><a href='#L610'>610</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L610'></a><a href='#L610'>610</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1281,32 +1281,32 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Injectable, NotFoundException, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { Injectable, NotFoundException, Logger } from '@nestjs/common';</span>
+<span class="cstat-no" title="statement not covered" >import { InjectRepository } from '@nestjs/typeorm';</span>
 import { Repository } from 'typeorm';
-import { ConfigService } from '@nestjs/config';
+<span class="cstat-no" title="statement not covered" >import { ConfigService } from '@nestjs/config';</span>
 import { MarketingCampaign } from '../entities/marketing-campaign.entity';
 import { MarketingStrategy } from '../entities/marketing-strategy.entity';
-import { StrategyType } from '../../../shared/enums/strategy-type.enum';
-import { GenerationMethod } from '../../../shared/enums/generation-method.enum';
-import { GeminiService } from './gemini.service';
-import { QwenService } from './qwen.service';
-import { CampaignSummary, AIEngine } from '../interfaces/gemini.interface';
-import { MarketingCampaignRepository } from '../../../shared/repositories/marketing-campaign.repository';
-import { MarketingStrategyRepository } from '../../../shared/repositories/marketing-strategy.repository';
+<span class="cstat-no" title="statement not covered" >import { StrategyType } from '../../../shared/enums/strategy-type.enum';</span>
+<span class="cstat-no" title="statement not covered" >import { GenerationMethod } from '../../../shared/enums/generation-method.enum';</span>
+<span class="cstat-no" title="statement not covered" >import { GeminiService } from './gemini.service';</span>
+<span class="cstat-no" title="statement not covered" >import { QwenService } from './qwen.service';</span>
+<span class="cstat-no" title="statement not covered" >import { CampaignSummary, AIEngine } from '../interfaces/gemini.interface';</span>
+<span class="cstat-no" title="statement not covered" >import { MarketingCampaignRepository } from '../../../shared/repositories/marketing-campaign.repository';</span>
+<span class="cstat-no" title="statement not covered" >import { MarketingStrategyRepository } from '../../../shared/repositories/marketing-strategy.repository';</span>
 &nbsp;
 @Injectable()
-export class MarketingStrategyService {
+export class <span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" >MarketingStrategyService<span class="cstat-no" title="statement not covered" > </span>{</span></span>
   private readonly logger = <span class="cstat-no" title="statement not covered" >new Logger(MarketingStrategyService.name);</span>
 &nbsp;
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     @InjectRepository(MarketingCampaignRepository)
-    private <span class="cstat-no" title="statement not covered" >campaignRepository: M</span>arketingCampaignRepository<span class="branch-1 cbranch-no" title="branch not covered" >,</span>
+    private <span class="cstat-no" title="statement not covered" >campaignRepository: M</span>arketingCampaignRepository,
     @InjectRepository(MarketingStrategyRepository)
-    private <span class="cstat-no" title="statement not covered" >strategyRepository: M</span>arketingStrategyRepository<span class="branch-1 cbranch-no" title="branch not covered" >,</span>
-    private readonly <span class="cstat-no" title="statement not covered" >configService: C</span>onfigService<span class="branch-1 cbranch-no" title="branch not covered" >,</span>
-    private readonly <span class="cstat-no" title="statement not covered" >geminiService: G</span>eminiService<span class="branch-1 cbranch-no" title="branch not covered" >,</span>
-    private readonly <span class="cstat-no" title="statement not covered" >qwenService: Q</span>wenService<span class="branch-1 cbranch-no" title="branch not covered" >,</span>
+    private <span class="cstat-no" title="statement not covered" >strategyRepository: M</span>arketingStrategyRepository,
+    private readonly <span class="cstat-no" title="statement not covered" >configService: C</span>onfigService,
+    private readonly <span class="cstat-no" title="statement not covered" >geminiService: G</span>eminiService,
+    private readonly <span class="cstat-no" title="statement not covered" >qwenService: Q</span>wenService,
   ) {}
 &nbsp;
 <span class="fstat-no" title="function not covered" >  async </span>generateStrategy(
@@ -1897,7 +1897,7 @@ export class MarketingStrategyService {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-28T10:01:02.808Z
+                at 2026-03-28T12:54:51.531Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
