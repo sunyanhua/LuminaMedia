@@ -42,6 +42,7 @@ export class AuthService {
     if (
       user &&
       (await (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
         bcrypt.compare as (plaintext: string, hash: string) => Promise<boolean>
       )(password, user.passwordHash))
     ) {
@@ -99,7 +100,9 @@ export class AuthService {
     }
 
     // 密码哈希
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
     const salt = await bcrypt.genSalt();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
     const passwordHash = await bcrypt.hash(registerDto.password, salt);
 
     // 创建用户

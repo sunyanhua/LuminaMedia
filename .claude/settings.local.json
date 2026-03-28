@@ -39,7 +39,9 @@
       "Bash(grep -r \"JWT_SECRET\\\\|JWT_EXPIRES_IN\" D:GitHubLuminaMediasrc --include=*.ts)",
       "Bash(grep -r \"getCloudProvider\\\\|getStorageService\\\\|getAIService\" /d/GitHub/LuminaMedia/src --include=*.ts --include=*.js)",
       "Bash(node scripts/verify-sharding-design.js)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npm audit:*)",
+      "Bash(docker-compose exec:*)"
     ]
   }
 }

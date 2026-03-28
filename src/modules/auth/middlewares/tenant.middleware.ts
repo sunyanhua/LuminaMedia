@@ -7,6 +7,13 @@ export interface TenantRequest extends Request {
   tenantId?: string;
 }
 
+interface JwtPayload {
+  sub: string;
+  username?: string;
+  email?: string;
+  tenantId?: string;
+}
+
 @Injectable()
 export class TenantMiddleware implements NestMiddleware {
   constructor(private jwtService: JwtService) {}
@@ -17,11 +24,11 @@ export class TenantMiddleware implements NestMiddleware {
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
       try {
-        const payload = this.jwtService.verify(token);
+        const payload = this.jwtService.verify<JwtPayload>(token);
         if (payload.tenantId) {
           req.tenantId = payload.tenantId;
         }
-      } catch (error) {
+      } catch (_error) {
         // 令牌无效，忽略
       }
     }
