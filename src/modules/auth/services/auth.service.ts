@@ -41,10 +41,11 @@ export class AuthService {
 
     if (
       user &&
-      (await (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-        bcrypt.compare as (plaintext: string, hash: string) => Promise<boolean>
-      )(password, user.passwordHash))
+      (await // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      (bcrypt.compare as (plaintext: string, hash: string) => Promise<boolean>)(
+        password,
+        user.passwordHash,
+      ))
     ) {
       const { passwordHash: __, ...result } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
       return result;

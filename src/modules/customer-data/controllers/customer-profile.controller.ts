@@ -243,7 +243,7 @@ export class CustomerProfileController {
     },
   })
   getIndustries(): { value: string; label: string }[] {
-    return Object.entries(Industry).map(([key, value]) => ({
+    return Object.entries(Industry).map(([_key, value]) => ({
       value,
       label: this.getIndustryLabel(value),
     }));
@@ -277,7 +277,7 @@ export class CustomerProfileController {
     },
   })
   getCustomerTypes(): { value: string; label: string }[] {
-    return Object.entries(CustomerType).map(([key, value]) => ({
+    return Object.entries(CustomerType).map(([_key, value]) => ({
       value,
       label: this.getCustomerTypeLabel(value),
     }));

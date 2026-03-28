@@ -1,4 +1,7 @@
-import { TenantContextService, TenantContext } from '../../../../src/shared/services/tenant-context.service';
+import {
+  TenantContextService,
+  TenantContext,
+} from '../../../../src/shared/services/tenant-context.service';
 
 describe('TenantContextService', () => {
   afterEach(() => {

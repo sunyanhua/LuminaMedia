@@ -1,5 +1,8 @@
 import { Reflector } from '@nestjs/core';
-import { RolesGuard, ROLES_KEY } from '../../../../src/modules/auth/guards/roles.guard';
+import {
+  RolesGuard,
+  ROLES_KEY,
+} from '../../../../src/modules/auth/guards/roles.guard';
 import { ExecutionContext } from '@nestjs/common';
 
 describe('RolesGuard', () => {

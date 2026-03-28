@@ -100,7 +100,9 @@ describe('CloudProviderFactory', () => {
 
       expect(provider.getName()).toBe('mock');
       // 验证MockAdapter构造函数被调用
-      const { MockAdapter } = require('../../../src/shared/cloud/adapters/mock.adapter');
+      const {
+        MockAdapter,
+      } = require('../../../src/shared/cloud/adapters/mock.adapter');
       expect(MockAdapter).toHaveBeenCalledTimes(1);
     });
 
@@ -110,7 +112,9 @@ describe('CloudProviderFactory', () => {
       const provider = await CloudProviderFactory.getInstance();
 
       expect(provider.getName()).toBe('mock');
-      const { MockAdapter } = require('../../../src/shared/cloud/adapters/mock.adapter');
+      const {
+        MockAdapter,
+      } = require('../../../src/shared/cloud/adapters/mock.adapter');
       expect(MockAdapter).toHaveBeenCalledTimes(1);
     });
 
@@ -120,7 +124,9 @@ describe('CloudProviderFactory', () => {
       const provider = await CloudProviderFactory.getInstance();
 
       expect(provider.getName()).toBe('alicloud');
-      const { AliCloudAdapter } = require('../../../src/shared/cloud/adapters/alicloud.adapter');
+      const {
+        AliCloudAdapter,
+      } = require('../../../src/shared/cloud/adapters/alicloud.adapter');
       expect(AliCloudAdapter).toHaveBeenCalledTimes(1);
     });
 
@@ -142,7 +148,9 @@ describe('CloudProviderFactory', () => {
       const provider = await CloudProviderFactory.getInstance();
 
       expect(provider.getName()).toBe('mock');
-      const { MockAdapter } = require('../../../src/shared/cloud/adapters/mock.adapter');
+      const {
+        MockAdapter,
+      } = require('../../../src/shared/cloud/adapters/mock.adapter');
       expect(MockAdapter).toHaveBeenCalledTimes(1);
     });
 
@@ -157,7 +165,9 @@ describe('CloudProviderFactory', () => {
 
       expect(provider1).toBe(provider2);
       // MockAdapter只应被调用一次
-      const { MockAdapter } = require('../../../src/shared/cloud/adapters/mock.adapter');
+      const {
+        MockAdapter,
+      } = require('../../../src/shared/cloud/adapters/mock.adapter');
       expect(MockAdapter).toHaveBeenCalledTimes(1);
     });
   });
@@ -175,7 +185,9 @@ describe('CloudProviderFactory', () => {
       // 再次获取实例应该创建新实例
       const provider2 = await CloudProviderFactory.getInstance();
       expect(provider2).not.toBe(provider1);
-      const { MockAdapter } = require('../../../src/shared/cloud/adapters/mock.adapter');
+      const {
+        MockAdapter,
+      } = require('../../../src/shared/cloud/adapters/mock.adapter');
       expect(MockAdapter).toHaveBeenCalledTimes(2); // 第一次调用+新实例
     });
 
@@ -239,7 +251,9 @@ describe('CloudProviderFactory', () => {
       const provider = await CloudProviderFactory.getInstance();
 
       expect(provider.getName()).toBe('alicloud');
-      const { AliCloudAdapter } = require('../../../src/shared/cloud/adapters/alicloud.adapter');
+      const {
+        AliCloudAdapter,
+      } = require('../../../src/shared/cloud/adapters/alicloud.adapter');
       expect(AliCloudAdapter).toHaveBeenCalledTimes(1);
     });
 
@@ -249,7 +263,9 @@ describe('CloudProviderFactory', () => {
       const provider = await CloudProviderFactory.getInstance();
 
       expect(provider.getName()).toBe('alicloud');
-      const { AliCloudAdapter } = require('../../../src/shared/cloud/adapters/alicloud.adapter');
+      const {
+        AliCloudAdapter,
+      } = require('../../../src/shared/cloud/adapters/alicloud.adapter');
       expect(AliCloudAdapter).toHaveBeenCalledTimes(1);
     });
   });

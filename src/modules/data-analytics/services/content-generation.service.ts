@@ -513,17 +513,19 @@ export class ContentGenerationService {
   ): number {
     // 简化平台适配评估
     switch (platform) {
-      case Platform.XHS:
+      case Platform.XHS: {
         // 小红书：检查Emoji、短句、话题标签
         const hasEmoji = /[\uD800-\uDBFF][\uDC00-\uDFFF]/.test(content.content);
         const paragraphCount = (content.content.match(/\n\n/g) || []).length;
         return (hasEmoji ? 20 : 0) + (paragraphCount > 1 ? 15 : 0) + 50;
-      case Platform.WECHAT_MP:
+      }
+      case Platform.WECHAT_MP: {
         // 公众号：检查结构、长度、专业性
         const hasStructure =
           /#{1,3}\s/.test(content.content) || content.content.includes('\n\n');
         const isLongForm = (content.wordCount || 0) > 500;
         return (hasStructure ? 20 : 0) + (isLongForm ? 15 : 0) + 55;
+      }
       default:
         return 60;
     }
@@ -538,7 +540,7 @@ export class ContentGenerationService {
   ): number {
     // 平台特定的质量评估
     switch (platform) {
-      case Platform.XHS:
+      case Platform.XHS: {
         // 小红书：互动性、视觉吸引力、话题热度
         const interactiveElements = this.countInteractiveElements(
           content.content,
@@ -555,7 +557,8 @@ export class ContentGenerationService {
             visualElements * 3 +
             trendingKeywords * 2,
         );
-      case Platform.WECHAT_MP:
+      }
+      case Platform.WECHAT_MP: {
         // 公众号：深度、专业性、价值感
         const depthScore = this.evaluateContentDepth(content.content);
         const professionalTerms = this.countProfessionalTerms(content.content);
@@ -564,6 +567,7 @@ export class ContentGenerationService {
           100,
           55 + depthScore * 10 + professionalTerms * 2 + valueScore * 8,
         );
+      }
       default:
         return 60;
     }

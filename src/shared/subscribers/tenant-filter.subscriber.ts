@@ -89,7 +89,10 @@ export class TenantFilterSubscriber implements EntitySubscriberInterface {
     event: UpdateEvent<any> | RemoveEvent<any>,
   ): Promise<void> {
     // 获取实体ID
-    const eventAny = event as any;
+    const eventAny = event as unknown as {
+      entityId?: string;
+      entityTarget?: new (...args: any[]) => any;
+    };
     const entityId = eventAny.entityId || (event.entity && event.entity.id);
     if (!entityId) {
       // 如果没有实体ID，无法检查权限，跳过
@@ -132,8 +135,10 @@ export class TenantFilterSubscriber implements EntitySubscriberInterface {
     }
 
     // 检查租户是否匹配
-    if ((entity as any).tenantId !== currentTenantId) {
-      throw new Error(`无权访问租户ID为${(entity as any).tenantId}的数据`);
+    if ((entity as { tenantId?: string }).tenantId !== currentTenantId) {
+      throw new Error(
+        `无权访问租户ID为${(entity as { tenantId?: string }).tenantId}的数据`,
+      );
     }
   }
 

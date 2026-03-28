@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from '../../../../src/modules/auth/controllers/auth.controller';
 import { AuthService } from '../../../../src/modules/auth/services/auth.service';
