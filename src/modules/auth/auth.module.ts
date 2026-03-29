@@ -24,13 +24,7 @@ import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      User,
-      Tenant,
-      Role,
-      Permission,
-      UserRole,
-    ]),
+    TypeOrmModule.forFeature([User, Tenant, Role, Permission, UserRole]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
