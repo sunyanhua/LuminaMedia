@@ -40,6 +40,7 @@ export class AliCloudAdapter implements CloudProvider {
   ai: AIService;
   database: DatabaseService;
   messaging: MessagingService;
+  private redis: AliCloudRedisService;
 
   constructor() {
     // 初始化阿里云适配器，支持模拟和实际模式
@@ -62,10 +63,18 @@ export class AliCloudAdapter implements CloudProvider {
     this.ai = new AliCloudAIService(useMock);
     this.database = new AliCloudDatabaseService(useMock);
     this.messaging = new AliCloudMessagingService(useMock);
+    this.redis = new AliCloudRedisService(useMock);
   }
 
   getName(): string {
     return 'alicloud';
+  }
+
+  /**
+   * 获取Redis缓存服务（额外服务，不属于标准CloudProvider接口）
+   */
+  getRedisService(): AliCloudRedisService {
+    return this.redis;
   }
 
   async initialize(): Promise<void> {
@@ -150,6 +159,25 @@ export class AliCloudAdapter implements CloudProvider {
         serviceChecks.messaging = {
           status: 'degraded',
           error: error instanceof Error ? error.message : String(error),
+        };
+      }
+
+      // 检查Redis缓存服务
+      try {
+        const redisStart = Date.now();
+        // 调用Redis健康检查
+        const redisHealth = await this.redis.healthCheck();
+        serviceChecks.redis = {
+          status: redisHealth.status,
+          latency: redisHealth.latency,
+          memoryUsage: redisHealth.memoryUsage,
+          checkLatency: Date.now() - redisStart,
+        };
+      } catch (error) {
+        serviceChecks.redis = {
+          status: 'unhealthy',
+          error: error instanceof Error ? error.message : String(error),
+          checkLatency: Date.now() - startTime,
         };
       }
 
@@ -298,6 +326,147 @@ class AliCloudStorageService implements StorageService {
       },
     ];
   }
+
+  /**
+   * 分片上传文件（支持大文件）
+   * @param bucket 存储桶名称
+   * @param key 文件key
+   * @param file 文件Buffer
+   * @param options 上传选项
+   * @param partSize 分片大小（字节），默认5MB
+   */
+  async uploadFileInParts(
+    bucket: string,
+    key: string,
+    file: Buffer,
+    options?: StorageOptions,
+    partSize: number = 5 * 1024 * 1024,
+  ): Promise<StorageResult> {
+    console.log(
+      `[AliCloudStorageService] 开始分片上传到OSS: ${bucket}/${key}, 总大小: ${file.length} bytes, 分片大小: ${partSize} bytes`,
+    );
+
+    // 计算分片数量
+    const totalParts = Math.ceil(file.length / partSize);
+    console.log(`[AliCloudStorageService] 总分片数: ${totalParts}`);
+
+    // 模拟上传每个分片
+    const uploadedParts: Array<{ partNumber: number; etag: string }> = [];
+    for (let i = 0; i < totalParts; i++) {
+      const start = i * partSize;
+      const end = Math.min(start + partSize, file.length);
+      const partBuffer = file.slice(start, end);
+
+      console.log(
+        `[AliCloudStorageService] 上传分片 ${i + 1}/${totalParts}, 大小: ${partBuffer.length} bytes`,
+      );
+
+      // 模拟上传延迟
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // 模拟成功上传
+      uploadedParts.push({
+        partNumber: i + 1,
+        etag: `oss-part-etag-${Date.now()}-${i}`,
+      });
+
+      // 模拟偶尔的网络错误（仅模拟模式）
+      if (this.useMock && Math.random() < 0.05) {
+        throw new RetryableError(`模拟分片 ${i + 1} 上传网络错误，触发重试`);
+      }
+    }
+
+    // 模拟完成分片上传（合并分片）
+    console.log(`[AliCloudStorageService] 所有分片上传完成，正在合并...`);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    return {
+      key,
+      bucket,
+      url: `https://${bucket}.oss-cn-hangzhou.aliyuncs.com/${key}`,
+      size: file.length,
+      etag: `oss-multipart-etag-${Date.now()}`,
+    };
+  }
+
+  /**
+   * 断点续传：恢复中断的分片上传
+   * @param bucket 存储桶名称
+   * @param key 文件key
+   * @param uploadId 上传ID（实际OSS中由InitiateMultipartUpload返回）
+   * @param file 文件Buffer
+   * @param uploadedParts 已上传的分片列表
+   * @param partSize 分片大小
+   */
+  async resumeUpload(
+    bucket: string,
+    key: string,
+    uploadId: string,
+    file: Buffer,
+    uploadedParts: Array<{ partNumber: number; etag: string }>,
+    partSize: number = 5 * 1024 * 1024,
+  ): Promise<StorageResult> {
+    console.log(
+      `[AliCloudStorageService] 恢复上传: ${bucket}/${key}, uploadId: ${uploadId}, 已上传分片: ${uploadedParts.length}`,
+    );
+
+    const totalParts = Math.ceil(file.length / partSize);
+    const uploadedPartNumbers = new Set(uploadedParts.map((p) => p.partNumber));
+
+    // 上传缺失的分片
+    for (let i = 0; i < totalParts; i++) {
+      const partNumber = i + 1;
+      if (!uploadedPartNumbers.has(partNumber)) {
+        const start = i * partSize;
+        const end = Math.min(start + partSize, file.length);
+        const partBuffer = file.slice(start, end);
+
+        console.log(
+          `[AliCloudStorageService] 上传缺失分片 ${partNumber}/${totalParts}, 大小: ${partBuffer.length} bytes`,
+        );
+
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        uploadedParts.push({ partNumber, etag: `oss-resumed-part-etag-${Date.now()}-${i}` });
+      }
+    }
+
+    // 模拟完成上传
+    console.log(`[AliCloudStorageService] 断点续传完成，合并分片...`);
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    return {
+      key,
+      bucket,
+      url: `https://${bucket}.oss-cn-hangzhou.aliyuncs.com/${key}`,
+      size: file.length,
+      etag: `oss-resumed-etag-${Date.now()}`,
+    };
+  }
+
+  /**
+   * 获取文件上传进度（用于分片上传）
+   * @param bucket 存储桶名称
+   * @param key 文件key
+   * @param uploadId 上传ID
+   */
+  async getUploadProgress(
+    bucket: string,
+    key: string,
+    uploadId: string,
+  ): Promise<{ uploadedParts: number; totalParts: number; progress: number }> {
+    // 模拟实现：返回上传进度
+    console.log(`[AliCloudStorageService] 获取上传进度: ${bucket}/${key}, uploadId: ${uploadId}`);
+
+    // 模拟进度
+    const totalParts = 10;
+    const uploadedParts = Math.floor(Math.random() * totalParts);
+
+    return {
+      uploadedParts,
+      totalParts,
+      progress: (uploadedParts / totalParts) * 100,
+    };
+  }
 }
 
 /**
@@ -317,23 +486,42 @@ class AliCloudAIService implements AIService {
     prompt: string,
     options?: AIModelOptions,
   ): Promise<AIResponse> {
-    // 实际实现：调用阿里云百炼API或DashScope API
-    console.log(
-      `[AliCloudAIService] 调用阿里云AI模型: ${model}, prompt长度: ${prompt.length}`,
-    );
+    return withRetry(async () => {
+      // 实际实现：调用阿里云百炼API或DashScope API
+      console.log(
+        `[AliCloudAIService] 调用阿里云AI模型: ${model}, prompt长度: ${prompt.length}, 温度: ${options?.temperature ?? '默认'}`,
+      );
 
-    // 模拟实现
-    await new Promise((resolve) => setTimeout(resolve, 200));
+      // 模拟实现延迟
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
-    return {
-      text: `[阿里云${model}] 这是来自阿里云AI的响应。\n\n输入: ${prompt.substring(0, 100)}...`,
-      usage: {
-        promptTokens: Math.floor(prompt.length / 4),
-        completionTokens: 150,
-        totalTokens: Math.floor(prompt.length / 4) + 150,
-      },
-      finishReason: 'stop',
-    };
+      // 模拟偶尔的API错误（仅模拟模式）
+      if (this.useMock && Math.random() < 0.1) {
+        // 模拟可重试的错误（如网络超时）
+        if (Math.random() < 0.7) {
+          throw new RetryableError(`阿里云AI服务暂时不可用，模型: ${model}`);
+        } else {
+          // 模拟不可重试的错误（如配额不足）
+          throw new NonRetryableError(`AI模型配额不足: ${model}`);
+        }
+      }
+
+      // 模拟无效模型错误
+      if (!model.includes('qwen') && !model.includes('gemini')) {
+        throw new NonRetryableError(`不支持的AI模型: ${model}`);
+      }
+
+      // 模拟响应
+      return {
+        text: `[阿里云${model}] 这是来自阿里云AI的响应。\n\n输入: ${prompt.substring(0, 100)}...\n\n响应: 已根据您的要求生成相关内容，符合品牌调性和目标受众偏好。`,
+        usage: {
+          promptTokens: Math.floor(prompt.length / 4),
+          completionTokens: 150 + Math.floor(Math.random() * 50),
+          totalTokens: Math.floor(prompt.length / 4) + 150 + Math.floor(Math.random() * 50),
+        },
+        finishReason: 'stop',
+      };
+    }, cloudServiceRetryOptions);
   }
 
   async callLocalModel(
@@ -341,13 +529,21 @@ class AliCloudAIService implements AIService {
     prompt: string,
     options?: LocalModelOptions,
   ): Promise<AIResponse> {
-    // 阿里云环境通常不运行本地模型，可以调用云端模型或抛出错误
-    console.log(
-      `[AliCloudAIService] 阿里云环境调用本地模型: ${model} - 重定向到云端模型`,
-    );
+    return withRetry(async () => {
+      // 阿里云环境通常不运行本地模型，可以调用云端模型或抛出错误
+      console.log(
+        `[AliCloudAIService] 阿里云环境调用本地模型: ${model}, GPU: ${options?.gpu || false}`,
+      );
 
-    // 重定向到云端模型
-    return this.callModel(model, prompt, options);
+      // 如果明确要求本地模型但阿里云环境不支持，抛出错误
+      if (options?.gpu && this.useMock) {
+        throw new NonRetryableError('阿里云环境不支持本地GPU模型，请使用云端模型');
+      }
+
+      // 重定向到云端模型（阿里云环境的最佳选择）
+      console.log(`[AliCloudAIService] 重定向到云端模型: ${model}`);
+      return this.callModel(model, prompt, options);
+    }, cloudServiceRetryOptions);
   }
 
   async listAvailableModels(): Promise<ModelInfo[]> {
@@ -384,11 +580,41 @@ class AliCloudAIService implements AIService {
 
   async getServiceStatus(): Promise<AIServiceStatus> {
     // 实际实现：检查阿里云AI服务状态
-    return {
-      available: true,
-      models: await this.listAvailableModels(),
-      latency: 120, // 模拟延迟（毫秒）
-    };
+    try {
+      // 模拟服务可用性检查
+      const models = await this.listAvailableModels();
+      const available = models.length > 0;
+
+      // 模拟延迟测试
+      const startTime = Date.now();
+      await new Promise((resolve) => setTimeout(resolve, 25));
+      const latency = Date.now() - startTime;
+
+      // 模拟服务限制信息
+      const remainingQuota = Math.floor(Math.random() * 10000);
+      const rateLimit = {
+        remaining: remainingQuota,
+        resetTime: new Date(Date.now() + 3600000), // 1小时后重置
+        limit: 10000,
+      };
+
+      return {
+        available,
+        models,
+        latency,
+        rateLimit,
+        lastChecked: new Date().toISOString(),
+      };
+    } catch (error) {
+      // 服务检查失败
+      return {
+        available: false,
+        models: [],
+        latency: -1,
+        error: error instanceof Error ? error.message : String(error),
+        lastChecked: new Date().toISOString(),
+      };
+    }
   }
 }
 
@@ -447,12 +673,137 @@ class AliCloudDatabaseService implements DatabaseService {
 
   async getConnectionStats(): Promise<ConnectionStats> {
     // 实际实现：查询RDS连接池状态
+    // 模拟动态连接池状态
+    const total = 20;
+    const active = Math.floor(Math.random() * 8) + 3; // 3-10个活跃连接
+    const idle = total - active;
+    const waiting = Math.random() > 0.9 ? 1 : 0; // 偶尔有等待连接
+
+    console.log(`[AliCloudDatabaseService] 连接池状态: 总数=${total}, 活跃=${active}, 空闲=${idle}, 等待=${waiting}`);
+
     return {
-      total: 20,
-      active: 5,
-      idle: 15,
-      waiting: 0,
+      total,
+      active,
+      idle,
+      waiting,
     };
+  }
+
+  /**
+   * 获取数据库性能指标
+   */
+  async getPerformanceMetrics(): Promise<{
+    queryLatency: { avg: number; p95: number; p99: number };
+    connectionPool: ConnectionStats;
+    queryThroughput: number; // 查询/秒
+    errorRate: number; // 错误率
+    slowQueries: number; // 慢查询数量
+  }> {
+    console.log('[AliCloudDatabaseService] 获取RDS性能指标');
+
+    // 模拟性能指标
+    const connectionStats = await this.getConnectionStats();
+
+    return {
+      queryLatency: {
+        avg: 45, // 平均延迟（毫秒）
+        p95: 120, // P95延迟
+        p99: 250, // P99延迟
+      },
+      connectionPool: connectionStats,
+      queryThroughput: 350, // 每秒查询数
+      errorRate: 0.02, // 2%错误率
+      slowQueries: 12, // 慢查询数量
+    };
+  }
+
+  /**
+   * 优化连接池配置
+   * @param minConnections 最小连接数
+   * @param maxConnections 最大连接数
+   * @param idleTimeout 空闲超时（秒）
+   */
+  async optimizeConnectionPool(
+    minConnections?: number,
+    maxConnections?: number,
+    idleTimeout?: number,
+  ): Promise<{ success: boolean; message: string }> {
+    console.log(
+      `[AliCloudDatabaseService] 优化连接池配置: min=${minConnections}, max=${maxConnections}, idleTimeout=${idleTimeout}`,
+    );
+
+    // 模拟配置更新
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    return {
+      success: true,
+      message: 'RDS连接池配置已更新',
+    };
+  }
+
+  /**
+   * 执行性能诊断
+   */
+  async runPerformanceDiagnosis(): Promise<{
+    issues: Array<{ severity: 'high' | 'medium' | 'low'; description: string; recommendation: string }>;
+    overallHealth: 'good' | 'fair' | 'poor';
+    score: number; // 0-100
+  }> {
+    console.log('[AliCloudDatabaseService] 执行RDS性能诊断');
+
+    // 模拟诊断结果
+    const issues = [
+      {
+        severity: 'low' as const,
+        description: '连接池空闲连接较多',
+        recommendation: '考虑减少最大连接数以节省资源',
+      },
+      {
+        severity: 'medium' as const,
+        description: 'P99查询延迟较高',
+        recommendation: '检查慢查询日志，优化索引',
+      },
+    ];
+
+    // 随机生成健康分数
+    const score = Math.floor(Math.random() * 30) + 70; // 70-100
+
+    return {
+      issues,
+      overallHealth: score >= 90 ? 'good' : score >= 80 ? 'fair' : 'poor',
+      score,
+    };
+  }
+
+  /**
+   * 获取慢查询日志
+   * @param limit 返回条数限制
+   * @param timeRange 时间范围（小时）
+   */
+  async getSlowQueries(limit: number = 10, timeRange: number = 24): Promise<
+    Array<{
+      query: string;
+      executionTime: number; // 毫秒
+      timestamp: Date;
+      database: string;
+      user: string;
+    }>
+  > {
+    console.log(`[AliCloudDatabaseService] 获取慢查询日志: limit=${limit}, timeRange=${timeRange}h`);
+
+    // 模拟慢查询日志
+    const slowQueries = [];
+    for (let i = 0; i < Math.min(limit, 5); i++) {
+      slowQueries.push({
+        query: `SELECT * FROM customer_profiles WHERE tenant_id = 'tenant_${i}' ORDER BY created_at DESC LIMIT 100`,
+        executionTime: 1200 + i * 200, // 1.2秒以上
+        timestamp: new Date(Date.now() - i * 3600000), // 过去i小时
+        database: 'lumina_media',
+        user: 'app_user',
+      });
+    }
+
+    return slowQueries;
   }
 }
 
@@ -596,5 +947,236 @@ class AliCloudMessagingService implements MessagingService {
         console.log(`[AliCloudMessagingService] 取消订阅MNS主题: ${topic}`);
       },
     };
+  }
+}
+
+/**
+ * 阿里云Redis缓存服务（云数据库Redis版）
+ */
+class AliCloudRedisService {
+  private useMock: boolean;
+  private connected: boolean = false;
+
+  constructor(useMock: boolean = true) {
+    this.useMock = useMock;
+    console.log(
+      `[AliCloudRedisService] 初始化，模式: ${useMock ? '模拟' : '实际'}`,
+    );
+  }
+
+  /**
+   * 连接到阿里云Redis
+   */
+  async connect(): Promise<void> {
+    console.log('[AliCloudRedisService] 连接到阿里云Redis云数据库');
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    this.connected = true;
+    console.log('[AliCloudRedisService] Redis连接成功');
+  }
+
+  /**
+   * 断开Redis连接
+   */
+  async disconnect(): Promise<void> {
+    console.log('[AliCloudRedisService] 断开Redis连接');
+    this.connected = false;
+  }
+
+  /**
+   * 设置缓存值
+   * @param key 缓存键
+   * @param value 缓存值
+   * @param ttl 过期时间（秒），可选
+   */
+  async set(key: string, value: string, ttl?: number): Promise<void> {
+    if (!this.connected) {
+      await this.connect();
+    }
+
+    console.log(`[AliCloudRedisService] 设置缓存: ${key} = ${value.substring(0, 50)}..., ttl: ${ttl || '无'}`);
+
+    // 模拟网络延迟
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    // 模拟偶尔的Redis错误
+    if (this.useMock && Math.random() < 0.05) {
+      throw new Error('模拟Redis连接超时');
+    }
+  }
+
+  /**
+   * 获取缓存值
+   * @param key 缓存键
+   * @returns 缓存值，不存在返回null
+   */
+  async get(key: string): Promise<string | null> {
+    if (!this.connected) {
+      await this.connect();
+    }
+
+    console.log(`[AliCloudRedisService] 获取缓存: ${key}`);
+
+    await new Promise((resolve) => setTimeout(resolve, 15));
+
+    // 模拟缓存命中/未命中
+    if (Math.random() > 0.3) {
+      // 缓存命中
+      return `cached-value-for-${key}-${Date.now()}`;
+    } else {
+      // 缓存未命中
+      return null;
+    }
+  }
+
+  /**
+   * 删除缓存键
+   * @param key 缓存键
+   */
+  async delete(key: string): Promise<void> {
+    if (!this.connected) {
+      await this.connect();
+    }
+
+    console.log(`[AliCloudRedisService] 删除缓存: ${key}`);
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+
+  /**
+   * 检查缓存键是否存在
+   * @param key 缓存键
+   */
+  async exists(key: string): Promise<boolean> {
+    if (!this.connected) {
+      await this.connect();
+    }
+
+    console.log(`[AliCloudRedisService] 检查缓存是否存在: ${key}`);
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    return Math.random() > 0.5;
+  }
+
+  /**
+   * 设置哈希表字段
+   * @param key 哈希表键
+   * @param field 字段名
+   * @param value 字段值
+   */
+  async hset(key: string, field: string, value: string): Promise<void> {
+    if (!this.connected) {
+      await this.connect();
+    }
+
+    console.log(`[AliCloudRedisService] 设置哈希字段: ${key}.${field} = ${value.substring(0, 30)}...`);
+    await new Promise((resolve) => setTimeout(resolve, 15));
+  }
+
+  /**
+   * 获取哈希表字段
+   * @param key 哈希表键
+   * @param field 字段名
+   */
+  async hget(key: string, field: string): Promise<string | null> {
+    if (!this.connected) {
+      await this.connect();
+    }
+
+    console.log(`[AliCloudRedisService] 获取哈希字段: ${key}.${field}`);
+    await new Promise((resolve) => setTimeout(resolve, 15));
+
+    return Math.random() > 0.4 ? `hash-value-${field}-${Date.now()}` : null;
+  }
+
+  /**
+   * 设置过期时间
+   * @param key 缓存键
+   * @param ttl 过期时间（秒）
+   */
+  async expire(key: string, ttl: number): Promise<void> {
+    if (!this.connected) {
+      await this.connect();
+    }
+
+    console.log(`[AliCloudRedisService] 设置过期时间: ${key} -> ${ttl}秒`);
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+
+  /**
+   * 获取Redis服务器信息
+   */
+  async info(): Promise<Record<string, string>> {
+    if (!this.connected) {
+      await this.connect();
+    }
+
+    console.log('[AliCloudRedisService] 获取Redis服务器信息');
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    return {
+      redis_version: '7.0.0',
+      redis_mode: 'standalone',
+      os: 'Linux 5.10.0-x86_64',
+      used_memory: '256.3M',
+      used_memory_peak: '280.1M',
+      connected_clients: '12',
+      total_connections_received: '12543',
+      total_commands_processed: '892345',
+      instantaneous_ops_per_sec: '45',
+      keyspace_hits: '78234',
+      keyspace_misses: '2345',
+      hit_rate: '97.1%',
+    };
+  }
+
+  /**
+   * 获取Redis性能指标
+   */
+  async metrics(): Promise<{
+    latency: number; // 毫秒
+    throughput: number; // 操作/秒
+    memoryUsage: number; // 字节
+    hitRate: number; // 命中率
+    connectedClients: number;
+  }> {
+    console.log('[AliCloudRedisService] 获取Redis性能指标');
+    await new Promise((resolve) => setTimeout(resolve, 30));
+
+    return {
+      latency: 12.5,
+      throughput: 850,
+      memoryUsage: 256 * 1024 * 1024, // 256MB
+      hitRate: 0.971,
+      connectedClients: 12,
+    };
+  }
+
+  /**
+   * 健康检查
+   */
+  async healthCheck(): Promise<{
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    latency: number;
+    memoryUsage: number;
+  }> {
+    console.log('[AliCloudRedisService] Redis健康检查');
+    const startTime = Date.now();
+
+    try {
+      // 模拟健康检查
+      await new Promise((resolve) => setTimeout(resolve, 25));
+      const latency = Date.now() - startTime;
+
+      return {
+        status: 'healthy',
+        latency,
+        memoryUsage: 256 * 1024 * 1024,
+      };
+    } catch (error) {
+      return {
+        status: 'unhealthy',
+        latency: Date.now() - startTime,
+        memoryUsage: 0,
+      };
+    }
   }
 }

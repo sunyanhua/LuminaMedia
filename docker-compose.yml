@@ -63,6 +63,13 @@ services:
       - HTTP_PROXY=http://host.docker.internal:7897
       - GOOGLE_CLOUD_HTTP_PROXY=http://host.docker.internal:7897
       - GOOGLE_AUTH_HTTP_PROXY=http://host.docker.internal:7897
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - QDRANT_API_KEY=${QDRANT_API_KEY:-}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-lumina_redis_password}
+      - REDIS_DB=0
       - CHOKIDAR_USEPOLLING=true  # 强制 NestJS 底层监听器使用轮询
       - WATCHPACK_POLLING=true    # 确保 Webpack/TS 编译器捕获变更
       - CHOKIDAR_INTERVAL=100       # 轮询间隔（毫秒）
@@ -72,11 +79,45 @@ services:
     depends_on:
       db-lumina:
         condition: service_healthy
+      qdrant:
+        condition: service_started
     volumes:
       - .:/app                # 映射整个根目录
       - /app/node_modules     # 匿名卷，防止容器内依赖不被本地覆盖
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    networks:
+      - lumina-media-network
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: lumina-media-qdrant
+    restart: always
+    ports:
+      - "6333:6333"  # HTTP API
+      - "6334:6334"  # gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:-}
+      - QDRANT__SERVICE__ENABLE_API_KEY=true
+    networks:
+      - lumina-media-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: lumina-media-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-lumina_redis_password}
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - lumina-media-network
 
@@ -107,6 +148,10 @@ services:
 
 volumes:
   mysql_data:
+    driver: local
+  qdrant_data:
+    driver: local
+  redis_data:
     driver: local
 
 networks:

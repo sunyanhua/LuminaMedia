@@ -6,6 +6,7 @@ export { default as demoService } from './demoService';
 export { default as contentGenerationService } from './contentGenerationService';
 export { default as strategyService } from './strategyService';
 export { weChatService, isInWeChatBrowser, getWeChatVersion } from './wechatService';
+export { default as hapticService } from './hapticService';
 
 // export * from './analyticsService';
 // export * from './customerDataService';

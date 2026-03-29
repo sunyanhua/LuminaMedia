@@ -1,6 +1,6 @@
 {
   "status": "RUNNING",
-  "task_index": 8,
-  "current_task": "里程碑8.4：触摸交互体验完善，手势支持/下拉刷新/无限滚动/触摸反馈",
+  "task_index": 18,
+  "current_task": "里程碑7.4：数据迁移工具， SaaS与私有化环境间数据迁移，支持断点续传和回滚",
   "attempt": 1
 }
