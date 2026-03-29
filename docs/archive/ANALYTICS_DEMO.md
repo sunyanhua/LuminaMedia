@@ -4,8 +4,8 @@
 >
 > 本文档为旧版数据分析模块演示指南，现已被更全面的文档取代。请优先参考以下新文档：
 >
-> 1. **[DEMO_GUIDE.md](./DEMO_GUIDE.md)** - 完整的系统演示指南，涵盖从数据导入到营销内容生成的全流程
-> 2. **[API_REFERENCE.md](./API_REFERENCE.md)** - 完整的API参考文档，包含所有模块的详细API说明
+> 1. **[DEMO_GUIDE.md](../features/demo-guide.md)** - 完整的系统演示指南，涵盖从数据导入到营销内容生成的全流程
+> 2. **[API_REFERENCE.md](../../API_REFERENCE.md)** - 完整的API参考文档，包含所有模块的详细API说明
 >
 > 新文档已更新端口号（3003）和新增功能，建议使用新文档进行开发和演示。
 

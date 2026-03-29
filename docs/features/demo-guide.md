@@ -500,10 +500,10 @@ docker-compose logs app
 
 ## 相关文档
 
-- [项目README](./README.md) - 项目总体介绍
-- [进度计划](./PROGRESS.md) - 开发进度和计划
-- [Gemini集成指南](./docs/gemini-integration.md) - AI集成详细说明
-- [数据分析模块演示指南](./ANALYTICS_DEMO.md) - 数据分析模块API文档
+- [项目README](../../README.md) - 项目总体介绍
+- [进度计划](../../PROGRESS.md) - 开发进度和计划
+- [Gemini集成指南](../gemini-integration.md) - AI集成详细说明
+- [数据分析模块演示指南](../archive/ANALYTICS_DEMO.md) - 数据分析模块API文档（归档）
 
 ## 技术支持
 

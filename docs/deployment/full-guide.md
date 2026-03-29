@@ -815,7 +815,7 @@ HEALTH_CHECK_ENABLED=true
 ## 7. 联系和支持
 
 ### 获取帮助
-1. **文档**: 查看 [DEMO_GUIDE.md](./DEMO_GUIDE.md) 和 [API_REFERENCE.md](./API_REFERENCE.md)
+1. **文档**: 查看 [DEMO_GUIDE.md](../features/demo-guide.md) 和 [API_REFERENCE.md](../../API_REFERENCE.md)
 2. **问题排查**: 参考本文档的"故障排除"章节
 3. **日志分析**: 查看应用日志获取详细错误信息
 
