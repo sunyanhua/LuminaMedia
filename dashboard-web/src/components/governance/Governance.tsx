@@ -72,7 +72,7 @@ const reviewSteps = [
   { label: '已发布', icon: CheckCircle2, color: 'text-green-500' },
 ];
 
-export function Governance() {
+function Governance() {
   const getStatusBadge = (status: ReviewTask['status']) => {
     const variants = {
       draft: 'bg-slate-500/10 text-slate-400 border-slate-500/30',
@@ -378,3 +378,5 @@ export function Governance() {
     </div>
   );
 }
+
+export default Governance;

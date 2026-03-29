@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DataAnalyticsModule } from '../data-analytics/data-analytics.module';
+import { VectorModule } from '../../shared/vector/vector.module';
 import { AnalysisAgentService } from './agents/analysis/services/analysis-agent.service';
 import { KnowledgeRetrievalService } from './agents/analysis/services/knowledge-retrieval.service';
 import { StrategyAgentService } from './agents/strategy/services/strategy-agent.service';
@@ -8,7 +9,7 @@ import { CopywritingAgentService } from './agents/copywriting/services/copywriti
 import { AgentWorkflowService } from './agents/workflow/services/agent-workflow.service';
 
 @Module({
-  imports: [ConfigModule, DataAnalyticsModule],
+  imports: [ConfigModule, DataAnalyticsModule, VectorModule],
   controllers: [],
   providers: [
     AnalysisAgentService,

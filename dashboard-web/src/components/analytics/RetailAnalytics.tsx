@@ -21,7 +21,7 @@ import { ChartContainer } from '@/components/ui/chart';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 
-export function RetailAnalytics() {
+function RetailAnalytics() {
   const [personas, setPersonas] = useState<CustomerSegment[]>([]);
   const [parkingData, setParkingData] = useState<ParkingSpendingData[]>([]);
   const [trafficData, setTrafficData] = useState<TrafficTimeSeries[]>([]);
@@ -452,3 +452,5 @@ export function RetailAnalytics() {
     </div>
   );
 }
+
+export default RetailAnalytics;

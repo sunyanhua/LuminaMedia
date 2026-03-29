@@ -50,7 +50,8 @@
     "sharp": "^0.34.5",
     "typeorm": "^0.3.28",
     "undici": "^6.21.0",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "@qdrant/js-client-rest": "^1.11.0"
   },
   "overrides": {
     "path-to-regexp": "^8.4.0",

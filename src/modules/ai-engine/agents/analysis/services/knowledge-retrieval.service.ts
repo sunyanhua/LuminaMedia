@@ -1,5 +1,7 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { VectorSearchService } from '../../../../../shared/vector/services/vector-search.service';
+import { Document } from '../../../../../shared/vector/interfaces/vector-search.interface';
 
 /**
  * 知识库检索服务（基础版本）
@@ -17,7 +19,10 @@ export class KnowledgeRetrievalService {
     metadata: Record<string, any>;
   }> = [];
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private vectorSearchService: VectorSearchService,
+  ) {
     this.initializeKnowledgeBase();
   }
 
@@ -421,6 +426,7 @@ ${baseAnalysis}
 
   /**
    * 向量检索：基于嵌入相似度查找相关知识
+   * 优先使用向量数据库，失败时回退到内存检索
    */
   async retrieveByVector(
     query: string,
@@ -429,6 +435,40 @@ ${baseAnalysis}
   ): Promise<string[]> {
     this.logger.log(`向量检索: query="${query}", industry="${industry}"`);
 
+    try {
+      // 尝试使用向量数据库检索
+      const vectorResults = await this.vectorSearchService.searchSimilar(
+        query,
+        limit,
+        { industry },
+      );
+
+      if (vectorResults.length > 0) {
+        const results = vectorResults.map((result) => result.document.content);
+        this.logger.debug(
+          `向量数据库检索返回 ${results.length} 条结果，最高相似度: ${vectorResults[0]?.similarity?.toFixed(3)}`,
+        );
+        // 应用上下文窗口管理优化
+        return this.manageContextWindow(results);
+      }
+
+      this.logger.warn('向量数据库无结果，回退到内存向量检索');
+      // 回退到原有内存向量检索
+      return await this.fallbackVectorRetrieval(query, industry, limit);
+    } catch (error) {
+      this.logger.error(`向量检索失败: ${error.message}，回退到内存检索`);
+      return await this.fallbackVectorRetrieval(query, industry, limit);
+    }
+  }
+
+  /**
+   * 回退向量检索（原有内存检索逻辑）
+   */
+  private async fallbackVectorRetrieval(
+    query: string,
+    industry: string,
+    limit: number = 5,
+  ): Promise<string[]> {
     try {
       // 生成查询嵌入
       const queryEmbedding = await this.generateEmbedding(query);
@@ -465,11 +505,11 @@ ${baseAnalysis}
       // 应用上下文窗口管理优化
       const results = this.manageContextWindow(rawResults);
       this.logger.debug(
-        `向量检索返回 ${results.length} 条结果（原始${rawResults.length}条），最高相似度: ${scoredKnowledge[0]?.similarity?.toFixed(3)}`,
+        `内存向量检索返回 ${results.length} 条结果（原始${rawResults.length}条），最高相似度: ${scoredKnowledge[0]?.similarity?.toFixed(3)}`,
       );
       return results;
     } catch (error) {
-      this.logger.error(`向量检索失败: ${error.message}，回退到关键词检索`);
+      this.logger.error(`内存向量检索失败: ${error.message}，回退到关键词检索`);
       return this.retrieveByKeywords(query, industry, limit);
     }
   }

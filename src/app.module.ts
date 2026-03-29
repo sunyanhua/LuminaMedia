@@ -10,6 +10,8 @@ import { PublishTask } from './entities/publish-task.entity';
 import { CustomerProfile } from './entities/customer-profile.entity';
 import { DataImportJob } from './entities/data-import-job.entity';
 import { CustomerSegment } from './entities/customer-segment.entity';
+import { EnterpriseProfile } from './entities/enterprise-profile.entity';
+import { KnowledgeDocument } from './entities/knowledge-document.entity';
 import { Tenant } from './entities/tenant.entity';
 import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
@@ -57,6 +59,8 @@ import { UserModule } from './modules/user/user.module';
           CustomerProfile,
           DataImportJob,
           CustomerSegment,
+          EnterpriseProfile,
+          KnowledgeDocument,
           UserBehavior,
           MarketingCampaign,
           MarketingStrategy,

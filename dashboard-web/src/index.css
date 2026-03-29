@@ -416,6 +416,85 @@ button:focus-visible {
   }
 }
 
+/* 微信浏览器深度优化 */
+.wechat-fix {
+  /* 修复fixed定位问题 - 使用transform启用GPU加速 */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+
+  /* 修复点击延迟 */
+  touch-action: manipulation;
+
+  /* 修复点击高亮 */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 修复微信浏览器fixed定位抖动问题 */
+.wechat-fixed-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  z-index: 1000;
+}
+
+/* 修复输入框遮挡问题 */
+.wechat-input-fix {
+  position: relative;
+  z-index: 1001;
+}
+
+/* 监听输入框focus事件，自动滚动到可视区域 */
+@media (max-width: 767px) {
+  input:focus, textarea:focus {
+    scroll-margin-top: 100px; /* 为键盘留出空间 */
+  }
+}
+
+/* 禁用微信下拉刷新（防止与页面滚动冲突） */
+.wechat-no-pull-refresh {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 防止微信调整字体大小 */
+.wechat-no-text-adjust {
+  -webkit-text-size-adjust: 100% !important;
+  text-size-adjust: 100% !important;
+}
+
+/* 微信浏览器滚动优化 */
+.wechat-scroll-fix {
+  overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 微信浏览器图片优化 */
+.wechat-img-fix {
+  -webkit-touch-callout: none; /* 禁用长按菜单 */
+  -webkit-user-select: none; /* 禁用选择 */
+}
+
+/* 微信浏览器视频优化 */
+.wechat-video-fix {
+  object-fit: cover;
+  -webkit-object-fit: cover;
+}
+
+/* 微信浏览器全屏优化 */
+.wechat-fullscreen-fix {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+}
+
 /* 375px小手机屏幕特定优化 */
 @media (max-width: 374px) {
   .xs-hidden {

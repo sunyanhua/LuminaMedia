@@ -384,7 +384,7 @@ const PRESET_TEMPLATES = [
   }
 ];
 
-export function AIStrategy() {
+function AIStrategy() {
   const [userGoal, setUserGoal] = useState('');
   const [targetAudience, setTargetAudience] = useState('25-35岁都市白领');
   const [budgetRange, setBudgetRange] = useState('100,000 - 500,000');
@@ -992,3 +992,5 @@ export function AIStrategy() {
     </div>
   );
 }
+
+export default AIStrategy;

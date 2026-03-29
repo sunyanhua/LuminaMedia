@@ -41,7 +41,7 @@ interface TimeSeriesData {
   value: number;
 }
 
-export function DashboardOverview() {
+function DashboardOverview() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   // @ts-ignore
   const [contentPerformance, setContentPerformance] = useState<ContentPerformance[]>([]);
@@ -376,3 +376,5 @@ export function DashboardOverview() {
     </div>
   );
 }
+
+export default DashboardOverview;

@@ -1,10 +1,20 @@
 import { createBrowserRouter } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 import App from '../App';
-import { DashboardOverview } from '../components/dashboard/DashboardOverview';
-import { RetailAnalytics } from '../components/analytics/RetailAnalytics';
-import { MatrixControl } from '../components/matrix/MatrixControl';
-import { AIStrategy } from '../components/ai/AIStrategy';
-import { Governance } from '../components/governance/Governance';
+
+// 懒加载组件
+const DashboardOverview = lazy(() => import('../components/dashboard/DashboardOverview'));
+const RetailAnalytics = lazy(() => import('../components/analytics/RetailAnalytics'));
+const MatrixControl = lazy(() => import('../components/matrix/MatrixControl'));
+const AIStrategy = lazy(() => import('../components/ai/AIStrategy'));
+const Governance = lazy(() => import('../components/governance/Governance'));
+
+// 加载中组件
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center h-64">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
+  </div>
+);
 
 // 定义路由配置
 export const router = createBrowserRouter([
@@ -14,27 +24,51 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <DashboardOverview />,
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <DashboardOverview />
+          </Suspense>
+        ),
       },
       {
         path: 'dashboard',
-        element: <DashboardOverview />,
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <DashboardOverview />
+          </Suspense>
+        ),
       },
       {
         path: 'analytics',
-        element: <RetailAnalytics />,
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <RetailAnalytics />
+          </Suspense>
+        ),
       },
       {
         path: 'matrix',
-        element: <MatrixControl />,
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <MatrixControl />
+          </Suspense>
+        ),
       },
       {
         path: 'ai-strategy',
-        element: <AIStrategy />,
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <AIStrategy />
+          </Suspense>
+        ),
       },
       {
         path: 'governance',
-        element: <Governance />,
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <Governance />
+          </Suspense>
+        ),
       },
     ],
   },

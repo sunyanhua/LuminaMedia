@@ -98,7 +98,7 @@ const mockTasks: Task[] = [
   },
 ];
 
-export function MatrixControl() {
+function MatrixControl() {
   const [tasks] = useState<Task[]>(mockTasks);
   const [showAutomation, setShowAutomation] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -436,3 +436,5 @@ export function MatrixControl() {
     </div>
   );
 }
+
+export default MatrixControl;

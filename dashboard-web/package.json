@@ -62,8 +62,10 @@
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^1.0.0",
+    "weixin-js-sdk": "^1.6.5",
     "zod": "^3.23.8",
-    "zustand": "^5.0.12"
+    "zustand": "^5.0.12",
+    "web-vitals": "^3.5.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.11.1",
@@ -80,6 +82,11 @@
     "tailwindcss": "^3.4.13",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.7.0",
-    "vite": "^5.4.8"
+    "vite": "^5.4.8",
+    "vite-plugin-imagemin": "^0.6.5",
+    "vite-plugin-webp": "^1.0.3",
+    "vite-plugin-pwa": "^0.21.2",
+    "@playwright/test": "^1.49.0",
+    "playwright": "^1.49.0"
   }
 }
