@@ -19,6 +19,7 @@ services:
       - ./scripts/customer-data-migration.sql:/docker-entrypoint-initdb.d/04-customer-data-migration.sql
       - ./scripts/05-sharding-setup.sql:/docker-entrypoint-initdb.d/05-sharding-setup.sql
       - ./scripts/10-workflow-tables.sql:/docker-entrypoint-initdb.d/06-workflow-tables.sql
+      - ./scripts/11-skywalking-init.sql:/docker-entrypoint-initdb.d/07-skywalking-init.sql
     command: >
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_unicode_ci
@@ -70,9 +71,20 @@ services:
       - REDIS_PORT=6379
       - REDIS_PASSWORD=${REDIS_PASSWORD:-lumina_redis_password}
       - REDIS_DB=0
+      - APM_ENABLED=${APM_ENABLED:-true}
+      - APM_SERVICE_NAME=${APM_SERVICE_NAME:-lumina-media}
+      - APM_SERVICE_INSTANCE=${APM_SERVICE_INSTANCE:-lumina-media-instance-1}
+      - APM_OAP_SERVER=${APM_OAP_SERVER:-http://skywalking-oap:12800}
+      - APM_SAMPLE_RATE=${APM_SAMPLE_RATE:-1.0}
+      - ALERT_EMAIL_ENABLED=${ALERT_EMAIL_ENABLED:-false}
+      - ALERT_EMAIL_SMTP_HOST=${ALERT_EMAIL_SMTP_HOST:-smtp.example.com}
+      - ALERT_EMAIL_SMTP_PORT=${ALERT_EMAIL_SMTP_PORT:-587}
+      - ALERT_EMAIL_FROM=${ALERT_EMAIL_FROM:-alerts@lumina-media.com}
+      - ALERT_EMAIL_TO=${ALERT_EMAIL_TO:-devops@example.com}
       - CHOKIDAR_USEPOLLING=true  # 强制 NestJS 底层监听器使用轮询
       - WATCHPACK_POLLING=true    # 确保 Webpack/TS 编译器捕获变更
       - CHOKIDAR_INTERVAL=100       # 轮询间隔（毫秒）
+      - LOG_DIR=/app/logs           # 结构化日志目录
     ports:
       - "3003:3003"
     command: nodemon
@@ -84,6 +96,7 @@ services:
     volumes:
       - .:/app                # 映射整个根目录
       - /app/node_modules     # 匿名卷，防止容器内依赖不被本地覆盖
+      - ./logs:/app/logs      # 日志目录，供Filebeat收集
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
@@ -146,12 +159,106 @@ services:
     networks:
       - lumina-media-network
 
+  skywalking-oap:
+    image: apache/skywalking-oap-server:9.4.0
+    container_name: lumina-media-skywalking-oap
+    restart: always
+    ports:
+      - "11800:11800"  # gRPC端口
+      - "12800:12800"  # HTTP端口
+    environment:
+      SW_STORAGE: mysql
+      SW_JDBC_URL: jdbc:mysql://db-lumina:3306/skywalking?useSSL=false
+      SW_DATA_SOURCE_USER: lumina_user
+      SW_DATA_SOURCE_PASSWORD: lumina_password
+      SW_ENABLE_MYSQL_DRIVER: "true"
+      JAVA_OPTS: "-Xms256m -Xmx512m"
+    depends_on:
+      db-lumina:
+        condition: service_healthy
+    networks:
+      - lumina-media-network
+
+  skywalking-ui:
+    image: apache/skywalking-ui:9.4.0
+    container_name: lumina-media-skywalking-ui
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SW_OAP_ADDRESS: skywalking-oap:12800
+    depends_on:
+      - skywalking-oap
+    networks:
+      - lumina-media-network
+
+  elasticsearch:
+    image: elasticsearch:8.10.0
+    container_name: lumina-media-elasticsearch
+    restart: always
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - lumina-media-network
+
+  logstash:
+    image: logstash:8.10.0
+    container_name: lumina-media-logstash
+    restart: always
+    ports:
+      - "5044:5044"  # Beats input
+      - "5000:5000"  # TCP input
+    volumes:
+      - ./config/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./logs:/app/logs:ro
+    environment:
+      - LS_JAVA_OPTS=-Xms256m -Xmx256m
+    depends_on:
+      - elasticsearch
+    networks:
+      - lumina-media-network
+
+  kibana:
+    image: kibana:8.10.0
+    container_name: lumina-media-kibana
+    restart: always
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - lumina-media-network
+
+  filebeat:
+    image: elastic/filebeat:8.10.0
+    container_name: lumina-media-filebeat
+    restart: always
+    volumes:
+      - ./config/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./logs:/app/logs:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - logstash
+    networks:
+      - lumina-media-network
+
 volumes:
   mysql_data:
     driver: local
   qdrant_data:
     driver: local
   redis_data:
+    driver: local
+  elasticsearch_data:
     driver: local
 
 networks:

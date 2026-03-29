@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 
 import { PlatformCollector } from '../interfaces/platform-collector.interface';
-import { PlatformType, CollectionMethod, CollectedDataItem } from '../../interfaces/data-collection.interface';
+import { PlatformType, CollectionMethod, CollectedDataItem, DataStatus } from '../../interfaces/data-collection.interface';
 
 @Injectable()
 export class WeChatCollectorService implements PlatformCollector {
@@ -53,9 +53,9 @@ export class WeChatCollectorService implements PlatformCollector {
         }),
       );
 
-      const { access_token, expires_in } = response.data;
+      const { access_token, expires_in } = (response as any).data;
       if (!access_token) {
-        throw new Error(`获取访问令牌失败: ${JSON.stringify(response.data)}`);
+        throw new Error(`获取访问令牌失败: ${JSON.stringify((response as any).data)}`);
       }
 
       this.accessToken = access_token;
@@ -159,7 +159,7 @@ export class WeChatCollectorService implements PlatformCollector {
         }),
       );
 
-      const articles = response.data.item || [];
+      const articles = (response as any).data.item || [];
       const results: CollectedDataItem[] = [];
 
       for (const article of articles) {
@@ -183,7 +183,7 @@ export class WeChatCollectorService implements PlatformCollector {
               mediaUrls: article.thumb_url ? [article.thumb_url] : [],
               rawData: article,
             },
-            status: 'raw',
+            status: DataStatus.RAW,
             qualityScore: this.calculateQualityScore(article),
           };
 
@@ -197,7 +197,7 @@ export class WeChatCollectorService implements PlatformCollector {
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response?.data) {
-        this.logger.error(`微信API错误: ${JSON.stringify(axiosError.response.data)}`);
+        this.logger.error(`微信API错误: ${JSON.stringify((axiosError.response as any).data)}`);
       }
       throw error;
     }
@@ -220,7 +220,7 @@ export class WeChatCollectorService implements PlatformCollector {
       );
 
       // 微信返回的文章内容可能是HTML格式
-      const content = response.data.content || '';
+      const content = (response as any).data.content || '';
       // 简单提取文本内容（实际应该使用HTML解析器）
       const textContent = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 

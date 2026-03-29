@@ -20,6 +20,9 @@ import { Workflow } from './modules/workflow/entities/workflow.entity';
 import { WorkflowNode } from './modules/workflow/entities/workflow-node.entity';
 import { ApprovalRecord } from './modules/workflow/entities/approval-record.entity';
 import { Notification } from './modules/workflow/entities/notification.entity';
+import { GeoRegion } from './modules/monitor/geo-analysis/entities/geo-region.entity';
+import { GeoAnalysisResult } from './modules/monitor/geo-analysis/entities/geo-analysis-result.entity';
+import { SeoSuggestion } from './modules/monitor/geo-analysis/entities/seo-suggestion.entity';
 import { UserBehavior } from './modules/data-analytics/entities/user-behavior.entity';
 import { MarketingCampaign } from './modules/data-analytics/entities/marketing-campaign.entity';
 import { MarketingStrategy } from './modules/data-analytics/entities/marketing-strategy.entity';
@@ -34,6 +37,8 @@ import { PublishModule } from './modules/publish/publish.module';
 import { KnowledgeModule } from './modules/knowledge/knowledge.module';
 import { MonitorModule } from './modules/monitor/monitor.module';
 import { UserModule } from './modules/user/user.module';
+import { MonitoringModule } from './shared/monitoring/monitoring.module';
+import { LoggingModule } from './shared/monitoring/logging/logging.module';
 
 @Module({
   imports: [
@@ -72,6 +77,9 @@ import { UserModule } from './modules/user/user.module';
           WorkflowNode,
           ApprovalRecord,
           Notification,
+          GeoRegion,
+          GeoAnalysisResult,
+          SeoSuggestion,
         ],
         synchronize:
           configService.get('TYPEORM_SYNCHRONIZE', 'false') === 'true',
@@ -96,6 +104,7 @@ import { UserModule } from './modules/user/user.module';
     KnowledgeModule,
     MonitorModule,
     UserModule,
+    MonitoringModule,
   ],
   controllers: [AppController],
   providers: [AppService],

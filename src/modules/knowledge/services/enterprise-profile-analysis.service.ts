@@ -146,14 +146,16 @@ export class EnterpriseProfileAnalysisService {
     } as any);
 
     const savedProfile = await this.enterpriseProfileRepository.save(enterpriseProfile);
-    this.logger.log(`企业画像记录创建成功: ${savedProfile.id}`);
+    // TypeORM的save方法可能返回数组，确保获取单个实体
+    const result = Array.isArray(savedProfile) ? savedProfile[0] : savedProfile;
+    this.logger.log(`企业画像记录创建成功: ${result.id}`);
 
     // 异步启动分析任务
-    this.startAnalysisTask(savedProfile.id).catch((error) => {
+    this.startAnalysisTask(result.id).catch((error) => {
       this.logger.error(`分析任务启动失败: ${error.message}`, error.stack);
     });
 
-    return savedProfile;
+    return result;
   }
 
   /**

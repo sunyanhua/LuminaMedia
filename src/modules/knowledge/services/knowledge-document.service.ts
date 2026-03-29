@@ -103,7 +103,7 @@ export class KnowledgeDocumentService {
 
       // 获取当前租户和用户
       const tenantId = TenantContextService.getCurrentTenantIdStatic();
-      const currentUserId = TenantContextService.getCurrentUserIdStatic();
+      const currentUserId = TenantContextService.getCurrentTenantIdStatic(); // TODO: 需要获取当前用户ID
 
       // 创建文档实体
       const document = this.knowledgeDocumentRepository.create({
@@ -126,16 +126,18 @@ export class KnowledgeDocumentService {
       } as any);
 
       const savedDocument = await this.knowledgeDocumentRepository.save(document);
-      this.logger.log(`文档创建成功: ${savedDocument.id}`);
+      // TypeORM的save方法可能返回数组，确保获取单个实体
+      const result = Array.isArray(savedDocument) ? savedDocument[0] : savedDocument;
+      this.logger.log(`文档创建成功: ${result.id}`);
 
       // 如果启用自动向量化，则启动处理
       if (options?.autoVectorize !== false) {
-        this.processDocumentForVectorization(savedDocument.id).catch((error) => {
+        this.processDocumentForVectorization(result.id).catch((error) => {
           this.logger.error(`文档向量化处理失败: ${error.message}`, error.stack);
         });
       }
 
-      return savedDocument;
+      return result;
     } catch (error) {
       this.logger.error(`创建文档失败: ${error.message}`, error.stack);
       if (error instanceof ConflictException || error instanceof BadRequestException) {
@@ -172,6 +174,12 @@ export class KnowledgeDocumentService {
       status: DocumentStatus;
       isPublic: boolean;
       accessControl: string[];
+      processingStatus: DocumentProcessingStatus;
+      processingError: string;
+      vectorId: string | null;
+      vectorizedAt: Date;
+      contentHash: string;
+      qualityScore: DocumentQualityScore;
     }>,
   ): Promise<KnowledgeDocument> {
     try {
@@ -536,7 +544,7 @@ export class KnowledgeDocumentService {
         content: document.content,
         metadata: {
           title: document.title,
-          sourceType: document.sourceType,
+          sourceType: this.mapDocumentSourceType(document.sourceType),
           sourceUrl: document.sourceUrl,
           category: document.category,
           tags: document.tags,
@@ -653,8 +661,8 @@ export class KnowledgeDocumentService {
         // 重置处理状态
         await this.knowledgeDocumentRepository.updateById(doc.id, {
           processingStatus: DocumentProcessingStatus.PENDING,
-          vectorId: null,
-          vectorizedAt: null,
+          vectorId: null as any,
+          vectorizedAt: null as any,
         });
 
         // 重新处理
@@ -982,6 +990,24 @@ export class KnowledgeDocumentService {
     }
 
     return { updated: updatedCount };
+  }
+
+  /**
+   * 映射文档来源类型到向量数据库元数据类型
+   */
+  private mapDocumentSourceType(sourceType: DocumentSourceType): 'file' | 'web' | 'api' | 'manual' {
+    switch (sourceType) {
+      case DocumentSourceType.FILE:
+        return 'file';
+      case DocumentSourceType.URL:
+        return 'web'; // URL映射为web
+      case DocumentSourceType.API:
+        return 'api';
+      case DocumentSourceType.MANUAL:
+        return 'manual';
+      default:
+        return 'manual'; // 默认值
+    }
   }
 
   /**

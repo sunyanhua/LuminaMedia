@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
-import { PlatformType, CollectionMethod, PlatformCredentials, CollectionConfig } from '../interfaces/data-collection.interface';
+import { PlatformType, CollectionMethod } from '../interfaces/data-collection.interface';
+import type { PlatformCredentials, CollectionConfig } from '../interfaces/data-collection.interface';
 
 @Entity('platform_configs')
 @Index(['platform', 'tenantId'], { unique: true })

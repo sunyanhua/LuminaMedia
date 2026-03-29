@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThanOrEqual, In } from 'typeorm';
 import { InjectQueue } from '@nestjs/bull';
-import { Queue } from 'bull';
+import type { Queue } from 'bull';
 
 import { DataCollectionTask } from '../entities/data-collection-task.entity';
 import { PlatformConfig } from '../entities/platform-config.entity';
@@ -120,9 +120,9 @@ export class DataCollectionSchedulerService {
         scheduledAt: data.scheduledAt || new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
-      });
+      } as Partial<DataCollectionTask>);
 
-      const savedTask = await this.taskRepository.save(task);
+      const savedTask = await this.taskRepository.save(task) as DataCollectionTask;
       this.logger.log(`创建采集任务: ${savedTask.id}`);
       return savedTask;
     } catch (error) {
@@ -248,7 +248,14 @@ export class DataCollectionSchedulerService {
     lastCollectionAt: Date | null;
   }>> {
     const platforms = Object.values(PlatformType);
-    const stats = [];
+    const stats: Array<{
+      platform: PlatformType;
+      totalTasks: number;
+      completedTasks: number;
+      failedTasks: number;
+      successRate: number;
+      lastCollectionAt: Date | null;
+    }> = [];
 
     for (const platform of platforms) {
       const tasks = await this.taskRepository.find({

@@ -1,3 +1,11 @@
+// 重新导出枚举类型
+import { AnalysisType, AnalysisStatus, GeoAnalysisResult } from '../entities/geo-analysis-result.entity';
+import { RegionLevel, RegionType } from '../entities/geo-region.entity';
+import { PriorityLevel, SuggestionType, ImplementationStatus } from '../entities/seo-suggestion.entity';
+export { AnalysisType, AnalysisStatus } from '../entities/geo-analysis-result.entity';
+export { RegionLevel, RegionType } from '../entities/geo-region.entity';
+export { PriorityLevel, SuggestionType, ImplementationStatus } from '../entities/seo-suggestion.entity';
+
 export interface GeoAnalysisRequest {
   tenantId: string;
   customerProfileId?: string;
@@ -217,6 +225,3 @@ export interface LinkOpportunity {
   expectedImpact: number;
 }
 
-// 重新导出枚举类型
-export { AnalysisType, AnalysisStatus, RegionLevel, RegionType, PriorityLevel } from '../entities/geo-region.entity';
-export { SuggestionType, ImplementationStatus } from '../entities/seo-suggestion.entity';

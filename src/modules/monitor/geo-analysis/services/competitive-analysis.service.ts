@@ -409,7 +409,7 @@ export class CompetitiveAnalysisService {
 
   private assessCulturalOpenness(region: GeoRegion): 'high' | 'medium' | 'low' {
     // 简化评估
-    const factors = [];
+    const factors: string[] = [];
 
     if (region.culturalData?.dialects && region.culturalData.dialects.length > 2) {
       factors.push('language_diversity');
@@ -609,7 +609,7 @@ export class CompetitiveAnalysisService {
 
   private assessFinancialHealth(competitor: any): 'healthy' | 'stable' | 'risky' {
     // 简化评估
-    const indicators = [];
+    const indicators: string[] = [];
 
     // 基于市场份额推断
     if (competitor.marketShare && competitor.marketShare > 15) {
@@ -639,7 +639,7 @@ export class CompetitiveAnalysisService {
 
   private assessInnovationCapability(competitor: any, regions: GeoRegion[]): 'high' | 'medium' | 'low' {
     // 简化评估
-    const factors = [];
+    const factors: string[] = [];
 
     if (competitor.strengths?.some((s: string) =>
       s.includes('创新') || s.includes('研发') || s.includes('技术')
@@ -822,7 +822,7 @@ export class CompetitiveAnalysisService {
 
   private determineShareTrend(competitor: any): 'increasing' | 'decreasing' | 'stable' {
     // 简化判断：基于增长相关指标
-    const factors = [];
+    const factors: string[] = [];
 
     if (this.assessInnovationCapability(competitor, []) === 'high') {
       factors.push('innovative');

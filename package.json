@@ -22,6 +22,8 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.0",
+    "@nestjs/axios": "^3.1.2",
+    "@nestjs/bull": "^10.2.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
@@ -32,10 +34,12 @@
     "@nestjs/schedule": "^6.1.1",
     "@nestjs/swagger": "^11.0.0",
     "@nestjs/typeorm": "^11.0.0",
+    "@qdrant/js-client-rest": "^1.11.0",
     "ajv": "^8.18.0",
     "ajv-keywords": "^5.1.0",
     "axios": "^1.14.0",
     "bcrypt": "^6.0.0",
+    "bull": "^4.11.5",
     "cheerio": "^1.2.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
@@ -50,8 +54,7 @@
     "sharp": "^0.34.5",
     "typeorm": "^0.3.28",
     "undici": "^6.21.0",
-    "uuid": "^13.0.0",
-    "@qdrant/js-client-rest": "^1.11.0"
+    "uuid": "^13.0.0"
   },
   "overrides": {
     "path-to-regexp": "^8.4.0",
@@ -67,6 +70,7 @@
     "@types/express": "^5.0.0",
     "@types/html-to-text": "^9.0.4",
     "@types/jest": "^30.0.0",
+    "@types/multer": "^2.1.0",
     "@types/node": "^22.10.7",
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^8.57.2",

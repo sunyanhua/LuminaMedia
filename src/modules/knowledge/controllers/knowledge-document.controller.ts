@@ -14,6 +14,7 @@ import {
   ParseFilePipe,
   MaxFileSizeValidator,
   FileTypeValidator,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -29,7 +30,7 @@ import {
   ApiNoContentResponse,
 } from '@nestjs/swagger';
 import { KnowledgeDocumentService } from '../services/knowledge-document.service';
-import { KnowledgeDocument, DocumentSourceType, DocumentStatus } from '../../../entities/knowledge-document.entity';
+import { KnowledgeDocument, DocumentSourceType, DocumentStatus, DocumentProcessingStatus } from '../../../entities/knowledge-document.entity';
 import { DocumentImportOptions } from '../services/knowledge-document.service';
 
 // 请求和响应DTO
@@ -56,6 +57,10 @@ class UpdateDocumentDto {
   status?: DocumentStatus;
   isPublic?: boolean;
   accessControl?: string[];
+  processingStatus?: DocumentProcessingStatus;
+  vectorId?: string | null;
+  processingError?: string;
+  vectorizedAt?: Date;
 }
 
 class SearchDocumentsDto {
@@ -70,7 +75,7 @@ class SearchDocumentsDto {
 
 class ImportFileDto {
   category?: string;
-  tags?: string[];
+  tags?: string | string[];
   language?: string;
   isPublic?: boolean;
   accessControl?: string[];
@@ -308,14 +313,13 @@ export class KnowledgeDocumentController {
           format: 'binary',
           description: '文件（PDF、Word、Excel、TXT等）',
         },
-        category: { type: 'string', required: false },
-        tags: { type: 'string', required: false, description: '逗号分隔的标签' },
-        language: { type: 'string', required: false, default: 'zh-CN' },
-        isPublic: { type: 'boolean', required: false, default: false },
+        category: { type: 'string' },
+        tags: { type: 'string', description: '逗号分隔的标签' },
+        language: { type: 'string', default: 'zh-CN' },
+        isPublic: { type: 'boolean', default: false },
         accessControl: {
           type: 'array',
           items: { type: 'string' },
-          required: false,
         },
       },
     },
@@ -344,7 +348,9 @@ export class KnowledgeDocumentController {
       storagePath: file.path, // 实际存储路径
     };
 
-    const tags = importFileDto.tags ? importFileDto.tags.split(',').map(tag => tag.trim()) : undefined;
+    const tags = importFileDto.tags ?
+      (Array.isArray(importFileDto.tags) ? importFileDto.tags : importFileDto.tags.split(',').map(tag => tag.trim()))
+      : undefined;
 
     return await this.knowledgeDocumentService.importFileDocument(fileInfo, {
       category: importFileDto.category,
@@ -678,7 +684,6 @@ export class KnowledgeDocumentController {
   @ApiOkResponse({
     description: '获取成功',
     type: String,
-    nullable: true,
   })
   async suggestCategory(
     @Param('id') id: string,

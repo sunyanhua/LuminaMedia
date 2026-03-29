@@ -350,8 +350,8 @@ export class QdrantAdapter implements VectorSearchService, OnModuleInit {
       return {
         collectionName: targetCollection,
         documentCount: info.points_count || 0,
-        vectorDimension: info.config.params.vectors.size,
-        storageSize: info.vectors_count || 0,
+        vectorDimension: info.config.params?.vectors?.size || 0,
+        storageSize: info.points_count || 0,
         indexed: true, // Qdrant默认索引
         lastIndexedAt: new Date(),
       };
