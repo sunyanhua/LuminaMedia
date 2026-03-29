@@ -4,10 +4,10 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from '../../../entities/user.entity';
 import { TenantContextService } from '../../../shared/services/tenant-context.service';
-import { UserRepository } from '../../../shared/repositories/user.repository';
 
 export interface CreateUserDto {
   username: string;
@@ -24,8 +24,8 @@ export interface UpdateUserDto {
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(UserRepository)
-    private userRepository: UserRepository,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
     private tenantContextService: TenantContextService,
   ) {}
 

@@ -7,7 +7,6 @@ import { Tenant } from '../../entities/tenant.entity';
 import { Role } from '../../entities/role.entity';
 import { Permission } from '../../entities/permission.entity';
 import { UserRole } from '../../entities/user-role.entity';
-import { UserRepository } from '../../shared/repositories/user.repository';
 import { TenantContextService } from '../../shared/services/tenant-context.service';
 import { AuthService } from './services/auth.service';
 import { TenantService } from './services/tenant.service';
@@ -21,6 +20,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { PermissionsGuard } from './guards/permissions.guard';
 import { TenantMiddleware } from './middlewares/tenant.middleware';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -30,7 +30,6 @@ import { TenantMiddleware } from './middlewares/tenant.middleware';
       Role,
       Permission,
       UserRole,
-      UserRepository,
     ]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -42,6 +41,7 @@ import { TenantMiddleware } from './middlewares/tenant.middleware';
         },
       }),
     }),
+    UserModule, // 导入UserModule以获取UserService
   ],
   controllers: [AuthController, RoleController, PermissionController],
   providers: [

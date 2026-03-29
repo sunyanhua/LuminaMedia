@@ -1,15 +1,18 @@
-Claude，之前的 ajv 全局降级导致了 npm run build 崩溃（找不到 codegen 模块）。我们需要撤销全局覆盖，转而修复 ESLint 的兼容性。请按以下步骤执行：
-1. 撤销 Overrides：
-从 package.json 中移除 ajv 的 overrides（或 resolutions）配置。
-2. 升级 ESLint 核心依赖：
-运行 npm install eslint@latest @typescript-eslint/eslint-plugin@latest @typescript-eslint/parser@latest --save-dev。
-现代版本的 ESLint 插件通常已经解决了 ajv 8.x 的兼容性问题。
-3. 处理 ajv-keywords 冲突：
-尝试显式安装 ajv 8.x 兼容的关键字库：npm install ajv-keywords@latest ajv@latest --save-dev。
-4. 物理清理与重装：
-修改完成后，物理删除 node_modules 和 package-lock.json（或 yarn.lock）。
-重新运行 npm install。
-5. 最终验证（双通才算成功）：
-运行 npm run lint：确保不再报 missingRefs 错误。
-运行 npm run build：确保不再报 Cannot find module 'ajv/dist/compile/codegen'。
-请立即执行，并确保 Build 和 Lint 都能同时通过。
+指令：修复 UserService 注入错误并进行第二阶段功能总检
+1. 修复应用启动错误 (Critical)：
+诊断：日志显示 UserService 依赖注入错误。这通常是因为 UserModule 没有在相关模块中正确 export，或者存在循环依赖。
+任务：检查所有引用了 UserService 的模块（如 AuthModule、DataAnalyticsModule），确保 UserModule 已正确 import 且 UserService 在 UserModule 中被 export。
+目标：重启容器后，日志必须显示 Nest application successfully started，没有任何 ERROR。
+2. 验证第二阶段核心逻辑 (SmartDataEngine)：
+检查 SmartDataEngine 的实现情况。针对 600 万数据的 4 维度画像分析（生命周期、消费性格、实时状态、社交属性）是否已具备基础的 SQL 离线计算逻辑？
+验证 AI 字段映射 功能：模拟上传一个非标 Excel 表头，确认 AI 能否正确映射。
+3. 验证 AI Agent 工作流：
+检查营销方案生成是否已拆分为 分析-策划-文案 三阶段 Agent 模式。
+确认产出内容是否告别了“小学生水平”，达到了预期的“CMO 级别”深度。
+4. 自动化分发链路检查：
+确认 OpenClaw/Playwright 的基础调用逻辑是否已就绪。
+重点：检查 ContentDraft 到 PublishTask 的流转逻辑是否通畅。
+5. 文档同步：
+确认 tasks/phase-2-core-features.md 中所有已完成的任务都已勾选。
+Claude，请先修复那个 UserService 报错，让我们看到系统真正“跑”起来！
+告诉我是否已经具备进入第三阶段的条件！
