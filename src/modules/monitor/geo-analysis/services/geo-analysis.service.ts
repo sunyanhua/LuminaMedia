@@ -161,7 +161,18 @@ export class GeoAnalysisService {
    * 识别机会
    */
   private async identifyOpportunities(regions: GeoRegion[], request: GeoAnalysisRequestDto): Promise<any> {
-    const opportunities = {
+    const opportunities: {
+      untappedMarkets: Array<{
+        region: string;
+        marketSize: number;
+        growthPotential: number;
+        entryDifficulty: 'medium' | 'low' | 'high';
+        suggestedStrategy: string;
+      }>;
+      productGaps: any[];
+      partnershipOpportunities: any[];
+      innovationAreas: any[];
+    } = {
       untappedMarkets: [],
       productGaps: [],
       partnershipOpportunities: [],
