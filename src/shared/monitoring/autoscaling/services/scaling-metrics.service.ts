@@ -231,7 +231,7 @@ export class ScalingMetricsService {
    * 批量获取指标值
    */
   async getMetricValues(metrics: ScalingMetric[]): Promise<Array<{ metric: ScalingMetric; value: number }>> {
-    const results = [];
+    const results: Array<{ metric: ScalingMetric; value: number }> = [];
     for (const metric of metrics) {
       try {
         const value = await this.getMetricValue(metric);

@@ -455,7 +455,7 @@ export class ScalingEventMonitor {
     lastEventTime?: Date;
     errorRate: number;
   }> {
-    const result = [];
+    const result: any[] = [];
 
     for (const [ruleId, stats] of this.eventStats.entries()) {
       const errorRate =
@@ -493,7 +493,7 @@ export class ScalingEventMonitor {
       severity: string;
     }>;
   } {
-    const issues = [];
+    const issues: Array<{ ruleId: string; issue: string; severity: string }> = [];
     let totalEvents = 0;
     let totalErrorEvents = 0;
 

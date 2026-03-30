@@ -792,7 +792,7 @@ class AliCloudDatabaseService implements DatabaseService {
     console.log(`[AliCloudDatabaseService] 获取慢查询日志: limit=${limit}, timeRange=${timeRange}h`);
 
     // 模拟慢查询日志
-    const slowQueries = [];
+    const slowQueries: Array<{ query: string; executionTime: number; timestamp: Date; database: string; user: string }> = [];
     for (let i = 0; i < Math.min(limit, 5); i++) {
       slowQueries.push({
         query: `SELECT * FROM customer_profiles WHERE tenant_id = 'tenant_${i}' ORDER BY created_at DESC LIMIT 100`,

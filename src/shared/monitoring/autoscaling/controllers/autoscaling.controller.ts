@@ -303,8 +303,8 @@ export class AutoscalingController {
     }>;
     issues: string[];
   }> {
-    const components = [];
-    const issues = [];
+    const components: Array<{ name: string; healthy: boolean; message: string }> = [];
+    const issues: string[] = [];
 
     try {
       // 检查决策引擎
@@ -424,7 +424,7 @@ export class AutoscalingController {
 
     // 计算总副本数
     let totalReplicas = 0;
-    const ruleMetrics = [];
+    const ruleMetrics: any[] = [];
 
     for (const rule of this.rules) {
       try {

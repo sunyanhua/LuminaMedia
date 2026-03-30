@@ -10,6 +10,7 @@ import {
   ScalingEvent,
   ScalingEventType,
   ScalingProvider,
+  PREDEFINED_SCALING_RULES,
 } from '../interfaces/autoscaling.interface';
 
 /**
@@ -89,7 +90,7 @@ export class ScalingDecisionEngine {
     const metricValues = await this.metricsService.getMetricValues(rule.metrics);
 
     // 3. 为每个指标计算期望副本数
-    const metricEvaluations = [];
+    const metricEvaluations: Array<{ metric: ScalingMetric; currentValue: number; targetValue: number; calculatedReplicas: number }> = [];
     let calculatedReplicas = currentReplicas;
 
     for (const { metric, value } of metricValues) {
@@ -446,9 +447,6 @@ export class ScalingDecisionEngine {
   private async getEnabledRules(): Promise<ScalingRule[]> {
     // 这里应该从数据库或配置加载规则
     // 当前返回预定义规则中启用的规则
-    const { PREDEFINED_SCALING_RULES } = await import(
-      '../interfaces/autoscaling.interface'
-    );
     return PREDEFINED_SCALING_RULES.filter((rule) => rule.enabled);
   }
 
@@ -493,13 +491,13 @@ export class ScalingDecisionEngine {
     enabledRules: number;
   } {
     const lastDecision = this.decisions[this.decisions.length - 1];
-    const rules = this.getEnabledRules();
+    const enabledRules = PREDEFINED_SCALING_RULES.filter((rule) => rule.enabled).length;
 
     return {
       totalDecisions: this.decisions.length,
       totalEvents: this.events.length,
       lastEvaluationTime: lastDecision?.timestamp,
-      enabledRules: rules.length,
+      enabledRules,
     };
   }
 }

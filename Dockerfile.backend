@@ -12,7 +12,7 @@ COPY nest-cli.json ./
 RUN npm install --legacy-peer-deps
 
 # Ensure proxy dependencies are installed
-RUN npm install undici https-proxy-agent
+RUN npm install undici https-proxy-agent --legacy-peer-deps
 
 # Copy source code
 COPY src/ ./src/
@@ -37,13 +37,13 @@ RUN npm install -g @nestjs/cli
 RUN npm install -g nodemon
 
 # Verify critical dependencies for proxy support
-RUN npm install undici https-proxy-agent --omit=dev
+RUN npm install undici https-proxy-agent --omit=dev --legacy-peer-deps
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 
-# Create uploads directory
-RUN mkdir -p /app/uploads && chown -R node:node /app/uploads
+# Create uploads and logs directories
+RUN mkdir -p /app/uploads /app/logs && chown -R node:node /app/uploads /app/logs
 
 # Switch to non-root user
 USER node

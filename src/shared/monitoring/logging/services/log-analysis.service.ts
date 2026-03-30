@@ -1,6 +1,5 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ElasticsearchService } from '@nestjs/elasticsearch';
 import {
   LogAnalysisResult,
   LogQueryOptions,
@@ -10,13 +9,15 @@ import {
 @Injectable()
 export class LogAnalysisService {
   private readonly indexPrefix: string;
+  private readonly elasticsearchService: any;
 
   constructor(
     private readonly configService: ConfigService,
-    @Inject(ElasticsearchService)
-    private readonly elasticsearchService?: ElasticsearchService,
+    @Optional() @Inject('ELASTICSEARCH_SERVICE')
+    elasticsearchService?: any,
   ) {
     this.indexPrefix = this.configService.get('ELASTICSEARCH_INDEX_PREFIX', 'lumina-logs');
+    this.elasticsearchService = elasticsearchService || null;
   }
 
   /**
@@ -124,7 +125,7 @@ export class LogAnalysisService {
    * 检查告警规则
    */
   async checkAlertRules(rules: LogAlertRule[]): Promise<Array<{ rule: LogAlertRule; triggered: boolean; details?: any }>> {
-    const results = [];
+    const results: Array<{ rule: LogAlertRule; triggered: boolean; details?: any }> = [];
 
     for (const rule of rules) {
       if (!rule.enabled) {
@@ -220,8 +221,8 @@ export class LogAnalysisService {
     };
 
     try {
-      const result = await this.elasticsearchService.search(searchRequest);
-      return result.body;
+      const result = await (this.elasticsearchService as any).search(searchRequest);
+      return (result as any).body ?? result;
     } catch (error) {
       console.error('Elasticsearch query failed:', error);
       throw error;

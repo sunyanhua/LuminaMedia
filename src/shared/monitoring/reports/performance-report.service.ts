@@ -298,7 +298,7 @@ export class PerformanceReportService {
     performance: PerformanceMetrics,
     business: BusinessMetrics,
   ) {
-    const issues = [];
+    const issues: Array<{ severity: 'low' | 'medium' | 'high' | 'critical'; description: string; recommendation: string; impact: string }> = [];
 
     // 检查性能问题
     if (performance.responseTimeP99 > 2000) {
@@ -384,7 +384,7 @@ export class PerformanceReportService {
    * 生成建议
    */
   private async generateRecommendations(issues: any[], trends: any[]) {
-    const recommendations = [];
+    const recommendations: string[] = [];
 
     // 基于问题生成建议
     issues.forEach(issue => {

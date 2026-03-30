@@ -1,4 +1,4 @@
-import { Module, Global, LoggerService } from '@nestjs/common';
+import { Module, Global } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { StructuredLoggerService } from './services/structured-logger.service';
 import { FileLogWriter } from './writers/file-log-writer.service';
@@ -18,6 +18,10 @@ import { LogAlertService } from './services/log-alert.service';
     LogAnalysisService,
     LogAlertService,
     {
+      provide: 'ELASTICSEARCH_SERVICE',
+      useValue: null,
+    },
+    {
       provide: 'LOG_WRITERS',
       useFactory: (consoleWriter: ConsoleLogWriter, fileWriter: FileLogWriter) => {
         const writers = [consoleWriter, fileWriter];
@@ -32,12 +36,7 @@ import { LogAlertService } from './services/log-alert.service';
       },
       inject: [ConsoleLogWriter, FileLogWriter],
     },
-    // 提供LoggerService作为NestLoggerAdapter
-    {
-      provide: LoggerService,
-      useExisting: NestLoggerAdapter,
-    },
   ],
-  exports: [StructuredLoggerService, LoggerService, LogAnalysisService, LogAlertService],
+  exports: [StructuredLoggerService, NestLoggerAdapter, LogAnalysisService, LogAlertService],
 })
 export class LoggingModule {}

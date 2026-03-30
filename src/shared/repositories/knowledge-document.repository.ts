@@ -215,7 +215,7 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
       .update(KnowledgeDocument)
       .set({
         processingStatus,
-        processingError: errorMessage || null,
+        processingError: errorMessage || undefined,
         updatedAt: () => 'CURRENT_TIMESTAMP',
       })
       .where('id IN (:...ids)', { ids: documentIds })

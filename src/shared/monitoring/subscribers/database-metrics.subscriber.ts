@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { EventSubscriber, EntitySubscriberInterface, InsertEvent, UpdateEvent, RemoveEvent, QueryRunner } from 'typeorm';
+import { EventSubscriber, EntitySubscriberInterface, InsertEvent, UpdateEvent, RemoveEvent, QueryRunner, BeforeQueryEvent, AfterQueryEvent } from 'typeorm';
 import { MetricsCollectorService } from '../metrics/collectors/metrics-collector.service';
 
 @Injectable()
@@ -13,15 +13,18 @@ export class DatabaseMetricsSubscriber implements EntitySubscriberInterface {
   /**
    * 查询开始前
    */
-  beforeQuery(queryRunner: QueryRunner): void {
-    this.queryStartTimes.set(queryRunner, Date.now());
+  beforeQuery(event: BeforeQueryEvent<any>): void {
+    if (event.queryRunner) {
+      this.queryStartTimes.set(event.queryRunner, Date.now());
+    }
   }
 
   /**
    * 查询完成后
    */
-  afterQuery(queryRunner: QueryRunner): void {
-    const startTime = this.queryStartTimes.get(queryRunner);
+  afterQuery(event: AfterQueryEvent<any>): void {
+    const queryRunner = event.queryRunner;
+    const startTime = queryRunner ? this.queryStartTimes.get(queryRunner) : undefined;
     if (startTime) {
       const duration = Date.now() - startTime;
 
@@ -35,7 +38,9 @@ export class DatabaseMetricsSubscriber implements EntitySubscriberInterface {
         this.logger.error('Failed to record database query metric', error);
       });
 
-      this.queryStartTimes.delete(queryRunner);
+      if (queryRunner) {
+        this.queryStartTimes.delete(queryRunner);
+      }
     }
   }
 

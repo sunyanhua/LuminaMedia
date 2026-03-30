@@ -101,6 +101,7 @@ export enum AlertChannelType {
   SMS = 'sms',
   WEBHOOK = 'webhook',
   DASHBOARD = 'dashboard',
+  CONSOLE = 'console',
 }
 
 /**

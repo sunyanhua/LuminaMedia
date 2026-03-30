@@ -5,6 +5,17 @@ import { LogWriter } from '../interfaces/log-writer.interface';
 import { FileLogWriter } from '../writers/file-log-writer.service';
 import { ConsoleLogWriter } from '../writers/console-log-writer.service';
 
+interface LogOptions {
+  userId?: string;
+  tenantId?: string;
+  duration?: number;
+  errorCode?: string;
+  errorMessage?: string;
+  extra?: Record<string, any>;
+  requestId?: string;
+  status?: 'success' | 'failure' | 'partial';
+}
+
 @Injectable()
 export class StructuredLoggerService implements OnModuleDestroy {
   private readonly writers: LogWriter[] = [];
@@ -118,7 +129,7 @@ export class StructuredLoggerService implements OnModuleDestroy {
   info(
     module: string,
     action: string,
-    options?: Omit<Parameters<typeof this.log>[3], 'level' | 'status'> & { status?: 'success' | 'failure' | 'partial' },
+    options?: LogOptions & { status?: 'success' | 'failure' | 'partial' },
   ): Promise<void> {
     return this.log('info', module, action, options?.status || 'success', options);
   }
@@ -130,7 +141,7 @@ export class StructuredLoggerService implements OnModuleDestroy {
     module: string,
     action: string,
     error: Error | string,
-    options?: Omit<Parameters<typeof this.log>[3], 'level' | 'status' | 'errorCode' | 'errorMessage'>,
+    options?: LogOptions,
   ): Promise<void> {
     const errorObj = typeof error === 'string' ? new Error(error) : error;
     return this.log('error', module, action, 'failure', {
@@ -147,7 +158,7 @@ export class StructuredLoggerService implements OnModuleDestroy {
     module: string,
     action: string,
     message: string,
-    options?: Omit<Parameters<typeof this.log>[3], 'level' | 'status' | 'errorMessage'>,
+    options?: LogOptions,
   ): Promise<void> {
     return this.log('warn', module, action, 'partial', {
       ...options,
@@ -161,7 +172,7 @@ export class StructuredLoggerService implements OnModuleDestroy {
   debug(
     module: string,
     action: string,
-    options?: Omit<Parameters<typeof this.log>[3], 'level' | 'status'> & { status?: 'success' | 'failure' | 'partial' },
+    options?: LogOptions & { status?: 'success' | 'failure' | 'partial' },
   ): Promise<void> {
     return this.log('debug', module, action, options?.status || 'success', options);
   }
@@ -172,7 +183,7 @@ export class StructuredLoggerService implements OnModuleDestroy {
   verbose(
     module: string,
     action: string,
-    options?: Omit<Parameters<typeof this.log>[3], 'level' | 'status'> & { status?: 'success' | 'failure' | 'partial' },
+    options?: LogOptions & { status?: 'success' | 'failure' | 'partial' },
   ): Promise<void> {
     return this.log('verbose', module, action, options?.status || 'success', options);
   }
@@ -184,7 +195,7 @@ export class StructuredLoggerService implements OnModuleDestroy {
     module: string,
     action: string,
     operation: () => Promise<T> | T,
-    options?: Omit<Parameters<typeof this.log>[3], 'level' | 'status' | 'duration'>,
+    options?: LogOptions,
   ): Promise<T> {
     const startTime = Date.now();
     const requestId = options?.requestId || this.getCurrentRequestId();
