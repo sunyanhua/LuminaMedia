@@ -17,6 +17,7 @@ interface ReviewTask {
   timestamp: string;
 }
 
+// TODO: 从API获取审核任务列表 GET /api/v1/governance/tasks
 const mockTasks: ReviewTask[] = [
   {
     id: '1',
@@ -124,6 +125,7 @@ function Governance() {
                 <h3 className="text-2xl font-bold text-slate-100">
                   {mockTasks.filter((t) => t.status === 'reviewer' || t.status === 'approver').length}
                 </h3>
+                <p className="text-xs text-slate-500 mt-1">TODO: 从API获取 GET /api/v1/governance/stats</p>
               </div>
             </div>
           </CardContent>
@@ -138,6 +140,7 @@ function Governance() {
               <div>
                 <p className="text-sm text-slate-400">今日已批准</p>
                 <h3 className="text-2xl font-bold text-slate-100">12</h3>
+                <p className="text-xs text-slate-500 mt-1">TODO: 从API获取 GET /api/v1/governance/stats</p>
               </div>
             </div>
           </CardContent>
@@ -152,6 +155,7 @@ function Governance() {
               <div>
                 <p className="text-sm text-slate-400">标记问题</p>
                 <h3 className="text-2xl font-bold text-slate-100">2</h3>
+                <p className="text-xs text-slate-500 mt-1">TODO: 从API获取 GET /api/v1/governance/stats</p>
               </div>
             </div>
           </CardContent>

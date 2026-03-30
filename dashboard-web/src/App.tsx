@@ -28,6 +28,10 @@ function App() {
         { label: '灵曜智媒' },
         { label: '发稿审核', active: true },
       ],
+      '/demo': [
+        { label: '灵曜智媒' },
+        { label: '交互式演示中心', active: true },
+      ],
       '/': [
         { label: '灵曜智媒' },
         { label: '仪表盘', active: true },

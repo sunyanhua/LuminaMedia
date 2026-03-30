@@ -31,7 +31,20 @@ interface AppState {
   // 全局加载状态
   loading: boolean;
   setLoading: (loading: boolean) => void;
+
+  // 演示模式状态
+  demoMode: boolean;
+  // 切换演示模式
+  toggleDemoMode: () => void;
+  setDemoMode: (enabled: boolean) => void;
 }
+
+// 从localStorage获取初始演示模式状态
+const getInitialDemoMode = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  const stored = localStorage.getItem('lumina-demo-mode');
+  return stored === 'true';
+};
 
 export const useAppStore = create<AppState>()(
   devtools(
@@ -53,6 +66,18 @@ export const useAppStore = create<AppState>()(
 
       loading: false,
       setLoading: (loading) => set({ loading }),
+
+      // 演示模式初始从localStorage读取
+      demoMode: getInitialDemoMode(),
+      toggleDemoMode: () => set((state) => {
+        const newDemoMode = !state.demoMode;
+        localStorage.setItem('lumina-demo-mode', String(newDemoMode));
+        return { demoMode: newDemoMode };
+      }),
+      setDemoMode: (enabled) => {
+        localStorage.setItem('lumina-demo-mode', String(enabled));
+        set({ demoMode: enabled });
+      },
     }),
     { name: 'AppStore' }
   )
@@ -69,3 +94,6 @@ export const useUser = () => useAppStore((state) => state.user);
 export const useSetUser = () => useAppStore((state) => state.setUser);
 export const useLoading = () => useAppStore((state) => state.loading);
 export const useSetLoading = () => useAppStore((state) => state.setLoading);
+export const useDemoMode = () => useAppStore((state) => state.demoMode);
+export const useToggleDemoMode = () => useAppStore((state) => state.toggleDemoMode);
+export const useSetDemoMode = () => useAppStore((state) => state.setDemoMode);

@@ -8,6 +8,7 @@ const RetailAnalytics = lazy(() => import('../components/analytics/RetailAnalyti
 const MatrixControl = lazy(() => import('../components/matrix/MatrixControl'));
 const AIStrategy = lazy(() => import('../components/ai/AIStrategy'));
 const Governance = lazy(() => import('../components/governance/Governance'));
+const DemoPage = lazy(() => import('../components/demo/DemoPage'));
 
 // 加载中组件
 const LoadingFallback = () => (
@@ -70,6 +71,14 @@ export const router = createBrowserRouter([
           </Suspense>
         ),
       },
+      {
+        path: 'demo',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <DemoPage />
+          </Suspense>
+        ),
+      },
     ],
   },
 ]);
@@ -81,6 +90,7 @@ export const ROUTE_PATHS = {
   MATRIX: '/matrix',
   AI_STRATEGY: '/ai-strategy',
   GOVERNANCE: '/governance',
+  DEMO: '/demo',
 } as const;
 
 // 页面标题映射
@@ -90,4 +100,5 @@ export const PAGE_TITLES: Record<string, string> = {
   '/matrix': '新媒体矩阵',
   '/ai-strategy': 'AI智策中心',
   '/governance': '发稿审核',
+  '/demo': '交互式演示中心',
 };

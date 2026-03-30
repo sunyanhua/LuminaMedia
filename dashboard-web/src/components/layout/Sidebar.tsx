@@ -1,4 +1,4 @@
-import { LayoutDashboard, ChartBar as BarChart3, Network, Shield, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, ChartBar as BarChart3, Network, Shield, Sparkles, ChevronLeft, ChevronRight, PlayCircle } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store/useAppStore';
@@ -9,6 +9,7 @@ const menuItems = [
   { id: 'ai-strategy', path: '/ai-strategy', label: 'AI智策中心', icon: Sparkles },
   { id: 'matrix', path: '/matrix', label: '新媒体矩阵', icon: Network },
   { id: 'governance', path: '/governance', label: '发稿审核', icon: Shield },
+  { id: 'demo', path: '/demo', label: '交互式演示', icon: PlayCircle },
 ];
 
 export function Sidebar() {

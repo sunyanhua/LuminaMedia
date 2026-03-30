@@ -18,7 +18,11 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "test:gemini": "node scripts/test-gemini-api.js"
+    "test:gemini": "node scripts/test-gemini-api.js",
+    "demo:init": "node scripts/demo/init-demo-data.js",
+    "demo:reset": "node tools/demo-reset/reset-demo-data.js",
+    "demo:health": "node scripts/demo/check-demo-health.js",
+    "demo:generate": "node tools/demo-data-generator/src/main.js"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^9.3.4",

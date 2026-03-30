@@ -52,8 +52,8 @@ function RetailAnalytics() {
           name: segment.segmentName,
           count: segment.memberCount,
           percentage: segment.percentage || Math.round((segment.memberCount / segmentsResponse.reduce((sum, s) => sum + s.memberCount, 0)) * 100),
-          avgSpending: 0, // 需要从其他API获取
-          visitFrequency: '每周1-2次', // 需要从其他API获取
+          avgSpending: 0, // TODO: 需要从API获取客户分群详细信息 GET /api/v1/analytics/customer-segments/{segmentId}/details
+          visitFrequency: '每周1-2次', // TODO: 需要从API获取客户分群详细信息
         })));
 
         // 获取停车时长与消费金额关系数据
@@ -208,6 +208,7 @@ function RetailAnalytics() {
               <div>
                 <p className="text-sm text-slate-400">今日访客总数</p>
                 <h3 className="text-2xl font-bold text-slate-100">{formatNumber(8945)}</h3>
+                <p className="text-xs text-slate-500 mt-1">TODO: 从API获取 GET /api/v1/analytics/daily-stats</p>
               </div>
             </div>
           </CardContent>
@@ -222,6 +223,7 @@ function RetailAnalytics() {
               <div>
                 <p className="text-sm text-slate-400">转化率</p>
                 <h3 className="text-2xl font-bold text-slate-100">68.3%</h3>
+                <p className="text-xs text-slate-500 mt-1">TODO: 从API获取 GET /api/v1/analytics/daily-stats</p>
               </div>
             </div>
           </CardContent>
@@ -236,6 +238,7 @@ function RetailAnalytics() {
               <div>
                 <p className="text-sm text-slate-400">平均停留时长</p>
                 <h3 className="text-2xl font-bold text-slate-100">2.4 小时</h3>
+                <p className="text-xs text-slate-500 mt-1">TODO: 从API获取 GET /api/v1/analytics/daily-stats</p>
               </div>
             </div>
           </CardContent>
@@ -279,6 +282,7 @@ function RetailAnalytics() {
                       <div>
                         <p className="text-slate-500 mb-1">平均消费</p>
                         <p className="font-semibold text-amber-500">{formatCurrency(0)}</p>
+                        <p className="text-xs text-slate-500">TODO: API数据</p>
                       </div>
                       <div>
                         <p className="text-slate-500 mb-1">访问频次</p>

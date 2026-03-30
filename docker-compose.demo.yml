@@ -1,0 +1,162 @@
+version: '3.8'
+
+services:
+  # 商务版DEMO服务
+  demo-business:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      args:
+        - BUILD_ENV=demo
+    container_name: lumina-demo-business
+    environment:
+      - NODE_ENV=demo
+      - DEMO_MODE=business
+      - CLOUD_PROVIDER=mock
+      - DATA_SOURCE=mock
+      - AI_PROVIDER=mock
+      - DB_HOST=db-demo
+      - DB_PORT=3306
+      - DB_USERNAME=demo_user
+      - DB_PASSWORD=demo_password
+      - DB_DATABASE=lumina_demo
+      - APP_PORT=3003
+      - PORT=3003
+      - TYPEORM_SYNCHRONIZE=false
+      - TYPEORM_LOGGING=true
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-demo_key}
+      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY:-demo_key}
+      - APM_ENABLED=false
+      - DEMO_DATA_ENABLED=true
+    ports:
+      - "3004:3003"
+    depends_on:
+      db-demo:
+        condition: service_healthy
+    volumes:
+      - ./demo/business/data:/app/demo-data
+      - ./demo/business/config:/app/config
+    networks:
+      - demo-network
+
+  # 政务版DEMO服务
+  demo-government:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      args:
+        - BUILD_ENV=production
+    container_name: lumina-demo-government
+    environment:
+      - NODE_ENV=production
+      - DEMO_MODE=government
+      - CLOUD_PROVIDER=alicloud
+      - DATA_SOURCE=real
+      - AI_PROVIDER=gemini
+      - DB_HOST=db-gov
+      - DB_PORT=3306
+      - DB_USERNAME=gov_user
+      - DB_PASSWORD=gov_password
+      - DB_DATABASE=lumina_gov
+      - APP_PORT=3003
+      - PORT=3003
+      - TYPEORM_SYNCHRONIZE=false
+      - TYPEORM_LOGGING=true
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}
+      - APM_ENABLED=true
+      - DEMO_DATA_ENABLED=true
+    ports:
+      - "3005:3003"
+    depends_on:
+      db-gov:
+        condition: service_healthy
+    volumes:
+      - ./demo/government/config:/app/config
+      - ./demo/government/credentials:/app/credentials
+    networks:
+      - demo-network
+
+  # DEMO共享数据库（商务版）
+  db-demo:
+    image: mysql:8.0
+    container_name: lumina-demo-db
+    environment:
+      MYSQL_ROOT_PASSWORD: demo_root_password
+      MYSQL_DATABASE: lumina_demo
+      MYSQL_USER: demo_user
+      MYSQL_PASSWORD: demo_password
+    ports:
+      - "3308:3306"
+    volumes:
+      - demo_mysql_data:/var/lib/mysql
+      - ./demo/sql/init-demo.sql:/docker-entrypoint-initdb.d/init.sql
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 5
+    networks:
+      - demo-network
+
+  # 政务版数据库
+  db-gov:
+    image: mysql:8.0
+    container_name: lumina-gov-db
+    environment:
+      MYSQL_ROOT_PASSWORD: gov_root_password
+      MYSQL_DATABASE: lumina_gov
+      MYSQL_USER: gov_user
+      MYSQL_PASSWORD: gov_password
+    ports:
+      - "3309:3306"
+    volumes:
+      - gov_mysql_data:/var/lib/mysql
+      - ./demo/sql/init-gov.sql:/docker-entrypoint-initdb.d/init.sql
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 5
+    networks:
+      - demo-network
+
+  # DEMO前端
+  demo-frontend:
+    build:
+      context: ./dashboard-web
+      dockerfile: Dockerfile.frontend
+      args:
+        - VITE_API_BASE_URL=/
+        - VITE_DEMO_MODE=true
+    container_name: lumina-demo-frontend
+    ports:
+      - "5175:5174"
+    environment:
+      - VITE_BUSINESS_API_URL=http://demo-business:3003
+      - VITE_GOVERNMENT_API_URL=http://demo-government:3003
+      - VITE_DEMO_ENABLED=true
+    depends_on:
+      - demo-business
+      - demo-government
+    volumes:
+      - ./dashboard-web:/app
+      - /app/node_modules
+    networks:
+      - demo-network
+
+volumes:
+  demo_mysql_data:
+    driver: local
+  gov_mysql_data:
+    driver: local
+
+networks:
+  demo-network:
+    driver: bridge

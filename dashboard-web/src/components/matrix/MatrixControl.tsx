@@ -29,6 +29,7 @@ interface Task {
   currentStep: number;
 }
 
+// TODO: 从API获取已连接平台状态 GET /api/v1/matrix/platforms
 const platforms: PlatformItem[] = [
   {
     id: '1',
@@ -68,6 +69,7 @@ const platforms: PlatformItem[] = [
   },
 ];
 
+// TODO: 从API获取任务执行状态 GET /api/v1/matrix/tasks
 const mockTasks: Task[] = [
   {
     id: '1',
@@ -381,6 +383,7 @@ function MatrixControl() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
+            {/* TODO: 从API获取任务队列 GET /api/v1/matrix/queue */}
             {[
               {
                 time: '14:30',

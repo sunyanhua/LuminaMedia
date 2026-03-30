@@ -1,4 +1,4 @@
-import { Users, TrendingUp, DollarSign, Activity } from 'lucide-react';
+import { Users, TrendingUp, DollarSign, Activity, TriangleAlert as AlertTriangle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { StatsCard } from './StatsCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,7 +47,6 @@ function DashboardOverview() {
   const [contentPerformance, setContentPerformance] = useState<ContentPerformance[]>([]);
   const [revenueData, setRevenueData] = useState<TimeSeriesData[]>([]);
   const [loading, setLoading] = useState(true);
-  // @ts-ignore
   const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<number>(30);
   const [chartTheme, setChartTheme] = useState<'amber' | 'blue' | 'green'>('amber');
@@ -58,7 +57,7 @@ function DashboardOverview() {
     green: { primary: '#10b981' },
   };
 
-  // 生成模拟图表数据
+  // 模拟图表数据（演示模式fallback）
   const generateMockChartData = (days: number): TimeSeriesData[] => {
     const data: TimeSeriesData[] = [];
     const baseDate = new Date();
@@ -83,7 +82,7 @@ function DashboardOverview() {
     return data;
   };
 
-  // 生成模拟统计数据
+  // 模拟统计数据（演示模式fallback）
   const generateMockStats = (): DashboardStats => {
     const baseUsers = 5000;
     const baseCampaigns = 120;
@@ -99,7 +98,7 @@ function DashboardOverview() {
     };
   };
 
-  // 生成模拟内容表现数据
+  // 模拟内容表现数据（演示模式fallback，等待后端API实现）
   const generateMockContentPerformance = (): ContentPerformance[] => {
     const platforms = [
       { platform: '小红书', trend: 'up' as const },
@@ -145,13 +144,22 @@ function DashboardOverview() {
         setContentPerformance(generateMockContentPerformance());
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
-        setError('数据加载失败，请稍后重试');
-        // API调用失败，使用模拟数据作为fallback
-        const mockData = generateMockChartData(timeRange);
-        setRevenueData(mockData);
-        // 设置模拟统计数据和内容表现数据
-        setStats(generateMockStats());
-        setContentPerformance(generateMockContentPerformance());
+        const errorMsg = error instanceof Error ? error.message : '数据加载失败，请稍后重试';
+        setError(`API连接失败: ${errorMsg}`);
+        // API调用失败，检查是否为演示模式，演示模式下使用模拟数据作为fallback
+        const isDemoMode = localStorage.getItem('lumina-demo-mode') === 'true';
+        if (isDemoMode) {
+          console.log('[DEMO] 演示模式下使用模拟数据作为fallback');
+          const mockData = generateMockChartData(timeRange);
+          setRevenueData(mockData);
+          setStats(generateMockStats());
+          setContentPerformance(generateMockContentPerformance());
+        } else {
+          // 生产模式API失败，保持空状态，显示错误信息
+          setRevenueData([]);
+          setStats(null);
+          setContentPerformance([]);
+        }
       } finally {
         setLoading(false);
       }
@@ -183,6 +191,49 @@ function DashboardOverview() {
             </Card>
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (error && !stats) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-100 mb-2">仪表盘</h2>
+            <p className="text-slate-400">实时洞察和性能指标</p>
+          </div>
+          <Badge className="bg-red-500/10 text-red-500 border-red-500/30">
+            数据加载失败
+          </Badge>
+        </div>
+        <Card className="bg-slate-900 border-slate-800">
+          <CardContent className="p-8 text-center">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <AlertTriangle className="w-12 h-12 text-red-500" />
+              <h3 className="text-xl font-semibold text-slate-100">数据加载失败</h3>
+              <p className="text-slate-400">{error}</p>
+              <div className="flex gap-3">
+                <button
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold rounded-lg transition-colors"
+                  onClick={() => window.location.reload()}
+                >
+                  重新加载
+                </button>
+                <button
+                  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg transition-colors border border-slate-600"
+                  onClick={() => {
+                    // 切换到演示模式并重试
+                    localStorage.setItem('lumina-demo-mode', 'true');
+                    window.location.reload();
+                  }}
+                >
+                  切换到演示模式
+                </button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

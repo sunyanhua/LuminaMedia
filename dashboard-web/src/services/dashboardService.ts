@@ -1,4 +1,5 @@
 import apiClient from './apiClient';
+import { executeWithDemoWrapper, generateMockData } from './demoModeService';
 
 export interface DashboardStats {
   totalUsers: number;
@@ -74,7 +75,10 @@ export const dashboardService = {
    * 获取仪表板概览统计
    */
   getDashboardStats: (): Promise<DashboardStats> => {
-    return apiClient.get(`/api/v1/dashboard/stats`);
+    return executeWithDemoWrapper(
+      () => apiClient.get(`/api/v1/dashboard/stats`),
+      () => Promise.resolve(generateMockData.dashboardStats())
+    );
   },
 
   /**
@@ -95,7 +99,10 @@ export const dashboardService = {
    * 获取实时指标
    */
   getRealTimeMetrics: (): Promise<RealTimeMetrics> => {
-    return apiClient.get(`/api/v1/dashboard/real-time-metrics`);
+    return executeWithDemoWrapper(
+      () => apiClient.get(`/api/v1/dashboard/real-time-metrics`),
+      () => Promise.resolve(generateMockData.realTimeMetrics())
+    );
   },
 
   /**
