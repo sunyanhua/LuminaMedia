@@ -4,6 +4,7 @@ import {
   SentimentAnalysisRequest,
   SentimentResult,
   SentimentTrendAnalysis,
+  SentimentTrendPoint,
   SentimentAlertRule,
   SentimentAlert,
   ISentimentAnalysisProvider,
@@ -205,7 +206,7 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
       const timeGroups = this.groupByTimeInterval(texts, interval);
 
       // 分析每个时间段的情感
-      const trendPoints = [];
+      const trendPoints: SentimentTrendPoint[] = [];
       let totalPositive = 0;
       let totalNegative = 0;
       let totalNeutral = 0;

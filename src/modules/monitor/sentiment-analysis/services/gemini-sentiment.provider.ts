@@ -46,7 +46,7 @@ export class GeminiSentimentProvider implements ISentimentAnalysisProvider {
    * 批量分析文本情感
    */
   async analyzeBatch(texts: string[], options?: any): Promise<any[]> {
-    const results = [];
+    const results: any[] = [];
     for (const text of texts) {
       try {
         const result = await this.analyze(text, options);

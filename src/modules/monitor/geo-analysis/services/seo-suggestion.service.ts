@@ -58,7 +58,7 @@ export class SeoSuggestionService {
    * 分析关键词机会
    */
   private analyzeKeywordOpportunities(region: GeoRegion, request: GeoAnalysisRequestDto): any[] {
-    const opportunities = [];
+    const opportunities: any[] = [];
 
     // 基础关键词（地区+行业）
     const baseKeywords = this.generateBaseKeywords(region, request);
@@ -203,7 +203,7 @@ export class SeoSuggestionService {
    * 推荐渠道
    */
   private recommendChannels(region: GeoRegion): any[] {
-    const recommendations = [];
+    const recommendations: any[] = [];
 
     // 基于地区数字化水平推荐
     if (region.digitalInfrastructure) {
@@ -266,7 +266,7 @@ export class SeoSuggestionService {
    * 建议技术优化
    */
   private suggestTechnicalOptimizations(region: GeoRegion): any[] {
-    const optimizations = [];
+    const optimizations: any[] = [];
 
     // 移动端优化
     if (region.digitalInfrastructure?.smartphonePenetration && region.digitalInfrastructure.smartphonePenetration > 0.7) {

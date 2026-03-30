@@ -191,7 +191,7 @@ export class LexiconSentimentProvider implements ISentimentAnalysisProvider {
    * 批量分析文本情感
    */
   async analyzeBatch(texts: string[], options?: any): Promise<any[]> {
-    const results = [];
+    const results: any[] = [];
     for (const text of texts) {
       try {
         const result = await this.analyze(text, options);
@@ -380,7 +380,7 @@ export class LexiconSentimentProvider implements ISentimentAnalysisProvider {
     return (
       lexicon.positiveWords.has(token) ||
       lexicon.negativeWords.has(token) ||
-      (lexicon.industryWords && lexicon.industryWords.has(token))
+      !!(lexicon.industryWords && lexicon.industryWords.has(token))
     );
   }
 

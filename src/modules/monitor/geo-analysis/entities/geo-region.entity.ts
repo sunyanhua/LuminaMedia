@@ -142,6 +142,15 @@ export class GeoRegion {
     timeframe: string; // 时间框架
   }[];
 
+  @Column({ type: 'float', nullable: true })
+  competitionIntensity: number; // 竞争强度 (0-1)
+
+  @Column({ type: 'json', nullable: true })
+  entryBarriers: string[]; // 进入壁垒
+
+  @Column({ type: 'float', nullable: true })
+  marketConcentration: number; // 市场集中度 (0-1)
+
   @Column({ type: 'boolean', default: true })
   isActive: boolean; // 是否活跃
 

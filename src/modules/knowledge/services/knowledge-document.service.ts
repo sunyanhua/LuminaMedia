@@ -940,7 +940,7 @@ export class KnowledgeDocumentService {
     };
 
     const words = content.toLowerCase();
-    let bestCategory = null;
+    let bestCategory: string | null = null;
     let maxMatches = 0;
 
     for (const [category, keywords] of Object.entries(categoryKeywords)) {

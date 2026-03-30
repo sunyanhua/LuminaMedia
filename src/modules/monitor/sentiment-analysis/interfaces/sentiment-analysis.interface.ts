@@ -343,6 +343,8 @@ export interface ISentimentAnalysisProvider {
     score: number;
     confidence: number;
     intensity?: number;
+    targets?: string[];
+    reasons?: string[];
   }>;
 
   /**

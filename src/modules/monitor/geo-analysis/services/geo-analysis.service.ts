@@ -220,7 +220,12 @@ export class GeoAnalysisService {
    * 分析趋势
    */
   private async analyzeTrends(regions: GeoRegion[], request: GeoAnalysisRequestDto): Promise<any> {
-    const trends = {
+    const trends: {
+      historicalTrends: Array<{ metric: string; values: { date: string; value: number }[]; trendDirection: string; growthRate: number }>;
+      predictiveInsights: Array<{ metric: string; forecast: { date: string; value: number }[]; confidenceLevel: number; keyDrivers: string[] }>;
+      seasonalityPatterns: Array<{ patternType: string; months: string[]; impactLevel: string; recommendations: string[] }>;
+      emergingTrends: Array<{ trend: string; emergenceDate: string; adoptionRate: number; potentialImpact: string }>;
+    } = {
       historicalTrends: [],
       predictiveInsights: [],
       seasonalityPatterns: [],
@@ -328,7 +333,7 @@ export class GeoAnalysisService {
    * 生成可视化
    */
   private generateVisualizations(results: any): any[] {
-    const visualizations = [];
+    const visualizations: any[] = [];
 
     // 地区分析可视化
     if (results.regionalAnalysis) {
@@ -363,7 +368,7 @@ export class GeoAnalysisService {
    * 生成推荐建议
    */
   private generateRecommendations(results: any): any[] {
-    const recommendations = [];
+    const recommendations: any[] = [];
 
     if (results.regionalAnalysis) {
       recommendations.push({
@@ -410,7 +415,7 @@ export class GeoAnalysisService {
   }
 
   private assessEntryDifficulty(region: GeoRegion): 'low' | 'medium' | 'high' {
-    const factors = [];
+    const factors: string[] = [];
 
     if (region.competitionIntensity > 0.7) factors.push('high_competition');
     if (region.entryBarriers && region.entryBarriers.length > 3) factors.push('high_barriers');
@@ -432,7 +437,7 @@ export class GeoAnalysisService {
   }
 
   private identifyProductGaps(region: GeoRegion, industries?: string[]): any[] {
-    const gaps = [];
+    const gaps: any[] = [];
     // 简化实现
     if (region.consumerBehavior?.favoriteCategories) {
       const popularCategories = region.consumerBehavior.favoriteCategories;
@@ -453,7 +458,7 @@ export class GeoAnalysisService {
   }
 
   private identifyPartnershipOpportunities(region: GeoRegion): any[] {
-    const opportunities = [];
+    const opportunities: any[] = [];
     // 简化实现
     if (region.competitors) {
       region.competitors.forEach(competitor => {
@@ -471,7 +476,7 @@ export class GeoAnalysisService {
   }
 
   private identifyInnovationAreas(region: GeoRegion): any[] {
-    const areas = [];
+    const areas: any[] = [];
     // 简化实现
     if (region.digitalInfrastructure?.internetPenetration > 0.7) {
       areas.push({
@@ -485,7 +490,7 @@ export class GeoAnalysisService {
   }
 
   private generateHistoricalData(months: number): { date: string; value: number }[] {
-    const data = [];
+    const data: { date: string; value: number }[] = [];
     const now = new Date();
     for (let i = months - 1; i >= 0; i--) {
       const date = new Date(now);
@@ -499,7 +504,7 @@ export class GeoAnalysisService {
   }
 
   private generateForecastData(months: number): { date: string; value: number }[] {
-    const data = [];
+    const data: { date: string; value: number }[] = [];
     const now = new Date();
     for (let i = 1; i <= months; i++) {
       const date = new Date(now);

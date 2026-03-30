@@ -683,7 +683,7 @@ export class CompetitiveAnalysisService {
 
   private assessBrandStrength(competitor: any, regions: GeoRegion[]): 'strong' | 'moderate' | 'weak' {
     // 简化评估
-    const factors = [];
+    const factors: string[] = [];
 
     if (competitor.marketShare && competitor.marketShare > 10) {
       factors.push('market_share');

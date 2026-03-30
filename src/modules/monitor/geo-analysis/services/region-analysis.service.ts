@@ -59,8 +59,8 @@ export class RegionAnalysisService {
       regionalAnalysis.digitalProfile.data.push(digitalAnalysis);
 
       // 记录地区优势和劣势
-      regionalAnalysis.strengthsByRegion[region.id] = this.identifyStrengths(region);
-      regionalAnalysis.weaknessesByRegion[region.id] = this.identifyWeaknesses(region);
+      regionalAnalysis.regionalComparison.strengthsByRegion[region.id] = this.identifyStrengths(region);
+      regionalAnalysis.regionalComparison.weaknessesByRegion[region.id] = this.identifyWeaknesses(region);
     }
 
     // 生成摘要和关键洞察
@@ -305,7 +305,7 @@ export class RegionAnalysisService {
   }
 
   private assessEconomicStability(region: GeoRegion): 'high' | 'medium' | 'low' {
-    const factors = [];
+    const factors: string[] = [];
 
     if (region.economicIndicators?.inflationRate && region.economicIndicators.inflationRate < 0.03) {
       factors.push('low_inflation');
@@ -359,7 +359,7 @@ export class RegionAnalysisService {
   }
 
   private inferCulturalValues(region: GeoRegion): string[] {
-    const values = [];
+    const values: string[] = [];
 
     if (region.culturalData?.customs) {
       if (region.culturalData.customs.some((c: string) => c.includes('家庭') || c.includes('孝'))) {
@@ -425,7 +425,7 @@ export class RegionAnalysisService {
 
   private assessCulturalOpenness(region: GeoRegion): 'high' | 'medium' | 'low' {
     // 简化评估：基于国际化程度和语言多样性
-    const factors = [];
+    const factors: string[] = [];
 
     if (region.culturalData?.dialects && region.culturalData.dialects.length > 2) {
       factors.push('language_diversity');
