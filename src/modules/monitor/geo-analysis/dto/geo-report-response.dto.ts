@@ -1,7 +1,20 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
-import { AnalysisStatus, AnalysisType } from '../interfaces/geo-analysis.interface';
+import {
+  IsArray,
+  IsDate,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+import {
+  AnalysisStatus,
+  AnalysisType,
+} from '../interfaces/geo-analysis.interface';
 
 export class GeoVisualizationDto {
   @ApiProperty({ type: String, description: '可视化ID' })
@@ -9,7 +22,10 @@ export class GeoVisualizationDto {
   @IsString()
   id: string;
 
-  @ApiProperty({ enum: ['map', 'chart', 'table', 'heatmap', 'network'], description: '可视化类型' })
+  @ApiProperty({
+    enum: ['map', 'chart', 'table', 'heatmap', 'network'],
+    description: '可视化类型',
+  })
   @IsNotEmpty()
   @IsEnum(['map', 'chart', 'table', 'heatmap', 'network'])
   type: 'map' | 'chart' | 'table' | 'heatmap' | 'network';
@@ -45,7 +61,10 @@ export class GeoRecommendationDto {
   @IsString()
   id: string;
 
-  @ApiProperty({ enum: ['seo', 'content', 'marketing', 'product', 'partnership'], description: '类别' })
+  @ApiProperty({
+    enum: ['seo', 'content', 'marketing', 'product', 'partnership'],
+    description: '类别',
+  })
   @IsNotEmpty()
   @IsEnum(['seo', 'content', 'marketing', 'product', 'partnership'])
   category: 'seo' | 'content' | 'marketing' | 'product' | 'partnership';
@@ -60,7 +79,10 @@ export class GeoRecommendationDto {
   @IsString()
   description: string;
 
-  @ApiProperty({ enum: ['low', 'medium', 'high', 'critical'], description: '优先级' })
+  @ApiProperty({
+    enum: ['low', 'medium', 'high', 'critical'],
+    description: '优先级',
+  })
   @IsNotEmpty()
   @IsEnum(['low', 'medium', 'high', 'critical'])
   priority: 'low' | 'medium' | 'high' | 'critical';
@@ -135,14 +157,20 @@ export class GeoAnalysisResponseDto {
   @IsObject()
   results?: any;
 
-  @ApiPropertyOptional({ type: [GeoVisualizationDto], description: '可视化列表' })
+  @ApiPropertyOptional({
+    type: [GeoVisualizationDto],
+    description: '可视化列表',
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => GeoVisualizationDto)
   visualizations?: GeoVisualizationDto[];
 
-  @ApiPropertyOptional({ type: [GeoRecommendationDto], description: '推荐列表' })
+  @ApiPropertyOptional({
+    type: [GeoRecommendationDto],
+    description: '推荐列表',
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })

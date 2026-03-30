@@ -6,7 +6,10 @@ import type { Queue } from 'bull';
 
 import { DataCollectionTask } from '../entities/data-collection-task.entity';
 import { PlatformConfig } from '../entities/platform-config.entity';
-import { TaskStatus, PlatformType } from '../interfaces/data-collection.interface';
+import {
+  TaskStatus,
+  PlatformType,
+} from '../interfaces/data-collection.interface';
 
 @Injectable()
 export class DataCollectionSchedulerService {
@@ -55,14 +58,21 @@ export class DataCollectionSchedulerService {
           });
 
           if (!platformConfig) {
-            this.logger.warn(`平台配置未找到或未激活: tenant=${task.tenantId}, platform=${task.platform}`);
+            this.logger.warn(
+              `平台配置未找到或未激活: tenant=${task.tenantId}, platform=${task.platform}`,
+            );
             await this.markTaskAsFailed(task.id, '平台配置未找到或未激活');
             continue;
           }
 
           // 检查API限制
-          if (platformConfig.apiLimits && platformConfig.apiLimits.remaining <= 0) {
-            this.logger.warn(`API限制已达到: platform=${task.platform}, remaining=${platformConfig.apiLimits.remaining}`);
+          if (
+            platformConfig.apiLimits &&
+            platformConfig.apiLimits.remaining <= 0
+          ) {
+            this.logger.warn(
+              `API限制已达到: platform=${task.platform}, remaining=${platformConfig.apiLimits.remaining}`,
+            );
             // 重新调度任务到限制重置时间
             const resetAt = new Date(platformConfig.apiLimits.resetAt);
             await this.rescheduleTask(task.id, resetAt);
@@ -87,7 +97,10 @@ export class DataCollectionSchedulerService {
           scheduledCount++;
           this.logger.debug(`任务已调度: ${task.id}`);
         } catch (error) {
-          this.logger.error(`调度任务失败 ${task.id}: ${error.message}`, error.stack);
+          this.logger.error(
+            `调度任务失败 ${task.id}: ${error.message}`,
+            error.stack,
+          );
           await this.markTaskAsFailed(task.id, `调度失败: ${error.message}`);
         }
       }
@@ -122,7 +135,7 @@ export class DataCollectionSchedulerService {
         updatedAt: new Date(),
       } as Partial<DataCollectionTask>);
 
-      const savedTask = await this.taskRepository.save(task) as DataCollectionTask;
+      const savedTask = await this.taskRepository.save(task);
       this.logger.log(`创建采集任务: ${savedTask.id}`);
       return savedTask;
     } catch (error) {
@@ -134,13 +147,15 @@ export class DataCollectionSchedulerService {
   /**
    * 批量创建采集任务
    */
-  async batchCreateTasks(tasks: Array<{
-    tenantId: string;
-    platform: PlatformType;
-    method?: string;
-    config?: any;
-    scheduledAt?: Date;
-  }>): Promise<DataCollectionTask[]> {
+  async batchCreateTasks(
+    tasks: Array<{
+      tenantId: string;
+      platform: PlatformType;
+      method?: string;
+      config?: any;
+      scheduledAt?: Date;
+    }>,
+  ): Promise<DataCollectionTask[]> {
     const createdTasks: DataCollectionTask[] = [];
 
     for (const taskData of tasks) {
@@ -187,8 +202,14 @@ export class DataCollectionSchedulerService {
       throw new Error(`任务不存在: ${taskId}`);
     }
 
-    if ([TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED].includes(task.status)) {
-      this.logger.warn(`任务已处于最终状态，无法取消: ${taskId}, status=${task.status}`);
+    if (
+      [TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED].includes(
+        task.status,
+      )
+    ) {
+      this.logger.warn(
+        `任务已处于最终状态，无法取消: ${taskId}, status=${task.status}`,
+      );
       return false;
     }
 
@@ -199,8 +220,12 @@ export class DataCollectionSchedulerService {
 
     // 从队列中移除任务（如果存在）
     try {
-      const jobs = await this.dataCollectionQueue.getJobs(['waiting', 'delayed', 'active']);
-      const job = jobs.find(j => j.data.taskId === taskId);
+      const jobs = await this.dataCollectionQueue.getJobs([
+        'waiting',
+        'delayed',
+        'active',
+      ]);
+      const job = jobs.find((j) => j.data.taskId === taskId);
       if (job) {
         await job.remove();
         this.logger.debug(`从队列中移除任务: ${taskId}`);
@@ -216,18 +241,26 @@ export class DataCollectionSchedulerService {
   /**
    * 重新调度任务
    */
-  private async rescheduleTask(taskId: string, scheduledAt: Date): Promise<void> {
+  private async rescheduleTask(
+    taskId: string,
+    scheduledAt: Date,
+  ): Promise<void> {
     await this.taskRepository.update(taskId, {
       scheduledAt,
       updatedAt: new Date(),
     });
-    this.logger.debug(`任务重新调度: ${taskId} -> ${scheduledAt.toISOString()}`);
+    this.logger.debug(
+      `任务重新调度: ${taskId} -> ${scheduledAt.toISOString()}`,
+    );
   }
 
   /**
    * 标记任务为失败
    */
-  private async markTaskAsFailed(taskId: string, errorMessage: string): Promise<void> {
+  private async markTaskAsFailed(
+    taskId: string,
+    errorMessage: string,
+  ): Promise<void> {
     await this.taskRepository.update(taskId, {
       status: TaskStatus.FAILED,
       errorMessage,
@@ -239,14 +272,16 @@ export class DataCollectionSchedulerService {
   /**
    * 获取平台统计信息
    */
-  async getPlatformStats(tenantId: string): Promise<Array<{
-    platform: PlatformType;
-    totalTasks: number;
-    completedTasks: number;
-    failedTasks: number;
-    successRate: number;
-    lastCollectionAt: Date | null;
-  }>> {
+  async getPlatformStats(tenantId: string): Promise<
+    Array<{
+      platform: PlatformType;
+      totalTasks: number;
+      completedTasks: number;
+      failedTasks: number;
+      successRate: number;
+      lastCollectionAt: Date | null;
+    }>
+  > {
     const platforms = Object.values(PlatformType);
     const stats: Array<{
       platform: PlatformType;
@@ -263,12 +298,17 @@ export class DataCollectionSchedulerService {
       });
 
       const totalTasks = tasks.length;
-      const completedTasks = tasks.filter(t => t.status === TaskStatus.COMPLETED).length;
-      const failedTasks = tasks.filter(t => t.status === TaskStatus.FAILED).length;
-      const successRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+      const completedTasks = tasks.filter(
+        (t) => t.status === TaskStatus.COMPLETED,
+      ).length;
+      const failedTasks = tasks.filter(
+        (t) => t.status === TaskStatus.FAILED,
+      ).length;
+      const successRate =
+        totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
       const lastCompletedTask = tasks
-        .filter(t => t.status === TaskStatus.COMPLETED)
+        .filter((t) => t.status === TaskStatus.COMPLETED)
         .sort((a, b) => b.completedAt.getTime() - a.completedAt.getTime())[0];
 
       stats.push({
@@ -291,11 +331,16 @@ export class DataCollectionSchedulerService {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
 
-    const result = await this.taskRepository.createQueryBuilder()
+    const result = await this.taskRepository
+      .createQueryBuilder()
       .delete()
       .where('createdAt < :cutoffDate', { cutoffDate })
       .andWhere('status IN (:...statuses)', {
-        statuses: [TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED],
+        statuses: [
+          TaskStatus.COMPLETED,
+          TaskStatus.FAILED,
+          TaskStatus.CANCELLED,
+        ],
       })
       .execute();
 

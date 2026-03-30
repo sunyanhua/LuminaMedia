@@ -2,20 +2,20 @@
  * 告警规则类型
  */
 export enum AlertRuleType {
-  THRESHOLD = 'threshold',      // 阈值告警
-  ANOMALY = 'anomaly',          // 异常检测
-  ABSENCE = 'absence',          // 数据缺失
-  COMPOSITE = 'composite',      // 复合规则
+  THRESHOLD = 'threshold', // 阈值告警
+  ANOMALY = 'anomaly', // 异常检测
+  ABSENCE = 'absence', // 数据缺失
+  COMPOSITE = 'composite', // 复合规则
 }
 
 /**
  * 告警严重级别
  */
 export enum AlertSeverity {
-  INFO = 'info',          // 信息
-  WARNING = 'warning',    // 警告
-  ERROR = 'error',        // 错误
-  CRITICAL = 'critical',  // 严重
+  INFO = 'info', // 信息
+  WARNING = 'warning', // 警告
+  ERROR = 'error', // 错误
+  CRITICAL = 'critical', // 严重
 }
 
 /**

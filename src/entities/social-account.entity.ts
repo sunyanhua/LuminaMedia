@@ -45,10 +45,20 @@ export class SocialAccount {
   @Column({ name: 'account_name' })
   accountName: string;
 
-  @Column({ name: 'platform_user_id', type: 'varchar', length: 255, nullable: true })
+  @Column({
+    name: 'platform_user_id',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
   platformUserId: string;
 
-  @Column({ name: 'platform_user_name', type: 'varchar', length: 255, nullable: true })
+  @Column({
+    name: 'platform_user_name',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
   platformUserName: string;
 
   @Column({ name: 'avatar_url', type: 'varchar', length: 500, nullable: true })
@@ -57,8 +67,13 @@ export class SocialAccount {
   @Column({ name: 'encrypted_credentials', type: 'text' })
   encryptedCredentials: string;
 
-  @Column({ name: 'credential_hash', type: 'varchar', length: 64, nullable: true })
-  credentialHash: string;
+  @Column({
+    name: 'credential_hash',
+    type: 'varchar',
+    length: 64,
+    nullable: true,
+  })
+  credentialHash: string | null;
 
   @Column({ name: 'config', type: 'json', nullable: true })
   config: Record<string, any>;
@@ -81,10 +96,19 @@ export class SocialAccount {
   @Column({ name: 'description', type: 'text', nullable: true })
   description: string;
 
-  @Column({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({
+    name: 'created_at',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   createdAt: Date;
 
-  @Column({ name: 'updated_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    name: 'updated_at',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updatedAt: Date;
 
   @Column({

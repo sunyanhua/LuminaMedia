@@ -15,7 +15,10 @@ const sentimentProviders: Provider[] = [
   LexiconSentimentProvider,
   {
     provide: 'SENTIMENT_PROVIDERS',
-    useFactory: (geminiProvider: GeminiSentimentProvider, lexiconProvider: LexiconSentimentProvider) => {
+    useFactory: (
+      geminiProvider: GeminiSentimentProvider,
+      lexiconProvider: LexiconSentimentProvider,
+    ) => {
       return [geminiProvider, lexiconProvider];
     },
     inject: [GeminiSentimentProvider, LexiconSentimentProvider],
@@ -23,14 +26,9 @@ const sentimentProviders: Provider[] = [
 ];
 
 @Module({
-  imports: [
-    ConfigModule,
-  ],
+  imports: [ConfigModule],
   controllers: [SentimentAnalysisController],
-  providers: [
-    ...sentimentProviders,
-    SentimentAnalysisService,
-  ],
+  providers: [...sentimentProviders, SentimentAnalysisService],
   exports: [
     SentimentAnalysisService,
     GeminiSentimentProvider,

@@ -426,7 +426,10 @@ class AliCloudStorageService implements StorageService {
         );
 
         await new Promise((resolve) => setTimeout(resolve, 100));
-        uploadedParts.push({ partNumber, etag: `oss-resumed-part-etag-${Date.now()}-${i}` });
+        uploadedParts.push({
+          partNumber,
+          etag: `oss-resumed-part-etag-${Date.now()}-${i}`,
+        });
       }
     }
 
@@ -455,7 +458,9 @@ class AliCloudStorageService implements StorageService {
     uploadId: string,
   ): Promise<{ uploadedParts: number; totalParts: number; progress: number }> {
     // 模拟实现：返回上传进度
-    console.log(`[AliCloudStorageService] 获取上传进度: ${bucket}/${key}, uploadId: ${uploadId}`);
+    console.log(
+      `[AliCloudStorageService] 获取上传进度: ${bucket}/${key}, uploadId: ${uploadId}`,
+    );
 
     // 模拟进度
     const totalParts = 10;
@@ -517,7 +522,10 @@ class AliCloudAIService implements AIService {
         usage: {
           promptTokens: Math.floor(prompt.length / 4),
           completionTokens: 150 + Math.floor(Math.random() * 50),
-          totalTokens: Math.floor(prompt.length / 4) + 150 + Math.floor(Math.random() * 50),
+          totalTokens:
+            Math.floor(prompt.length / 4) +
+            150 +
+            Math.floor(Math.random() * 50),
         },
         finishReason: 'stop',
       };
@@ -537,7 +545,9 @@ class AliCloudAIService implements AIService {
 
       // 如果明确要求本地模型但阿里云环境不支持，抛出错误
       if (options?.gpu && this.useMock) {
-        throw new NonRetryableError('阿里云环境不支持本地GPU模型，请使用云端模型');
+        throw new NonRetryableError(
+          '阿里云环境不支持本地GPU模型，请使用云端模型',
+        );
       }
 
       // 重定向到云端模型（阿里云环境的最佳选择）
@@ -679,7 +689,9 @@ class AliCloudDatabaseService implements DatabaseService {
     const idle = total - active;
     const waiting = Math.random() > 0.9 ? 1 : 0; // 偶尔有等待连接
 
-    console.log(`[AliCloudDatabaseService] 连接池状态: 总数=${total}, 活跃=${active}, 空闲=${idle}, 等待=${waiting}`);
+    console.log(
+      `[AliCloudDatabaseService] 连接池状态: 总数=${total}, 活跃=${active}, 空闲=${idle}, 等待=${waiting}`,
+    );
 
     return {
       total,
@@ -745,7 +757,11 @@ class AliCloudDatabaseService implements DatabaseService {
    * 执行性能诊断
    */
   async runPerformanceDiagnosis(): Promise<{
-    issues: Array<{ severity: 'high' | 'medium' | 'low'; description: string; recommendation: string }>;
+    issues: Array<{
+      severity: 'high' | 'medium' | 'low';
+      description: string;
+      recommendation: string;
+    }>;
     overallHealth: 'good' | 'fair' | 'poor';
     score: number; // 0-100
   }> {
@@ -780,7 +796,10 @@ class AliCloudDatabaseService implements DatabaseService {
    * @param limit 返回条数限制
    * @param timeRange 时间范围（小时）
    */
-  async getSlowQueries(limit: number = 10, timeRange: number = 24): Promise<
+  async getSlowQueries(
+    limit: number = 10,
+    timeRange: number = 24,
+  ): Promise<
     Array<{
       query: string;
       executionTime: number; // 毫秒
@@ -789,10 +808,18 @@ class AliCloudDatabaseService implements DatabaseService {
       user: string;
     }>
   > {
-    console.log(`[AliCloudDatabaseService] 获取慢查询日志: limit=${limit}, timeRange=${timeRange}h`);
+    console.log(
+      `[AliCloudDatabaseService] 获取慢查询日志: limit=${limit}, timeRange=${timeRange}h`,
+    );
 
     // 模拟慢查询日志
-    const slowQueries: Array<{ query: string; executionTime: number; timestamp: Date; database: string; user: string }> = [];
+    const slowQueries: Array<{
+      query: string;
+      executionTime: number;
+      timestamp: Date;
+      database: string;
+      user: string;
+    }> = [];
     for (let i = 0; i < Math.min(limit, 5); i++) {
       slowQueries.push({
         query: `SELECT * FROM customer_profiles WHERE tenant_id = 'tenant_${i}' ORDER BY created_at DESC LIMIT 100`,
@@ -993,7 +1020,9 @@ class AliCloudRedisService {
       await this.connect();
     }
 
-    console.log(`[AliCloudRedisService] 设置缓存: ${key} = ${value.substring(0, 50)}..., ttl: ${ttl || '无'}`);
+    console.log(
+      `[AliCloudRedisService] 设置缓存: ${key} = ${value.substring(0, 50)}..., ttl: ${ttl || '无'}`,
+    );
 
     // 模拟网络延迟
     await new Promise((resolve) => setTimeout(resolve, 20));
@@ -1067,7 +1096,9 @@ class AliCloudRedisService {
       await this.connect();
     }
 
-    console.log(`[AliCloudRedisService] 设置哈希字段: ${key}.${field} = ${value.substring(0, 30)}...`);
+    console.log(
+      `[AliCloudRedisService] 设置哈希字段: ${key}.${field} = ${value.substring(0, 30)}...`,
+    );
     await new Promise((resolve) => setTimeout(resolve, 15));
   }
 

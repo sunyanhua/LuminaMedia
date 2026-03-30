@@ -1,4 +1,8 @@
-import { PlatformType, CollectionMethod, CollectedDataItem } from '../../interfaces/data-collection.interface';
+import {
+  PlatformType,
+  CollectionMethod,
+  CollectedDataItem,
+} from '../../interfaces/data-collection.interface';
 
 /**
  * 平台采集器接口

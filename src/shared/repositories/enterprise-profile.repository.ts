@@ -8,9 +8,13 @@ export class EnterpriseProfileRepository extends TenantRepository<EnterpriseProf
   /**
    * 根据客户档案ID查找企业画像
    */
-  async findByCustomerProfileId(customerProfileId: string): Promise<EnterpriseProfile[]> {
+  async findByCustomerProfileId(
+    customerProfileId: string,
+  ): Promise<EnterpriseProfile[]> {
     return this.createQueryBuilder('profile')
-      .where('profile.customerProfileId = :customerProfileId', { customerProfileId })
+      .where('profile.customerProfileId = :customerProfileId', {
+        customerProfileId,
+      })
       .orderBy('profile.version', 'DESC')
       .getMany();
   }
@@ -18,9 +22,13 @@ export class EnterpriseProfileRepository extends TenantRepository<EnterpriseProf
   /**
    * 获取当前版本的企业画像
    */
-  async findCurrentByCustomerProfileId(customerProfileId: string): Promise<EnterpriseProfile | null> {
+  async findCurrentByCustomerProfileId(
+    customerProfileId: string,
+  ): Promise<EnterpriseProfile | null> {
     return this.createQueryBuilder('profile')
-      .where('profile.customerProfileId = :customerProfileId', { customerProfileId })
+      .where('profile.customerProfileId = :customerProfileId', {
+        customerProfileId,
+      })
       .andWhere('profile.isCurrent = :isCurrent', { isCurrent: true })
       .getOne();
   }
@@ -54,7 +62,9 @@ export class EnterpriseProfileRepository extends TenantRepository<EnterpriseProf
       .take(limit);
 
     if (excludeProfileId) {
-      queryBuilder.andWhere('profile.id != :excludeProfileId', { excludeProfileId });
+      queryBuilder.andWhere('profile.id != :excludeProfileId', {
+        excludeProfileId,
+      });
     }
 
     // 注：实际相似性搜索应在向量数据库中进行
@@ -65,9 +75,13 @@ export class EnterpriseProfileRepository extends TenantRepository<EnterpriseProf
   /**
    * 获取企业画像版本历史
    */
-  async getVersionHistory(customerProfileId: string): Promise<EnterpriseProfile[]> {
+  async getVersionHistory(
+    customerProfileId: string,
+  ): Promise<EnterpriseProfile[]> {
     return this.createQueryBuilder('profile')
-      .where('profile.customerProfileId = :customerProfileId', { customerProfileId })
+      .where('profile.customerProfileId = :customerProfileId', {
+        customerProfileId,
+      })
       .orderBy('profile.version', 'DESC')
       .getMany();
   }
@@ -97,7 +111,9 @@ export class EnterpriseProfileRepository extends TenantRepository<EnterpriseProf
   /**
    * 获取行业统计
    */
-  async getIndustryStats(): Promise<Array<{ industry: string; count: number }>> {
+  async getIndustryStats(): Promise<
+    Array<{ industry: string; count: number }>
+  > {
     const results = await this.createQueryBuilder('profile')
       .select('profile.industry', 'industry')
       .addSelect('COUNT(*)', 'count')

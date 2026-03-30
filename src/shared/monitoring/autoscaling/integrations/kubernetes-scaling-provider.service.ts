@@ -171,7 +171,8 @@ export class KubernetesScalingProvider implements ScalingProvider {
       {
         type: 'Available',
         status: replicas > 0 ? 'True' : 'False',
-        reason: replicas > 0 ? 'MinimumReplicasAvailable' : 'NoReplicasAvailable',
+        reason:
+          replicas > 0 ? 'MinimumReplicasAvailable' : 'NoReplicasAvailable',
         message:
           replicas > 0
             ? 'Deployment has minimum availability.'
@@ -252,7 +253,8 @@ export class KubernetesScalingProvider implements ScalingProvider {
           {
             type: 'Available',
             status: replicas > 0 ? 'True' : 'False',
-            reason: replicas > 0 ? 'MinimumReplicasAvailable' : 'NoReplicasAvailable',
+            reason:
+              replicas > 0 ? 'MinimumReplicasAvailable' : 'NoReplicasAvailable',
             message:
               replicas > 0
                 ? 'Deployment has minimum availability.'
@@ -279,7 +281,10 @@ export class KubernetesScalingProvider implements ScalingProvider {
     const baseUsage = 50;
     const timeFactor = Math.sin(Date.now() / 60000);
     const randomFactor = Math.random() * 20 - 10;
-    return Math.max(10, Math.min(95, baseUsage + timeFactor * 10 + randomFactor));
+    return Math.max(
+      10,
+      Math.min(95, baseUsage + timeFactor * 10 + randomFactor),
+    );
   }
 
   /**
@@ -290,7 +295,10 @@ export class KubernetesScalingProvider implements ScalingProvider {
     const baseUsage = 60;
     const timeFactor = Math.cos(Date.now() / 90000);
     const randomFactor = Math.random() * 15 - 7.5;
-    return Math.max(20, Math.min(90, baseUsage + timeFactor * 8 + randomFactor));
+    return Math.max(
+      20,
+      Math.min(90, baseUsage + timeFactor * 8 + randomFactor),
+    );
   }
 
   /**
@@ -302,7 +310,11 @@ export class KubernetesScalingProvider implements ScalingProvider {
     let baseRequests = 80;
 
     // 高峰时段
-    if ((hour >= 10 && hour < 12) || (hour >= 14 && hour < 16) || (hour >= 20 && hour < 22)) {
+    if (
+      (hour >= 10 && hour < 12) ||
+      (hour >= 14 && hour < 16) ||
+      (hour >= 20 && hour < 22)
+    ) {
       baseRequests = 200;
     }
     // 低谷时段
@@ -321,7 +333,11 @@ export class KubernetesScalingProvider implements ScalingProvider {
     const hour = new Date().getHours();
     let baseUsers = 500;
 
-    if ((hour >= 10 && hour < 12) || (hour >= 14 && hour < 16) || (hour >= 20 && hour < 22)) {
+    if (
+      (hour >= 10 && hour < 12) ||
+      (hour >= 14 && hour < 16) ||
+      (hour >= 20 && hour < 22)
+    ) {
       baseUsers = 1200;
     } else if (hour >= 0 && hour < 6) {
       baseUsers = 100;

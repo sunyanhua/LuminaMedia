@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Index,
+} from 'typeorm';
 
 export enum SuggestionType {
   KEYWORD = 'keyword',
@@ -66,12 +73,21 @@ export class SeoSuggestion {
     competitionLevel?: 'low' | 'medium' | 'high';
     keywordDifficulty?: number;
     relatedKeywords?: string[];
-    searchIntent?: 'informational' | 'commercial' | 'transactional' | 'navigational';
+    searchIntent?:
+      | 'informational'
+      | 'commercial'
+      | 'transactional'
+      | 'navigational';
 
     // 内容建议
     contentTopic?: string;
     targetAudience?: string;
-    contentFormat?: 'article' | 'video' | 'infographic' | 'podcast' | 'social_media';
+    contentFormat?:
+      | 'article'
+      | 'video'
+      | 'infographic'
+      | 'podcast'
+      | 'social_media';
     wordCount?: number;
     keyMessages?: string[];
     callToAction?: string;

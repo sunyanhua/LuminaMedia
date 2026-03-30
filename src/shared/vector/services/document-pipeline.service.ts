@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { VectorSearchService } from './vector-search.service';
-import { Document, DocumentMetadata } from '../interfaces/vector-search.interface';
+import {
+  Document,
+  DocumentMetadata,
+} from '../interfaces/vector-search.interface';
 
 /**
  * 文档处理流水线服务
@@ -125,7 +128,11 @@ export class DocumentPipelineService {
    * 分块处理
    * 将长文本分割为适合向量化的块
    */
-  private splitIntoChunks(text: string, chunkSize?: number, overlap?: number): string[] {
+  private splitIntoChunks(
+    text: string,
+    chunkSize?: number,
+    overlap?: number,
+  ): string[] {
     const size = chunkSize || this.defaultChunkSize;
     const overlapSize = overlap || this.chunkOverlap;
 

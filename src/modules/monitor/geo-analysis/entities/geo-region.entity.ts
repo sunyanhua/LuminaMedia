@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Index,
+} from 'typeorm';
 
 export enum RegionLevel {
   COUNTRY = 'country',
@@ -8,8 +15,8 @@ export enum RegionLevel {
 }
 
 export enum RegionType {
-  URBAN = 'urban',       // 城市
-  RURAL = 'rural',       // 乡村
+  URBAN = 'urban', // 城市
+  RURAL = 'rural', // 乡村
   SUBURBAN = 'suburban', // 郊区
   INDUSTRIAL = 'industrial', // 工业区
   COMMERCIAL = 'commercial', // 商业区

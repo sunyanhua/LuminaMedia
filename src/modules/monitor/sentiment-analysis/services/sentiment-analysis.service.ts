@@ -18,7 +18,9 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
   private defaultProvider: string = 'lexicon'; // 默认使用词典分析
 
   constructor(
-    @Optional() @Inject('SENTIMENT_PROVIDERS') providers?: ISentimentAnalysisProvider[]
+    @Optional()
+    @Inject('SENTIMENT_PROVIDERS')
+    providers?: ISentimentAnalysisProvider[],
   ) {
     if (providers) {
       this.registerProviders(providers);
@@ -71,7 +73,9 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
   /**
    * 分析单个文本的情感
    */
-  async analyzeText(request: SentimentAnalysisRequest): Promise<SentimentResult> {
+  async analyzeText(
+    request: SentimentAnalysisRequest,
+  ): Promise<SentimentResult> {
     const startTime = Date.now();
 
     try {
@@ -79,7 +83,9 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
       const providerName = this.selectProvider(request);
       const provider = this.getProvider(providerName);
 
-      this.logger.debug(`使用 ${providerName} 提供商分析文本: ${request.text.substring(0, 50)}...`);
+      this.logger.debug(
+        `使用 ${providerName} 提供商分析文本: ${request.text.substring(0, 50)}...`,
+      );
 
       // 调用提供商进行分析
       const analysisResult = await provider.analyze(request.text, {
@@ -94,14 +100,20 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
         intensity: analysisResult.intensity || Math.abs(analysisResult.score),
         score: analysisResult.score,
         confidence: analysisResult.confidence,
-        targets: analysisResult.targets || this.extractTargets(request.text, request.target),
-        reasons: analysisResult.reasons || this.extractReasons(request.text, analysisResult.polarity),
+        targets:
+          analysisResult.targets ||
+          this.extractTargets(request.text, request.target),
+        reasons:
+          analysisResult.reasons ||
+          this.extractReasons(request.text, analysisResult.polarity),
         text: request.text,
         analyzedAt: new Date(),
       };
 
       const processingTime = Date.now() - startTime;
-      this.logger.debug(`情感分析完成: ${result.polarity} (${result.score}), 耗时: ${processingTime}ms`);
+      this.logger.debug(
+        `情感分析完成: ${result.polarity} (${result.score}), 耗时: ${processingTime}ms`,
+      );
 
       return result;
     } catch (error) {
@@ -113,7 +125,9 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
   /**
    * 批量分析文本情感
    */
-  async analyzeTexts(requests: SentimentAnalysisRequest[]): Promise<SentimentResult[]> {
+  async analyzeTexts(
+    requests: SentimentAnalysisRequest[],
+  ): Promise<SentimentResult[]> {
     const startTime = Date.now();
     const results: SentimentResult[] = [];
 
@@ -131,7 +145,7 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
 
       try {
         // 提取文本
-        const texts = groupRequests.map(req => req.text);
+        const texts = groupRequests.map((req) => req.text);
 
         // 批量分析
         const analysisResults = await provider.analyzeBatch(texts, {
@@ -146,11 +160,16 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
 
           const result: SentimentResult = {
             polarity: analysisResult.polarity,
-            intensity: analysisResult.intensity || Math.abs(analysisResult.score),
+            intensity:
+              analysisResult.intensity || Math.abs(analysisResult.score),
             score: analysisResult.score,
             confidence: analysisResult.confidence,
-            targets: analysisResult.targets || this.extractTargets(request.text, request.target),
-            reasons: analysisResult.reasons || this.extractReasons(request.text, analysisResult.polarity),
+            targets:
+              analysisResult.targets ||
+              this.extractTargets(request.text, request.target),
+            reasons:
+              analysisResult.reasons ||
+              this.extractReasons(request.text, analysisResult.polarity),
             text: request.text,
             analyzedAt: new Date(),
           };
@@ -178,7 +197,9 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
     }
 
     const processingTime = Date.now() - startTime;
-    this.logger.log(`批量分析完成: ${results.length} 个结果, 耗时: ${processingTime}ms`);
+    this.logger.log(
+      `批量分析完成: ${results.length} 个结果, 耗时: ${processingTime}ms`,
+    );
 
     return results;
   }
@@ -191,7 +212,7 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
     options?: {
       timeInterval?: 'hour' | 'day' | 'week' | 'month';
       industry?: string;
-    }
+    },
   ): Promise<SentimentTrendAnalysis> {
     const startTime = Date.now();
 
@@ -215,7 +236,7 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
         if (groupTexts.length === 0) continue;
 
         // 分析该时间段的所有文本
-        const requests: SentimentAnalysisRequest[] = groupTexts.map(item => ({
+        const requests: SentimentAnalysisRequest[] = groupTexts.map((item) => ({
           text: item.text,
           industry,
           platform: 'unknown',
@@ -224,11 +245,18 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
         const results = await this.analyzeTexts(requests);
 
         // 计算统计信息
-        const positiveCount = results.filter(r => r.polarity === 'positive').length;
-        const negativeCount = results.filter(r => r.polarity === 'negative').length;
-        const neutralCount = results.filter(r => r.polarity === 'neutral').length;
+        const positiveCount = results.filter(
+          (r) => r.polarity === 'positive',
+        ).length;
+        const negativeCount = results.filter(
+          (r) => r.polarity === 'negative',
+        ).length;
+        const neutralCount = results.filter(
+          (r) => r.polarity === 'neutral',
+        ).length;
 
-        const averageScore = results.reduce((sum, r) => sum + r.score, 0) / results.length;
+        const averageScore =
+          results.reduce((sum, r) => sum + r.score, 0) / results.length;
 
         const trendPoint = {
           timestamp: this.parseTimeLabel(timeLabel, interval),
@@ -277,7 +305,9 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
       };
 
       const processingTime = Date.now() - startTime;
-      this.logger.log(`情感趋势分析完成: ${trendPoints.length} 个时间点, 耗时: ${processingTime}ms`);
+      this.logger.log(
+        `情感趋势分析完成: ${trendPoints.length} 个时间点, 耗时: ${processingTime}ms`,
+      );
 
       return result;
     } catch (error) {
@@ -291,10 +321,10 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
    */
   async checkAlerts(
     texts: Array<{ text: string; timestamp: Date }>,
-    rules: SentimentAlertRule[]
+    rules: SentimentAlertRule[],
   ): Promise<SentimentAlert[]> {
     const alerts: SentimentAlert[] = [];
-    const enabledRules = rules.filter(rule => rule.enabled);
+    const enabledRules = rules.filter((rule) => rule.enabled);
 
     if (enabledRules.length === 0) {
       return alerts;
@@ -303,7 +333,7 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
     this.logger.log(`检查 ${enabledRules.length} 个预警规则`);
 
     // 分析文本情感
-    const requests: SentimentAnalysisRequest[] = texts.map(item => ({
+    const requests: SentimentAnalysisRequest[] = texts.map((item) => ({
       text: item.text,
       timestamp: item.timestamp,
     }));
@@ -360,9 +390,27 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
 
     // 简单提取：常见的情感对象关键词
     const targetKeywords = [
-      '产品', '服务', '质量', '价格', '客服', '物流', '包装',
-      '品牌', '公司', '商家', '店铺', '餐厅', '酒店', '景区',
-      '软件', '应用', '系统', '网站', '平台', '功能', '性能'
+      '产品',
+      '服务',
+      '质量',
+      '价格',
+      '客服',
+      '物流',
+      '包装',
+      '品牌',
+      '公司',
+      '商家',
+      '店铺',
+      '餐厅',
+      '酒店',
+      '景区',
+      '软件',
+      '应用',
+      '系统',
+      '网站',
+      '平台',
+      '功能',
+      '性能',
     ];
 
     for (const keyword of targetKeywords) {
@@ -377,7 +425,10 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
   /**
    * 提取情感原因
    */
-  private extractReasons(text: string, polarity: 'positive' | 'negative' | 'neutral'): string[] {
+  private extractReasons(
+    text: string,
+    polarity: 'positive' | 'negative' | 'neutral',
+  ): string[] {
     const reasons: string[] = [];
 
     // 简单的关键词匹配
@@ -404,7 +455,9 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
   /**
    * 分组请求
    */
-  private groupRequests(requests: SentimentAnalysisRequest[]): Map<string, SentimentAnalysisRequest[]> {
+  private groupRequests(
+    requests: SentimentAnalysisRequest[],
+  ): Map<string, SentimentAnalysisRequest[]> {
     const groups = new Map<string, SentimentAnalysisRequest[]>();
 
     for (const request of requests) {
@@ -426,7 +479,7 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
    */
   private groupByTimeInterval(
     texts: Array<{ text: string; timestamp: Date }>,
-    interval: 'hour' | 'day' | 'week' | 'month'
+    interval: 'hour' | 'day' | 'week' | 'month',
   ): Map<string, Array<{ text: string; timestamp: Date }>> {
     const groups = new Map<string, Array<{ text: string; timestamp: Date }>>();
 
@@ -446,7 +499,10 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
   /**
    * 获取时间标签
    */
-  private getTimeLabel(timestamp: Date, interval: 'hour' | 'day' | 'week' | 'month'): string {
+  private getTimeLabel(
+    timestamp: Date,
+    interval: 'hour' | 'day' | 'week' | 'month',
+  ): string {
     const date = new Date(timestamp);
 
     switch (interval) {
@@ -468,7 +524,10 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
   /**
    * 解析时间标签
    */
-  private parseTimeLabel(timeLabel: string, interval: 'hour' | 'day' | 'week' | 'month'): Date {
+  private parseTimeLabel(
+    timeLabel: string,
+    interval: 'hour' | 'day' | 'week' | 'month',
+  ): Date {
     try {
       switch (interval) {
         case 'hour':
@@ -493,7 +552,9 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
   /**
    * 计算趋势方向
    */
-  private calculateTrendDirection(trendPoints: any[]): 'rising' | 'falling' | 'stable' {
+  private calculateTrendDirection(
+    trendPoints: any[],
+  ): 'rising' | 'falling' | 'stable' {
     if (trendPoints.length < 2) {
       return 'stable';
     }
@@ -537,7 +598,9 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
     // 计算分数变化的幅度
     let totalChange = 0;
     for (let i = 1; i < trendPoints.length; i++) {
-      totalChange += Math.abs(trendPoints[i].averageScore - trendPoints[i - 1].averageScore);
+      totalChange += Math.abs(
+        trendPoints[i].averageScore - trendPoints[i - 1].averageScore,
+      );
     }
 
     // 归一化到0-1
@@ -590,14 +653,19 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
   /**
    * 检查单个规则
    */
-  private checkRule(rule: SentimentAlertRule, results: SentimentResult[]): SentimentAlert | null {
+  private checkRule(
+    rule: SentimentAlertRule,
+    results: SentimentResult[],
+  ): SentimentAlert | null {
     const { condition } = rule;
 
     // 根据时间窗口过滤结果
     let filteredResults = results;
     if (condition.timeWindow) {
-      const windowStart = new Date(Date.now() - condition.timeWindow * 60 * 1000);
-      filteredResults = results.filter(r => r.analyzedAt >= windowStart);
+      const windowStart = new Date(
+        Date.now() - condition.timeWindow * 60 * 1000,
+      );
+      filteredResults = results.filter((r) => r.analyzedAt >= windowStart);
     }
 
     // 检查最小样本数
@@ -610,13 +678,19 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
 
     switch (condition.metric) {
       case 'negative_ratio':
-        const negativeCount = filteredResults.filter(r => r.polarity === 'negative').length;
-        metricValue = filteredResults.length > 0 ? negativeCount / filteredResults.length : 0;
+        const negativeCount = filteredResults.filter(
+          (r) => r.polarity === 'negative',
+        ).length;
+        metricValue =
+          filteredResults.length > 0
+            ? negativeCount / filteredResults.length
+            : 0;
         break;
 
       case 'average_score':
         const totalScore = filteredResults.reduce((sum, r) => sum + r.score, 0);
-        metricValue = filteredResults.length > 0 ? totalScore / filteredResults.length : 0;
+        metricValue =
+          filteredResults.length > 0 ? totalScore / filteredResults.length : 0;
         break;
 
       case 'volume_spike':
@@ -630,18 +704,28 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
     }
 
     // 检查条件
-    const shouldAlert = this.evaluateCondition(metricValue, condition.operator, condition.threshold);
+    const shouldAlert = this.evaluateCondition(
+      metricValue,
+      condition.operator,
+      condition.threshold,
+    );
 
     if (shouldAlert) {
       // 收集相关文本示例
       const examples = filteredResults
         .slice(0, 3)
-        .map(r => r.text.substring(0, 50) + '...');
+        .map((r) => r.text.substring(0, 50) + '...');
 
       // 计算情感分布
-      const positiveCount = filteredResults.filter(r => r.polarity === 'positive').length;
-      const negativeCount = filteredResults.filter(r => r.polarity === 'negative').length;
-      const neutralCount = filteredResults.filter(r => r.polarity === 'neutral').length;
+      const positiveCount = filteredResults.filter(
+        (r) => r.polarity === 'positive',
+      ).length;
+      const negativeCount = filteredResults.filter(
+        (r) => r.polarity === 'negative',
+      ).length;
+      const neutralCount = filteredResults.filter(
+        (r) => r.polarity === 'neutral',
+      ).length;
 
       const alert: SentimentAlert = {
         id: `${rule.id}-${Date.now()}`,
@@ -663,7 +747,9 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
         status: 'active',
       };
 
-      this.logger.warn(`触发预警: ${rule.name}, 指标值: ${metricValue}, 阈值: ${condition.threshold}`);
+      this.logger.warn(
+        `触发预警: ${rule.name}, 指标值: ${metricValue}, 阈值: ${condition.threshold}`,
+      );
       return alert;
     }
 
@@ -673,7 +759,11 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
   /**
    * 评估条件
    */
-  private evaluateCondition(value: number, operator: string, threshold: number): boolean {
+  private evaluateCondition(
+    value: number,
+    operator: string,
+    threshold: number,
+  ): boolean {
     switch (operator) {
       case '>':
         return value > threshold;
@@ -694,8 +784,13 @@ export class SentimentAnalysisService implements ISentimentAnalysisService {
   /**
    * 获取所有提供商健康状态
    */
-  async getProvidersHealth(): Promise<Record<string, { healthy: boolean; message?: string }>> {
-    const healthResults: Record<string, { healthy: boolean; message?: string }> = {};
+  async getProvidersHealth(): Promise<
+    Record<string, { healthy: boolean; message?: string }>
+  > {
+    const healthResults: Record<
+      string,
+      { healthy: boolean; message?: string }
+    > = {};
 
     for (const [name, provider] of this.providers) {
       try {

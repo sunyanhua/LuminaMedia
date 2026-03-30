@@ -1,5 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { EventSubscriber, EntitySubscriberInterface, InsertEvent, UpdateEvent, RemoveEvent, QueryRunner, BeforeQueryEvent, AfterQueryEvent } from 'typeorm';
+import {
+  EventSubscriber,
+  EntitySubscriberInterface,
+  InsertEvent,
+  UpdateEvent,
+  RemoveEvent,
+  QueryRunner,
+  BeforeQueryEvent,
+  AfterQueryEvent,
+} from 'typeorm';
 import { MetricsCollectorService } from '../metrics/collectors/metrics-collector.service';
 
 @Injectable()
@@ -24,19 +33,18 @@ export class DatabaseMetricsSubscriber implements EntitySubscriberInterface {
    */
   afterQuery(event: AfterQueryEvent<any>): void {
     const queryRunner = event.queryRunner;
-    const startTime = queryRunner ? this.queryStartTimes.get(queryRunner) : undefined;
+    const startTime = queryRunner
+      ? this.queryStartTimes.get(queryRunner)
+      : undefined;
     if (startTime) {
       const duration = Date.now() - startTime;
 
       // 记录数据库查询指标
-      this.metricsCollector.recordDatabaseQuery(
-        'query',
-        'unknown',
-        duration,
-        true,
-      ).catch(error => {
-        this.logger.error('Failed to record database query metric', error);
-      });
+      this.metricsCollector
+        .recordDatabaseQuery('query', 'unknown', duration, true)
+        .catch((error) => {
+          this.logger.error('Failed to record database query metric', error);
+        });
 
       if (queryRunner) {
         this.queryStartTimes.delete(queryRunner);
@@ -55,7 +63,11 @@ export class DatabaseMetricsSubscriber implements EntitySubscriberInterface {
    * 插入操作后
    */
   afterInsert(event: InsertEvent<any>): void {
-    this.recordOperationMetric(event.queryRunner, 'insert', event.metadata.tableName);
+    this.recordOperationMetric(
+      event.queryRunner,
+      'insert',
+      event.metadata.tableName,
+    );
   }
 
   /**
@@ -69,7 +81,11 @@ export class DatabaseMetricsSubscriber implements EntitySubscriberInterface {
    * 更新操作后
    */
   afterUpdate(event: UpdateEvent<any>): void {
-    this.recordOperationMetric(event.queryRunner, 'update', event.metadata.tableName);
+    this.recordOperationMetric(
+      event.queryRunner,
+      'update',
+      event.metadata.tableName,
+    );
   }
 
   /**
@@ -83,25 +99,33 @@ export class DatabaseMetricsSubscriber implements EntitySubscriberInterface {
    * 删除操作后
    */
   afterRemove(event: RemoveEvent<any>): void {
-    this.recordOperationMetric(event.queryRunner, 'delete', event.metadata.tableName);
+    this.recordOperationMetric(
+      event.queryRunner,
+      'delete',
+      event.metadata.tableName,
+    );
   }
 
   /**
    * 记录操作指标
    */
-  private recordOperationMetric(queryRunner: QueryRunner, operation: string, table: string): void {
+  private recordOperationMetric(
+    queryRunner: QueryRunner,
+    operation: string,
+    table: string,
+  ): void {
     const startTime = this.queryStartTimes.get(queryRunner);
     if (startTime) {
       const duration = Date.now() - startTime;
 
-      this.metricsCollector.recordDatabaseQuery(
-        operation,
-        table,
-        duration,
-        true,
-      ).catch(error => {
-        this.logger.error('Failed to record database operation metric', error);
-      });
+      this.metricsCollector
+        .recordDatabaseQuery(operation, table, duration, true)
+        .catch((error) => {
+          this.logger.error(
+            'Failed to record database operation metric',
+            error,
+          );
+        });
 
       this.queryStartTimes.delete(queryRunner);
     }
@@ -110,18 +134,24 @@ export class DatabaseMetricsSubscriber implements EntitySubscriberInterface {
   /**
    * 记录慢查询警告
    */
-  private recordSlowQueryWarning(duration: number, operation: string, table: string): void {
-    if (duration > 1000) { // 超过1秒为慢查询
+  private recordSlowQueryWarning(
+    duration: number,
+    operation: string,
+    table: string,
+  ): void {
+    if (duration > 1000) {
+      // 超过1秒为慢查询
       this.logger.warn(`Slow database ${operation} on ${table}: ${duration}ms`);
 
       // 记录慢查询指标
-      this.metricsCollector.recordBusinessMetric(
-        'database_slow_queries_total',
-        1,
-        { operation, table },
-      ).catch(error => {
-        this.logger.debug('Failed to record slow query metric', error);
-      });
+      this.metricsCollector
+        .recordBusinessMetric('database_slow_queries_total', 1, {
+          operation,
+          table,
+        })
+        .catch((error) => {
+          this.logger.debug('Failed to record slow query metric', error);
+        });
     }
   }
 }

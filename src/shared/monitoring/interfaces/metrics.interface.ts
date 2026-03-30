@@ -18,10 +18,10 @@ export interface MetricValue {
  * 指标类型
  */
 export enum MetricType {
-  COUNTER = 'counter',      // 计数器（只增不减）
-  GAUGE = 'gauge',          // 仪表盘（可增可减）
-  HISTOGRAM = 'histogram',  // 直方图
-  SUMMARY = 'summary',      // 摘要
+  COUNTER = 'counter', // 计数器（只增不减）
+  GAUGE = 'gauge', // 仪表盘（可增可减）
+  HISTOGRAM = 'histogram', // 直方图
+  SUMMARY = 'summary', // 摘要
 }
 
 /**
@@ -52,17 +52,29 @@ export interface MetricsCollector {
   /**
    * 记录业务指标
    */
-  recordBusinessMetric(name: string, value: number, tags?: Record<string, string>): Promise<void>;
+  recordBusinessMetric(
+    name: string,
+    value: number,
+    tags?: Record<string, string>,
+  ): Promise<void>;
 
   /**
    * 获取指标值
    */
-  getMetric(name: string, tags?: Record<string, string>): Promise<MetricValue | null>;
+  getMetric(
+    name: string,
+    tags?: Record<string, string>,
+  ): Promise<MetricValue | null>;
 
   /**
    * 获取指标时间序列
    */
-  getTimeSeries(name: string, startTime: Date, endTime: Date, tags?: Record<string, string>): Promise<MetricValue[]>;
+  getTimeSeries(
+    name: string,
+    startTime: Date,
+    endTime: Date,
+    tags?: Record<string, string>,
+  ): Promise<MetricValue[]>;
 
   /**
    * 获取所有指标定义

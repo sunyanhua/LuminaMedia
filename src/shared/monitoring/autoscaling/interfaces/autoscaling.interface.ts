@@ -6,10 +6,10 @@
  * 扩缩容指标类型
  */
 export enum ScalingMetricType {
-  RESOURCE = 'resource',      // 资源指标（CPU、内存）
-  POD = 'pod',                // Pod指标（自定义Pod指标）
-  OBJECT = 'object',          // 对象指标（外部系统指标）
-  BUSINESS = 'business',      // 业务指标（请求数、用户数等）
+  RESOURCE = 'resource', // 资源指标（CPU、内存）
+  POD = 'pod', // Pod指标（自定义Pod指标）
+  OBJECT = 'object', // 对象指标（外部系统指标）
+  BUSINESS = 'business', // 业务指标（请求数、用户数等）
 }
 
 /**
@@ -114,10 +114,10 @@ export interface ScalingRule {
  * 扩缩容事件类型
  */
 export enum ScalingEventType {
-  SCALE_UP = 'scale_up',        // 扩容
-  SCALE_DOWN = 'scale_down',    // 缩容
-  NO_SCALE = 'no_scale',        // 无需扩缩容
-  ERROR = 'error',              // 错误
+  SCALE_UP = 'scale_up', // 扩容
+  SCALE_DOWN = 'scale_down', // 缩容
+  NO_SCALE = 'no_scale', // 无需扩缩容
+  ERROR = 'error', // 错误
 }
 
 /**
@@ -417,7 +417,10 @@ export interface ScalingDecisionEngine {
   /**
    * 获取所有规则的最新决策
    */
-  getRecentDecisions(ruleId?: string, limit?: number): Promise<ScalingDecision[]>;
+  getRecentDecisions(
+    ruleId?: string,
+    limit?: number,
+  ): Promise<ScalingDecision[]>;
 
   /**
    * 获取所有事件

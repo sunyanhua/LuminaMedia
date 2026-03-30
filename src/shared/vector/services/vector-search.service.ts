@@ -155,7 +155,12 @@ export class VectorSearchService implements IVectorSearchService {
     options: HybridSearchOptions,
   ): Promise<SearchResult[]> {
     try {
-      const { k = 5, filters, vectorWeight = 0.7, keywordWeight = 0.3 } = options;
+      const {
+        k = 5,
+        filters,
+        vectorWeight = 0.7,
+        keywordWeight = 0.3,
+      } = options;
 
       // 向量搜索部分
       const vectorResults = await this.searchSimilar(query, k * 2, filters);
@@ -221,7 +226,8 @@ export class VectorSearchService implements IVectorSearchService {
         const existing = resultMap.get(docId);
         if (existing) {
           // 如果文档已存在，更新分数
-          existing.score = (existing.score || 0) + result.similarity * keywordWeight;
+          existing.score =
+            (existing.score || 0) + result.similarity * keywordWeight;
         } else {
           // 添加新文档
           const weightedScore = result.similarity * keywordWeight;

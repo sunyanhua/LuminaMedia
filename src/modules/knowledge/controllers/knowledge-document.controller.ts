@@ -30,7 +30,12 @@ import {
   ApiNoContentResponse,
 } from '@nestjs/swagger';
 import { KnowledgeDocumentService } from '../services/knowledge-document.service';
-import { KnowledgeDocument, DocumentSourceType, DocumentStatus, DocumentProcessingStatus } from '../../../entities/knowledge-document.entity';
+import {
+  KnowledgeDocument,
+  DocumentSourceType,
+  DocumentStatus,
+  DocumentProcessingStatus,
+} from '../../../entities/knowledge-document.entity';
 import { DocumentImportOptions } from '../services/knowledge-document.service';
 
 // 请求和响应DTO
@@ -153,7 +158,9 @@ export class KnowledgeDocumentController {
   async createDocument(
     @Body() createDocumentDto: CreateDocumentDto,
   ): Promise<KnowledgeDocument> {
-    return await this.knowledgeDocumentService.createDocument(createDocumentDto);
+    return await this.knowledgeDocumentService.createDocument(
+      createDocumentDto,
+    );
   }
 
   /**
@@ -170,9 +177,7 @@ export class KnowledgeDocumentController {
     type: KnowledgeDocument,
   })
   @ApiResponse({ status: 404, description: '文档不存在' })
-  async getDocument(
-    @Param('id') id: string,
-  ): Promise<KnowledgeDocument> {
+  async getDocument(@Param('id') id: string): Promise<KnowledgeDocument> {
     return await this.knowledgeDocumentService.getDocument(id);
   }
 
@@ -195,7 +200,10 @@ export class KnowledgeDocumentController {
     @Param('id') id: string,
     @Body() updateDocumentDto: UpdateDocumentDto,
   ): Promise<KnowledgeDocument> {
-    return await this.knowledgeDocumentService.updateDocument(id, updateDocumentDto);
+    return await this.knowledgeDocumentService.updateDocument(
+      id,
+      updateDocumentDto,
+    );
   }
 
   /**
@@ -210,9 +218,7 @@ export class KnowledgeDocumentController {
   @ApiParam({ name: 'id', description: '文档ID' })
   @ApiNoContentResponse({ description: '删除成功' })
   @ApiResponse({ status: 404, description: '文档不存在' })
-  async deleteDocument(
-    @Param('id') id: string,
-  ): Promise<void> {
+  async deleteDocument(@Param('id') id: string): Promise<void> {
     await this.knowledgeDocumentService.deleteDocument(id);
   }
 
@@ -257,9 +263,23 @@ export class KnowledgeDocumentController {
   @ApiQuery({ name: 'category', required: false, description: '文档分类' })
   @ApiQuery({ name: 'sourceType', required: false, description: '来源类型' })
   @ApiQuery({ name: 'status', required: false, description: '文档状态' })
-  @ApiQuery({ name: 'tags', required: false, description: '标签数组（逗号分隔）' })
-  @ApiQuery({ name: 'limit', required: false, description: '每页数量', type: Number })
-  @ApiQuery({ name: 'offset', required: false, description: '偏移量', type: Number })
+  @ApiQuery({
+    name: 'tags',
+    required: false,
+    description: '标签数组（逗号分隔）',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: '每页数量',
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'offset',
+    required: false,
+    description: '偏移量',
+    type: Number,
+  })
   @ApiOkResponse({
     description: '搜索成功',
     schema: {
@@ -282,7 +302,9 @@ export class KnowledgeDocumentController {
     @Query('limit') limit?: number,
     @Query('offset') offset?: number,
   ): Promise<{ documents: KnowledgeDocument[]; total: number }> {
-    const tagArray = tags ? tags.split(',').map(tag => tag.trim()) : undefined;
+    const tagArray = tags
+      ? tags.split(',').map((tag) => tag.trim())
+      : undefined;
 
     return await this.knowledgeDocumentService.searchDocuments(query || '', {
       category,
@@ -348,8 +370,10 @@ export class KnowledgeDocumentController {
       storagePath: file.path, // 实际存储路径
     };
 
-    const tags = importFileDto.tags ?
-      (Array.isArray(importFileDto.tags) ? importFileDto.tags : importFileDto.tags.split(',').map(tag => tag.trim()))
+    const tags = importFileDto.tags
+      ? Array.isArray(importFileDto.tags)
+        ? importFileDto.tags
+        : importFileDto.tags.split(',').map((tag) => tag.trim())
       : undefined;
 
     return await this.knowledgeDocumentService.importFileDocument(fileInfo, {
@@ -378,13 +402,16 @@ export class KnowledgeDocumentController {
   async importUrlDocument(
     @Body() importUrlDto: ImportUrlDto,
   ): Promise<KnowledgeDocument> {
-    return await this.knowledgeDocumentService.importUrlDocument(importUrlDto.url, {
-      category: importUrlDto.category,
-      tags: importUrlDto.tags,
-      language: importUrlDto.language,
-      isPublic: importUrlDto.isPublic,
-      accessControl: importUrlDto.accessControl,
-    });
+    return await this.knowledgeDocumentService.importUrlDocument(
+      importUrlDto.url,
+      {
+        category: importUrlDto.category,
+        tags: importUrlDto.tags,
+        language: importUrlDto.language,
+        isPublic: importUrlDto.isPublic,
+        accessControl: importUrlDto.accessControl,
+      },
+    );
   }
 
   /**
@@ -403,17 +430,20 @@ export class KnowledgeDocumentController {
   async importApiDocument(
     @Body() importApiDto: ImportApiDto,
   ): Promise<KnowledgeDocument> {
-    return await this.knowledgeDocumentService.importApiDocument({
-      title: importApiDto.title,
-      content: importApiDto.content,
-      metadata: importApiDto.metadata,
-    }, {
-      category: importApiDto.category,
-      tags: importApiDto.tags,
-      language: importApiDto.language,
-      isPublic: importApiDto.isPublic,
-      accessControl: importApiDto.accessControl,
-    });
+    return await this.knowledgeDocumentService.importApiDocument(
+      {
+        title: importApiDto.title,
+        content: importApiDto.content,
+        metadata: importApiDto.metadata,
+      },
+      {
+        category: importApiDto.category,
+        tags: importApiDto.tags,
+        language: importApiDto.language,
+        isPublic: importApiDto.isPublic,
+        accessControl: importApiDto.accessControl,
+      },
+    );
   }
 
   /**
@@ -432,7 +462,9 @@ export class KnowledgeDocumentController {
   async batchImportDocuments(
     @Body() batchImportDto: BatchImportDto,
   ): Promise<KnowledgeDocument[]> {
-    return await this.knowledgeDocumentService.batchImportDocuments(batchImportDto.imports);
+    return await this.knowledgeDocumentService.batchImportDocuments(
+      batchImportDto.imports,
+    );
   }
 
   /**
@@ -443,12 +475,19 @@ export class KnowledgeDocumentController {
     summary: '处理待向量化文档',
     description: '批量处理待向量化的文档，将其添加到向量数据库',
   })
-  @ApiQuery({ name: 'batchSize', required: false, description: '批量大小', type: Number })
+  @ApiQuery({
+    name: 'batchSize',
+    required: false,
+    description: '批量大小',
+    type: Number,
+  })
   @ApiOkResponse({ description: '处理完成' })
   async processPendingDocuments(
     @Query('batchSize') batchSize?: number,
   ): Promise<void> {
-    await this.knowledgeDocumentService.processPendingDocuments(batchSize ? Number(batchSize) : undefined);
+    await this.knowledgeDocumentService.processPendingDocuments(
+      batchSize ? Number(batchSize) : undefined,
+    );
   }
 
   /**
@@ -542,7 +581,11 @@ export class KnowledgeDocumentController {
       },
     },
   })
-  async revectorizeAllDocuments(): Promise<{ total: number; processed: number; failed: number }> {
+  async revectorizeAllDocuments(): Promise<{
+    total: number;
+    processed: number;
+    failed: number;
+  }> {
     return await this.knowledgeDocumentService.revectorizeAllDocuments();
   }
 
@@ -567,7 +610,9 @@ export class KnowledgeDocumentController {
       },
     },
   })
-  async getAllCategories(): Promise<Array<{ category: string; count: number }>> {
+  async getAllCategories(): Promise<
+    Array<{ category: string; count: number }>
+  > {
     return await this.knowledgeDocumentService.getAllCategories();
   }
 
@@ -619,7 +664,10 @@ export class KnowledgeDocumentController {
     @Param('category') category: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ): Promise<{ updated: number }> {
-    return await this.knowledgeDocumentService.updateCategory(category, updateCategoryDto.newCategory);
+    return await this.knowledgeDocumentService.updateCategory(
+      category,
+      updateCategoryDto.newCategory,
+    );
   }
 
   /**
@@ -645,7 +693,10 @@ export class KnowledgeDocumentController {
     @Param('sourceTag') sourceTag: string,
     @Body() mergeTagsDto: MergeTagsDto,
   ): Promise<{ updated: number }> {
-    return await this.knowledgeDocumentService.mergeTags(sourceTag, mergeTagsDto.targetTag);
+    return await this.knowledgeDocumentService.mergeTags(
+      sourceTag,
+      mergeTagsDto.targetTag,
+    );
   }
 
   /**
@@ -657,7 +708,12 @@ export class KnowledgeDocumentController {
     description: '基于文档内容分析生成标签建议',
   })
   @ApiParam({ name: 'id', description: '文档ID' })
-  @ApiQuery({ name: 'limit', required: false, description: '建议数量限制', type: Number })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: '建议数量限制',
+    type: Number,
+  })
   @ApiOkResponse({
     description: '获取成功',
     schema: {
@@ -669,7 +725,10 @@ export class KnowledgeDocumentController {
     @Param('id') id: string,
     @Query('limit') limit?: number,
   ): Promise<string[]> {
-    return await this.knowledgeDocumentService.suggestTags(id, limit ? Number(limit) : undefined);
+    return await this.knowledgeDocumentService.suggestTags(
+      id,
+      limit ? Number(limit) : undefined,
+    );
   }
 
   /**
@@ -685,9 +744,7 @@ export class KnowledgeDocumentController {
     description: '获取成功',
     type: String,
   })
-  async suggestCategory(
-    @Param('id') id: string,
-  ): Promise<string | null> {
+  async suggestCategory(@Param('id') id: string): Promise<string | null> {
     return await this.knowledgeDocumentService.suggestCategory(id);
   }
 
@@ -766,9 +823,7 @@ export class KnowledgeDocumentController {
       },
     },
   })
-  async getProcessingStatus(
-    @Param('id') id: string,
-  ): Promise<{
+  async getProcessingStatus(@Param('id') id: string): Promise<{
     processingStatus: string;
     vectorId?: string;
     vectorizedAt?: Date;
@@ -794,9 +849,7 @@ export class KnowledgeDocumentController {
   @ApiParam({ name: 'id', description: '文档ID' })
   @ApiOkResponse({ description: '向量化任务已触发' })
   @ApiResponse({ status: 404, description: '文档不存在' })
-  async triggerVectorization(
-    @Param('id') id: string,
-  ): Promise<void> {
+  async triggerVectorization(@Param('id') id: string): Promise<void> {
     // 重置处理状态并触发向量化
     const document = await this.knowledgeDocumentService.getDocument(id);
     if (document.status !== DocumentStatus.ACTIVE) {

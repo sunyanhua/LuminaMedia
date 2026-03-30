@@ -47,18 +47,46 @@ export class ComplianceCheckService {
 
   // 必需元素映射
   private readonly requiredElements: Record<GovernmentContentType, string[]> = {
-    [GovernmentContentType.OFFICIAL_DOCUMENT]: ['issuingAuthority', 'title', 'issueDate'],
-    [GovernmentContentType.ANTI_FRAUD]: ['title', 'fraudType', 'preventionMeasures', 'reportingChannels'],
-    [GovernmentContentType.POLICY_INTERPRETATION]: ['policyName', 'issuingAuthority', 'keyPoints'],
-    [GovernmentContentType.GOVERNMENT_SERVICE]: ['serviceName', 'responsibleDepartment', 'procedures'],
-    [GovernmentContentType.PUBLIC_ANNOUNCEMENT]: ['title', 'issuingUnit', 'content'],
-    [GovernmentContentType.EMERGENCY_RESPONSE]: ['title', 'issuingUnit', 'eventType', 'responseMeasures'],
+    [GovernmentContentType.OFFICIAL_DOCUMENT]: [
+      'issuingAuthority',
+      'title',
+      'issueDate',
+    ],
+    [GovernmentContentType.ANTI_FRAUD]: [
+      'title',
+      'fraudType',
+      'preventionMeasures',
+      'reportingChannels',
+    ],
+    [GovernmentContentType.POLICY_INTERPRETATION]: [
+      'policyName',
+      'issuingAuthority',
+      'keyPoints',
+    ],
+    [GovernmentContentType.GOVERNMENT_SERVICE]: [
+      'serviceName',
+      'responsibleDepartment',
+      'procedures',
+    ],
+    [GovernmentContentType.PUBLIC_ANNOUNCEMENT]: [
+      'title',
+      'issuingUnit',
+      'content',
+    ],
+    [GovernmentContentType.EMERGENCY_RESPONSE]: [
+      'title',
+      'issuingUnit',
+      'eventType',
+      'responseMeasures',
+    ],
   };
 
   /**
    * 检查政府内容合规性
    */
-  async checkCompliance(content: GovernmentContent): Promise<ComplianceCheckResult> {
+  async checkCompliance(
+    content: GovernmentContent,
+  ): Promise<ComplianceCheckResult> {
     this.logger.log(`Checking compliance for content type: ${content.type}`);
 
     const items: ComplianceCheckItem[] = [];
@@ -67,31 +95,36 @@ export class ComplianceCheckService {
     const suggestions: string[] = [];
 
     // 通用检查项
-    items.push(...await this.checkGeneralCompliance(content));
+    items.push(...(await this.checkGeneralCompliance(content)));
 
     // 类型特定检查项
     switch (content.type) {
       case GovernmentContentType.OFFICIAL_DOCUMENT:
-        items.push(...await this.checkOfficialDocumentCompliance(content as OfficialDocument));
+        items.push(...(await this.checkOfficialDocumentCompliance(content)));
         break;
       case GovernmentContentType.ANTI_FRAUD:
-        items.push(...await this.checkAntiFraudCompliance(content as AntiFraudContent));
+        items.push(...(await this.checkAntiFraudCompliance(content)));
         break;
       case GovernmentContentType.POLICY_INTERPRETATION:
-        items.push(...await this.checkPolicyInterpretationCompliance(content as PolicyInterpretationContent));
+        items.push(
+          ...(await this.checkPolicyInterpretationCompliance(content)),
+        );
         break;
       // 其他类型的检查可以后续添加
     }
 
     // 分析检查结果
-    const passedItems = items.filter(item => item.passed).length;
+    const passedItems = items.filter((item) => item.passed).length;
     const totalItems = items.length;
-    const score = totalItems > 0 ? Math.round((passedItems / totalItems) * 100) : 100;
+    const score =
+      totalItems > 0 ? Math.round((passedItems / totalItems) * 100) : 100;
 
     // 识别必须修复的问题
-    const highSeverityFailedItems = items.filter(item => !item.passed && item.severity === 'high');
+    const highSeverityFailedItems = items.filter(
+      (item) => !item.passed && item.severity === 'high',
+    );
     if (highSeverityFailedItems.length > 0) {
-      requiredFixes.push(...highSeverityFailedItems.map(item => item.name));
+      requiredFixes.push(...highSeverityFailedItems.map((item) => item.name));
       warnings.push('存在高风险合规问题，必须修复后才能发布');
     }
 
@@ -122,18 +155,23 @@ export class ComplianceCheckService {
   /**
    * 通用合规性检查
    */
-  private async checkGeneralCompliance(content: any): Promise<ComplianceCheckItem[]> {
+  private async checkGeneralCompliance(
+    content: any,
+  ): Promise<ComplianceCheckItem[]> {
     const items: ComplianceCheckItem[] = [];
 
     // 1. 敏感词检查
-    const sensitiveWordsFound = this.findSensitiveWords(JSON.stringify(content));
+    const sensitiveWordsFound = this.findSensitiveWords(
+      JSON.stringify(content),
+    );
     items.push({
       name: '敏感词检查',
       description: '检查是否包含敏感词汇',
       passed: sensitiveWordsFound.length === 0,
-      details: sensitiveWordsFound.length > 0
-        ? `发现敏感词: ${sensitiveWordsFound.join(', ')}`
-        : '未发现敏感词汇',
+      details:
+        sensitiveWordsFound.length > 0
+          ? `发现敏感词: ${sensitiveWordsFound.join(', ')}`
+          : '未发现敏感词汇',
       severity: 'high',
     });
 
@@ -170,9 +208,10 @@ export class ComplianceCheckService {
       name: '信息完整性',
       description: '检查是否包含所有必要信息',
       passed: missingElements.length === 0,
-      details: missingElements.length > 0
-        ? `缺少必要元素: ${missingElements.join(', ')}`
-        : '信息完整',
+      details:
+        missingElements.length > 0
+          ? `缺少必要元素: ${missingElements.join(', ')}`
+          : '信息完整',
       severity: 'medium',
     });
 
@@ -200,11 +239,15 @@ export class ComplianceCheckService {
   /**
    * 检查政府公文合规性
    */
-  private async checkOfficialDocumentCompliance(document: OfficialDocument): Promise<ComplianceCheckItem[]> {
+  private async checkOfficialDocumentCompliance(
+    document: OfficialDocument,
+  ): Promise<ComplianceCheckItem[]> {
     const items: ComplianceCheckItem[] = [];
 
     // 1. 发文机关合法性
-    const isValidAuthority = this.validateGovernmentAuthority(document.header.issuingAuthority);
+    const isValidAuthority = this.validateGovernmentAuthority(
+      document.header.issuingAuthority,
+    );
     items.push({
       name: '发文机关合法性',
       description: '检查发文机关是否合法有效',
@@ -214,7 +257,9 @@ export class ComplianceCheckService {
     });
 
     // 2. 文号规范性
-    const isValidDocumentNumber = this.validateDocumentNumber(document.header.documentNumber);
+    const isValidDocumentNumber = this.validateDocumentNumber(
+      document.header.documentNumber,
+    );
     items.push({
       name: '文号规范性',
       description: '检查发文字号是否符合规范',
@@ -224,7 +269,10 @@ export class ComplianceCheckService {
     });
 
     // 3. 标题准确性
-    const isTitleAccurate = this.validateDocumentTitle(document.header.title, document.header.issuingAuthority);
+    const isTitleAccurate = this.validateDocumentTitle(
+      document.header.title,
+      document.header.issuingAuthority,
+    );
     items.push({
       name: '标题准确性',
       description: '检查标题是否准确反映内容',
@@ -271,21 +319,27 @@ export class ComplianceCheckService {
   /**
    * 检查防诈骗内容合规性
    */
-  private async checkAntiFraudCompliance(content: AntiFraudContent): Promise<ComplianceCheckItem[]> {
+  private async checkAntiFraudCompliance(
+    content: AntiFraudContent,
+  ): Promise<ComplianceCheckItem[]> {
     const items: ComplianceCheckItem[] = [];
 
     // 1. 诈骗类型明确性
-    const hasFraudType = !!content.fraudType && content.fraudType.trim().length > 0;
+    const hasFraudType =
+      !!content.fraudType && content.fraudType.trim().length > 0;
     items.push({
       name: '诈骗类型明确性',
       description: '检查是否明确诈骗类型',
       passed: hasFraudType,
-      details: hasFraudType ? `诈骗类型: ${content.fraudType}` : '未明确诈骗类型',
+      details: hasFraudType
+        ? `诈骗类型: ${content.fraudType}`
+        : '未明确诈骗类型',
       severity: 'high',
     });
 
     // 2. 案例真实性
-    const hasRealCase = !!content.recentCase && content.recentCase.trim().length > 0;
+    const hasRealCase =
+      !!content.recentCase && content.recentCase.trim().length > 0;
     items.push({
       name: '案例真实性',
       description: '检查是否提供真实案例',
@@ -344,21 +398,28 @@ export class ComplianceCheckService {
   /**
    * 检查政策解读合规性
    */
-  private async checkPolicyInterpretationCompliance(content: PolicyInterpretationContent): Promise<ComplianceCheckItem[]> {
+  private async checkPolicyInterpretationCompliance(
+    content: PolicyInterpretationContent,
+  ): Promise<ComplianceCheckItem[]> {
     const items: ComplianceCheckItem[] = [];
 
     // 1. 政策名称准确性
-    const hasPolicyName = !!content.policyName && content.policyName.trim().length > 0;
+    const hasPolicyName =
+      !!content.policyName && content.policyName.trim().length > 0;
     items.push({
       name: '政策名称准确性',
       description: '检查政策名称是否准确',
       passed: hasPolicyName,
-      details: hasPolicyName ? `政策名称: ${content.policyName}` : '未明确政策名称',
+      details: hasPolicyName
+        ? `政策名称: ${content.policyName}`
+        : '未明确政策名称',
       severity: 'high',
     });
 
     // 2. 发文机关权威性
-    const isAuthorityValid = this.validateGovernmentAuthority(content.issuingAuthority);
+    const isAuthorityValid = this.validateGovernmentAuthority(
+      content.issuingAuthority,
+    );
     items.push({
       name: '发文机关权威性',
       description: '检查发文机关是否具有权威性',
@@ -380,7 +441,8 @@ export class ComplianceCheckService {
     });
 
     // 4. 解读准确性
-    const isInterpretationAccurate = await this.checkInterpretationAccuracy(content);
+    const isInterpretationAccurate =
+      await this.checkInterpretationAccuracy(content);
     items.push({
       name: '解读准确性',
       description: '检查政策解读是否准确',
@@ -464,7 +526,10 @@ export class ComplianceCheckService {
     const required = this.requiredElements[content.type] || [];
 
     for (const element of required) {
-      if (!content[element] || (Array.isArray(content[element]) && content[element].length === 0)) {
+      if (
+        !content[element] ||
+        (Array.isArray(content[element]) && content[element].length === 0)
+      ) {
         missing.push(element);
       }
     }
@@ -567,7 +632,9 @@ export class ComplianceCheckService {
   /**
    * 检查解读准确性
    */
-  private async checkInterpretationAccuracy(content: PolicyInterpretationContent): Promise<boolean> {
+  private async checkInterpretationAccuracy(
+    content: PolicyInterpretationContent,
+  ): Promise<boolean> {
     // 简化实现：假设解读准确
     // 实际应用中应该对照政策原文检查解读准确性
     return true;
@@ -600,7 +667,9 @@ export class ComplianceCheckService {
   /**
    * 批量检查合规性
    */
-  async batchCheckCompliance(contents: GovernmentContent[]): Promise<ComplianceCheckResult[]> {
+  async batchCheckCompliance(
+    contents: GovernmentContent[],
+  ): Promise<ComplianceCheckResult[]> {
     const results: ComplianceCheckResult[] = [];
 
     for (const content of contents) {
@@ -608,7 +677,9 @@ export class ComplianceCheckService {
         const result = await this.checkCompliance(content);
         results.push(result);
       } catch (error) {
-        this.logger.error(`Failed to check compliance for content: ${error.message}`);
+        this.logger.error(
+          `Failed to check compliance for content: ${error.message}`,
+        );
         results.push({
           passed: false,
           score: 0,
@@ -631,11 +702,17 @@ export class ComplianceCheckService {
     passed: number;
     failed: number;
     averageScore: number;
-    typeBreakdown: Record<string, { total: number; passed: number; averageScore: number }>;
+    typeBreakdown: Record<
+      string,
+      { total: number; passed: number; averageScore: number }
+    >;
   }> {
     const results = await this.batchCheckCompliance(contents);
 
-    const typeBreakdown: Record<string, { total: number; passed: number; averageScore: number }> = {};
+    const typeBreakdown: Record<
+      string,
+      { total: number; passed: number; averageScore: number }
+    > = {};
 
     let totalScore = 0;
     let passedCount = 0;
@@ -663,7 +740,9 @@ export class ComplianceCheckService {
     // 计算平均分
     for (const type in typeBreakdown) {
       if (typeBreakdown[type].total > 0) {
-        typeBreakdown[type].averageScore = Math.round(typeBreakdown[type].averageScore / typeBreakdown[type].total);
+        typeBreakdown[type].averageScore = Math.round(
+          typeBreakdown[type].averageScore / typeBreakdown[type].total,
+        );
       }
     }
 
@@ -671,7 +750,8 @@ export class ComplianceCheckService {
       total: contents.length,
       passed: passedCount,
       failed: contents.length - passedCount,
-      averageScore: contents.length > 0 ? Math.round(totalScore / contents.length) : 0,
+      averageScore:
+        contents.length > 0 ? Math.round(totalScore / contents.length) : 0,
       typeBreakdown,
     };
   }

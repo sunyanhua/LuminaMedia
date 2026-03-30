@@ -1,13 +1,30 @@
-import { Controller, Get, Post, Body, Param, Query, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { GovernmentContentService } from '../services/government-content.service';
 import { ComplianceCheckService } from '../services/compliance-check.service';
+import type {
+  GovernmentContentRequest,
+  GovernmentContentResponse,
+} from '../interfaces/government-content.interface';
 import {
   GovernmentContentType,
   GovernmentContentStyle,
   ComplianceLevel,
-  GovernmentContentRequest,
-  GovernmentContentResponse,
   GovernmentContent,
   GovernmentContentTemplate,
   GovernmentScenarioScript,
@@ -37,7 +54,9 @@ export class GovernmentController {
   })
   @ApiResponse({ status: 200, description: '内容生成成功', type: Object })
   @ApiResponse({ status: 400, description: '请求参数错误' })
-  async generateContent(@Body() request: GovernmentContentRequest): Promise<GovernmentContentResponse> {
+  async generateContent(
+    @Body() request: GovernmentContentRequest,
+  ): Promise<GovernmentContentResponse> {
     return await this.governmentContentService.generateContent(request);
   }
 
@@ -92,9 +111,11 @@ export class GovernmentController {
   })
   @ApiParam({ name: 'templateId', description: '模板ID' })
   @ApiResponse({ status: 200, description: '成功获取模板详情', type: Object })
-  async getTemplate(@Param('templateId') templateId: string): Promise<GovernmentContentTemplate | null> {
+  async getTemplate(
+    @Param('templateId') templateId: string,
+  ): Promise<GovernmentContentTemplate | null> {
     const templates = await this.governmentContentService.getTemplates();
-    return templates.find(template => template.id === templateId) || null;
+    return templates.find((template) => template.id === templateId) || null;
   }
 
   /**
@@ -120,9 +141,11 @@ export class GovernmentController {
   })
   @ApiParam({ name: 'scriptId', description: '剧本ID' })
   @ApiResponse({ status: 200, description: '成功获取剧本详情', type: Object })
-  async getScript(@Param('scriptId') scriptId: string): Promise<GovernmentScenarioScript | null> {
+  async getScript(
+    @Param('scriptId') scriptId: string,
+  ): Promise<GovernmentScenarioScript | null> {
     const scripts = await this.governmentContentService.getScripts();
-    return scripts.find(script => script.id === scriptId) || null;
+    return scripts.find((script) => script.id === scriptId) || null;
   }
 
   /**
@@ -135,7 +158,11 @@ export class GovernmentController {
     description: '执行指定的政府场景演示剧本',
   })
   @ApiParam({ name: 'scriptId', description: '剧本ID' })
-  @ApiQuery({ name: 'speed', required: false, description: '执行速度（1=正常，2=快速）' })
+  @ApiQuery({
+    name: 'speed',
+    required: false,
+    description: '执行速度（1=正常，2=快速）',
+  })
   @ApiResponse({ status: 200, description: '剧本执行完成', type: Object })
   async executeScript(
     @Param('scriptId') scriptId: string,
@@ -147,7 +174,7 @@ export class GovernmentController {
     totalDuration: number;
   }> {
     const scripts = await this.governmentContentService.getScripts();
-    const script = scripts.find(s => s.id === scriptId);
+    const script = scripts.find((s) => s.id === scriptId);
 
     if (!script) {
       return {
@@ -159,15 +186,22 @@ export class GovernmentController {
     }
 
     // 模拟执行剧本步骤
-    const steps: Array<{ step: number; name: string; result: any; duration: number }> = [];
+    const steps: Array<{
+      step: number;
+      name: string;
+      result: any;
+      duration: number;
+    }> = [];
     let totalDuration = 0;
 
     for (const step of script.steps) {
       const stepStartTime = Date.now();
 
       // 模拟步骤执行
-      await new Promise(resolve => {
-        const duration = step.timeAllocation ? step.timeAllocation * 1000 / parseInt(speed) : 1000;
+      await new Promise((resolve) => {
+        const duration = step.timeAllocation
+          ? (step.timeAllocation * 1000) / parseInt(speed)
+          : 1000;
         setTimeout(resolve, duration);
       });
 
@@ -215,9 +249,17 @@ export class GovernmentController {
     summary: '获取内容类型枚举',
     description: '获取所有支持的政府内容类型',
   })
-  @ApiResponse({ status: 200, description: '成功获取内容类型枚举', type: Object })
+  @ApiResponse({
+    status: 200,
+    description: '成功获取内容类型枚举',
+    type: Object,
+  })
   async getContentTypes(): Promise<{
-    types: Array<{ value: GovernmentContentType; label: string; description: string }>;
+    types: Array<{
+      value: GovernmentContentType;
+      label: string;
+      description: string;
+    }>;
   }> {
     const types = [
       {
@@ -263,9 +305,17 @@ export class GovernmentController {
     summary: '获取内容风格枚举',
     description: '获取所有支持的政府内容风格',
   })
-  @ApiResponse({ status: 200, description: '成功获取内容风格枚举', type: Object })
+  @ApiResponse({
+    status: 200,
+    description: '成功获取内容风格枚举',
+    type: Object,
+  })
   async getContentStyles(): Promise<{
-    styles: Array<{ value: GovernmentContentStyle; label: string; description: string }>;
+    styles: Array<{
+      value: GovernmentContentStyle;
+      label: string;
+      description: string;
+    }>;
   }> {
     const styles = [
       {
@@ -306,9 +356,17 @@ export class GovernmentController {
     summary: '获取合规级别枚举',
     description: '获取所有支持的合规级别',
   })
-  @ApiResponse({ status: 200, description: '成功获取合规级别枚举', type: Object })
+  @ApiResponse({
+    status: 200,
+    description: '成功获取合规级别枚举',
+    type: Object,
+  })
   async getComplianceLevels(): Promise<{
-    levels: Array<{ value: ComplianceLevel; label: string; description: string }>;
+    levels: Array<{
+      value: ComplianceLevel;
+      label: string;
+      description: string;
+    }>;
   }> {
     const levels = [
       {
@@ -340,10 +398,19 @@ export class GovernmentController {
     summary: '测试内容生成',
     description: '生成示例内容用于测试',
   })
-  @ApiQuery({ name: 'type', required: false, description: '内容类型，默认为公文发布' })
+  @ApiQuery({
+    name: 'type',
+    required: false,
+    description: '内容类型，默认为公文发布',
+  })
   @ApiResponse({ status: 200, description: '测试内容生成成功', type: Object })
-  async testGenerate(@Query('type') type = GovernmentContentType.OFFICIAL_DOCUMENT): Promise<GovernmentContentResponse> {
-    const sampleRequests: Record<GovernmentContentType, GovernmentContentRequest> = {
+  async testGenerate(
+    @Query('type') type = GovernmentContentType.OFFICIAL_DOCUMENT,
+  ): Promise<GovernmentContentResponse> {
+    const sampleRequests: Record<
+      GovernmentContentType,
+      GovernmentContentRequest
+    > = {
       [GovernmentContentType.OFFICIAL_DOCUMENT]: {
         contentType: GovernmentContentType.OFFICIAL_DOCUMENT,
         theme: '关于加强安全生产工作的通知',
@@ -392,7 +459,9 @@ export class GovernmentController {
       },
     };
 
-    const request = sampleRequests[type] || sampleRequests[GovernmentContentType.OFFICIAL_DOCUMENT];
+    const request =
+      sampleRequests[type] ||
+      sampleRequests[GovernmentContentType.OFFICIAL_DOCUMENT];
     return await this.governmentContentService.generateContent(request);
   }
 }

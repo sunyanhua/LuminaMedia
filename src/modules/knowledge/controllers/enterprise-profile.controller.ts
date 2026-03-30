@@ -143,9 +143,7 @@ export class EnterpriseProfileController {
   })
   @ApiResponse({ status: 404, description: '企业画像不存在' })
   @ApiResponse({ status: 400, description: '画像正在分析中' })
-  async reanalyzeProfile(
-    @Param('id') id: string,
-  ): Promise<EnterpriseProfile> {
+  async reanalyzeProfile(@Param('id') id: string): Promise<EnterpriseProfile> {
     return await this.enterpriseProfileAnalysisService.reanalyzeProfile(id);
   }
 
@@ -171,9 +169,7 @@ export class EnterpriseProfileController {
       },
     },
   })
-  async getAnalysisStatus(
-    @Param('id') id: string,
-  ): Promise<{
+  async getAnalysisStatus(@Param('id') id: string): Promise<{
     status: string;
     progress: number;
     estimatedTime?: number;
@@ -261,7 +257,9 @@ export class EnterpriseProfileController {
       },
     },
   })
-  async getIndustryStats(): Promise<Array<{ industry: string; count: number }>> {
+  async getIndustryStats(): Promise<
+    Array<{ industry: string; count: number }>
+  > {
     // TODO: 从repository获取统计信息
     return [
       { industry: '科技', count: 25 },

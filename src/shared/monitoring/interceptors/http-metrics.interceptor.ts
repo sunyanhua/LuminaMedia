@@ -1,4 +1,10 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+  Logger,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { MetricsCollectorService } from '../metrics/collectors/metrics-collector.service';
@@ -31,37 +37,33 @@ export class HttpMetricsInterceptor implements NestInterceptor {
           const statusCode = response.statusCode;
 
           // 记录HTTP指标
-          this.metricsCollector.recordHttpRequest(
-            method,
-            path,
-            statusCode,
-            duration,
-          ).catch(error => {
-            this.logger.error('Failed to record HTTP metrics', error);
-          });
+          this.metricsCollector
+            .recordHttpRequest(method, path, statusCode, duration)
+            .catch((error) => {
+              this.logger.error('Failed to record HTTP metrics', error);
+            });
 
           // 记录到APM
-          this.metricsCollector.recordBusinessMetric(
-            'http_request_duration_ms',
-            duration,
-            { method, path, status_code: statusCode.toString() },
-          ).catch(error => {
-            this.logger.debug('Failed to record APM metric', error);
-          });
+          this.metricsCollector
+            .recordBusinessMetric('http_request_duration_ms', duration, {
+              method,
+              path,
+              status_code: statusCode.toString(),
+            })
+            .catch((error) => {
+              this.logger.debug('Failed to record APM metric', error);
+            });
         },
         error: (error) => {
           const duration = Date.now() - startTime;
           const statusCode = error.status || 500;
 
           // 即使出错也记录指标
-          this.metricsCollector.recordHttpRequest(
-            method,
-            path,
-            statusCode,
-            duration,
-          ).catch(err => {
-            this.logger.error('Failed to record HTTP error metrics', err);
-          });
+          this.metricsCollector
+            .recordHttpRequest(method, path, statusCode, duration)
+            .catch((err) => {
+              this.logger.error('Failed to record HTTP error metrics', err);
+            });
         },
       }),
     );
@@ -71,7 +73,7 @@ export class HttpMetricsInterceptor implements NestInterceptor {
    * 检查是否应排除路径
    */
   private shouldExclude(path: string): boolean {
-    return this.excludedPaths.some(excluded => path.startsWith(excluded));
+    return this.excludedPaths.some((excluded) => path.startsWith(excluded));
   }
 
   /**
@@ -79,7 +81,8 @@ export class HttpMetricsInterceptor implements NestInterceptor {
    */
   private normalizePath(path: string): string {
     // 将UUID替换为 :id
-    const uuidRegex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+    const uuidRegex =
+      /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
     const numberRegex = /\d+/g;
 
     let normalized = path;

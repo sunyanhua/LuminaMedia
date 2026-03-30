@@ -113,21 +113,29 @@ export class EnterpriseProfileAnalysisService {
   /**
    * 创建企业画像分析任务
    */
-  async createAnalysisTask(customerProfileId: string): Promise<EnterpriseProfile> {
-    this.logger.log(`创建企业画像分析任务: customerProfileId=${customerProfileId}`);
+  async createAnalysisTask(
+    customerProfileId: string,
+  ): Promise<EnterpriseProfile> {
+    this.logger.log(
+      `创建企业画像分析任务: customerProfileId=${customerProfileId}`,
+    );
 
     // 检查客户档案是否存在
-    const customerProfile = await this.customerProfileRepository.findById(customerProfileId);
+    const customerProfile =
+      await this.customerProfileRepository.findById(customerProfileId);
     if (!customerProfile) {
       throw new NotFoundException(`客户档案不存在: ${customerProfileId}`);
     }
 
     // 检查是否已有当前版本的企业画像
-    const existingProfile = await this.enterpriseProfileRepository.findCurrentByCustomerProfileId(
-      customerProfileId,
-    );
+    const existingProfile =
+      await this.enterpriseProfileRepository.findCurrentByCustomerProfileId(
+        customerProfileId,
+      );
     if (existingProfile) {
-      this.logger.warn(`已有当前版本的企业画像，将创建新版本: ${existingProfile.id}`);
+      this.logger.warn(
+        `已有当前版本的企业画像，将创建新版本: ${existingProfile.id}`,
+      );
     }
 
     // 创建新的企业画像记录
@@ -145,7 +153,8 @@ export class EnterpriseProfileAnalysisService {
       previousVersionId: existingProfile?.id || null,
     } as any);
 
-    const savedProfile = await this.enterpriseProfileRepository.save(enterpriseProfile);
+    const savedProfile =
+      await this.enterpriseProfileRepository.save(enterpriseProfile);
     // TypeORM的save方法可能返回数组，确保获取单个实体
     const result = Array.isArray(savedProfile) ? savedProfile[0] : savedProfile;
     this.logger.log(`企业画像记录创建成功: ${result.id}`);
@@ -213,11 +222,12 @@ export class EnterpriseProfileAnalysisService {
     // TODO: 从知识库检索相关行业知识
     // 使用KnowledgeRetrievalService检索行业相关知识
     const industry = profile.industry;
-    const knowledge = await this.knowledgeRetrievalService.retrieveRelevantKnowledge(
-      `企业画像分析 ${industry} 行业`,
-      industry,
-      10,
-    );
+    const knowledge =
+      await this.knowledgeRetrievalService.retrieveRelevantKnowledge(
+        `企业画像分析 ${industry} 行业`,
+        industry,
+        10,
+      );
 
     // 存储检索到的知识（可存入analysisReport）
     const analysisReport = {
@@ -247,9 +257,13 @@ export class EnterpriseProfileAnalysisService {
     });
 
     // 获取客户档案数据
-    const customerProfile = await this.customerProfileRepository.findById(profile.customerProfileId);
+    const customerProfile = await this.customerProfileRepository.findById(
+      profile.customerProfileId,
+    );
     if (!customerProfile) {
-      throw new NotFoundException(`客户档案不存在: ${profile.customerProfileId}`);
+      throw new NotFoundException(
+        `客户档案不存在: ${profile.customerProfileId}`,
+      );
     }
 
     // 从客户档案中提取基础特征
@@ -265,9 +279,12 @@ export class EnterpriseProfileAnalysisService {
     // 这里暂时使用模拟数据
     const extractedFeatures = {
       basicFeatures,
-      industryCharacteristics: this.extractIndustryCharacteristics(customerProfile.industry),
+      industryCharacteristics: this.extractIndustryCharacteristics(
+        customerProfile.industry,
+      ),
       competitivePosition: this.analyzeCompetitivePosition(basicFeatures),
-      contentStrategyPatterns: this.identifyContentStrategyPatterns(basicFeatures),
+      contentStrategyPatterns:
+        this.identifyContentStrategyPatterns(basicFeatures),
     };
 
     // 更新分析报告
@@ -389,15 +406,23 @@ export class EnterpriseProfileAnalysisService {
   /**
    * 获取客户档案的企业画像列表
    */
-  async getProfilesByCustomer(customerProfileId: string): Promise<EnterpriseProfile[]> {
-    return this.enterpriseProfileRepository.findByCustomerProfileId(customerProfileId);
+  async getProfilesByCustomer(
+    customerProfileId: string,
+  ): Promise<EnterpriseProfile[]> {
+    return this.enterpriseProfileRepository.findByCustomerProfileId(
+      customerProfileId,
+    );
   }
 
   /**
    * 获取当前版本的企业画像
    */
-  async getCurrentProfile(customerProfileId: string): Promise<EnterpriseProfile | null> {
-    return this.enterpriseProfileRepository.findCurrentByCustomerProfileId(customerProfileId);
+  async getCurrentProfile(
+    customerProfileId: string,
+  ): Promise<EnterpriseProfile | null> {
+    return this.enterpriseProfileRepository.findCurrentByCustomerProfileId(
+      customerProfileId,
+    );
   }
 
   /**
@@ -436,7 +461,9 @@ export class EnterpriseProfileAnalysisService {
   /**
    * 批量分析企业画像
    */
-  async batchAnalyzeProfiles(customerProfileIds: string[]): Promise<EnterpriseProfile[]> {
+  async batchAnalyzeProfiles(
+    customerProfileIds: string[],
+  ): Promise<EnterpriseProfile[]> {
     const results: EnterpriseProfile[] = [];
     for (const profileId of customerProfileIds) {
       try {
@@ -452,7 +479,9 @@ export class EnterpriseProfileAnalysisService {
   /**
    * 提取行业特征
    */
-  private extractIndustryCharacteristics(industry: string): Record<string, any> {
+  private extractIndustryCharacteristics(
+    industry: string,
+  ): Record<string, any> {
     // 模拟行业特征提取
     const characteristics: Record<string, any> = {
       电商: {
@@ -477,11 +506,13 @@ export class EnterpriseProfileAnalysisService {
       },
     };
 
-    return characteristics[industry] || {
-      keyTrends: ['数字化转型', '客户体验优化', '数据驱动'],
-      customerBehavior: ['价值导向', '便利性需求', '个性化期待'],
-      contentFormats: ['案例分享', '行业洞察', '产品介绍'],
-    };
+    return (
+      characteristics[industry] || {
+        keyTrends: ['数字化转型', '客户体验优化', '数据驱动'],
+        customerBehavior: ['价值导向', '便利性需求', '个性化期待'],
+        contentFormats: ['案例分享', '行业洞察', '产品介绍'],
+      }
+    );
   }
 
   /**
@@ -514,7 +545,9 @@ export class EnterpriseProfileAnalysisService {
   /**
    * 从画像数据生成特征向量
    */
-  private generateFeatureVectorFromProfile(profileData: EnterpriseProfileData): number[] {
+  private generateFeatureVectorFromProfile(
+    profileData: EnterpriseProfileData,
+  ): number[] {
     // 简化版特征向量生成
     // 实际应该使用更复杂的特征工程
     const vector: number[] = [];
@@ -536,7 +569,8 @@ export class EnterpriseProfileAnalysisService {
     vector.push(profileData.confidenceScores.successPatterns);
 
     // 简单行业编码（模拟）
-    const industryHash = this.hashString(profileData.basicInfo.industry) % 100 / 100;
+    const industryHash =
+      (this.hashString(profileData.basicInfo.industry) % 100) / 100;
     vector.push(industryHash);
 
     // 填充到固定维度（128维）
@@ -553,7 +587,7 @@ export class EnterpriseProfileAnalysisService {
   private hashString(str: string): number {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
-      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash = (hash << 5) - hash + str.charCodeAt(i);
       hash |= 0; // 转换为32位整数
     }
     return Math.abs(hash);

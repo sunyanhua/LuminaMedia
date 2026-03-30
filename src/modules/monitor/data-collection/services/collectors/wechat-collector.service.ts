@@ -5,7 +5,12 @@ import { firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 
 import { PlatformCollector } from '../interfaces/platform-collector.interface';
-import { PlatformType, CollectionMethod, CollectedDataItem, DataStatus } from '../../interfaces/data-collection.interface';
+import {
+  PlatformType,
+  CollectionMethod,
+  CollectedDataItem,
+  DataStatus,
+} from '../../interfaces/data-collection.interface';
 
 @Injectable()
 export class WeChatCollectorService implements PlatformCollector {
@@ -32,7 +37,11 @@ export class WeChatCollectorService implements PlatformCollector {
    */
   private async getAccessToken(credentials: any): Promise<string> {
     // 检查令牌是否有效
-    if (this.accessToken && this.tokenExpiresAt && new Date() < this.tokenExpiresAt) {
+    if (
+      this.accessToken &&
+      this.tokenExpiresAt &&
+      new Date() < this.tokenExpiresAt
+    ) {
       return this.accessToken;
     }
 
@@ -55,13 +64,17 @@ export class WeChatCollectorService implements PlatformCollector {
 
       const { access_token, expires_in } = (response as any).data;
       if (!access_token) {
-        throw new Error(`获取访问令牌失败: ${JSON.stringify((response as any).data)}`);
+        throw new Error(
+          `获取访问令牌失败: ${JSON.stringify((response as any).data)}`,
+        );
       }
 
       this.accessToken = access_token;
       this.tokenExpiresAt = new Date(Date.now() + (expires_in - 300) * 1000); // 提前5分钟过期
 
-      this.logger.debug(`获取微信访问令牌成功，有效期至: ${this.tokenExpiresAt}`);
+      this.logger.debug(
+        `获取微信访问令牌成功，有效期至: ${this.tokenExpiresAt}`,
+      );
       return access_token;
     } catch (error) {
       this.logger.error(`获取微信访问令牌失败: ${error.message}`, error.stack);
@@ -108,9 +121,15 @@ export class WeChatCollectorService implements PlatformCollector {
 
       for (const accountId of officialAccountIds) {
         try {
-          const articles = await this.fetchOfficialAccountArticles(accessToken, accountId, config);
+          const articles = await this.fetchOfficialAccountArticles(
+            accessToken,
+            accountId,
+            config,
+          );
           results.push(...articles);
-          this.logger.debug(`公众号 ${accountId} 采集到 ${articles.length} 篇文章`);
+          this.logger.debug(
+            `公众号 ${accountId} 采集到 ${articles.length} 篇文章`,
+          );
         } catch (error) {
           this.logger.error(`采集公众号 ${accountId} 失败: ${error.message}`);
           // 继续处理其他公众号
@@ -119,12 +138,15 @@ export class WeChatCollectorService implements PlatformCollector {
 
       // 如果有关键词，进行过滤
       if (config.keywords && config.keywords.length > 0) {
-        const filteredResults = results.filter(item =>
-          config.keywords!.some(keyword =>
-            item.title.includes(keyword) || item.content.includes(keyword)
-          )
+        const filteredResults = results.filter((item) =>
+          config.keywords!.some(
+            (keyword) =>
+              item.title.includes(keyword) || item.content.includes(keyword),
+          ),
         );
-        this.logger.debug(`关键词过滤: ${results.length} -> ${filteredResults.length} 条`);
+        this.logger.debug(
+          `关键词过滤: ${results.length} -> ${filteredResults.length} 条`,
+        );
         return filteredResults.slice(0, config.maxResults || 100);
       }
 
@@ -150,13 +172,17 @@ export class WeChatCollectorService implements PlatformCollector {
 
     try {
       const response = await firstValueFrom(
-        this.httpService.post(url, {
-          type: 'news',
-          offset: 0,
-          count: config.maxResults || 20,
-        }, {
-          params: { access_token: accessToken },
-        }),
+        this.httpService.post(
+          url,
+          {
+            type: 'news',
+            offset: 0,
+            count: config.maxResults || 20,
+          },
+          {
+            params: { access_token: accessToken },
+          },
+        ),
       );
 
       const articles = (response as any).data.item || [];
@@ -164,12 +190,16 @@ export class WeChatCollectorService implements PlatformCollector {
 
       for (const article of articles) {
         try {
-          const content = await this.fetchArticleContent(accessToken, article.media_id);
+          const content = await this.fetchArticleContent(
+            accessToken,
+            article.media_id,
+          );
 
           const collectedItem: CollectedDataItem = {
             platform: PlatformType.WECHAT,
             sourceId: article.media_id,
-            url: article.url || `https://mp.weixin.qq.com/s/${article.media_id}`,
+            url:
+              article.url || `https://mp.weixin.qq.com/s/${article.media_id}`,
             title: article.title || '无标题',
             content: content,
             author: article.author || officialAccountId,
@@ -189,7 +219,9 @@ export class WeChatCollectorService implements PlatformCollector {
 
           results.push(collectedItem);
         } catch (error) {
-          this.logger.warn(`解析文章 ${article.media_id} 失败: ${error.message}`);
+          this.logger.warn(
+            `解析文章 ${article.media_id} 失败: ${error.message}`,
+          );
         }
       }
 
@@ -197,7 +229,9 @@ export class WeChatCollectorService implements PlatformCollector {
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response?.data) {
-        this.logger.error(`微信API错误: ${JSON.stringify((axiosError.response as any).data)}`);
+        this.logger.error(
+          `微信API错误: ${JSON.stringify((axiosError.response as any).data)}`,
+        );
       }
       throw error;
     }
@@ -206,23 +240,33 @@ export class WeChatCollectorService implements PlatformCollector {
   /**
    * 获取文章内容
    */
-  private async fetchArticleContent(accessToken: string, mediaId: string): Promise<string> {
+  private async fetchArticleContent(
+    accessToken: string,
+    mediaId: string,
+  ): Promise<string> {
     const url = `${this.apiBaseUrl}/cgi-bin/material/get_material`;
 
     try {
       const response = await firstValueFrom(
-        this.httpService.post(url, {
-          media_id: mediaId,
-        }, {
-          params: { access_token: accessToken },
-          responseType: 'json',
-        }),
+        this.httpService.post(
+          url,
+          {
+            media_id: mediaId,
+          },
+          {
+            params: { access_token: accessToken },
+            responseType: 'json',
+          },
+        ),
       );
 
       // 微信返回的文章内容可能是HTML格式
       const content = (response as any).data.content || '';
       // 简单提取文本内容（实际应该使用HTML解析器）
-      const textContent = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      const textContent = content
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
 
       return textContent || '内容为空';
     } catch (error) {

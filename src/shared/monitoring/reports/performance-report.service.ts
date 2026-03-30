@@ -34,10 +34,12 @@ export class PerformanceReportService {
    * 初始化报告定义
    */
   private initializeReportDefinitions(): void {
-    PREDEFINED_REPORTS.forEach(definition => {
+    PREDEFINED_REPORTS.forEach((definition) => {
       this.reportDefinitions.set(definition.id, definition);
     });
-    this.logger.log(`Initialized ${this.reportDefinitions.size} report definitions`);
+    this.logger.log(
+      `Initialized ${this.reportDefinitions.size} report definitions`,
+    );
   }
 
   /**
@@ -75,16 +77,23 @@ export class PerformanceReportService {
   /**
    * 生成报告
    */
-  async generateReport(definitionId: string, format: ReportFormat): Promise<ReportInstance | null> {
+  async generateReport(
+    definitionId: string,
+    format: ReportFormat,
+  ): Promise<ReportInstance | null> {
     const definition = this.reportDefinitions.get(definitionId);
     if (!definition || !definition.enabled) {
-      this.logger.warn(`Report definition not found or disabled: ${definitionId}`);
+      this.logger.warn(
+        `Report definition not found or disabled: ${definitionId}`,
+      );
       return null;
     }
 
     // 检查格式支持
     if (!definition.format.includes(format)) {
-      this.logger.warn(`Report format ${format} not supported for ${definitionId}`);
+      this.logger.warn(
+        `Report format ${format} not supported for ${definitionId}`,
+      );
       return null;
     }
 
@@ -135,10 +144,12 @@ export class PerformanceReportService {
   /**
    * 生成报告内容
    */
-  private async generateReportContent(definition: ReportDefinition): Promise<ReportContent> {
+  private async generateReportContent(
+    definition: ReportDefinition,
+  ): Promise<ReportContent> {
     const now = new Date();
     let startTime: Date;
-    let endTime: Date = now;
+    const endTime: Date = now;
 
     // 根据报告类型确定时间范围
     switch (definition.type) {
@@ -159,16 +170,25 @@ export class PerformanceReportService {
     }
 
     // 收集性能指标
-    const performanceMetrics = await this.collectPerformanceMetrics(startTime, endTime);
+    const performanceMetrics = await this.collectPerformanceMetrics(
+      startTime,
+      endTime,
+    );
 
     // 收集业务指标
-    const businessMetrics = await this.collectBusinessMetrics(startTime, endTime);
+    const businessMetrics = await this.collectBusinessMetrics(
+      startTime,
+      endTime,
+    );
 
     // 收集告警统计
     const alertStats = await this.collectAlertStatistics(startTime, endTime);
 
     // 识别问题
-    const issues = await this.identifyIssues(performanceMetrics, businessMetrics);
+    const issues = await this.identifyIssues(
+      performanceMetrics,
+      businessMetrics,
+    );
 
     // 分析趋势
     const trends = await this.analyzeTrends(startTime, endTime);
@@ -178,7 +198,11 @@ export class PerformanceReportService {
 
     const content: ReportContent = {
       title: `${definition.name} - ${startTime.toLocaleDateString()} 至 ${endTime.toLocaleDateString()}`,
-      summary: this.generateSummary(performanceMetrics, businessMetrics, issues),
+      summary: this.generateSummary(
+        performanceMetrics,
+        businessMetrics,
+        issues,
+      ),
       period: { start: startTime, end: endTime },
       performance: performanceMetrics,
       business: businessMetrics,
@@ -194,7 +218,10 @@ export class PerformanceReportService {
   /**
    * 收集性能指标
    */
-  private async collectPerformanceMetrics(startTime: Date, endTime: Date): Promise<PerformanceMetrics> {
+  private async collectPerformanceMetrics(
+    startTime: Date,
+    endTime: Date,
+  ): Promise<PerformanceMetrics> {
     // 这里简化实现，实际应从指标收集器获取数据
     // 注意：实际项目需要从时序数据库或监控系统获取
 
@@ -217,15 +244,19 @@ export class PerformanceReportService {
     );
 
     // 计算性能指标
-    const durationValues = httpRequestDuration.map(m => m.value);
+    const durationValues = httpRequestDuration.map((m) => m.value);
     const requestCount = httpRequests.reduce((sum, m) => sum + m.value, 0);
     const errorCount = httpErrors.reduce((sum, m) => sum + m.value, 0);
 
     return {
       responseTimeP95: this.calculatePercentile(durationValues, 95),
       responseTimeP99: this.calculatePercentile(durationValues, 99),
-      responseTimeAvg: durationValues.length > 0 ? durationValues.reduce((sum, val) => sum + val, 0) / durationValues.length : 0,
-      successRate: requestCount > 0 ? 1 - (errorCount / requestCount) : 1,
+      responseTimeAvg:
+        durationValues.length > 0
+          ? durationValues.reduce((sum, val) => sum + val, 0) /
+            durationValues.length
+          : 0,
+      successRate: requestCount > 0 ? 1 - errorCount / requestCount : 1,
       errorRate: requestCount > 0 ? errorCount / requestCount : 0,
       throughput: this.calculateThroughput(httpRequests, startTime, endTime),
       concurrentUsers: await this.estimateConcurrentUsers(startTime, endTime),
@@ -237,7 +268,10 @@ export class PerformanceReportService {
   /**
    * 收集业务指标
    */
-  private async collectBusinessMetrics(startTime: Date, endTime: Date): Promise<BusinessMetrics> {
+  private async collectBusinessMetrics(
+    startTime: Date,
+    endTime: Date,
+  ): Promise<BusinessMetrics> {
     // 简化实现
     const activeUsers = await this.metricsCollector.getMetric('active_users');
     const contentPublished = await this.metricsCollector.getTimeSeries(
@@ -257,7 +291,10 @@ export class PerformanceReportService {
       contentPublished: contentPublished.reduce((sum, m) => sum + m.value, 0),
       aiRequests: aiRequests.reduce((sum, m) => sum + m.value, 0),
       databaseQueries: await this.estimateDatabaseQueries(startTime, endTime),
-      publishSuccessRate: await this.estimatePublishSuccessRate(startTime, endTime),
+      publishSuccessRate: await this.estimatePublishSuccessRate(
+        startTime,
+        endTime,
+      ),
       userSatisfaction: await this.estimateUserSatisfaction(startTime, endTime),
     };
   }
@@ -268,13 +305,13 @@ export class PerformanceReportService {
   private async collectAlertStatistics(startTime: Date, endTime: Date) {
     const alerts = this.alertRuleService.getAlertHistory(1000);
     const periodAlerts = alerts.filter(
-      alert => alert.triggeredAt >= startTime && alert.triggeredAt <= endTime,
+      (alert) => alert.triggeredAt >= startTime && alert.triggeredAt <= endTime,
     );
 
     const bySeverity: Record<string, number> = {};
     const ruleCounts: Record<string, number> = {};
 
-    periodAlerts.forEach(alert => {
+    periodAlerts.forEach((alert) => {
       bySeverity[alert.severity] = (bySeverity[alert.severity] || 0) + 1;
       ruleCounts[alert.ruleId] = (ruleCounts[alert.ruleId] || 0) + 1;
     });
@@ -298,7 +335,12 @@ export class PerformanceReportService {
     performance: PerformanceMetrics,
     business: BusinessMetrics,
   ) {
-    const issues: Array<{ severity: 'low' | 'medium' | 'high' | 'critical'; description: string; recommendation: string; impact: string }> = [];
+    const issues: Array<{
+      severity: 'low' | 'medium' | 'high' | 'critical';
+      description: string;
+      recommendation: string;
+      impact: string;
+    }> = [];
 
     // 检查性能问题
     if (performance.responseTimeP99 > 2000) {
@@ -387,12 +429,12 @@ export class PerformanceReportService {
     const recommendations: string[] = [];
 
     // 基于问题生成建议
-    issues.forEach(issue => {
+    issues.forEach((issue) => {
       recommendations.push(issue.recommendation);
     });
 
     // 基于趋势生成建议
-    trends.forEach(trend => {
+    trends.forEach((trend) => {
       if (trend.changePercent > 50) {
         recommendations.push(`${trend.metric}增长超过50%，建议关注资源扩容`);
       } else if (trend.changePercent < -20) {
@@ -411,14 +453,22 @@ export class PerformanceReportService {
   /**
    * 生成报告摘要
    */
-  private generateSummary(performance: PerformanceMetrics, business: BusinessMetrics, issues: any[]): string {
-    const criticalIssues = issues.filter(i => i.severity === 'critical').length;
-    const highIssues = issues.filter(i => i.severity === 'high').length;
+  private generateSummary(
+    performance: PerformanceMetrics,
+    business: BusinessMetrics,
+    issues: any[],
+  ): string {
+    const criticalIssues = issues.filter(
+      (i) => i.severity === 'critical',
+    ).length;
+    const highIssues = issues.filter((i) => i.severity === 'high').length;
 
-    return `系统在报告期间整体运行${criticalIssues > 0 ? '存在严重问题' : highIssues > 0 ? '基本稳定' : '良好'}。` +
+    return (
+      `系统在报告期间整体运行${criticalIssues > 0 ? '存在严重问题' : highIssues > 0 ? '基本稳定' : '良好'}。` +
       `共处理请求约${Math.round(performance.throughput * (24 * 60 * 60))}次，平均响应时间${performance.responseTimeAvg.toFixed(2)}ms，` +
       `成功率${(performance.successRate * 100).toFixed(1)}%。活跃用户${business.activeUsers}人，` +
-      `发布内容${business.contentPublished}篇。发现${issues.length}个问题，其中严重问题${criticalIssues}个，高风险问题${highIssues}个。`;
+      `发布内容${business.contentPublished}篇。发现${issues.length}个问题，其中严重问题${criticalIssues}个，高风险问题${highIssues}个。`
+    );
   }
 
   /**
@@ -439,7 +489,10 @@ export class PerformanceReportService {
   /**
    * 估算文件大小
    */
-  private estimateFileSize(content: ReportContent, format: ReportFormat): number {
+  private estimateFileSize(
+    content: ReportContent,
+    format: ReportFormat,
+  ): number {
     // 简化估算
     const jsonSize = JSON.stringify(content).length;
     switch (format) {
@@ -459,13 +512,18 @@ export class PerformanceReportService {
   /**
    * 发送报告
    */
-  private async deliverReport(instance: ReportInstance, definition: ReportDefinition): Promise<void> {
+  private async deliverReport(
+    instance: ReportInstance,
+    definition: ReportDefinition,
+  ): Promise<void> {
     if (!definition.recipients || definition.recipients.length === 0) {
       return;
     }
 
     // 简化实现：记录日志
-    this.logger.log(`Report would be delivered to: ${definition.recipients.join(', ')}`);
+    this.logger.log(
+      `Report would be delivered to: ${definition.recipients.join(', ')}`,
+    );
 
     // 实际应发送邮件或其他通知
   }
@@ -480,13 +538,18 @@ export class PerformanceReportService {
 
     const instances = Array.from(this.reportInstances.values());
     instances.sort((a, b) => {
-      const aTime = a.generationCompletedAt || a.generationStartedAt || new Date(0);
-      const bTime = b.generationCompletedAt || b.generationStartedAt || new Date(0);
+      const aTime =
+        a.generationCompletedAt || a.generationStartedAt || new Date(0);
+      const bTime =
+        b.generationCompletedAt || b.generationStartedAt || new Date(0);
       return aTime.getTime() - bTime.getTime();
     });
 
-    const toDelete = instances.slice(0, instances.length - this.maxReportInstances);
-    toDelete.forEach(instance => {
+    const toDelete = instances.slice(
+      0,
+      instances.length - this.maxReportInstances,
+    );
+    toDelete.forEach((instance) => {
       this.reportInstances.delete(instance.id);
     });
 
@@ -508,7 +571,11 @@ export class PerformanceReportService {
   /**
    * 辅助方法：计算吞吐量
    */
-  private calculateThroughput(metrics: any[], startTime: Date, endTime: Date): number {
+  private calculateThroughput(
+    metrics: any[],
+    startTime: Date,
+    endTime: Date,
+  ): number {
     if (metrics.length === 0) {
       return 0;
     }
@@ -520,7 +587,10 @@ export class PerformanceReportService {
   /**
    * 辅助方法：估算并发用户数
    */
-  private async estimateConcurrentUsers(startTime: Date, endTime: Date): Promise<number> {
+  private async estimateConcurrentUsers(
+    startTime: Date,
+    endTime: Date,
+  ): Promise<number> {
     // 简化实现
     return 10;
   }
@@ -528,7 +598,10 @@ export class PerformanceReportService {
   /**
    * 辅助方法：估算CPU使用率
    */
-  private async estimateCpuUsage(startTime: Date, endTime: Date): Promise<number> {
+  private async estimateCpuUsage(
+    startTime: Date,
+    endTime: Date,
+  ): Promise<number> {
     // 简化实现
     return 30;
   }
@@ -536,7 +609,10 @@ export class PerformanceReportService {
   /**
    * 辅助方法：估算内存使用率
    */
-  private async estimateMemoryUsage(startTime: Date, endTime: Date): Promise<number> {
+  private async estimateMemoryUsage(
+    startTime: Date,
+    endTime: Date,
+  ): Promise<number> {
     // 简化实现
     return 45;
   }
@@ -544,7 +620,10 @@ export class PerformanceReportService {
   /**
    * 辅助方法：估算新用户数
    */
-  private async estimateNewUsers(startTime: Date, endTime: Date): Promise<number> {
+  private async estimateNewUsers(
+    startTime: Date,
+    endTime: Date,
+  ): Promise<number> {
     // 简化实现
     return 5;
   }
@@ -552,7 +631,10 @@ export class PerformanceReportService {
   /**
    * 辅助方法：估算数据库查询数
    */
-  private async estimateDatabaseQueries(startTime: Date, endTime: Date): Promise<number> {
+  private async estimateDatabaseQueries(
+    startTime: Date,
+    endTime: Date,
+  ): Promise<number> {
     // 简化实现
     return 10000;
   }
@@ -560,7 +642,10 @@ export class PerformanceReportService {
   /**
    * 辅助方法：估算发布成功率
    */
-  private async estimatePublishSuccessRate(startTime: Date, endTime: Date): Promise<number> {
+  private async estimatePublishSuccessRate(
+    startTime: Date,
+    endTime: Date,
+  ): Promise<number> {
     // 简化实现
     return 0.92;
   }
@@ -568,7 +653,10 @@ export class PerformanceReportService {
   /**
    * 辅助方法：估算用户满意度
    */
-  private async estimateUserSatisfaction(startTime: Date, endTime: Date): Promise<number> {
+  private async estimateUserSatisfaction(
+    startTime: Date,
+    endTime: Date,
+  ): Promise<number> {
     // 简化实现
     return 4.2;
   }
@@ -587,8 +675,10 @@ export class PerformanceReportService {
     const instances = Array.from(this.reportInstances.values());
     return instances
       .sort((a, b) => {
-        const aTime = b.generationCompletedAt || b.generationStartedAt || new Date(0);
-        const bTime = a.generationCompletedAt || a.generationStartedAt || new Date(0);
+        const aTime =
+          b.generationCompletedAt || b.generationStartedAt || new Date(0);
+        const bTime =
+          a.generationCompletedAt || a.generationStartedAt || new Date(0);
         return aTime.getTime() - bTime.getTime();
       })
       .slice(0, limit);
@@ -597,7 +687,10 @@ export class PerformanceReportService {
   /**
    * 手动触发报告生成
    */
-  async triggerReportGeneration(definitionId: string, format: ReportFormat = ReportFormat.HTML): Promise<ReportInstance | null> {
+  async triggerReportGeneration(
+    definitionId: string,
+    format: ReportFormat = ReportFormat.HTML,
+  ): Promise<ReportInstance | null> {
     return this.generateReport(definitionId, format);
   }
 }

@@ -31,7 +31,9 @@ export class QdrantAdapter implements VectorSearchService, OnModuleInit {
     try {
       await this.initialize();
     } catch (error) {
-      this.logger.warn(`Qdrant初始化失败，向量搜索功能不可用: ${error.message}`);
+      this.logger.warn(
+        `Qdrant初始化失败，向量搜索功能不可用: ${error.message}`,
+      );
     }
   }
 
@@ -65,7 +67,10 @@ export class QdrantAdapter implements VectorSearchService, OnModuleInit {
         `Qdrant适配器初始化完成，连接到 ${host}:${port}，集合：${this.defaultCollectionName}`,
       );
     } catch (error) {
-      this.logger.error(`Qdrant适配器初始化失败: ${error.message}`, error.stack);
+      this.logger.error(
+        `Qdrant适配器初始化失败: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -101,7 +106,9 @@ export class QdrantAdapter implements VectorSearchService, OnModuleInit {
    */
   async addDocument(doc: Document): Promise<string> {
     try {
-      const documentId = doc.id || `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const documentId =
+        doc.id ||
+        `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
       // 准备向量点
       const point = {
@@ -137,7 +144,9 @@ export class QdrantAdapter implements VectorSearchService, OnModuleInit {
   async addDocuments(docs: Document[]): Promise<string[]> {
     try {
       const points = docs.map((doc) => {
-        const documentId = doc.id || `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const documentId =
+          doc.id ||
+          `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         return {
           id: documentId,
           vector: doc.embedding || [],
@@ -197,7 +206,12 @@ export class QdrantAdapter implements VectorSearchService, OnModuleInit {
     options: HybridSearchOptions,
   ): Promise<SearchResult[]> {
     try {
-      const { k = 5, filters, vectorWeight = 0.7, keywordWeight = 0.3 } = options;
+      const {
+        k = 5,
+        filters,
+        vectorWeight = 0.7,
+        keywordWeight = 0.3,
+      } = options;
 
       // 构建过滤条件
       const filterConditions: any = {};

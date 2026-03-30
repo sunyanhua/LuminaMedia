@@ -304,7 +304,9 @@ export interface ISentimentAnalysisService {
   /**
    * 批量分析文本情感
    */
-  analyzeTexts(requests: SentimentAnalysisRequest[]): Promise<SentimentResult[]>;
+  analyzeTexts(
+    requests: SentimentAnalysisRequest[],
+  ): Promise<SentimentResult[]>;
 
   /**
    * 分析情感趋势
@@ -314,7 +316,7 @@ export interface ISentimentAnalysisService {
     options?: {
       timeInterval?: 'hour' | 'day' | 'week' | 'month';
       industry?: string;
-    }
+    },
   ): Promise<SentimentTrendAnalysis>;
 
   /**
@@ -322,7 +324,7 @@ export interface ISentimentAnalysisService {
    */
   checkAlerts(
     texts: Array<{ text: string; timestamp: Date }>,
-    rules: SentimentAlertRule[]
+    rules: SentimentAlertRule[],
   ): Promise<SentimentAlert[]>;
 }
 
@@ -338,7 +340,10 @@ export interface ISentimentAnalysisProvider {
   /**
    * 分析文本情感
    */
-  analyze(text: string, options?: any): Promise<{
+  analyze(
+    text: string,
+    options?: any,
+  ): Promise<{
     polarity: 'positive' | 'negative' | 'neutral';
     score: number;
     confidence: number;

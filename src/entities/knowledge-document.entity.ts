@@ -13,61 +13,61 @@ import { User } from './user.entity';
 
 // 文档来源类型
 export enum DocumentSourceType {
-  FILE = 'file',      // 文件上传
-  URL = 'url',        // 网址抓取
-  API = 'api',        // API集成
-  MANUAL = 'manual',  // 手动输入
+  FILE = 'file', // 文件上传
+  URL = 'url', // 网址抓取
+  API = 'api', // API集成
+  MANUAL = 'manual', // 手动输入
 }
 
 // 文档状态
 export enum DocumentStatus {
-  DRAFT = 'draft',          // 草稿
+  DRAFT = 'draft', // 草稿
   PROCESSING = 'processing', // 处理中
-  ACTIVE = 'active',        // 活跃
-  ARCHIVED = 'archived',    // 归档
+  ACTIVE = 'active', // 活跃
+  ARCHIVED = 'archived', // 归档
 }
 
 // 文档处理状态
 export enum DocumentProcessingStatus {
-  PENDING = 'pending',      // 待处理
+  PENDING = 'pending', // 待处理
   EXTRACTING = 'extracting', // 文本提取中
   VECTORIZED = 'vectorized', // 已向量化
-  ANALYZED = 'analyzed',     // 已分析
-  FAILED = 'failed',         // 处理失败
+  ANALYZED = 'analyzed', // 已分析
+  FAILED = 'failed', // 处理失败
 }
 
 // 文件信息接口（用于文件上传）
 export interface FileInfo {
-  originalName: string;     // 原始文件名
-  mimeType: string;         // MIME类型
-  size: number;            // 文件大小（字节）
-  storagePath: string;     // 存储路径
-  encoding?: string;       // 编码
+  originalName: string; // 原始文件名
+  mimeType: string; // MIME类型
+  size: number; // 文件大小（字节）
+  storagePath: string; // 存储路径
+  encoding?: string; // 编码
 }
 
 // 文档元数据
 export interface DocumentMetadata {
-  author?: string;         // 作者
-  publishDate?: Date;      // 发布日期
-  wordCount?: number;      // 字数
-  pageCount?: number;      // 页数
-  readingTime?: number;    // 阅读时间（分钟）
-  keywords?: string[];     // 关键词
+  author?: string; // 作者
+  publishDate?: Date; // 发布日期
+  wordCount?: number; // 字数
+  pageCount?: number; // 页数
+  readingTime?: number; // 阅读时间（分钟）
+  keywords?: string[]; // 关键词
   sentiment?: 'positive' | 'neutral' | 'negative'; // 情感倾向
-  confidence?: number;     // 分析置信度
+  confidence?: number; // 分析置信度
   extractionMethod?: string; // 提取方法
-  extractedAt?: Date;      // 提取时间
-  [key: string]: any;      // 扩展字段
+  extractedAt?: Date; // 提取时间
+  [key: string]: any; // 扩展字段
 }
 
 // 文档质量评分
 export interface DocumentQualityScore {
-  completeness: number;    // 完整性（0-100）
-  relevance: number;       // 相关性（0-100）
-  freshness: number;       // 新鲜度（0-100）
-  authority: number;       // 权威性（0-100）
-  readability: number;     // 可读性（0-100）
-  overall: number;         // 综合评分（0-100）
+  completeness: number; // 完整性（0-100）
+  relevance: number; // 相关性（0-100）
+  freshness: number; // 新鲜度（0-100）
+  authority: number; // 权威性（0-100）
+  readability: number; // 可读性（0-100）
+  overall: number; // 综合评分（0-100）
 }
 
 @Entity('knowledge_documents')
@@ -212,8 +212,10 @@ export class KnowledgeDocument implements TenantEntity {
 
   // 辅助方法：检查文档是否已向量化
   isVectorized(): boolean {
-    return this.processingStatus === DocumentProcessingStatus.VECTORIZED ||
-           this.processingStatus === DocumentProcessingStatus.ANALYZED;
+    return (
+      this.processingStatus === DocumentProcessingStatus.VECTORIZED ||
+      this.processingStatus === DocumentProcessingStatus.ANALYZED
+    );
   }
 
   // 辅助方法：检查文档是否已分析

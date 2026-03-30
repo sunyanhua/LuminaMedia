@@ -17,6 +17,7 @@ try {
 
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -35,6 +36,24 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true,
   });
+
+  // Swagger API documentation configuration - 启用但限制扫描以避免循环依赖
+  const config = new DocumentBuilder()
+    .setTitle('LuminaMedia API')
+    .setDescription('LuminaMedia 2.0 内容营销平台API文档')
+    .setVersion('2.0')
+    .addBearerAuth()
+    .build();
+
+  // 添加Swagger配置选项以避免循环依赖问题
+  const document = SwaggerModule.createDocument(app, config, {
+    deepScanRoutes: false,
+    ignoreGlobalPrefix: false,
+    extraModels: [], // 避免自动扫描实体导致的循环依赖
+    include: [], // 限制扫描的模块，避免循环依赖
+  });
+
+  SwaggerModule.setup('api/docs', app, document);
 
   await app.listen(process.env.APP_PORT ?? 3003, '0.0.0.0');
 }

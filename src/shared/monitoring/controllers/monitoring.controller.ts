@@ -63,10 +63,7 @@ export class MonitoringController {
 
   @Get('metrics/:name')
   @ApiOperation({ summary: '获取指定指标值' })
-  async getMetric(
-    @Param('name') name: string,
-    @Query('tags') tags?: string,
-  ) {
+  async getMetric(@Param('name') name: string, @Query('tags') tags?: string) {
     const parsedTags = tags ? JSON.parse(tags) : undefined;
     return this.metricsCollector.getMetric(name, parsedTags);
   }
@@ -82,15 +79,29 @@ export class MonitoringController {
     const startTime = new Date(start);
     const endTime = new Date(end);
     const parsedTags = tags ? JSON.parse(tags) : undefined;
-    return this.metricsCollector.getTimeSeries(name, startTime, endTime, parsedTags);
+    return this.metricsCollector.getTimeSeries(
+      name,
+      startTime,
+      endTime,
+      parsedTags,
+    );
   }
 
   @Post('metrics/record')
   @ApiOperation({ summary: '手动记录指标' })
   async recordMetric(
-    @Body() body: { name: string; value: number; tags?: Record<string, string> },
+    @Body()
+    body: {
+      name: string;
+      value: number;
+      tags?: Record<string, string>;
+    },
   ) {
-    await this.metricsCollector.recordBusinessMetric(body.name, body.value, body.tags);
+    await this.metricsCollector.recordBusinessMetric(
+      body.name,
+      body.value,
+      body.tags,
+    );
     return { success: true, message: 'Metric recorded' };
   }
 
@@ -137,8 +148,11 @@ export class MonitoringController {
     @Param('definitionId') definitionId: string,
     @Body() body: { format?: string },
   ) {
-    const format = body.format as any || 'html';
-    const report = await this.reportService.triggerReportGeneration(definitionId, format);
+    const format = (body.format as any) || 'html';
+    const report = await this.reportService.triggerReportGeneration(
+      definitionId,
+      format,
+    );
     return {
       success: !!report,
       reportId: report?.id,
@@ -197,8 +211,12 @@ export class MonitoringController {
    * 计算系统健康度
    */
   private calculateSystemHealth(activeAlerts: any[]): string {
-    const criticalAlerts = activeAlerts.filter(a => a.severity === 'critical').length;
-    const errorAlerts = activeAlerts.filter(a => a.severity === 'error').length;
+    const criticalAlerts = activeAlerts.filter(
+      (a) => a.severity === 'critical',
+    ).length;
+    const errorAlerts = activeAlerts.filter(
+      (a) => a.severity === 'error',
+    ).length;
 
     if (criticalAlerts > 0) {
       return '危险';

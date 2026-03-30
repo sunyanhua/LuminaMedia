@@ -4,7 +4,10 @@ import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import { SocialAccount } from '../../../entities/social-account.entity';
-import { PlatformCredentials, PlatformType } from '../interfaces/platform-adapter.interface';
+import {
+  PlatformCredentials,
+  PlatformType,
+} from '../interfaces/platform-adapter.interface';
 import { AccountStatus } from '../../../shared/enums/account-status.enum';
 
 /**
@@ -30,7 +33,9 @@ export class AccountCredentialService {
     } else {
       // 开发环境：使用固定密钥（生产环境必须配置ENCRYPTION_KEY）
       this.encryptionKey = crypto.scryptSync('development-key', 'salt', 32);
-      this.logger.warn('Using development encryption key - NOT SECURE FOR PRODUCTION');
+      this.logger.warn(
+        'Using development encryption key - NOT SECURE FOR PRODUCTION',
+      );
     }
   }
 
@@ -63,7 +68,10 @@ export class AccountCredentialService {
           id: accountId,
           tenantId,
           platform,
-          accountName: this.getAccountNameFromCredentials(platform, credentials),
+          accountName: this.getAccountNameFromCredentials(
+            platform,
+            credentials,
+          ),
           encryptedCredentials: encrypted,
           credentialHash,
           platformUserId: this.getPlatformUserId(platform, credentials),
@@ -75,25 +83,38 @@ export class AccountCredentialService {
         account.encryptedCredentials = encrypted;
         account.credentialHash = credentialHash;
         account.platformUserId = this.getPlatformUserId(platform, credentials);
-        account.platformUserName = this.getPlatformUserName(platform, credentials);
+        account.platformUserName = this.getPlatformUserName(
+          platform,
+          credentials,
+        );
         account.updatedAt = new Date();
       }
 
       // 保存账号
       const savedAccount = await this.accountRepository.save(account);
-      this.logger.log(`Credentials encrypted and stored for account: ${accountId}`);
+      this.logger.log(
+        `Credentials encrypted and stored for account: ${accountId}`,
+      );
 
       return savedAccount;
     } catch (error) {
-      this.logger.error(`Failed to encrypt and store credentials: ${error.message}`, error.stack);
-      throw new Error(`Failed to encrypt and store credentials: ${error.message}`);
+      this.logger.error(
+        `Failed to encrypt and store credentials: ${error.message}`,
+        error.stack,
+      );
+      throw new Error(
+        `Failed to encrypt and store credentials: ${error.message}`,
+      );
     }
   }
 
   /**
    * 获取解密后的账号凭证
    */
-  async getDecryptedCredentials(accountId: string, tenantId: string = 'demo-tenant'): Promise<PlatformCredentials> {
+  async getDecryptedCredentials(
+    accountId: string,
+    tenantId: string = 'demo-tenant',
+  ): Promise<PlatformCredentials> {
     try {
       const account = await this.accountRepository.findOne({
         where: { id: accountId, tenantId },
@@ -115,7 +136,10 @@ export class AccountCredentialService {
 
       return JSON.parse(decryptedJson) as PlatformCredentials;
     } catch (error) {
-      this.logger.error(`Failed to get decrypted credentials: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to get decrypted credentials: ${error.message}`,
+        error.stack,
+      );
       throw new Error(`Failed to get decrypted credentials: ${error.message}`);
     }
   }
@@ -130,7 +154,10 @@ export class AccountCredentialService {
   ): Promise<SocialAccount> {
     try {
       // 获取现有凭证
-      const existingCredentials = await this.getDecryptedCredentials(accountId, tenantId);
+      const existingCredentials = await this.getDecryptedCredentials(
+        accountId,
+        tenantId,
+      );
 
       // 合并更新
       const updatedCredentials = { ...existingCredentials, ...credentials };
@@ -154,7 +181,10 @@ export class AccountCredentialService {
 
       return savedAccount;
     } catch (error) {
-      this.logger.error(`Failed to update credentials: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to update credentials: ${error.message}`,
+        error.stack,
+      );
       throw new Error(`Failed to update credentials: ${error.message}`);
     }
   }
@@ -162,7 +192,10 @@ export class AccountCredentialService {
   /**
    * 删除账号凭证
    */
-  async deleteCredentials(accountId: string, tenantId: string = 'demo-tenant'): Promise<void> {
+  async deleteCredentials(
+    accountId: string,
+    tenantId: string = 'demo-tenant',
+  ): Promise<void> {
     try {
       const account = await this.accountRepository.findOne({
         where: { id: accountId, tenantId },
@@ -181,7 +214,10 @@ export class AccountCredentialService {
       await this.accountRepository.save(account);
       this.logger.log(`Credentials deleted for account: ${accountId}`);
     } catch (error) {
-      this.logger.error(`Failed to delete credentials: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to delete credentials: ${error.message}`,
+        error.stack,
+      );
       throw new Error(`Failed to delete credentials: ${error.message}`);
     }
   }
@@ -189,7 +225,10 @@ export class AccountCredentialService {
   /**
    * 验证账号凭证
    */
-  async validateCredentials(accountId: string, tenantId: string = 'demo-tenant'): Promise<boolean> {
+  async validateCredentials(
+    accountId: string,
+    tenantId: string = 'demo-tenant',
+  ): Promise<boolean> {
     try {
       const account = await this.accountRepository.findOne({
         where: { id: accountId, tenantId },
@@ -211,7 +250,9 @@ export class AccountCredentialService {
   /**
    * 获取所有账号ID（不包含凭证）
    */
-  async getAllAccounts(tenantId: string = 'demo-tenant'): Promise<SocialAccount[]> {
+  async getAllAccounts(
+    tenantId: string = 'demo-tenant',
+  ): Promise<SocialAccount[]> {
     return this.accountRepository.find({
       where: { tenantId },
       select: [
@@ -236,7 +277,11 @@ export class AccountCredentialService {
   private async encrypt(text: string): Promise<string> {
     try {
       const iv = crypto.randomBytes(12); // GCM推荐12字节IV
-      const cipher = crypto.createCipheriv(this.algorithm, this.encryptionKey, iv);
+      const cipher = crypto.createCipheriv(
+        this.algorithm,
+        this.encryptionKey,
+        iv,
+      );
 
       let encrypted = cipher.update(text, 'utf8', 'hex');
       encrypted += cipher.final('hex');
@@ -264,7 +309,11 @@ export class AccountCredentialService {
       const encrypted = parts[1];
       const authTag = Buffer.from(parts[2], 'hex');
 
-      const decipher = crypto.createDecipheriv(this.algorithm, this.encryptionKey, iv);
+      const decipher = crypto.createDecipheriv(
+        this.algorithm,
+        this.encryptionKey,
+        iv,
+      );
       decipher.setAuthTag(authTag);
 
       let decrypted = decipher.update(encrypted, 'hex', 'utf8');
@@ -287,7 +336,10 @@ export class AccountCredentialService {
   /**
    * 从凭证中提取账号名称
    */
-  private getAccountNameFromCredentials(platform: PlatformType, credentials: PlatformCredentials): string {
+  private getAccountNameFromCredentials(
+    platform: PlatformType,
+    credentials: PlatformCredentials,
+  ): string {
     switch (platform) {
       case PlatformType.WECHAT:
         return (credentials as any).wechatName || '微信公众号';
@@ -305,7 +357,10 @@ export class AccountCredentialService {
   /**
    * 从凭证中提取平台用户ID
    */
-  private getPlatformUserId(platform: PlatformType, credentials: PlatformCredentials): string {
+  private getPlatformUserId(
+    platform: PlatformType,
+    credentials: PlatformCredentials,
+  ): string {
     switch (platform) {
       case PlatformType.WECHAT:
         return (credentials as any).wechatId || '';
@@ -323,7 +378,10 @@ export class AccountCredentialService {
   /**
    * 从凭证中提取平台用户名
    */
-  private getPlatformUserName(platform: PlatformType, credentials: PlatformCredentials): string {
+  private getPlatformUserName(
+    platform: PlatformType,
+    credentials: PlatformCredentials,
+  ): string {
     switch (platform) {
       case PlatformType.WECHAT:
         return (credentials as any).wechatName || '';

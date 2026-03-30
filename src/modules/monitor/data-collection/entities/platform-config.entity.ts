@@ -1,6 +1,19 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
-import { PlatformType, CollectionMethod } from '../interfaces/data-collection.interface';
-import type { PlatformCredentials, CollectionConfig } from '../interfaces/data-collection.interface';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Index,
+} from 'typeorm';
+import {
+  PlatformType,
+  CollectionMethod,
+} from '../interfaces/data-collection.interface';
+import type {
+  PlatformCredentials,
+  CollectionConfig,
+} from '../interfaces/data-collection.interface';
 
 @Entity('platform_configs')
 @Index(['platform', 'tenantId'], { unique: true })
@@ -13,14 +26,14 @@ export class PlatformConfig {
 
   @Column({
     type: 'enum',
-    enum: PlatformType
+    enum: PlatformType,
   })
   platform: PlatformType;
 
   @Column({
     type: 'enum',
     enum: CollectionMethod,
-    default: CollectionMethod.API
+    default: CollectionMethod.API,
   })
   primaryMethod: CollectionMethod;
 

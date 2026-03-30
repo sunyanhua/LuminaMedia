@@ -2,22 +2,22 @@
  * 报告类型
  */
 export enum ReportType {
-  DAILY = 'daily',          // 日报
-  WEEKLY = 'weekly',        // 周报
-  MONTHLY = 'monthly',      // 月报
+  DAILY = 'daily', // 日报
+  WEEKLY = 'weekly', // 周报
+  MONTHLY = 'monthly', // 月报
   PERFORMANCE = 'performance', // 性能报告
-  SECURITY = 'security',    // 安全报告
-  BUSINESS = 'business',    // 业务报告
+  SECURITY = 'security', // 安全报告
+  BUSINESS = 'business', // 业务报告
 }
 
 /**
  * 报告状态
  */
 export enum ReportStatus {
-  PENDING = 'pending',      // 待生成
+  PENDING = 'pending', // 待生成
   GENERATING = 'generating', // 生成中
-  COMPLETED = 'completed',  // 已完成
-  FAILED = 'failed',        // 失败
+  COMPLETED = 'completed', // 已完成
+  FAILED = 'failed', // 失败
 }
 
 /**

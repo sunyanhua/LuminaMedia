@@ -7,7 +7,13 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiQuery,
+} from '@nestjs/swagger';
 
 import { SentimentAnalysisService } from '../services/sentiment-analysis.service';
 import {
@@ -59,14 +65,14 @@ export class SentimentAnalysisController {
     description: '请求参数无效',
   })
   async analyzeText(
-    @Body() request: SentimentAnalysisRequestDto
+    @Body() request: SentimentAnalysisRequestDto,
   ): Promise<SentimentResult> {
     try {
       return await this.sentimentService.analyzeText(request);
     } catch (error) {
       throw new HttpException(
         `情感分析失败: ${error.message}`,
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
     }
   }
@@ -80,14 +86,14 @@ export class SentimentAnalysisController {
     type: Array, // Would need proper DTO for SentimentResult[]
   })
   async analyzeTexts(
-    @Body() request: BatchSentimentAnalysisRequestDto
+    @Body() request: BatchSentimentAnalysisRequestDto,
   ): Promise<SentimentResult[]> {
     try {
       return await this.sentimentService.analyzeTexts(request.requests);
     } catch (error) {
       throw new HttpException(
         `批量情感分析失败: ${error.message}`,
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
     }
   }
@@ -101,11 +107,11 @@ export class SentimentAnalysisController {
     type: Object, // Would need proper DTO for SentimentTrendAnalysis
   })
   async analyzeTrend(
-    @Body() request: SentimentTrendRequestDto
+    @Body() request: SentimentTrendRequestDto,
   ): Promise<SentimentTrendAnalysis> {
     try {
       // 转换时间戳字符串为Date对象
-      const textsWithDates = request.texts.map(item => ({
+      const textsWithDates = request.texts.map((item) => ({
         text: item.text,
         timestamp: new Date(item.timestamp),
       }));
@@ -117,7 +123,7 @@ export class SentimentAnalysisController {
     } catch (error) {
       throw new HttpException(
         `情感趋势分析失败: ${error.message}`,
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
     }
   }
@@ -131,20 +137,23 @@ export class SentimentAnalysisController {
     type: Array, // Would need proper DTO for SentimentAlert[]
   })
   async checkAlerts(
-    @Body() request: AlertCheckRequestDto
+    @Body() request: AlertCheckRequestDto,
   ): Promise<SentimentAlert[]> {
     try {
       // 转换时间戳字符串为Date对象
-      const textsWithDates = request.texts.map(item => ({
+      const textsWithDates = request.texts.map((item) => ({
         text: item.text,
         timestamp: new Date(item.timestamp),
       }));
 
-      return await this.sentimentService.checkAlerts(textsWithDates, request.rules);
+      return await this.sentimentService.checkAlerts(
+        textsWithDates,
+        request.rules,
+      );
     } catch (error) {
       throw new HttpException(
         `预警检查失败: ${error.message}`,
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
     }
   }
@@ -161,7 +170,7 @@ export class SentimentAnalysisController {
 
       // 检查是否有可用的提供商
       const hasHealthyProvider = Object.values(providersHealth).some(
-        health => health.healthy
+        (health) => health.healthy,
       );
 
       return {
@@ -171,7 +180,7 @@ export class SentimentAnalysisController {
     } catch (error) {
       throw new HttpException(
         `健康检查失败: ${error.message}`,
-        HttpStatus.SERVICE_UNAVAILABLE
+        HttpStatus.SERVICE_UNAVAILABLE,
       );
     }
   }
@@ -193,7 +202,7 @@ export class SentimentAnalysisController {
   @ApiOperation({ summary: '测试情感分析功能' })
   @ApiBody({ type: SentimentAnalysisRequestDto })
   async testAnalysis(
-    @Body() request: SentimentAnalysisRequestDto
+    @Body() request: SentimentAnalysisRequestDto,
   ): Promise<{ success: boolean; result?: SentimentResult; error?: string }> {
     try {
       const result = await this.sentimentService.analyzeText(request);

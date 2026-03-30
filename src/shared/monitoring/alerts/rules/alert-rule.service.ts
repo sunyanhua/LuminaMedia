@@ -36,7 +36,7 @@ export class AlertRuleService implements OnModuleInit {
    * 初始化预定义告警规则
    */
   private async initializeRules(): Promise<void> {
-    PREDEFINED_ALERT_RULES.forEach(rule => {
+    PREDEFINED_ALERT_RULES.forEach((rule) => {
       this.rules.set(rule.id, { ...rule, triggerCount: 0 });
     });
     this.logger.log(`Initialized ${this.rules.size} alert rules`);
@@ -65,7 +65,8 @@ export class AlertRuleService implements OnModuleInit {
     ];
 
     // 从配置加载其他渠道
-    const emailEnabled = this.configService.get<string>('ALERT_EMAIL_ENABLED', 'false') === 'true';
+    const emailEnabled =
+      this.configService.get<string>('ALERT_EMAIL_ENABLED', 'false') === 'true';
     if (emailEnabled) {
       defaultChannels.push({
         id: 'email',
@@ -81,7 +82,7 @@ export class AlertRuleService implements OnModuleInit {
       });
     }
 
-    defaultChannels.forEach(channel => {
+    defaultChannels.forEach((channel) => {
       this.channels.set(channel.id, channel);
     });
 
@@ -107,7 +108,9 @@ export class AlertRuleService implements OnModuleInit {
 
       // 检查静默期
       if (rule.lastTriggeredAt && rule.silencePeriod) {
-        const silenceEnd = new Date(rule.lastTriggeredAt.getTime() + rule.silencePeriod * 1000);
+        const silenceEnd = new Date(
+          rule.lastTriggeredAt.getTime() + rule.silencePeriod * 1000,
+        );
         if (now < silenceEnd) {
           continue;
         }
@@ -145,7 +148,13 @@ export class AlertRuleService implements OnModuleInit {
    * 评估单个条件
    */
   private async evaluateCondition(condition: AlertCondition): Promise<boolean> {
-    const { metric, operator, threshold, timeWindow = 300, aggregation = 'avg' } = condition;
+    const {
+      metric,
+      operator,
+      threshold,
+      timeWindow = 300,
+      aggregation = 'avg',
+    } = condition;
     const now = new Date();
     const startTime = new Date(now.getTime() - timeWindow * 1000);
 
@@ -178,7 +187,7 @@ export class AlertRuleService implements OnModuleInit {
       return null;
     }
 
-    const values = metrics.map(m => m.value);
+    const values = metrics.map((m) => m.value);
 
     switch (aggregation) {
       case 'avg':
@@ -227,7 +236,11 @@ export class AlertRuleService implements OnModuleInit {
   /**
    * 应用操作符
    */
-  private applyOperator(value: number, operator: string, threshold: number): boolean {
+  private applyOperator(
+    value: number,
+    operator: string,
+    threshold: number,
+  ): boolean {
     switch (operator) {
       case '>':
         return value > threshold;
@@ -249,7 +262,10 @@ export class AlertRuleService implements OnModuleInit {
   /**
    * 触发告警
    */
-  private async triggerAlert(rule: AlertRule, triggeredAt: Date): Promise<void> {
+  private async triggerAlert(
+    rule: AlertRule,
+    triggeredAt: Date,
+  ): Promise<void> {
     // 更新规则状态
     rule.lastTriggeredAt = triggeredAt;
     rule.triggerCount = (rule.triggerCount || 0) + 1;
@@ -264,7 +280,10 @@ export class AlertRuleService implements OnModuleInit {
         triggeredAt,
       );
       if (timeSeries.length > 0) {
-        const aggregatedValue = this.aggregateMetrics(timeSeries, condition.aggregation || 'avg');
+        const aggregatedValue = this.aggregateMetrics(
+          timeSeries,
+          condition.aggregation || 'avg',
+        );
         conditionValues.push(aggregatedValue || 0);
       }
     }
@@ -307,9 +326,14 @@ export class AlertRuleService implements OnModuleInit {
 
       try {
         await this.sendNotification(channel, alert);
-        this.logger.debug(`Alert notification sent via ${channel.type}: ${alert.ruleName}`);
+        this.logger.debug(
+          `Alert notification sent via ${channel.type}: ${alert.ruleName}`,
+        );
       } catch (error) {
-        this.logger.error(`Failed to send alert notification via ${channel.type}`, error);
+        this.logger.error(
+          `Failed to send alert notification via ${channel.type}`,
+          error,
+        );
       }
     }
   }
@@ -317,12 +341,17 @@ export class AlertRuleService implements OnModuleInit {
   /**
    * 发送通知到具体渠道
    */
-  private async sendNotification(channel: AlertChannel, alert: AlertInstance): Promise<void> {
+  private async sendNotification(
+    channel: AlertChannel,
+    alert: AlertInstance,
+  ): Promise<void> {
     // 简化实现：仅记录到日志
     switch (channel.type) {
       case AlertChannelType.DASHBOARD:
       case AlertChannelType.CONSOLE:
-        this.logger.log(`[ALERT ${alert.severity}] ${alert.ruleName}: ${alert.description}`);
+        this.logger.log(
+          `[ALERT ${alert.severity}] ${alert.ruleName}: ${alert.description}`,
+        );
         break;
       case AlertChannelType.EMAIL:
         // 实际应发送邮件
@@ -352,7 +381,7 @@ export class AlertRuleService implements OnModuleInit {
    * 获取活跃告警
    */
   getActiveAlerts(): AlertInstance[] {
-    return Array.from(this.alerts.values()).filter(alert => !alert.recovered);
+    return Array.from(this.alerts.values()).filter((alert) => !alert.recovered);
   }
 
   /**

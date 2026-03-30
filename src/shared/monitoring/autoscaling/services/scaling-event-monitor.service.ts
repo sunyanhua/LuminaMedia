@@ -179,8 +179,7 @@ export class ScalingEventMonitor {
     }
 
     // 检查大规模扩容
-    const scaleAmount =
-      event.desiredReplicas - event.currentReplicas;
+    const scaleAmount = event.desiredReplicas - event.currentReplicas;
     if (scaleAmount >= 5) {
       await this.triggerLargeScaleAlert(event, scaleAmount);
     }
@@ -493,7 +492,8 @@ export class ScalingEventMonitor {
       severity: string;
     }>;
   } {
-    const issues: Array<{ ruleId: string; issue: string; severity: string }> = [];
+    const issues: Array<{ ruleId: string; issue: string; severity: string }> =
+      [];
     let totalEvents = 0;
     let totalErrorEvents = 0;
 
@@ -501,7 +501,8 @@ export class ScalingEventMonitor {
       totalEvents += stats.totalEvents;
       totalErrorEvents += stats.errorEvents;
 
-      const errorRate = stats.totalEvents > 0 ? stats.errorEvents / stats.totalEvents : 0;
+      const errorRate =
+        stats.totalEvents > 0 ? stats.errorEvents / stats.totalEvents : 0;
       if (errorRate > 0.3) {
         issues.push({
           ruleId,
@@ -519,7 +520,8 @@ export class ScalingEventMonitor {
       }
     }
 
-    const overallErrorRate = totalEvents > 0 ? totalErrorEvents / totalEvents : 0;
+    const overallErrorRate =
+      totalEvents > 0 ? totalErrorEvents / totalEvents : 0;
     const healthy = overallErrorRate < 0.5 && issues.length === 0;
 
     return {

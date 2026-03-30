@@ -1,5 +1,15 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
-import { PlatformType, DataStatus } from '../interfaces/data-collection.interface';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Index,
+} from 'typeorm';
+import {
+  PlatformType,
+  DataStatus,
+} from '../interfaces/data-collection.interface';
 
 @Entity('collected_data')
 @Index(['platform', 'sourceId'], { unique: true })
@@ -15,7 +25,7 @@ export class CollectedData {
 
   @Column({
     type: 'enum',
-    enum: PlatformType
+    enum: PlatformType,
   })
   platform: PlatformType;
 
@@ -61,7 +71,7 @@ export class CollectedData {
   @Column({
     type: 'enum',
     enum: DataStatus,
-    default: DataStatus.RAW
+    default: DataStatus.RAW,
   })
   status: DataStatus;
 

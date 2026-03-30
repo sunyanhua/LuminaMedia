@@ -15,70 +15,70 @@ import { User } from './user.entity';
 
 // 基础信息
 export interface EnterpriseBasicInfo {
-  industry: string;           // 行业
+  industry: string; // 行业
   scale: 'small' | 'medium' | 'large'; // 规模
-  region: string;            // 地区
-  foundingYear: number;      // 创立年份
-  employeeCount?: number;    // 员工数量
-  annualRevenue?: string;    // 年收入范围
-  website?: string;          // 官网
-  description?: string;      // 企业描述
+  region: string; // 地区
+  foundingYear: number; // 创立年份
+  employeeCount?: number; // 员工数量
+  annualRevenue?: string; // 年收入范围
+  website?: string; // 官网
+  description?: string; // 企业描述
 }
 
 // 品牌形象
 export interface EnterpriseBrandImage {
-  tone: string[];            // 语调风格
-  values: string[];          // 品牌价值观
-  personality: string[];     // 品牌人格
-  visualStyle: string[];     // 视觉风格
-  tagline?: string;          // 品牌标语
-  colorPalette?: string[];   // 品牌色系
-  logoStyle?: string;        // LOGO风格
+  tone: string[]; // 语调风格
+  values: string[]; // 品牌价值观
+  personality: string[]; // 品牌人格
+  visualStyle: string[]; // 视觉风格
+  tagline?: string; // 品牌标语
+  colorPalette?: string[]; // 品牌色系
+  logoStyle?: string; // LOGO风格
 }
 
 // 内容偏好
 export interface EnterpriseContentPreference {
-  topics: string[];          // 偏好话题
-  formats: string[];         // 内容格式（图文、视频等）
-  frequency: string;         // 发布频率
-  peakHours: number[];       // 高峰时段
-  contentLength: string;     // 内容长度偏好
-  languageStyle: string;     // 语言风格
-  keyMessages: string[];     // 核心传播信息
+  topics: string[]; // 偏好话题
+  formats: string[]; // 内容格式（图文、视频等）
+  frequency: string; // 发布频率
+  peakHours: number[]; // 高峰时段
+  contentLength: string; // 内容长度偏好
+  languageStyle: string; // 语言风格
+  keyMessages: string[]; // 核心传播信息
 }
 
 // 禁忌限制
 export interface EnterpriseRestrictions {
-  forbiddenWords: string[];  // 禁忌词
+  forbiddenWords: string[]; // 禁忌词
   sensitiveTopics: string[]; // 敏感话题
   legalConstraints: string[]; // 法律限制
-  culturalTaboos: string[];  // 文化禁忌
+  culturalTaboos: string[]; // 文化禁忌
   competitorNames?: string[]; // 竞品名称（避免提及）
   politicalSensitivity?: string[]; // 政治敏感点
 }
 
 // 成功案例模式
 export interface EnterpriseSuccessPattern {
-  topic: string;             // 话题
-  engagementRate: number;    // 参与率
-  format: string;            // 内容格式
-  timing: string;            // 发布时间
-  audienceReaction: string;  // 受众反应
+  topic: string; // 话题
+  engagementRate: number; // 参与率
+  format: string; // 内容格式
+  timing: string; // 发布时间
+  audienceReaction: string; // 受众反应
 }
 
 // 时间分析
 export interface TimingAnalysis {
-  dayOfWeek: string;         // 星期几
-  hourOfDay: number;         // 小时
-  engagementScore: number;   // 参与度分数
+  dayOfWeek: string; // 星期几
+  hourOfDay: number; // 小时
+  engagementScore: number; // 参与度分数
 }
 
 // 响应模式
 export interface ResponsePattern {
-  audienceSegment: string;   // 受众细分
-  responseType: string;      // 响应类型（点赞、评论、转发）
+  audienceSegment: string; // 受众细分
+  responseType: string; // 响应类型（点赞、评论、转发）
   sentiment: 'positive' | 'neutral' | 'negative'; // 情感倾向
-  commonFeedback: string[];  // 常见反馈
+  commonFeedback: string[]; // 常见反馈
 }
 
 // 完整企业画像
@@ -89,20 +89,20 @@ export interface EnterpriseProfileData {
   restrictions: EnterpriseRestrictions;
   successPatterns: {
     highEngagementTopics: string[]; // 高参与度话题
-    effectiveFormats: string[];     // 有效内容格式
-    bestTiming: TimingAnalysis[];   // 最佳发布时间
+    effectiveFormats: string[]; // 有效内容格式
+    bestTiming: TimingAnalysis[]; // 最佳发布时间
     audienceResponse: ResponsePattern[]; // 受众反应模式
   };
-  analysisSummary?: string;         // 分析摘要
+  analysisSummary?: string; // 分析摘要
   confidenceScores: {
-    basicInfo: number;              // 基础信息置信度
-    brandImage: number;             // 品牌形象置信度
-    contentPreference: number;      // 内容偏好置信度
-    restrictions: number;           // 禁忌限制置信度
-    successPatterns: number;        // 成功模式置信度
+    basicInfo: number; // 基础信息置信度
+    brandImage: number; // 品牌形象置信度
+    contentPreference: number; // 内容偏好置信度
+    restrictions: number; // 禁忌限制置信度
+    successPatterns: number; // 成功模式置信度
   };
-  lastUpdated: string;              // 最后更新时间
-  version: number;                  // 画像版本
+  lastUpdated: string; // 最后更新时间
+  version: number; // 画像版本
 }
 
 @Entity('enterprise_profiles')
@@ -187,7 +187,12 @@ export class EnterpriseProfile implements TenantEntity {
   isCurrent: boolean;
 
   // 上一个版本ID
-  @Column({ name: 'previous_version_id', type: 'varchar', length: 36, nullable: true })
+  @Column({
+    name: 'previous_version_id',
+    type: 'varchar',
+    length: 36,
+    nullable: true,
+  })
   previousVersionId: string;
 
   // 特征向量（用于相似性搜索）

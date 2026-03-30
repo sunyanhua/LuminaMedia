@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../../../src/app.module';
-import { GovernmentContentType, GovernmentContentStyle, ComplianceLevel } from '../../../../src/modules/publish/interfaces/government-content.interface';
+import {
+  GovernmentContentType,
+  GovernmentContentStyle,
+  ComplianceLevel,
+} from '../../../../src/modules/publish/interfaces/government-content.interface';
 
 /**
  * 政务版DEMO端到端测试
@@ -43,7 +47,9 @@ describe('政务版DEMO端到端测试 (e2e)', () => {
 
       expect(documentResponse.body.success).toBe(true);
       expect(documentResponse.body.content).toBeDefined();
-      expect(documentResponse.body.content.type).toBe(GovernmentContentType.OFFICIAL_DOCUMENT);
+      expect(documentResponse.body.content.type).toBe(
+        GovernmentContentType.OFFICIAL_DOCUMENT,
+      );
       expect(documentResponse.body.complianceCheck.passed).toBe(true);
 
       const documentId = documentResponse.body.content.header?.documentNumber;
@@ -63,7 +69,9 @@ describe('政务版DEMO端到端测试 (e2e)', () => {
         .expect(200);
 
       expect(antiFraudResponse.body.success).toBe(true);
-      expect(antiFraudResponse.body.content.type).toBe(GovernmentContentType.ANTI_FRAUD);
+      expect(antiFraudResponse.body.content.type).toBe(
+        GovernmentContentType.ANTI_FRAUD,
+      );
       expect(antiFraudResponse.body.content.fraudType).toBe('电信网络诈骗');
 
       // 3. 生成政策解读内容
@@ -81,7 +89,9 @@ describe('政务版DEMO端到端测试 (e2e)', () => {
         .expect(200);
 
       expect(policyResponse.body.success).toBe(true);
-      expect(policyResponse.body.content.type).toBe(GovernmentContentType.POLICY_INTERPRETATION);
+      expect(policyResponse.body.content.type).toBe(
+        GovernmentContentType.POLICY_INTERPRETATION,
+      );
       expect(policyResponse.body.content.issuingAuthority).toBe('XX市税务局');
 
       // 4. 检查内容合规性
@@ -181,10 +191,14 @@ describe('政务版DEMO端到端测试 (e2e)', () => {
         .expect(200);
 
       expect(Array.isArray(batchComplianceResponse.body)).toBe(true);
-      expect(batchComplianceResponse.body.length).toBe(generatedContents.length);
+      expect(batchComplianceResponse.body.length).toBe(
+        generatedContents.length,
+      );
 
       // 验证所有内容都通过合规检查
-      const allPassed = batchComplianceResponse.body.every((result: any) => result.passed === true);
+      const allPassed = batchComplianceResponse.body.every(
+        (result: any) => result.passed === true,
+      );
       expect(allPassed).toBe(true);
     }, 20000);
   });
@@ -253,7 +267,9 @@ describe('政务版DEMO端到端测试 (e2e)', () => {
       expect(response.body.generationTime).toBeDefined();
       expect(generationTime).toBeLessThan(5000); // 应在5秒内完成
 
-      console.log(`内容生成时间: ${generationTime}ms, 服务报告时间: ${response.body.generationTime}ms`);
+      console.log(
+        `内容生成时间: ${generationTime}ms, 服务报告时间: ${response.body.generationTime}ms`,
+      );
     });
 
     it('批量合规性检查应能处理多个内容', async () => {
@@ -292,7 +308,9 @@ describe('政务版DEMO端到端测试 (e2e)', () => {
       expect(response.body.length).toBe(testContents.length);
       expect(processingTime).toBeLessThan(10000); // 10个内容应在10秒内完成
 
-      console.log(`批量合规性检查时间 (${testContents.length}个内容): ${processingTime}ms`);
+      console.log(
+        `批量合规性检查时间 (${testContents.length}个内容): ${processingTime}ms`,
+      );
     });
   });
 });

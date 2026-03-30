@@ -239,7 +239,13 @@ export interface AIServiceStatus {
   available: boolean;
   models: ModelInfo[];
   latency?: number;
-  rateLimit?: { requestsPerMinute?: number; tokensPerMinute?: number; limit: number; remaining?: number; resetTime?: Date };
+  rateLimit?: {
+    requestsPerMinute?: number;
+    tokensPerMinute?: number;
+    limit: number;
+    remaining?: number;
+    resetTime?: Date;
+  };
   error?: string;
   lastChecked?: string;
 }

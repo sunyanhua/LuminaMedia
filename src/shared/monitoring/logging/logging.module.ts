@@ -23,11 +23,17 @@ import { LogAlertService } from './services/log-alert.service';
     },
     {
       provide: 'LOG_WRITERS',
-      useFactory: (consoleWriter: ConsoleLogWriter, fileWriter: FileLogWriter) => {
+      useFactory: (
+        consoleWriter: ConsoleLogWriter,
+        fileWriter: FileLogWriter,
+      ) => {
         const writers = [consoleWriter, fileWriter];
 
         // 根据环境决定是否启用文件写入器
-        if (process.env.NODE_ENV === 'production' || process.env.ENABLE_FILE_LOGGING === 'true') {
+        if (
+          process.env.NODE_ENV === 'production' ||
+          process.env.ENABLE_FILE_LOGGING === 'true'
+        ) {
           return writers;
         }
 
@@ -37,6 +43,11 @@ import { LogAlertService } from './services/log-alert.service';
       inject: [ConsoleLogWriter, FileLogWriter],
     },
   ],
-  exports: [StructuredLoggerService, NestLoggerAdapter, LogAnalysisService, LogAlertService],
+  exports: [
+    StructuredLoggerService,
+    NestLoggerAdapter,
+    LogAnalysisService,
+    LogAlertService,
+  ],
 })
 export class LoggingModule {}

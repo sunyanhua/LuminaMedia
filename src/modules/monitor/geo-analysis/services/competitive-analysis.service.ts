@@ -9,7 +9,10 @@ export class CompetitiveAnalysisService {
   /**
    * 分析竞争格局
    */
-  async analyzeCompetition(regions: GeoRegion[], request: GeoAnalysisRequestDto): Promise<any> {
+  async analyzeCompetition(
+    regions: GeoRegion[],
+    request: GeoAnalysisRequestDto,
+  ): Promise<any> {
     this.logger.log(`Analyzing competition for ${regions.length} regions`);
 
     const competitiveAnalysis = {
@@ -60,7 +63,7 @@ export class CompetitiveAnalysisService {
 
       // 收集竞争对手
       if (region.competitors) {
-        region.competitors.forEach(comp => {
+        region.competitors.forEach((comp) => {
           const key = `${comp.companyName}-${region.id}`;
           if (!allCompetitors.has(key)) {
             allCompetitors.set(key, {
@@ -71,7 +74,8 @@ export class CompetitiveAnalysisService {
           } else {
             const existing = allCompetitors.get(key);
             existing.regions.push(region.id);
-            existing.regionalMarketShare = (existing.regionalMarketShare + (comp.marketShare || 0)) / 2;
+            existing.regionalMarketShare =
+              (existing.regionalMarketShare + (comp.marketShare || 0)) / 2;
           }
         });
       }
@@ -79,23 +83,44 @@ export class CompetitiveAnalysisService {
 
     // 市场概况
     competitiveAnalysis.marketOverview.size = totalMarketSize;
-    competitiveAnalysis.marketOverview.growth = regions.length > 0 ? totalGrowth / regions.length : 0;
-    competitiveAnalysis.marketOverview.trends = this.identifyMarketTrends(regions, request);
-    competitiveAnalysis.marketOverview.drivers = this.identifyMarketDrivers(regions, request);
+    competitiveAnalysis.marketOverview.growth =
+      regions.length > 0 ? totalGrowth / regions.length : 0;
+    competitiveAnalysis.marketOverview.trends = this.identifyMarketTrends(
+      regions,
+      request,
+    );
+    competitiveAnalysis.marketOverview.drivers = this.identifyMarketDrivers(
+      regions,
+      request,
+    );
 
     // 竞争对手分析
     const competitors = Array.from(allCompetitors.values());
-    competitiveAnalysis.competitorAnalysis.competitors = this.analyzeCompetitors(competitors, regions, request);
-    competitiveAnalysis.competitorAnalysis.competitiveMatrix = this.buildCompetitiveMatrix(competitiveAnalysis.competitorAnalysis.competitors, request);
-    competitiveAnalysis.competitorAnalysis.marketShareDistribution = this.calculateMarketShareDistribution(competitiveAnalysis.competitorAnalysis.competitors);
+    competitiveAnalysis.competitorAnalysis.competitors =
+      this.analyzeCompetitors(competitors, regions, request);
+    competitiveAnalysis.competitorAnalysis.competitiveMatrix =
+      this.buildCompetitiveMatrix(
+        competitiveAnalysis.competitorAnalysis.competitors,
+        request,
+      );
+    competitiveAnalysis.competitorAnalysis.marketShareDistribution =
+      this.calculateMarketShareDistribution(
+        competitiveAnalysis.competitorAnalysis.competitors,
+      );
 
     // 竞争定位
-    competitiveAnalysis.competitivePositioning.ourPosition = this.assessOurPosition(request);
-    competitiveAnalysis.competitivePositioning.recommendedPosition = this.recommendPositioning(competitiveAnalysis.competitorAnalysis.competitors, request);
-    competitiveAnalysis.competitivePositioning.positioningStrategy = this.developPositioningStrategy(
-      competitiveAnalysis.competitivePositioning.ourPosition,
-      competitiveAnalysis.competitivePositioning.recommendedPosition
-    );
+    competitiveAnalysis.competitivePositioning.ourPosition =
+      this.assessOurPosition(request);
+    competitiveAnalysis.competitivePositioning.recommendedPosition =
+      this.recommendPositioning(
+        competitiveAnalysis.competitorAnalysis.competitors,
+        request,
+      );
+    competitiveAnalysis.competitivePositioning.positioningStrategy =
+      this.developPositioningStrategy(
+        competitiveAnalysis.competitivePositioning.ourPosition,
+        competitiveAnalysis.competitivePositioning.recommendedPosition,
+      );
 
     return competitiveAnalysis;
   }
@@ -145,13 +170,19 @@ export class CompetitiveAnalysisService {
   /**
    * 识别市场趋势
    */
-  private identifyMarketTrends(regions: GeoRegion[], request: GeoAnalysisRequestDto): string[] {
+  private identifyMarketTrends(
+    regions: GeoRegion[],
+    request: GeoAnalysisRequestDto,
+  ): string[] {
     const trends = new Set<string>();
 
     // 分析各地区趋势
     for (const region of regions) {
       // 数字化趋势
-      if (region.digitalInfrastructure?.internetPenetration && region.digitalInfrastructure.internetPenetration > 0.7) {
+      if (
+        region.digitalInfrastructure?.internetPenetration &&
+        region.digitalInfrastructure.internetPenetration > 0.7
+      ) {
         trends.add('数字化加速');
         trends.add('线上消费增长');
       }
@@ -169,14 +200,18 @@ export class CompetitiveAnalysisService {
       }
 
       // 可持续发展趋势
-      if (region.culturalData?.customs?.some((c: string) => c.includes('环保') || c.includes('绿色'))) {
+      if (
+        region.culturalData?.customs?.some(
+          (c: string) => c.includes('环保') || c.includes('绿色'),
+        )
+      ) {
         trends.add('绿色消费意识增强');
       }
     }
 
     // 添加行业特定趋势
     if (request.industries) {
-      request.industries.forEach(industry => {
+      request.industries.forEach((industry) => {
         if (industry.includes('科技') || industry.includes('数字')) {
           trends.add('技术创新驱动');
           trends.add('产品迭代加速');
@@ -198,31 +233,48 @@ export class CompetitiveAnalysisService {
   /**
    * 识别市场驱动因素
    */
-  private identifyMarketDrivers(regions: GeoRegion[], request: GeoAnalysisRequestDto): string[] {
+  private identifyMarketDrivers(
+    regions: GeoRegion[],
+    request: GeoAnalysisRequestDto,
+  ): string[] {
     const drivers = new Set<string>();
 
     // 经济驱动
-    const hasHighGrowth = regions.some(r => r.economicIndicators?.growthRate && r.economicIndicators.growthRate > 0.07);
+    const hasHighGrowth = regions.some(
+      (r) =>
+        r.economicIndicators?.growthRate &&
+        r.economicIndicators.growthRate > 0.07,
+    );
     if (hasHighGrowth) {
       drivers.add('经济增长');
       drivers.add('收入水平提升');
     }
 
     // 人口驱动
-    const totalPopulation = regions.reduce((sum, r) => sum + (r.population || 0), 0);
-    if (totalPopulation > 10000000) { // 超过1000万人口
+    const totalPopulation = regions.reduce(
+      (sum, r) => sum + (r.population || 0),
+      0,
+    );
+    if (totalPopulation > 10000000) {
+      // 超过1000万人口
       drivers.add('人口规模');
       drivers.add('市场基数大');
     }
 
-    const youngPopulation = regions.some(r => this.getYoungPopulationRatio(r) > 0.65);
+    const youngPopulation = regions.some(
+      (r) => this.getYoungPopulationRatio(r) > 0.65,
+    );
     if (youngPopulation) {
       drivers.add('年轻人口');
       drivers.add('消费活力强');
     }
 
     // 技术驱动
-    const highDigital = regions.some(r => r.digitalInfrastructure?.internetPenetration && r.digitalInfrastructure.internetPenetration > 0.8);
+    const highDigital = regions.some(
+      (r) =>
+        r.digitalInfrastructure?.internetPenetration &&
+        r.digitalInfrastructure.internetPenetration > 0.8,
+    );
     if (highDigital) {
       drivers.add('数字化普及');
       drivers.add('技术基础设施完善');
@@ -233,7 +285,7 @@ export class CompetitiveAnalysisService {
     drivers.add('市场开放程度提高');
 
     // 社会文化驱动
-    const culturalOpenness = regions.some(r => {
+    const culturalOpenness = regions.some((r) => {
       const openness = this.assessCulturalOpenness(r);
       return openness === 'high' || openness === 'medium';
     });
@@ -248,15 +300,21 @@ export class CompetitiveAnalysisService {
   /**
    * 分析竞争对手
    */
-  private analyzeCompetitors(competitors: any[], regions: GeoRegion[], request: GeoAnalysisRequestDto): any[] {
-    return competitors.map(comp => {
+  private analyzeCompetitors(
+    competitors: any[],
+    regions: GeoRegion[],
+    request: GeoAnalysisRequestDto,
+  ): any[] {
+    return competitors.map((comp) => {
       const analysis = {
         name: comp.companyName,
-        marketShare: comp.marketShare || this.estimateMarketShare(comp, regions),
+        marketShare:
+          comp.marketShare || this.estimateMarketShare(comp, regions),
         strengths: comp.strengths || this.inferStrengths(comp, regions),
         weaknesses: comp.weaknesses || this.inferWeaknesses(comp, regions),
         strategies: comp.strategies || this.inferStrategies(comp, regions),
-        threatLevel: comp.threatLevel || this.assessThreatLevel(comp, regions, request),
+        threatLevel:
+          comp.threatLevel || this.assessThreatLevel(comp, regions, request),
         customerSatisfaction: this.estimateCustomerSatisfaction(comp, regions),
         digitalPresence: this.assessDigitalPresence(comp, regions),
         geographicCoverage: comp.regions || [],
@@ -272,19 +330,26 @@ export class CompetitiveAnalysisService {
   /**
    * 构建竞争矩阵
    */
-  private buildCompetitiveMatrix(competitors: any[], request: GeoAnalysisRequestDto): any {
+  private buildCompetitiveMatrix(
+    competitors: any[],
+    request: GeoAnalysisRequestDto,
+  ): any {
     // 选择评估维度
     const dimensions = this.selectCompetitiveDimensions(request);
 
-    const positions = competitors.map(comp => ({
+    const positions = competitors.map((comp) => ({
       competitor: comp.name,
-      scores: dimensions.map(dim => this.scoreCompetitorOnDimension(comp, dim)),
+      scores: dimensions.map((dim) =>
+        this.scoreCompetitorOnDimension(comp, dim),
+      ),
     }));
 
     // 添加我们的位置（假设）
     positions.push({
       competitor: '我们',
-      scores: dimensions.map(dim => this.scoreOurPositionOnDimension(dim, competitors, request)),
+      scores: dimensions.map((dim) =>
+        this.scoreOurPositionOnDimension(dim, competitors, request),
+      ),
     });
 
     return {
@@ -297,13 +362,17 @@ export class CompetitiveAnalysisService {
    * 计算市场份额分布
    */
   private calculateMarketShareDistribution(competitors: any[]): any[] {
-    const totalShare = competitors.reduce((sum, comp) => sum + (comp.marketShare || 0), 0);
+    const totalShare = competitors.reduce(
+      (sum, comp) => sum + (comp.marketShare || 0),
+      0,
+    );
 
     return competitors
-      .map(comp => ({
+      .map((comp) => ({
         competitor: comp.name,
         share: comp.marketShare || 0,
-        percentage: totalShare > 0 ? (comp.marketShare || 0) / totalShare * 100 : 0,
+        percentage:
+          totalShare > 0 ? ((comp.marketShare || 0) / totalShare) * 100 : 0,
         trend: this.determineShareTrend(comp),
       }))
       .sort((a, b) => b.share - a.share)
@@ -316,17 +385,12 @@ export class CompetitiveAnalysisService {
   private assessOurPosition(request: GeoAnalysisRequestDto): any {
     // 简化实现：基于请求参数假设
     return {
-      differentiation: [
-        '技术领先',
-        '客户服务优质',
-        '产品创新',
+      differentiation: ['技术领先', '客户服务优质', '产品创新'],
+      valueProposition: ['提供一站式解决方案', '高性价比', '快速响应市场变化'],
+      targetSegments: request.industries?.map((ind) => `${ind}行业客户`) || [
+        '中小企业',
+        '成长型企业',
       ],
-      valueProposition: [
-        '提供一站式解决方案',
-        '高性价比',
-        '快速响应市场变化',
-      ],
-      targetSegments: request.industries?.map(ind => `${ind}行业客户`) || ['中小企业', '成长型企业'],
       pricingStrategy: '价值导向定价',
       distributionChannels: ['直销', '线上平台', '合作伙伴'],
     };
@@ -335,7 +399,10 @@ export class CompetitiveAnalysisService {
   /**
    * 推荐定位
    */
-  private recommendPositioning(competitors: any[], request: GeoAnalysisRequestDto): any {
+  private recommendPositioning(
+    competitors: any[],
+    request: GeoAnalysisRequestDto,
+  ): any {
     // 分析竞争空白点
     const gaps = this.identifyCompetitiveGaps(competitors, request);
 
@@ -344,45 +411,57 @@ export class CompetitiveAnalysisService {
       valueProposition: gaps.valuePropositionOpportunities,
       targetSegments: this.identifyUnderservedSegments(competitors, request),
       pricingStrategy: this.recommendPricingStrategy(competitors, request),
-      distributionChannels: this.recommendDistributionChannels(competitors, request),
+      distributionChannels: this.recommendDistributionChannels(
+        competitors,
+        request,
+      ),
     };
   }
 
   /**
    * 制定定位策略
    */
-  private developPositioningStrategy(currentPosition: any, recommendedPosition: any): string[] {
+  private developPositioningStrategy(
+    currentPosition: any,
+    recommendedPosition: any,
+  ): string[] {
     const strategies: string[] = [];
 
     // 差异化策略
-    const newDifferentiations = recommendedPosition.differentiation
-      .filter((diff: string) => !currentPosition.differentiation.includes(diff));
+    const newDifferentiations = recommendedPosition.differentiation.filter(
+      (diff: string) => !currentPosition.differentiation.includes(diff),
+    );
     if (newDifferentiations.length > 0) {
       strategies.push(`强化${newDifferentiations[0]}作为核心差异化优势`);
     }
 
     // 价值主张策略
-    const newValueProps = recommendedPosition.valueProposition
-      .filter((vp: string) => !currentPosition.valueProposition.includes(vp));
+    const newValueProps = recommendedPosition.valueProposition.filter(
+      (vp: string) => !currentPosition.valueProposition.includes(vp),
+    );
     if (newValueProps.length > 0) {
       strategies.push(`在营销沟通中突出${newValueProps[0]}`);
     }
 
     // 目标市场策略
-    const newSegments = recommendedPosition.targetSegments
-      .filter((seg: string) => !currentPosition.targetSegments.includes(seg));
+    const newSegments = recommendedPosition.targetSegments.filter(
+      (seg: string) => !currentPosition.targetSegments.includes(seg),
+    );
     if (newSegments.length > 0) {
       strategies.push(`开拓${newSegments[0]}市场`);
     }
 
     // 定价策略
-    if (recommendedPosition.pricingStrategy !== currentPosition.pricingStrategy) {
+    if (
+      recommendedPosition.pricingStrategy !== currentPosition.pricingStrategy
+    ) {
       strategies.push(`采用${recommendedPosition.pricingStrategy}`);
     }
 
     // 渠道策略
-    const newChannels = recommendedPosition.distributionChannels
-      .filter((ch: string) => !currentPosition.distributionChannels.includes(ch));
+    const newChannels = recommendedPosition.distributionChannels.filter(
+      (ch: string) => !currentPosition.distributionChannels.includes(ch),
+    );
     if (newChannels.length > 0) {
       strategies.push(`拓展${newChannels[0]}渠道`);
     }
@@ -399,7 +478,11 @@ export class CompetitiveAnalysisService {
     const distribution = region.demographicData.ageDistribution;
     let youngRatio = 0;
     for (const [range, percentage] of Object.entries(distribution)) {
-      if (range.includes('18') || range.includes('25') || range.includes('35')) {
+      if (
+        range.includes('18') ||
+        range.includes('25') ||
+        range.includes('35')
+      ) {
         youngRatio += Number(percentage);
       }
     }
@@ -411,7 +494,10 @@ export class CompetitiveAnalysisService {
     // 简化评估
     const factors: string[] = [];
 
-    if (region.culturalData?.dialects && region.culturalData.dialects.length > 2) {
+    if (
+      region.culturalData?.dialects &&
+      region.culturalData.dialects.length > 2
+    ) {
       factors.push('language_diversity');
     }
 
@@ -495,11 +581,19 @@ export class CompetitiveAnalysisService {
     const strategies: string[] = [];
 
     // 基于优势推断
-    if (competitor.strengths?.some((s: string) => s.includes('成本') || s.includes('价格'))) {
+    if (
+      competitor.strengths?.some(
+        (s: string) => s.includes('成本') || s.includes('价格'),
+      )
+    ) {
       strategies.push('成本领先策略');
     }
 
-    if (competitor.strengths?.some((s: string) => s.includes('技术') || s.includes('创新'))) {
+    if (
+      competitor.strengths?.some(
+        (s: string) => s.includes('技术') || s.includes('创新'),
+      )
+    ) {
       strategies.push('差异化策略');
       strategies.push('技术创新驱动');
     }
@@ -517,7 +611,11 @@ export class CompetitiveAnalysisService {
     return strategies;
   }
 
-  private assessThreatLevel(competitor: any, regions: GeoRegion[], request: GeoAnalysisRequestDto): 'low' | 'medium' | 'high' {
+  private assessThreatLevel(
+    competitor: any,
+    regions: GeoRegion[],
+    request: GeoAnalysisRequestDto,
+  ): 'low' | 'medium' | 'high' {
     let threatScore = 0;
 
     // 市场份额
@@ -530,7 +628,7 @@ export class CompetitiveAnalysisService {
     // 地区覆盖
     if (competitor.regions) {
       const overlap = competitor.regions.filter((r: string) =>
-        regions.some(region => region.id === r)
+        regions.some((region) => region.id === r),
       ).length;
       if (overlap > 0) threatScore += 2;
     }
@@ -546,8 +644,10 @@ export class CompetitiveAnalysisService {
 
     // 行业匹配度
     if (request.industries && competitor.industry) {
-      const industryMatch = request.industries.some(ind =>
-        competitor.industry.includes(ind) || ind.includes(competitor.industry)
+      const industryMatch = request.industries.some(
+        (ind) =>
+          competitor.industry.includes(ind) ||
+          ind.includes(competitor.industry),
       );
       if (industryMatch) threatScore += 2;
     }
@@ -557,7 +657,10 @@ export class CompetitiveAnalysisService {
     return 'low';
   }
 
-  private estimateCustomerSatisfaction(competitor: any, regions: GeoRegion[]): number {
+  private estimateCustomerSatisfaction(
+    competitor: any,
+    regions: GeoRegion[],
+  ): number {
     // 简化估计：基于优势和弱点
     let satisfaction = 70; // 基础70%
 
@@ -570,7 +673,11 @@ export class CompetitiveAnalysisService {
     }
 
     // 如果有服务相关优势
-    if (competitor.strengths?.some((s: string) => s.includes('服务') || s.includes('客户'))) {
+    if (
+      competitor.strengths?.some(
+        (s: string) => s.includes('服务') || s.includes('客户'),
+      )
+    ) {
       satisfaction += 10;
     }
 
@@ -582,32 +689,45 @@ export class CompetitiveAnalysisService {
     let presence = 50;
 
     // 如果竞争对手在数字化程度高的地区
-    const digitalRegions = regions.filter(r =>
-      r.digitalInfrastructure?.internetPenetration && r.digitalInfrastructure.internetPenetration > 0.7
+    const digitalRegions = regions.filter(
+      (r) =>
+        r.digitalInfrastructure?.internetPenetration &&
+        r.digitalInfrastructure.internetPenetration > 0.7,
     );
-    const competitorInDigital = digitalRegions.some(r =>
-      competitor.regions?.includes(r.id)
+    const competitorInDigital = digitalRegions.some((r) =>
+      competitor.regions?.includes(r.id),
     );
     if (competitorInDigital) presence += 20;
 
     // 如果竞争对手有数字化相关优势
-    if (competitor.strengths?.some((s: string) =>
-      s.includes('数字') || s.includes('线上') || s.includes('技术') || s.includes('创新')
-    )) {
+    if (
+      competitor.strengths?.some(
+        (s: string) =>
+          s.includes('数字') ||
+          s.includes('线上') ||
+          s.includes('技术') ||
+          s.includes('创新'),
+      )
+    ) {
       presence += 15;
     }
 
     // 如果竞争对手有数字化相关弱点
-    if (competitor.weaknesses?.some((w: string) =>
-      w.includes('数字') || w.includes('线上') || w.includes('技术')
-    )) {
+    if (
+      competitor.weaknesses?.some(
+        (w: string) =>
+          w.includes('数字') || w.includes('线上') || w.includes('技术'),
+      )
+    ) {
       presence -= 10;
     }
 
     return Math.max(0, Math.min(100, presence));
   }
 
-  private assessFinancialHealth(competitor: any): 'healthy' | 'stable' | 'risky' {
+  private assessFinancialHealth(
+    competitor: any,
+  ): 'healthy' | 'stable' | 'risky' {
     // 简化评估
     const indicators: string[] = [];
 
@@ -622,43 +742,57 @@ export class CompetitiveAnalysisService {
     }
 
     // 基于弱点推断
-    if (competitor.weaknesses?.some((w: string) =>
-      w.includes('财务') || w.includes('资金') || w.includes('成本')
-    )) {
+    if (
+      competitor.weaknesses?.some(
+        (w: string) =>
+          w.includes('财务') || w.includes('资金') || w.includes('成本'),
+      )
+    ) {
       indicators.push('financial_concerns');
     }
 
     if (indicators.includes('financial_concerns')) {
       return 'risky';
-    } else if (indicators.includes('strong_market_position') && indicators.includes('diversified_revenue')) {
+    } else if (
+      indicators.includes('strong_market_position') &&
+      indicators.includes('diversified_revenue')
+    ) {
       return 'healthy';
     } else {
       return 'stable';
     }
   }
 
-  private assessInnovationCapability(competitor: any, regions: GeoRegion[]): 'high' | 'medium' | 'low' {
+  private assessInnovationCapability(
+    competitor: any,
+    regions: GeoRegion[],
+  ): 'high' | 'medium' | 'low' {
     // 简化评估
     const factors: string[] = [];
 
-    if (competitor.strengths?.some((s: string) =>
-      s.includes('创新') || s.includes('研发') || s.includes('技术')
-    )) {
+    if (
+      competitor.strengths?.some(
+        (s: string) =>
+          s.includes('创新') || s.includes('研发') || s.includes('技术'),
+      )
+    ) {
       factors.push('innovation_strength');
     }
 
-    if (competitor.strategies?.some((s: string) =>
-      s.includes('创新') || s.includes('技术')
-    )) {
+    if (
+      competitor.strategies?.some(
+        (s: string) => s.includes('创新') || s.includes('技术'),
+      )
+    ) {
       factors.push('innovation_strategy');
     }
 
     // 检查是否在创新友好的地区
-    const innovativeRegions = regions.filter(r =>
-      this.assessInnovationAdoption(r) === 'early'
+    const innovativeRegions = regions.filter(
+      (r) => this.assessInnovationAdoption(r) === 'early',
     );
-    const competitorInInnovative = innovativeRegions.some(r =>
-      competitor.regions?.includes(r.id)
+    const competitorInInnovative = innovativeRegions.some((r) =>
+      competitor.regions?.includes(r.id),
     );
     if (competitorInInnovative) {
       factors.push('innovative_environment');
@@ -669,9 +803,12 @@ export class CompetitiveAnalysisService {
     return 'low';
   }
 
-  private assessInnovationAdoption(region: GeoRegion): 'early' | 'mainstream' | 'lagging' {
+  private assessInnovationAdoption(
+    region: GeoRegion,
+  ): 'early' | 'mainstream' | 'lagging' {
     // 简化评估：基于数字化基础设施和经济发展水平
-    const digitalScore = (region.digitalInfrastructure?.internetPenetration || 0) * 100;
+    const digitalScore =
+      (region.digitalInfrastructure?.internetPenetration || 0) * 100;
     const economicScore = region.gdpPerCapita ? region.gdpPerCapita / 1000 : 0;
 
     const totalScore = digitalScore + economicScore;
@@ -681,7 +818,10 @@ export class CompetitiveAnalysisService {
     return 'lagging';
   }
 
-  private assessBrandStrength(competitor: any, regions: GeoRegion[]): 'strong' | 'moderate' | 'weak' {
+  private assessBrandStrength(
+    competitor: any,
+    regions: GeoRegion[],
+  ): 'strong' | 'moderate' | 'weak' {
     // 简化评估
     const factors: string[] = [];
 
@@ -693,9 +833,12 @@ export class CompetitiveAnalysisService {
       factors.push('geographic_reach');
     }
 
-    if (competitor.strengths?.some((s: string) =>
-      s.includes('品牌') || s.includes('知名') || s.includes('声誉')
-    )) {
+    if (
+      competitor.strengths?.some(
+        (s: string) =>
+          s.includes('品牌') || s.includes('知名') || s.includes('声誉'),
+      )
+    ) {
       factors.push('brand_strength');
     }
 
@@ -704,7 +847,9 @@ export class CompetitiveAnalysisService {
     return 'weak';
   }
 
-  private selectCompetitiveDimensions(request: GeoAnalysisRequestDto): string[] {
+  private selectCompetitiveDimensions(
+    request: GeoAnalysisRequestDto,
+  ): string[] {
     const defaultDimensions = [
       'price_competitiveness',
       'product_quality',
@@ -717,15 +862,15 @@ export class CompetitiveAnalysisService {
 
     // 根据行业调整维度
     const industryDimensions: Record<string, string[]> = {
-      '科技': ['innovation', 'technical_support', 'product_features'],
-      '零售': ['price_competitiveness', 'store_experience', 'product_variety'],
-      '服务': ['customer_service', 'response_time', 'customization'],
+      科技: ['innovation', 'technical_support', 'product_features'],
+      零售: ['price_competitiveness', 'store_experience', 'product_variety'],
+      服务: ['customer_service', 'response_time', 'customization'],
     };
 
     let dimensions = [...defaultDimensions];
 
     if (request.industries) {
-      request.industries.forEach(ind => {
+      request.industries.forEach((ind) => {
         if (industryDimensions[ind]) {
           dimensions = [...dimensions, ...industryDimensions[ind]];
         }
@@ -736,30 +881,47 @@ export class CompetitiveAnalysisService {
     return [...new Set(dimensions)].slice(0, 8);
   }
 
-  private scoreCompetitorOnDimension(competitor: any, dimension: string): number {
+  private scoreCompetitorOnDimension(
+    competitor: any,
+    dimension: string,
+  ): number {
     // 简化评分：基于竞争对手特征
     let score = 50; // 基础分
 
     switch (dimension) {
       case 'price_competitiveness':
-        if (competitor.strategies?.some((s: string) => s.includes('成本') || s.includes('价格'))) {
+        if (
+          competitor.strategies?.some(
+            (s: string) => s.includes('成本') || s.includes('价格'),
+          )
+        ) {
           score += 20;
         }
         break;
       case 'product_quality':
-        if (competitor.strengths?.some((s: string) => s.includes('质量') || s.includes('品质'))) {
+        if (
+          competitor.strengths?.some(
+            (s: string) => s.includes('质量') || s.includes('品质'),
+          )
+        ) {
           score += 15;
         }
         break;
       case 'customer_service':
-        if (competitor.strengths?.some((s: string) => s.includes('服务') || s.includes('客户'))) {
+        if (
+          competitor.strengths?.some(
+            (s: string) => s.includes('服务') || s.includes('客户'),
+          )
+        ) {
           score += 20;
         }
         break;
       case 'innovation':
         if (this.assessInnovationCapability(competitor, []) === 'high') {
           score += 25;
-        } else if (this.assessInnovationCapability(competitor, []) === 'medium') {
+        } else if (
+          this.assessInnovationCapability(competitor, []) === 'medium'
+        ) {
           score += 10;
         }
         break;
@@ -778,7 +940,11 @@ export class CompetitiveAnalysisService {
         score += (digitalPresence - 50) / 2;
         break;
       case 'technical_support':
-        if (competitor.strengths?.some((s: string) => s.includes('技术') || s.includes('支持'))) {
+        if (
+          competitor.strengths?.some(
+            (s: string) => s.includes('技术') || s.includes('支持'),
+          )
+        ) {
           score += 15;
         }
         break;
@@ -787,12 +953,20 @@ export class CompetitiveAnalysisService {
         score += 40; // 假设竞争对手在零售体验上有一定基础
         break;
       case 'response_time':
-        if (competitor.strengths?.some((s: string) => s.includes('快速') || s.includes('响应'))) {
+        if (
+          competitor.strengths?.some(
+            (s: string) => s.includes('快速') || s.includes('响应'),
+          )
+        ) {
           score += 20;
         }
         break;
       case 'customization':
-        if (competitor.strengths?.some((s: string) => s.includes('定制') || s.includes('个性化'))) {
+        if (
+          competitor.strengths?.some(
+            (s: string) => s.includes('定制') || s.includes('个性化'),
+          )
+        ) {
           score += 15;
         }
         break;
@@ -801,7 +975,11 @@ export class CompetitiveAnalysisService {
     return Math.max(0, Math.min(100, score));
   }
 
-  private scoreOurPositionOnDimension(dimension: string, competitors: any[], request: GeoAnalysisRequestDto): number {
+  private scoreOurPositionOnDimension(
+    dimension: string,
+    competitors: any[],
+    request: GeoAnalysisRequestDto,
+  ): number {
     // 简化评分：假设我们在某些维度有优势
     const ourScores: Record<string, number> = {
       price_competitiveness: 70,
@@ -820,7 +998,9 @@ export class CompetitiveAnalysisService {
     return ourScores[dimension] || 65;
   }
 
-  private determineShareTrend(competitor: any): 'increasing' | 'decreasing' | 'stable' {
+  private determineShareTrend(
+    competitor: any,
+  ): 'increasing' | 'decreasing' | 'stable' {
     // 简化判断：基于增长相关指标
     const factors: string[] = [];
 
@@ -841,7 +1021,10 @@ export class CompetitiveAnalysisService {
     return 'decreasing'; // 默认假设保守
   }
 
-  private identifyCompetitiveGaps(competitors: any[], request: GeoAnalysisRequestDto): any {
+  private identifyCompetitiveGaps(
+    competitors: any[],
+    request: GeoAnalysisRequestDto,
+  ): any {
     const gaps = {
       differentiationOpportunities: [] as string[],
       valuePropositionOpportunities: [] as string[],
@@ -849,8 +1032,12 @@ export class CompetitiveAnalysisService {
 
     // 分析竞争对手的共性弱点
     const commonWeaknesses = this.findCommonWeaknesses(competitors);
-    commonWeaknesses.forEach(weakness => {
-      if (weakness.includes('数字') || weakness.includes('线上') || weakness.includes('技术')) {
+    commonWeaknesses.forEach((weakness) => {
+      if (
+        weakness.includes('数字') ||
+        weakness.includes('线上') ||
+        weakness.includes('技术')
+      ) {
         gaps.differentiationOpportunities.push('数字化领先');
         gaps.valuePropositionOpportunities.push('一站式数字解决方案');
       }
@@ -865,9 +1052,15 @@ export class CompetitiveAnalysisService {
     });
 
     // 分析市场趋势与竞争对手能力的差距
-    if (request.industries?.some(ind => ind.includes('科技') || ind.includes('数字'))) {
-      const techCompetitors = competitors.filter(comp =>
-        comp.strengths?.some((s: string) => s.includes('技术') || s.includes('创新'))
+    if (
+      request.industries?.some(
+        (ind) => ind.includes('科技') || ind.includes('数字'),
+      )
+    ) {
+      const techCompetitors = competitors.filter((comp) =>
+        comp.strengths?.some(
+          (s: string) => s.includes('技术') || s.includes('创新'),
+        ),
       );
       if (techCompetitors.length < competitors.length * 0.3) {
         gaps.differentiationOpportunities.push('技术创新');
@@ -887,7 +1080,7 @@ export class CompetitiveAnalysisService {
   private findCommonWeaknesses(competitors: any[]): string[] {
     const weaknessCount = new Map<string, number>();
 
-    competitors.forEach(comp => {
+    competitors.forEach((comp) => {
       if (comp.weaknesses) {
         comp.weaknesses.forEach((weakness: string) => {
           weaknessCount.set(weakness, (weaknessCount.get(weakness) || 0) + 1);
@@ -902,12 +1095,15 @@ export class CompetitiveAnalysisService {
       .map(([weakness, _]) => weakness);
   }
 
-  private identifyUnderservedSegments(competitors: any[], request: GeoAnalysisRequestDto): string[] {
+  private identifyUnderservedSegments(
+    competitors: any[],
+    request: GeoAnalysisRequestDto,
+  ): string[] {
     const segments = new Set<string>();
 
     // 基于行业和地区特征推断
     if (request.industries) {
-      request.industries.forEach(industry => {
+      request.industries.forEach((industry) => {
         segments.add(`${industry}中小企业`);
         segments.add(`新兴${industry}企业`);
       });
@@ -915,9 +1111,11 @@ export class CompetitiveAnalysisService {
 
     // 基于竞争对手覆盖推断
     const competitorSegments = new Set<string>();
-    competitors.forEach(comp => {
+    competitors.forEach((comp) => {
       if (comp.targetSegments) {
-        comp.targetSegments.forEach((seg: string) => competitorSegments.add(seg));
+        comp.targetSegments.forEach((seg: string) =>
+          competitorSegments.add(seg),
+        );
       }
     });
 
@@ -930,7 +1128,7 @@ export class CompetitiveAnalysisService {
       '偏远地区客户',
     ];
 
-    potentialSegments.forEach(seg => {
+    potentialSegments.forEach((seg) => {
       if (!competitorSegments.has(seg)) {
         segments.add(seg);
       }
@@ -939,19 +1137,35 @@ export class CompetitiveAnalysisService {
     return Array.from(segments).slice(0, 5);
   }
 
-  private recommendPricingStrategy(competitors: any[], request: GeoAnalysisRequestDto): string {
+  private recommendPricingStrategy(
+    competitors: any[],
+    request: GeoAnalysisRequestDto,
+  ): string {
     // 分析竞争对手定价策略
     const pricingStrategies = new Map<string, number>();
-    competitors.forEach(comp => {
+    competitors.forEach((comp) => {
       if (comp.strategies) {
         comp.strategies.forEach((strategy: string) => {
-          if (strategy.includes('价格') || strategy.includes('成本') || strategy.includes('定价')) {
+          if (
+            strategy.includes('价格') ||
+            strategy.includes('成本') ||
+            strategy.includes('定价')
+          ) {
             if (strategy.includes('领先') || strategy.includes('低')) {
-              pricingStrategies.set('cost_leadership', (pricingStrategies.get('cost_leadership') || 0) + 1);
+              pricingStrategies.set(
+                'cost_leadership',
+                (pricingStrategies.get('cost_leadership') || 0) + 1,
+              );
             } else if (strategy.includes('差异') || strategy.includes('溢价')) {
-              pricingStrategies.set('premium', (pricingStrategies.get('premium') || 0) + 1);
+              pricingStrategies.set(
+                'premium',
+                (pricingStrategies.get('premium') || 0) + 1,
+              );
             } else if (strategy.includes('价值')) {
-              pricingStrategies.set('value_based', (pricingStrategies.get('value_based') || 0) + 1);
+              pricingStrategies.set(
+                'value_based',
+                (pricingStrategies.get('value_based') || 0) + 1,
+              );
             }
           }
         });
@@ -963,34 +1177,55 @@ export class CompetitiveAnalysisService {
     const premiumCount = pricingStrategies.get('premium') || 0;
     const valueBasedCount = pricingStrategies.get('value_based') || 0;
 
-    if (costLeadershipCount <= premiumCount && costLeadershipCount <= valueBasedCount) {
+    if (
+      costLeadershipCount <= premiumCount &&
+      costLeadershipCount <= valueBasedCount
+    ) {
       return '成本领先定价';
-    } else if (premiumCount <= costLeadershipCount && premiumCount <= valueBasedCount) {
+    } else if (
+      premiumCount <= costLeadershipCount &&
+      premiumCount <= valueBasedCount
+    ) {
       return '溢价定价';
     } else {
       return '价值导向定价';
     }
   }
 
-  private recommendDistributionChannels(competitors: any[], request: GeoAnalysisRequestDto): string[] {
+  private recommendDistributionChannels(
+    competitors: any[],
+    request: GeoAnalysisRequestDto,
+  ): string[] {
     const channels = new Set<string>();
 
     // 分析竞争对手渠道
     const competitorChannels = new Map<string, number>();
-    competitors.forEach(comp => {
+    competitors.forEach((comp) => {
       if (comp.distributionChannels) {
         comp.distributionChannels.forEach((channel: string) => {
-          competitorChannels.set(channel, (competitorChannels.get(channel) || 0) + 1);
+          competitorChannels.set(
+            channel,
+            (competitorChannels.get(channel) || 0) + 1,
+          );
         });
       }
     });
 
     // 推荐竞争对手使用较少的渠道
-    const allChannels = ['直销', '线上平台', '代理商', '经销商', '合作伙伴', '零售门店', '电子商务'];
+    const allChannels = [
+      '直销',
+      '线上平台',
+      '代理商',
+      '经销商',
+      '合作伙伴',
+      '零售门店',
+      '电子商务',
+    ];
 
-    allChannels.forEach(channel => {
+    allChannels.forEach((channel) => {
       const count = competitorChannels.get(channel) || 0;
-      if (count < competitors.length * 0.3) { // 少于30%的竞争对手使用
+      if (count < competitors.length * 0.3) {
+        // 少于30%的竞争对手使用
         channels.add(channel);
       }
     });

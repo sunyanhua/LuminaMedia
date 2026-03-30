@@ -5,14 +5,14 @@ export enum PlatformType {
   DOUYIN = 'douyin',
   NEWS = 'news',
   FORUM = 'forum',
-  OTHER = 'other'
+  OTHER = 'other',
 }
 
 export enum CollectionMethod {
   API = 'api',
   RSS = 'rss',
   CRAWLER = 'crawler',
-  HYBRID = 'hybrid'
+  HYBRID = 'hybrid',
 }
 
 export enum TaskStatus {
@@ -22,7 +22,7 @@ export enum TaskStatus {
   COMPLETED = 'completed',
   FAILED = 'failed',
   CANCELLED = 'cancelled',
-  RETRYING = 'retrying'
+  RETRYING = 'retrying',
 }
 
 export enum DataStatus {
@@ -30,7 +30,7 @@ export enum DataStatus {
   CLEANED = 'cleaned',
   PROCESSED = 'processed',
   ARCHIVED = 'archived',
-  DELETED = 'deleted'
+  DELETED = 'deleted',
 }
 
 export interface PlatformCredentials {

@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../../../src/app.module';
-import { GovernmentContentType, GovernmentContentStyle, ComplianceLevel } from '../../../../src/modules/publish/interfaces/government-content.interface';
+import {
+  GovernmentContentType,
+  GovernmentContentStyle,
+  ComplianceLevel,
+} from '../../../../src/modules/publish/interfaces/government-content.interface';
 
 /**
  * 政府内容性能测试
@@ -94,7 +98,7 @@ describe('政府内容性能测试', () => {
               style: GovernmentContentStyle.FORMAL,
               complianceLevel: ComplianceLevel.HIGH,
             })
-            .expect(200)
+            .expect(200),
         );
       }
 
@@ -104,7 +108,9 @@ describe('政府内容性能测试', () => {
       const totalTime = endTime - startTime;
 
       // 验证所有请求都成功
-      const allSuccessful = responses.every(response => response.body.success === true);
+      const allSuccessful = responses.every(
+        (response) => response.body.success === true,
+      );
       expect(allSuccessful).toBe(true);
 
       // 计算平均响应时间
@@ -114,7 +120,9 @@ describe('政府内容性能测试', () => {
       console.log(`并发数: ${concurrency}`);
       console.log(`总耗时: ${totalTime}ms`);
       console.log(`平均响应时间: ${avgResponseTime.toFixed(2)}ms`);
-      console.log(`吞吐量: ${(concurrency / (totalTime / 1000)).toFixed(2)} 请求/秒`);
+      console.log(
+        `吞吐量: ${(concurrency / (totalTime / 1000)).toFixed(2)} 请求/秒`,
+      );
       console.log(`所有请求成功: ${allSuccessful ? '✅' : '❌'}`);
 
       // 性能要求：平均响应时间 < 2秒
@@ -155,7 +163,9 @@ describe('政府内容性能测试', () => {
       console.log(`\n批量合规性检查性能:`);
       console.log(`内容数量: ${testContents.length}`);
       console.log(`响应时间: ${responseTime}ms`);
-      console.log(`平均每个内容: ${(responseTime / testContents.length).toFixed(2)}ms`);
+      console.log(
+        `平均每个内容: ${(responseTime / testContents.length).toFixed(2)}ms`,
+      );
     });
   });
 
@@ -178,7 +188,10 @@ describe('政府内容性能测试', () => {
           const response = await request(app.getHttpServer())
             .post('/government/generate')
             .send({
-              contentType: i % 2 === 0 ? GovernmentContentType.OFFICIAL_DOCUMENT : GovernmentContentType.ANTI_FRAUD,
+              contentType:
+                i % 2 === 0
+                  ? GovernmentContentType.OFFICIAL_DOCUMENT
+                  : GovernmentContentType.ANTI_FRAUD,
               theme: `负载测试 ${i}`,
               style: GovernmentContentStyle.FORMAL,
               complianceLevel: ComplianceLevel.HIGH,
@@ -199,7 +212,7 @@ describe('政府内容性能测试', () => {
 
         // 添加小延迟，模拟真实用户行为
         if (i < requestCount - 1) {
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 100));
         }
       }
 
@@ -208,7 +221,9 @@ describe('政府内容性能测试', () => {
 
       // 计算性能指标
       const successRate = (results.success / requestCount) * 100;
-      const avgResponseTime = results.responseTimes.reduce((a, b) => a + b, 0) / results.responseTimes.length;
+      const avgResponseTime =
+        results.responseTimes.reduce((a, b) => a + b, 0) /
+        results.responseTimes.length;
       const p95ResponseTime = calculatePercentile(results.responseTimes, 95);
       const throughput = requestCount / (totalTestTime / 1000);
 
@@ -234,8 +249,12 @@ describe('政府内容性能测试', () => {
       const initialMemory = process.memoryUsage();
       console.log(`\n初始内存使用:`);
       console.log(`  RSS: ${(initialMemory.rss / 1024 / 1024).toFixed(2)} MB`);
-      console.log(`  Heap Total: ${(initialMemory.heapTotal / 1024 / 1024).toFixed(2)} MB`);
-      console.log(`  Heap Used: ${(initialMemory.heapUsed / 1024 / 1024).toFixed(2)} MB`);
+      console.log(
+        `  Heap Total: ${(initialMemory.heapTotal / 1024 / 1024).toFixed(2)} MB`,
+      );
+      console.log(
+        `  Heap Used: ${(initialMemory.heapUsed / 1024 / 1024).toFixed(2)} MB`,
+      );
 
       // 执行一系列请求
       const requestCount = 10;
@@ -254,11 +273,17 @@ describe('政府内容性能测试', () => {
       const finalMemory = process.memoryUsage();
       console.log(`\n最终内存使用:`);
       console.log(`  RSS: ${(finalMemory.rss / 1024 / 1024).toFixed(2)} MB`);
-      console.log(`  Heap Total: ${(finalMemory.heapTotal / 1024 / 1024).toFixed(2)} MB`);
-      console.log(`  Heap Used: ${(finalMemory.heapUsed / 1024 / 1024).toFixed(2)} MB`);
+      console.log(
+        `  Heap Total: ${(finalMemory.heapTotal / 1024 / 1024).toFixed(2)} MB`,
+      );
+      console.log(
+        `  Heap Used: ${(finalMemory.heapUsed / 1024 / 1024).toFixed(2)} MB`,
+      );
 
       const memoryIncrease = finalMemory.heapUsed - initialMemory.heapUsed;
-      console.log(`\n内存增长: ${(memoryIncrease / 1024 / 1024).toFixed(2)} MB`);
+      console.log(
+        `\n内存增长: ${(memoryIncrease / 1024 / 1024).toFixed(2)} MB`,
+      );
 
       // 内存增长应在合理范围内
       expect(memoryIncrease).toBeLessThan(50 * 1024 * 1024); // 增长小于50MB
@@ -273,19 +298,22 @@ describe('政府内容性能测试', () => {
       { method: 'GET', path: '/government/stats' },
     ];
 
-    endpoints.forEach(endpoint => {
+    endpoints.forEach((endpoint) => {
       it(`API端点 ${endpoint.method} ${endpoint.path} 应在500ms内响应`, async () => {
         const startTime = Date.now();
 
-        const response = await request(app.getHttpServer())
-          [endpoint.method.toLowerCase() as 'get' | 'post'](endpoint.path);
+        const response = await request(app.getHttpServer())[
+          endpoint.method.toLowerCase() as 'get' | 'post'
+        ](endpoint.path);
 
         const responseTime = Date.now() - startTime;
 
         expect(response.status).toBe(200);
         expect(responseTime).toBeLessThan(500); // 500ms内响应
 
-        console.log(`API端点 ${endpoint.method} ${endpoint.path}: ${responseTime}ms`);
+        console.log(
+          `API端点 ${endpoint.method} ${endpoint.path}: ${responseTime}ms`,
+        );
       });
     });
   });

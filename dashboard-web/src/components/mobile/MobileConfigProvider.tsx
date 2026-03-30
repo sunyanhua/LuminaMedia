@@ -46,8 +46,8 @@ export function MobileConfigProvider({
 
   return (
     <ConfigProvider
-      // theme={themeConfig}
-      locale={undefined}
+      theme={themeConfig}
+      locale={localeConfig}
     >
       {children}
     </ConfigProvider>

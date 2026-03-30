@@ -31,9 +31,9 @@ COPY package*.json ./
 
 # Install all dependencies for development (including nest CLI)
 RUN npm install --legacy-peer-deps
-# Install nest CLI globally for nest command availability
+# Install nest CLI globally for nest command availability (development tool)
 RUN npm install -g @nestjs/cli
-# Install nodemon for hot reload in Docker
+# Install nodemon for hot reload in Docker (development tool)
 RUN npm install -g nodemon
 
 # Verify critical dependencies for proxy support
@@ -52,4 +52,6 @@ USER node
 EXPOSE 3003
 
 # Start the application
+# Production: uses node to run built application
+# Development: docker-compose overrides with "nodemon" for hot reload
 CMD ["node", "dist/main.js"]

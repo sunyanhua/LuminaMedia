@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../../../src/app.module';
-import { GovernmentContentType, GovernmentContentStyle, ComplianceLevel } from '../../../../src/modules/publish/interfaces/government-content.interface';
+import {
+  GovernmentContentType,
+  GovernmentContentStyle,
+  ComplianceLevel,
+} from '../../../../src/modules/publish/interfaces/government-content.interface';
 import { PlatformType } from '../../../../src/modules/publish/interfaces/platform-adapter.interface';
 
 /**
@@ -89,7 +93,11 @@ describe('政府数据流集成测试', () => {
           .get('/accounts')
           .expect(200);
 
-        if (accountsResponse.body && Array.isArray(accountsResponse.body) && accountsResponse.body.length > 0) {
+        if (
+          accountsResponse.body &&
+          Array.isArray(accountsResponse.body) &&
+          accountsResponse.body.length > 0
+        ) {
           hasAccounts = true;
           testAccountId = accountsResponse.body[0].id;
         }
@@ -189,12 +197,16 @@ describe('政府数据流集成测试', () => {
       console.log(`总耗时: ${totalTime}ms`);
       console.log('步骤详情:');
       flowSteps.forEach((step, index) => {
-        console.log(`  ${index + 1}. ${step.step}: ${step.success ? '✅' : '❌'} (${step.time}ms)`);
+        console.log(
+          `  ${index + 1}. ${step.step}: ${step.success ? '✅' : '❌'} (${step.time}ms)`,
+        );
       });
       console.log('==========================\n');
 
       // 验证所有步骤都成功
-      const allStepsSuccessful = flowSteps.every(step => step.success === true);
+      const allStepsSuccessful = flowSteps.every(
+        (step) => step.success === true,
+      );
       expect(allStepsSuccessful).toBe(true);
     }, 30000);
   });
@@ -238,8 +250,12 @@ describe('政府数据流集成测试', () => {
       }
 
       // 验证所有内容都成功生成并通过合规检查
-      const allGenerated = batchResults.every(result => result.generationSuccess === true);
-      const allCompliant = batchResults.every(result => result.compliancePassed === true);
+      const allGenerated = batchResults.every(
+        (result) => result.generationSuccess === true,
+      );
+      const allCompliant = batchResults.every(
+        (result) => result.compliancePassed === true,
+      );
 
       expect(allGenerated).toBe(true);
       expect(allCompliant).toBe(true);
@@ -247,7 +263,9 @@ describe('政府数据流集成测试', () => {
       // 输出批量处理结果
       console.log('\n=== 批量数据流验证结果 ===');
       batchResults.forEach((result, index) => {
-        console.log(`${index + 1}. ${result.contentType}: 生成${result.generationSuccess ? '✅' : '❌'}, 合规${result.compliancePassed ? '✅' : '❌'} (${result.complianceScore}分)`);
+        console.log(
+          `${index + 1}. ${result.contentType}: 生成${result.generationSuccess ? '✅' : '❌'}, 合规${result.compliancePassed ? '✅' : '❌'} (${result.complianceScore}分)`,
+        );
       });
       console.log('===========================\n');
     }, 20000);

@@ -164,7 +164,12 @@ export class AutoscalingController {
   @Get('decisions')
   @ApiOperation({ summary: '获取扩缩容决策历史' })
   @ApiQuery({ name: 'ruleId', required: false, description: '规则ID筛选' })
-  @ApiQuery({ name: 'limit', required: false, description: '返回数量限制', type: Number })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: '返回数量限制',
+    type: Number,
+  })
   @ApiResponse({ status: 200, description: '成功获取决策历史' })
   async getDecisions(
     @Query('ruleId') ruleId?: string,
@@ -177,7 +182,12 @@ export class AutoscalingController {
   @Get('events')
   @ApiOperation({ summary: '获取扩缩容事件历史' })
   @ApiQuery({ name: 'ruleId', required: false, description: '规则ID筛选' })
-  @ApiQuery({ name: 'limit', required: false, description: '返回数量限制', type: Number })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: '返回数量限制',
+    type: Number,
+  })
   @ApiResponse({ status: 200, description: '成功获取事件历史' })
   async getEvents(
     @Query('ruleId') ruleId?: string,
@@ -190,7 +200,9 @@ export class AutoscalingController {
   @Post('evaluate')
   @ApiOperation({ summary: '手动触发扩缩容评估' })
   @ApiResponse({ status: 200, description: '评估触发成功' })
-  async triggerEvaluation(@Body() dto: TriggerEvaluationDto): Promise<ScalingEvent[]> {
+  async triggerEvaluation(
+    @Body() dto: TriggerEvaluationDto,
+  ): Promise<ScalingEvent[]> {
     this.logger.log(`手动触发扩缩容评估: ${dto.ruleId || '所有规则'}`);
     return await this.decisionEngine.triggerEvaluation(dto.ruleId);
   }
@@ -303,7 +315,11 @@ export class AutoscalingController {
     }>;
     issues: string[];
   }> {
-    const components: Array<{ name: string; healthy: boolean; message: string }> = [];
+    const components: Array<{
+      name: string;
+      healthy: boolean;
+      message: string;
+    }> = [];
     const issues: string[] = [];
 
     try {
@@ -418,9 +434,7 @@ export class AutoscalingController {
     }, 0);
 
     const averageScaleAmount =
-      scalingEvents.length > 0
-        ? totalScaleAmount / scalingEvents.length
-        : 0;
+      scalingEvents.length > 0 ? totalScaleAmount / scalingEvents.length : 0;
 
     // 计算总副本数
     let totalReplicas = 0;

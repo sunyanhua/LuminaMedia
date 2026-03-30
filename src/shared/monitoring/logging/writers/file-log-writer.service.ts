@@ -13,7 +13,10 @@ export class FileLogWriter implements LogWriter, OnModuleDestroy {
   constructor() {
     // 确定日志目录 - 优先使用环境变量，否则使用项目根目录下的logs目录
     this.logDir = process.env.LOG_DIR || join(process.cwd(), 'logs');
-    this.logFile = join(this.logDir, `app-${new Date().toISOString().split('T')[0]}.log`);
+    this.logFile = join(
+      this.logDir,
+      `app-${new Date().toISOString().split('T')[0]}.log`,
+    );
 
     // 创建日志目录
     if (!existsSync(this.logDir)) {

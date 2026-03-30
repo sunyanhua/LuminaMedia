@@ -6,8 +6,8 @@ import { LogWriter } from '../interfaces/log-writer.interface';
 export class ConsoleLogWriter implements LogWriter {
   private readonly colors = {
     debug: '\x1b[36m', // 青色
-    info: '\x1b[32m',  // 绿色
-    warn: '\x1b[33m',  // 黄色
+    info: '\x1b[32m', // 绿色
+    warn: '\x1b[33m', // 黄色
     error: '\x1b[31m', // 红色
     verbose: '\x1b[35m', // 紫色
   };
@@ -29,7 +29,9 @@ export class ConsoleLogWriter implements LogWriter {
 
     // 如果有错误信息，额外打印
     if (log.errorMessage) {
-      console.log(`${color}  ↳ Error: ${log.errorCode || 'NO_CODE'} - ${log.errorMessage}${this.reset}`);
+      console.log(
+        `${color}  ↳ Error: ${log.errorCode || 'NO_CODE'} - ${log.errorMessage}${this.reset}`,
+      );
     }
 
     // 如果有额外信息，在调试模式下打印

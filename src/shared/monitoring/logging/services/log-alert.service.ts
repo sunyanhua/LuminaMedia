@@ -2,7 +2,10 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
-import { LogAlertRule, LogAlertAction } from '../interfaces/log-analysis.interface';
+import {
+  LogAlertRule,
+  LogAlertAction,
+} from '../interfaces/log-analysis.interface';
 import { LogAnalysisService } from './log-analysis.service';
 
 @Injectable()
@@ -45,8 +48,11 @@ export class LogAlertService implements OnModuleInit {
   /**
    * 更新告警规则
    */
-  async updateRule(ruleId: string, updates: Partial<LogAlertRule>): Promise<void> {
-    const index = this.rules.findIndex(r => r.id === ruleId);
+  async updateRule(
+    ruleId: string,
+    updates: Partial<LogAlertRule>,
+  ): Promise<void> {
+    const index = this.rules.findIndex((r) => r.id === ruleId);
     if (index === -1) {
       throw new Error(`Rule ${ruleId} not found`);
     }
@@ -66,7 +72,7 @@ export class LogAlertService implements OnModuleInit {
    * 删除告警规则
    */
   async deleteRule(ruleId: string): Promise<void> {
-    const index = this.rules.findIndex(r => r.id === ruleId);
+    const index = this.rules.findIndex((r) => r.id === ruleId);
     if (index === -1) {
       throw new Error(`Rule ${ruleId} not found`);
     }
@@ -89,7 +95,7 @@ export class LogAlertService implements OnModuleInit {
   getAlertHistory(ruleId?: string, limit = 100): any[] {
     let history = this.alertHistory;
     if (ruleId) {
-      history = history.filter(h => h.ruleId === ruleId);
+      history = history.filter((h) => h.ruleId === ruleId);
     }
     return history.slice(-limit);
   }
@@ -97,11 +103,13 @@ export class LogAlertService implements OnModuleInit {
   /**
    * 立即检查所有告警规则
    */
-  async checkAllRules(): Promise<Array<{ rule: LogAlertRule; triggered: boolean; details?: any }>> {
+  async checkAllRules(): Promise<
+    Array<{ rule: LogAlertRule; triggered: boolean; details?: any }>
+  > {
     const results = await this.logAnalysisService.checkAlertRules(this.rules);
 
     // 记录触发历史
-    results.forEach(result => {
+    results.forEach((result) => {
       if (result.triggered) {
         this.recordAlertTrigger(result.rule, result.details);
         this.executeAlertActions(result.rule, result.details);
@@ -114,12 +122,18 @@ export class LogAlertService implements OnModuleInit {
   /**
    * 执行告警动作
    */
-  private async executeAlertActions(rule: LogAlertRule, details?: any): Promise<void> {
+  private async executeAlertActions(
+    rule: LogAlertRule,
+    details?: any,
+  ): Promise<void> {
     for (const action of rule.actions) {
       try {
         await this.executeAction(action, rule, details);
       } catch (error) {
-        console.error(`Failed to execute alert action for rule ${rule.id}:`, error);
+        console.error(
+          `Failed to execute alert action for rule ${rule.id}:`,
+          error,
+        );
       }
     }
   }
@@ -127,7 +141,11 @@ export class LogAlertService implements OnModuleInit {
   /**
    * 执行单个动作
    */
-  private async executeAction(action: LogAlertAction, rule: LogAlertRule, details?: any): Promise<void> {
+  private async executeAction(
+    action: LogAlertAction,
+    rule: LogAlertRule,
+    details?: any,
+  ): Promise<void> {
     switch (action.type) {
       case 'notification':
         await this.sendNotification(action, rule, details);
@@ -149,31 +167,53 @@ export class LogAlertService implements OnModuleInit {
   /**
    * 发送通知
    */
-  private async sendNotification(action: LogAlertAction, rule: LogAlertRule, details?: any): Promise<void> {
+  private async sendNotification(
+    action: LogAlertAction,
+    rule: LogAlertRule,
+    details?: any,
+  ): Promise<void> {
     // 实现通知发送逻辑（邮件、钉钉、Slack等）
-    console.log(`[ALERT NOTIFICATION] Rule: ${rule.name}, Action: ${action.target}`);
+    console.log(
+      `[ALERT NOTIFICATION] Rule: ${rule.name}, Action: ${action.target}`,
+    );
   }
 
   /**
    * 调用Webhook
    */
-  private async callWebhook(action: LogAlertAction, rule: LogAlertRule, details?: any): Promise<void> {
+  private async callWebhook(
+    action: LogAlertAction,
+    rule: LogAlertRule,
+    details?: any,
+  ): Promise<void> {
     // 实现Webhook调用逻辑
-    console.log(`[ALERT WEBHOOK] Calling ${action.target} for rule ${rule.name}`);
+    console.log(
+      `[ALERT WEBHOOK] Calling ${action.target} for rule ${rule.name}`,
+    );
   }
 
   /**
    * 执行脚本
    */
-  private async executeScript(action: LogAlertAction, rule: LogAlertRule, details?: any): Promise<void> {
+  private async executeScript(
+    action: LogAlertAction,
+    rule: LogAlertRule,
+    details?: any,
+  ): Promise<void> {
     // 实现脚本执行逻辑
-    console.log(`[ALERT SCRIPT] Executing script ${action.target} for rule ${rule.name}`);
+    console.log(
+      `[ALERT SCRIPT] Executing script ${action.target} for rule ${rule.name}`,
+    );
   }
 
   /**
    * 写入日志
    */
-  private async writeLog(action: LogAlertAction, rule: LogAlertRule, details?: any): Promise<void> {
+  private async writeLog(
+    action: LogAlertAction,
+    rule: LogAlertRule,
+    details?: any,
+  ): Promise<void> {
     // 实现日志写入逻辑
     console.log(`[ALERT LOG] Alert triggered: ${rule.name}, Details:`, details);
   }
@@ -272,7 +312,7 @@ export class LogAlertService implements OnModuleInit {
   private scheduleAlertChecks(): void {
     // 每分钟检查一次告警规则
     const job = new CronJob('*/1 * * * *', () => {
-      this.checkAllRules().catch(err => {
+      this.checkAllRules().catch((err) => {
         console.error('Alert check failed:', err);
       });
     });

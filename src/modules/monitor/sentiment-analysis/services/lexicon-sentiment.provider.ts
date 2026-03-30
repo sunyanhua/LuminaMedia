@@ -28,7 +28,10 @@ export interface SentimentLexiconConfig {
   /**
    * 行业特定词典
    */
-  industryWords?: Map<string, { sentiment: 'positive' | 'negative'; weight: number }>;
+  industryWords?: Map<
+    string,
+    { sentiment: 'positive' | 'negative'; weight: number }
+  >;
 
   /**
    * 情感对象词典
@@ -58,35 +61,181 @@ export class LexiconSentimentProvider implements ISentimentAnalysisProvider {
   private initializeDefaultLexicon(): void {
     // 基础中文情感词典
     const positiveWords = new Set([
-      '好', '优秀', '满意', '喜欢', '爱', '赞', '棒', '不错', '精彩', '完美',
-      '出色', '卓越', '优良', '高品质', '高效', '便捷', '舒适', '愉快', '高兴',
-      '惊喜', '推荐', '支持', '感谢', '感激', '佩服', '欣赏', '羡慕', '期待',
-      '希望', '信心', '乐观', '积极', '正面', '有利', '有益', '有帮助', '有价值',
-      '成功', '胜利', '成就', '进步', '发展', '提升', '改善', '优化', '创新',
-      '领先', '先进', '现代', '时尚', '美观', '漂亮', '优雅', '精致', '细腻',
-      '温柔', '体贴', '周到', '专业', '可靠', '稳定', '安全', '放心', '信任'
+      '好',
+      '优秀',
+      '满意',
+      '喜欢',
+      '爱',
+      '赞',
+      '棒',
+      '不错',
+      '精彩',
+      '完美',
+      '出色',
+      '卓越',
+      '优良',
+      '高品质',
+      '高效',
+      '便捷',
+      '舒适',
+      '愉快',
+      '高兴',
+      '惊喜',
+      '推荐',
+      '支持',
+      '感谢',
+      '感激',
+      '佩服',
+      '欣赏',
+      '羡慕',
+      '期待',
+      '希望',
+      '信心',
+      '乐观',
+      '积极',
+      '正面',
+      '有利',
+      '有益',
+      '有帮助',
+      '有价值',
+      '成功',
+      '胜利',
+      '成就',
+      '进步',
+      '发展',
+      '提升',
+      '改善',
+      '优化',
+      '创新',
+      '领先',
+      '先进',
+      '现代',
+      '时尚',
+      '美观',
+      '漂亮',
+      '优雅',
+      '精致',
+      '细腻',
+      '温柔',
+      '体贴',
+      '周到',
+      '专业',
+      '可靠',
+      '稳定',
+      '安全',
+      '放心',
+      '信任',
     ]);
 
     const negativeWords = new Set([
-      '差', '糟糕', '烂', '坏', '差劲', '不满意', '讨厌', '恨', '厌恶', '反感',
-      '失望', '沮丧', '伤心', '难过', '痛苦', '愤怒', '生气', '恼火', '烦躁',
-      '焦虑', '担心', '害怕', '恐惧', '怀疑', '质疑', '批评', '指责', '抱怨',
-      '投诉', '抗议', '反对', '拒绝', '否定', '消极', '负面', '不利', '有害',
-      '危险', '风险', '问题', '故障', '错误', '缺陷', '不足', '缺点', '弱点',
-      '失败', '挫折', '损失', '损害', '伤害', '威胁', '挑战', '困难', '障碍',
-      '复杂', '混乱', '模糊', '不清晰', '不稳定', '不可靠', '不安全', '不放心'
+      '差',
+      '糟糕',
+      '烂',
+      '坏',
+      '差劲',
+      '不满意',
+      '讨厌',
+      '恨',
+      '厌恶',
+      '反感',
+      '失望',
+      '沮丧',
+      '伤心',
+      '难过',
+      '痛苦',
+      '愤怒',
+      '生气',
+      '恼火',
+      '烦躁',
+      '焦虑',
+      '担心',
+      '害怕',
+      '恐惧',
+      '怀疑',
+      '质疑',
+      '批评',
+      '指责',
+      '抱怨',
+      '投诉',
+      '抗议',
+      '反对',
+      '拒绝',
+      '否定',
+      '消极',
+      '负面',
+      '不利',
+      '有害',
+      '危险',
+      '风险',
+      '问题',
+      '故障',
+      '错误',
+      '缺陷',
+      '不足',
+      '缺点',
+      '弱点',
+      '失败',
+      '挫折',
+      '损失',
+      '损害',
+      '伤害',
+      '威胁',
+      '挑战',
+      '困难',
+      '障碍',
+      '复杂',
+      '混乱',
+      '模糊',
+      '不清晰',
+      '不稳定',
+      '不可靠',
+      '不安全',
+      '不放心',
     ]);
 
     const negationWords = new Set([
-      '不', '没', '没有', '无', '非', '未', '勿', '莫', '别', '不要',
-      '不会', '不能', '不可', '不行', '不必', '不用', '从未', '毫无', '毫无意义'
+      '不',
+      '没',
+      '没有',
+      '无',
+      '非',
+      '未',
+      '勿',
+      '莫',
+      '别',
+      '不要',
+      '不会',
+      '不能',
+      '不可',
+      '不行',
+      '不必',
+      '不用',
+      '从未',
+      '毫无',
+      '毫无意义',
     ]);
 
     const intensityWords = new Map([
-      ['非常', 1.5], ['极其', 1.8], ['极度', 1.8], ['十分', 1.3], ['特别', 1.4],
-      ['相当', 1.2], ['比较', 1.1], ['稍微', 0.8], ['有点', 0.9], ['略微', 0.8],
-      ['完全', 1.5], ['绝对', 1.6], ['彻底', 1.5], ['根本', 1.4], ['简直', 1.3],
-      ['太', 1.4], ['真', 1.2], ['好', 1.1], ['超', 1.3], ['巨', 1.3]
+      ['非常', 1.5],
+      ['极其', 1.8],
+      ['极度', 1.8],
+      ['十分', 1.3],
+      ['特别', 1.4],
+      ['相当', 1.2],
+      ['比较', 1.1],
+      ['稍微', 0.8],
+      ['有点', 0.9],
+      ['略微', 0.8],
+      ['完全', 1.5],
+      ['绝对', 1.6],
+      ['彻底', 1.5],
+      ['根本', 1.4],
+      ['简直', 1.3],
+      ['太', 1.4],
+      ['真', 1.2],
+      ['好', 1.1],
+      ['超', 1.3],
+      ['巨', 1.3],
     ]);
 
     this.defaultLexicon = {
@@ -119,7 +268,15 @@ export class LexiconSentimentProvider implements ISentimentAnalysisProvider {
         ['质量好', { sentiment: 'positive', weight: 1.3 }],
         ['质量差', { sentiment: 'negative', weight: 1.3 }],
       ]),
-      targetWords: new Set(['物流', '包装', '客服', '价格', '质量', '商品', '店铺']),
+      targetWords: new Set([
+        '物流',
+        '包装',
+        '客服',
+        '价格',
+        '质量',
+        '商品',
+        '店铺',
+      ]),
     };
 
     // 餐饮行业词典
@@ -140,7 +297,15 @@ export class LexiconSentimentProvider implements ISentimentAnalysisProvider {
         ['价格合理', { sentiment: 'positive', weight: 1.1 }],
         ['价格贵', { sentiment: 'negative', weight: 1.2 }],
       ]),
-      targetWords: new Set(['味道', '服务', '环境', '价格', '卫生', '菜品', '餐厅']),
+      targetWords: new Set([
+        '味道',
+        '服务',
+        '环境',
+        '价格',
+        '卫生',
+        '菜品',
+        '餐厅',
+      ]),
     };
 
     this.lexicons.set('ecommerce', ecommerceLexicon);
@@ -153,7 +318,7 @@ export class LexiconSentimentProvider implements ISentimentAnalysisProvider {
    */
   async analyze(
     text: string,
-    options?: any
+    options?: any,
   ): Promise<{
     polarity: 'positive' | 'negative' | 'neutral';
     score: number;
@@ -255,7 +420,7 @@ export class LexiconSentimentProvider implements ISentimentAnalysisProvider {
   private tokenizeChinese(text: string): string[] {
     // 移除标点符号，按字符分割
     const cleaned = text.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, ' ');
-    const tokens = cleaned.split(/\s+/).filter(token => token.length > 0);
+    const tokens = cleaned.split(/\s+/).filter((token) => token.length > 0);
 
     // 对于中文，还可以考虑按字符分割以获得更细粒度
     const charTokens: string[] = [];
@@ -276,7 +441,7 @@ export class LexiconSentimentProvider implements ISentimentAnalysisProvider {
    */
   private analyzeTokens(
     tokens: string[],
-    lexicon: SentimentLexiconConfig
+    lexicon: SentimentLexiconConfig,
   ): {
     polarity: 'positive' | 'negative' | 'neutral';
     score: number;
@@ -346,7 +511,8 @@ export class LexiconSentimentProvider implements ISentimentAnalysisProvider {
     const maxPossibleScore = totalWeight * 2; // 假设最大强度为2
 
     // 归一化到-1到1
-    const normalizedScore = maxPossibleScore > 0 ? rawScore / maxPossibleScore : 0;
+    const normalizedScore =
+      maxPossibleScore > 0 ? rawScore / maxPossibleScore : 0;
 
     // 确定极性
     let polarity: 'positive' | 'negative' | 'neutral' = 'neutral';
@@ -357,7 +523,10 @@ export class LexiconSentimentProvider implements ISentimentAnalysisProvider {
     }
 
     // 计算置信度（基于找到的情感词数量和分数大小）
-    const confidence = Math.min(1, totalWeight * 0.3 + Math.abs(normalizedScore) * 0.7);
+    const confidence = Math.min(
+      1,
+      totalWeight * 0.3 + Math.abs(normalizedScore) * 0.7,
+    );
 
     // 计算强度（分数的绝对值）
     const intensity = Math.abs(normalizedScore);
@@ -375,7 +544,7 @@ export class LexiconSentimentProvider implements ISentimentAnalysisProvider {
    */
   private isSentimentWord(
     token: string,
-    lexicon: SentimentLexiconConfig
+    lexicon: SentimentLexiconConfig,
   ): boolean {
     return (
       lexicon.positiveWords.has(token) ||
@@ -389,14 +558,26 @@ export class LexiconSentimentProvider implements ISentimentAnalysisProvider {
    */
   addCustomLexicon(
     industry: string,
-    config: Partial<SentimentLexiconConfig>
+    config: Partial<SentimentLexiconConfig>,
   ): void {
     const baseLexicon = this.getLexiconForIndustry('generic');
     const customLexicon: SentimentLexiconConfig = {
-      positiveWords: new Set([...baseLexicon.positiveWords, ...(config.positiveWords || [])]),
-      negativeWords: new Set([...baseLexicon.negativeWords, ...(config.negativeWords || [])]),
-      negationWords: new Set([...baseLexicon.negationWords, ...(config.negationWords || [])]),
-      intensityWords: new Map([...baseLexicon.intensityWords, ...(config.intensityWords || [])]),
+      positiveWords: new Set([
+        ...baseLexicon.positiveWords,
+        ...(config.positiveWords || []),
+      ]),
+      negativeWords: new Set([
+        ...baseLexicon.negativeWords,
+        ...(config.negativeWords || []),
+      ]),
+      negationWords: new Set([
+        ...baseLexicon.negationWords,
+        ...(config.negationWords || []),
+      ]),
+      intensityWords: new Map([
+        ...baseLexicon.intensityWords,
+        ...(config.intensityWords || []),
+      ]),
       industryWords: config.industryWords,
       targetWords: config.targetWords,
     };

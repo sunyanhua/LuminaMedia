@@ -1,6 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { GeoRegion } from '../entities/geo-region.entity';
-import { SeoSuggestion, SuggestionType, PriorityLevel, ImplementationStatus } from '../entities/seo-suggestion.entity';
+import {
+  SeoSuggestion,
+  SuggestionType,
+  PriorityLevel,
+  ImplementationStatus,
+} from '../entities/seo-suggestion.entity';
 import { GeoAnalysisRequestDto } from '../dto/geo-analysis-request.dto';
 
 @Injectable()
@@ -10,7 +15,10 @@ export class SeoSuggestionService {
   /**
    * 生成SEO建议
    */
-  async generateSuggestions(regions: GeoRegion[], request: GeoAnalysisRequestDto): Promise<any> {
+  async generateSuggestions(
+    regions: GeoRegion[],
+    request: GeoAnalysisRequestDto,
+  ): Promise<any> {
     this.logger.log(`Generating SEO suggestions for ${regions.length} regions`);
 
     const seoSuggestions = {
@@ -27,15 +35,27 @@ export class SeoSuggestionService {
 
     for (const region of regions) {
       // 关键词机会分析
-      const keywordOpportunities = this.analyzeKeywordOpportunities(region, request);
+      const keywordOpportunities = this.analyzeKeywordOpportunities(
+        region,
+        request,
+      );
       seoSuggestions.keywordOpportunities.push(...keywordOpportunities);
 
       // 内容本地化建议
-      const localizationSuggestions = this.generateLocalizationSuggestions(region);
-      seoSuggestions.contentLocalization.culturalElements.push(...localizationSuggestions.culturalElements);
-      seoSuggestions.contentLocalization.languageAdaptations.push(...localizationSuggestions.languageAdaptations);
-      seoSuggestions.contentLocalization.localReferences.push(...localizationSuggestions.localReferences);
-      seoSuggestions.contentLocalization.seasonalContent.push(...localizationSuggestions.seasonalContent);
+      const localizationSuggestions =
+        this.generateLocalizationSuggestions(region);
+      seoSuggestions.contentLocalization.culturalElements.push(
+        ...localizationSuggestions.culturalElements,
+      );
+      seoSuggestions.contentLocalization.languageAdaptations.push(
+        ...localizationSuggestions.languageAdaptations,
+      );
+      seoSuggestions.contentLocalization.localReferences.push(
+        ...localizationSuggestions.localReferences,
+      );
+      seoSuggestions.contentLocalization.seasonalContent.push(
+        ...localizationSuggestions.seasonalContent,
+      );
 
       // 渠道推荐
       const channelRecommendations = this.recommendChannels(region);
@@ -47,9 +67,16 @@ export class SeoSuggestionService {
     }
 
     // 去重和排序
-    seoSuggestions.keywordOpportunities = this.deduplicateAndRankKeywords(seoSuggestions.keywordOpportunities);
-    seoSuggestions.channelRecommendations = this.deduplicateAndRankChannels(seoSuggestions.channelRecommendations);
-    seoSuggestions.technicalOptimizations = this.prioritizeTechnicalOptimizations(seoSuggestions.technicalOptimizations);
+    seoSuggestions.keywordOpportunities = this.deduplicateAndRankKeywords(
+      seoSuggestions.keywordOpportunities,
+    );
+    seoSuggestions.channelRecommendations = this.deduplicateAndRankChannels(
+      seoSuggestions.channelRecommendations,
+    );
+    seoSuggestions.technicalOptimizations =
+      this.prioritizeTechnicalOptimizations(
+        seoSuggestions.technicalOptimizations,
+      );
 
     return seoSuggestions;
   }
@@ -57,12 +84,15 @@ export class SeoSuggestionService {
   /**
    * 分析关键词机会
    */
-  private analyzeKeywordOpportunities(region: GeoRegion, request: GeoAnalysisRequestDto): any[] {
+  private analyzeKeywordOpportunities(
+    region: GeoRegion,
+    request: GeoAnalysisRequestDto,
+  ): any[] {
     const opportunities: any[] = [];
 
     // 基础关键词（地区+行业）
     const baseKeywords = this.generateBaseKeywords(region, request);
-    baseKeywords.forEach(keyword => {
+    baseKeywords.forEach((keyword) => {
       opportunities.push({
         keyword,
         searchVolume: this.estimateSearchVolume(keyword, region),
@@ -74,7 +104,7 @@ export class SeoSuggestionService {
 
     // 长尾关键词
     const longTailKeywords = this.generateLongTailKeywords(region, request);
-    longTailKeywords.forEach(keyword => {
+    longTailKeywords.forEach((keyword) => {
       opportunities.push({
         keyword,
         searchVolume: this.estimateSearchVolume(keyword, region),
@@ -86,7 +116,7 @@ export class SeoSuggestionService {
 
     // 问题类关键词
     const questionKeywords = this.generateQuestionKeywords(region, request);
-    questionKeywords.forEach(keyword => {
+    questionKeywords.forEach((keyword) => {
       opportunities.push({
         keyword,
         searchVolume: this.estimateSearchVolume(keyword, region),
@@ -102,12 +132,15 @@ export class SeoSuggestionService {
   /**
    * 生成基础关键词
    */
-  private generateBaseKeywords(region: GeoRegion, request: GeoAnalysisRequestDto): string[] {
+  private generateBaseKeywords(
+    region: GeoRegion,
+    request: GeoAnalysisRequestDto,
+  ): string[] {
     const keywords: string[] = [];
 
     // 地区+行业组合
     if (request.industries) {
-      request.industries.forEach(industry => {
+      request.industries.forEach((industry) => {
         keywords.push(`${region.name}${industry}`);
         keywords.push(`${industry} ${region.name}`);
         keywords.push(`${region.name}${industry}服务`);
@@ -117,7 +150,7 @@ export class SeoSuggestionService {
 
     // 地区+产品/服务
     const productsServices = this.inferProductsServices(region, request);
-    productsServices.forEach(product => {
+    productsServices.forEach((product) => {
       keywords.push(`${region.name}${product}`);
       keywords.push(`${product} ${region.name}`);
     });
@@ -132,12 +165,15 @@ export class SeoSuggestionService {
   /**
    * 生成长尾关键词
    */
-  private generateLongTailKeywords(region: GeoRegion, request: GeoAnalysisRequestDto): string[] {
+  private generateLongTailKeywords(
+    region: GeoRegion,
+    request: GeoAnalysisRequestDto,
+  ): string[] {
     const keywords: string[] = [];
 
     // 问题解决类
     if (request.industries) {
-      request.industries.forEach(industry => {
+      request.industries.forEach((industry) => {
         keywords.push(`${region.name}${industry}哪家好`);
         keywords.push(`${region.name}${industry}价格`);
         keywords.push(`${region.name}${industry}怎么样`);
@@ -152,7 +188,7 @@ export class SeoSuggestionService {
 
     // 具体需求类
     const needs = this.identifyRegionalNeeds(region);
-    needs.forEach(need => {
+    needs.forEach((need) => {
       keywords.push(`${region.name}${need}`);
       keywords.push(`${need} ${region.name}`);
     });
@@ -163,12 +199,15 @@ export class SeoSuggestionService {
   /**
    * 生成问题类关键词
    */
-  private generateQuestionKeywords(region: GeoRegion, request: GeoAnalysisRequestDto): string[] {
+  private generateQuestionKeywords(
+    region: GeoRegion,
+    request: GeoAnalysisRequestDto,
+  ): string[] {
     const keywords: string[] = [];
 
     // 如何/怎样类问题
     if (request.industries) {
-      request.industries.forEach(industry => {
+      request.industries.forEach((industry) => {
         keywords.push(`如何在${region.name}选择${industry}`);
         keywords.push(`${region.name}${industry}怎么选`);
         keywords.push(`${region.name}${industry}注意事项`);
@@ -209,22 +248,31 @@ export class SeoSuggestionService {
     if (region.digitalInfrastructure) {
       // 社交媒体渠道
       if (region.digitalInfrastructure.socialMediaUsage) {
-        Object.entries(region.digitalInfrastructure.socialMediaUsage).forEach(([platform, usage]) => {
-          if (Number(usage) > 30) { // 使用率超过30%
-            recommendations.push({
-              channel: platform,
-              reach: Number(usage),
-              engagement: this.estimateEngagement(platform, region),
-              costEffectiveness: this.assessCostEffectiveness(platform, region),
-              recommendedActions: this.suggestChannelActions(platform, region),
-            });
-          }
-        });
+        Object.entries(region.digitalInfrastructure.socialMediaUsage).forEach(
+          ([platform, usage]) => {
+            if (Number(usage) > 30) {
+              // 使用率超过30%
+              recommendations.push({
+                channel: platform,
+                reach: Number(usage),
+                engagement: this.estimateEngagement(platform, region),
+                costEffectiveness: this.assessCostEffectiveness(
+                  platform,
+                  region,
+                ),
+                recommendedActions: this.suggestChannelActions(
+                  platform,
+                  region,
+                ),
+              });
+            }
+          },
+        );
       }
 
       // 电商平台
       if (region.digitalInfrastructure.ecommercePlatforms) {
-        region.digitalInfrastructure.ecommercePlatforms.forEach(platform => {
+        region.digitalInfrastructure.ecommercePlatforms.forEach((platform) => {
           recommendations.push({
             channel: platform,
             reach: this.estimateEcommerceReach(platform, region),
@@ -242,8 +290,8 @@ export class SeoSuggestionService {
 
     // 基于消费者行为推荐
     if (region.consumerBehavior?.preferredChannels) {
-      region.consumerBehavior.preferredChannels.forEach(channel => {
-        if (!recommendations.some(rec => rec.channel === channel)) {
+      region.consumerBehavior.preferredChannels.forEach((channel) => {
+        if (!recommendations.some((rec) => rec.channel === channel)) {
           recommendations.push({
             channel,
             reach: 70, // 默认覆盖率
@@ -269,7 +317,10 @@ export class SeoSuggestionService {
     const optimizations: any[] = [];
 
     // 移动端优化
-    if (region.digitalInfrastructure?.smartphonePenetration && region.digitalInfrastructure.smartphonePenetration > 0.7) {
+    if (
+      region.digitalInfrastructure?.smartphonePenetration &&
+      region.digitalInfrastructure.smartphonePenetration > 0.7
+    ) {
       optimizations.push({
         area: '移动端优化',
         currentStatus: '待优化',
@@ -312,12 +363,15 @@ export class SeoSuggestionService {
   /**
    * 辅助方法
    */
-  private inferProductsServices(region: GeoRegion, request: GeoAnalysisRequestDto): string[] {
+  private inferProductsServices(
+    region: GeoRegion,
+    request: GeoAnalysisRequestDto,
+  ): string[] {
     const productsServices: string[] = [];
 
     // 基于行业推断
     if (request.industries) {
-      request.industries.forEach(industry => {
+      request.industries.forEach((industry) => {
         if (industry.includes('科技')) {
           productsServices.push('软件开发', '技术支持', 'IT咨询');
         } else if (industry.includes('零售')) {
@@ -375,10 +429,18 @@ export class SeoSuggestionService {
 
     // 基于文化特征
     if (region.culturalData?.customs) {
-      if (region.culturalData.customs.some(c => c.includes('传统') || c.includes('保守'))) {
+      if (
+        region.culturalData.customs.some(
+          (c) => c.includes('传统') || c.includes('保守'),
+        )
+      ) {
         needs.push('可靠产品', '稳定服务', '经过验证的解决方案');
       }
-      if (region.culturalData.customs.some(c => c.includes('创新') || c.includes('开放'))) {
+      if (
+        region.culturalData.customs.some(
+          (c) => c.includes('创新') || c.includes('开放'),
+        )
+      ) {
         needs.push('创新产品', '前沿服务', '突破性解决方案');
       }
     }
@@ -405,14 +467,21 @@ export class SeoSuggestionService {
     }
 
     // 问题类关键词通常搜索量较低
-    if (keyword.includes('如何') || keyword.includes('怎么') || keyword.includes('为什么')) {
+    if (
+      keyword.includes('如何') ||
+      keyword.includes('怎么') ||
+      keyword.includes('为什么')
+    ) {
       volume *= 0.5;
     }
 
     return Math.round(volume);
   }
 
-  private assessKeywordCompetition(keyword: string, region: GeoRegion): 'low' | 'medium' | 'high' {
+  private assessKeywordCompetition(
+    keyword: string,
+    region: GeoRegion,
+  ): 'low' | 'medium' | 'high' {
     let competitionScore = 0;
 
     // 关键词长度（短词竞争激烈）
@@ -421,8 +490,16 @@ export class SeoSuggestionService {
     else if (keyword.length <= 8) competitionScore += 1;
 
     // 商业意图（商业词汇竞争激烈）
-    const commercialTerms = ['公司', '服务', '价格', '购买', '销售', '代理', '加盟'];
-    if (commercialTerms.some(term => keyword.includes(term))) {
+    const commercialTerms = [
+      '公司',
+      '服务',
+      '价格',
+      '购买',
+      '销售',
+      '代理',
+      '加盟',
+    ];
+    if (commercialTerms.some((term) => keyword.includes(term))) {
       competitionScore += 2;
     }
 
@@ -436,7 +513,10 @@ export class SeoSuggestionService {
     return 'low';
   }
 
-  private calculateOpportunityScore(keyword: string, region: GeoRegion): number {
+  private calculateOpportunityScore(
+    keyword: string,
+    region: GeoRegion,
+  ): number {
     const searchVolume = this.estimateSearchVolume(keyword, region);
     const competition = this.assessKeywordCompetition(keyword, region);
 
@@ -457,7 +537,7 @@ export class SeoSuggestionService {
 
     // 商业价值调整（商业意图强的关键词价值更高）
     const commercialTerms = ['公司', '服务', '价格', '购买', '销售'];
-    if (commercialTerms.some(term => keyword.includes(term))) {
+    if (commercialTerms.some((term) => keyword.includes(term))) {
       opportunity *= 1.3;
     }
 
@@ -502,15 +582,24 @@ export class SeoSuggestionService {
         elements.push(`使用${region.culturalData.dominantLanguage}`);
       }
 
-      if (region.culturalData.dialects && region.culturalData.dialects.length > 0) {
+      if (
+        region.culturalData.dialects &&
+        region.culturalData.dialects.length > 0
+      ) {
         elements.push(`考虑${region.culturalData.dialects[0]}方言表达`);
       }
 
-      if (region.culturalData.festivals && region.culturalData.festivals.length > 0) {
+      if (
+        region.culturalData.festivals &&
+        region.culturalData.festivals.length > 0
+      ) {
         elements.push(`融入${region.culturalData.festivals[0]}节庆元素`);
       }
 
-      if (region.culturalData.customs && region.culturalData.customs.length > 0) {
+      if (
+        region.culturalData.customs &&
+        region.culturalData.customs.length > 0
+      ) {
         elements.push(`尊重${region.culturalData.customs[0]}等当地习俗`);
       }
     }
@@ -529,7 +618,10 @@ export class SeoSuggestionService {
     const adaptations: string[] = [];
 
     // 方言适配
-    if (region.culturalData?.dialects && region.culturalData.dialects.length > 0) {
+    if (
+      region.culturalData?.dialects &&
+      region.culturalData.dialects.length > 0
+    ) {
       adaptations.push(`提供${region.culturalData.dialects[0]}方言版本`);
       adaptations.push(`使用${region.culturalData.dialects[0]}特色词汇`);
     }
@@ -572,7 +664,7 @@ export class SeoSuggestionService {
 
     // 传统节日
     if (region.culturalData?.festivals) {
-      region.culturalData.festivals.forEach(festival => {
+      region.culturalData.festivals.forEach((festival) => {
         seasonalContent.push(`${festival}特别促销`);
         seasonalContent.push(`${festival}主题内容`);
         seasonalContent.push(`${festival}文化解读`);
@@ -598,12 +690,12 @@ export class SeoSuggestionService {
 
     // 平台特征
     const platformEngagement: Record<string, number> = {
-      '微信': 70,
-      '微博': 60,
-      '抖音': 75,
-      '小红书': 65,
-      '知乎': 55,
-      'B站': 70,
+      微信: 70,
+      微博: 60,
+      抖音: 75,
+      小红书: 65,
+      知乎: 55,
+      B站: 70,
     };
 
     if (platformEngagement[platform]) {
@@ -630,7 +722,11 @@ export class SeoSuggestionService {
     const distribution = region.demographicData.ageDistribution;
     let youngRatio = 0;
     for (const [range, percentage] of Object.entries(distribution)) {
-      if (range.includes('18') || range.includes('25') || range.includes('35')) {
+      if (
+        range.includes('18') ||
+        range.includes('25') ||
+        range.includes('35')
+      ) {
         youngRatio += Number(percentage);
       }
     }
@@ -638,15 +734,18 @@ export class SeoSuggestionService {
     return youngRatio / 100;
   }
 
-  private assessCostEffectiveness(platform: string, region: GeoRegion): 'low' | 'medium' | 'high' {
+  private assessCostEffectiveness(
+    platform: string,
+    region: GeoRegion,
+  ): 'low' | 'medium' | 'high' {
     // 简化评估
     const effectiveness: Record<string, 'low' | 'medium' | 'high'> = {
-      '微信': 'high',
-      '微博': 'medium',
-      '抖音': 'high',
-      '小红书': 'medium',
-      '知乎': 'low',
-      'B站': 'medium',
+      微信: 'high',
+      微博: 'medium',
+      抖音: 'high',
+      小红书: 'medium',
+      知乎: 'low',
+      B站: 'medium',
     };
 
     let result = effectiveness[platform] || 'medium';
@@ -710,11 +809,11 @@ export class SeoSuggestionService {
 
     // 平台普及度
     const platformReach: Record<string, number> = {
-      '淘宝': 80,
-      '天猫': 70,
-      '京东': 75,
-      '拼多多': 85,
-      '抖音电商': 60,
+      淘宝: 80,
+      天猫: 70,
+      京东: 75,
+      拼多多: 85,
+      抖音电商: 60,
     };
 
     if (platformReach[platform]) {
@@ -737,7 +836,7 @@ export class SeoSuggestionService {
   private deduplicateAndRankKeywords(keywordOpportunities: any[]): any[] {
     // 去重：基于关键词文本
     const uniqueMap = new Map<string, any>();
-    keywordOpportunities.forEach(opp => {
+    keywordOpportunities.forEach((opp) => {
       if (!uniqueMap.has(opp.keyword)) {
         uniqueMap.set(opp.keyword, opp);
       } else {
@@ -758,7 +857,7 @@ export class SeoSuggestionService {
   private deduplicateAndRankChannels(channelRecommendations: any[]): any[] {
     // 去重：基于渠道名称
     const uniqueMap = new Map<string, any>();
-    channelRecommendations.forEach(rec => {
+    channelRecommendations.forEach((rec) => {
       if (!uniqueMap.has(rec.channel)) {
         uniqueMap.set(rec.channel, rec);
       } else {
@@ -772,23 +871,25 @@ export class SeoSuggestionService {
 
     // 按综合效果排序（覆盖率×参与度）
     return Array.from(uniqueMap.values())
-      .map(rec => ({
+      .map((rec) => ({
         ...rec,
-        compositeScore: rec.reach * rec.engagement / 100,
+        compositeScore: (rec.reach * rec.engagement) / 100,
       }))
       .sort((a, b) => b.compositeScore - a.compositeScore)
       .slice(0, 10); // 最多10个最佳渠道
   }
 
-  private prioritizeTechnicalOptimizations(technicalOptimizations: any[]): any[] {
+  private prioritizeTechnicalOptimizations(
+    technicalOptimizations: any[],
+  ): any[] {
     // 去重：基于优化领域
     const uniqueMap = new Map<string, any>();
-    technicalOptimizations.forEach(opt => {
+    technicalOptimizations.forEach((opt) => {
       if (!uniqueMap.has(opt.area)) {
         uniqueMap.set(opt.area, opt);
       } else {
         // 保留优先级更高的
-        const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+        const priorityOrder = { high: 3, medium: 2, low: 1 };
         const existing = uniqueMap.get(opt.area);
         const existingPriority = priorityOrder[existing.priority] || 0;
         const newPriority = priorityOrder[opt.priority] || 0;
@@ -799,10 +900,11 @@ export class SeoSuggestionService {
     });
 
     // 按优先级排序
-    const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+    const priorityOrder = { high: 3, medium: 2, low: 1 };
     return Array.from(uniqueMap.values())
       .sort((a, b) => {
-        const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
+        const priorityDiff =
+          priorityOrder[b.priority] - priorityOrder[a.priority];
         if (priorityDiff !== 0) return priorityDiff;
         return b.expectedImpact.localeCompare(a.expectedImpact); // 按影响描述排序
       })

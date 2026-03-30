@@ -1,5 +1,10 @@
 import { TenantRepository } from './tenant.repository';
-import { KnowledgeDocument, DocumentStatus, DocumentProcessingStatus, DocumentSourceType } from '../../entities/knowledge-document.entity';
+import {
+  KnowledgeDocument,
+  DocumentStatus,
+  DocumentProcessingStatus,
+  DocumentSourceType,
+} from '../../entities/knowledge-document.entity';
 
 /**
  * KnowledgeDocument实体的租户感知Repository
@@ -19,7 +24,9 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
   /**
    * 根据处理状态查找文档
    */
-  async findByProcessingStatus(processingStatus: DocumentProcessingStatus): Promise<KnowledgeDocument[]> {
+  async findByProcessingStatus(
+    processingStatus: DocumentProcessingStatus,
+  ): Promise<KnowledgeDocument[]> {
     return this.createQueryBuilder('doc')
       .where('doc.processingStatus = :processingStatus', { processingStatus })
       .orderBy('doc.updatedAt', 'DESC')
@@ -29,7 +36,9 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
   /**
    * 根据来源类型查找文档
    */
-  async findBySourceType(sourceType: DocumentSourceType): Promise<KnowledgeDocument[]> {
+  async findBySourceType(
+    sourceType: DocumentSourceType,
+  ): Promise<KnowledgeDocument[]> {
     return this.createQueryBuilder('doc')
       .where('doc.sourceType = :sourceType', { sourceType })
       .orderBy('doc.createdAt', 'DESC')
@@ -59,7 +68,9 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
   /**
    * 根据内容哈希查找文档（用于去重）
    */
-  async findByContentHash(contentHash: string): Promise<KnowledgeDocument | null> {
+  async findByContentHash(
+    contentHash: string,
+  ): Promise<KnowledgeDocument | null> {
     return this.createQueryBuilder('doc')
       .where('doc.contentHash = :contentHash', { contentHash })
       .getOne();
@@ -71,9 +82,14 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
   async findVectorizedDocuments(limit?: number): Promise<KnowledgeDocument[]> {
     const queryBuilder = this.createQueryBuilder('doc')
       .where('doc.processingStatus IN (:...statuses)', {
-        statuses: [DocumentProcessingStatus.VECTORIZED, DocumentProcessingStatus.ANALYZED],
+        statuses: [
+          DocumentProcessingStatus.VECTORIZED,
+          DocumentProcessingStatus.ANALYZED,
+        ],
       })
-      .andWhere('doc.status = :activeStatus', { activeStatus: DocumentStatus.ACTIVE })
+      .andWhere('doc.status = :activeStatus', {
+        activeStatus: DocumentStatus.ACTIVE,
+      })
       .orderBy('doc.vectorizedAt', 'DESC');
 
     if (limit) {
@@ -89,9 +105,14 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
   async findPendingProcessing(limit?: number): Promise<KnowledgeDocument[]> {
     const queryBuilder = this.createQueryBuilder('doc')
       .where('doc.processingStatus IN (:...statuses)', {
-        statuses: [DocumentProcessingStatus.PENDING, DocumentProcessingStatus.FAILED],
+        statuses: [
+          DocumentProcessingStatus.PENDING,
+          DocumentProcessingStatus.FAILED,
+        ],
       })
-      .andWhere('doc.status = :activeStatus', { activeStatus: DocumentStatus.ACTIVE })
+      .andWhere('doc.status = :activeStatus', {
+        activeStatus: DocumentStatus.ACTIVE,
+      })
       .orderBy('doc.createdAt', 'ASC');
 
     if (limit) {
@@ -106,7 +127,11 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
    */
   async searchDocuments(
     query: string,
-    options?: { category?: string; sourceType?: DocumentSourceType; limit?: number },
+    options?: {
+      category?: string;
+      sourceType?: DocumentSourceType;
+      limit?: number;
+    },
   ): Promise<KnowledgeDocument[]> {
     const { category, sourceType, limit = 50 } = options || {};
 
@@ -114,7 +139,9 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
       .where('(doc.title LIKE :query OR doc.content LIKE :query)', {
         query: `%${query}%`,
       })
-      .andWhere('doc.status = :activeStatus', { activeStatus: DocumentStatus.ACTIVE })
+      .andWhere('doc.status = :activeStatus', {
+        activeStatus: DocumentStatus.ACTIVE,
+      })
       .orderBy('doc.updatedAt', 'DESC');
 
     if (category) {
@@ -135,12 +162,16 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
   /**
    * 获取分类统计
    */
-  async getCategoryStats(): Promise<Array<{ category: string; count: number }>> {
+  async getCategoryStats(): Promise<
+    Array<{ category: string; count: number }>
+  > {
     const results = await this.createQueryBuilder('doc')
       .select('doc.category', 'category')
       .addSelect('COUNT(*)', 'count')
       .where('doc.category IS NOT NULL')
-      .andWhere('doc.status = :activeStatus', { activeStatus: DocumentStatus.ACTIVE })
+      .andWhere('doc.status = :activeStatus', {
+        activeStatus: DocumentStatus.ACTIVE,
+      })
       .groupBy('doc.category')
       .orderBy('count', 'DESC')
       .getRawMany();
@@ -154,11 +185,15 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
   /**
    * 获取来源类型统计
    */
-  async getSourceTypeStats(): Promise<Array<{ sourceType: string; count: number }>> {
+  async getSourceTypeStats(): Promise<
+    Array<{ sourceType: string; count: number }>
+  > {
     const results = await this.createQueryBuilder('doc')
       .select('doc.sourceType', 'sourceType')
       .addSelect('COUNT(*)', 'count')
-      .where('doc.status = :activeStatus', { activeStatus: DocumentStatus.ACTIVE })
+      .where('doc.status = :activeStatus', {
+        activeStatus: DocumentStatus.ACTIVE,
+      })
       .groupBy('doc.sourceType')
       .orderBy('count', 'DESC')
       .getRawMany();
@@ -181,14 +216,31 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
     avgReadability: number;
   }> {
     const result = await this.createQueryBuilder('doc')
-      .select('AVG(JSON_EXTRACT(doc.quality_score, \'$.overall\'))', 'avgOverall')
-      .addSelect('AVG(JSON_EXTRACT(doc.quality_score, \'$.completeness\'))', 'avgCompleteness')
-      .addSelect('AVG(JSON_EXTRACT(doc.quality_score, \'$.relevance\'))', 'avgRelevance')
-      .addSelect('AVG(JSON_EXTRACT(doc.quality_score, \'$.freshness\'))', 'avgFreshness')
-      .addSelect('AVG(JSON_EXTRACT(doc.quality_score, \'$.authority\'))', 'avgAuthority')
-      .addSelect('AVG(JSON_EXTRACT(doc.quality_score, \'$.readability\'))', 'avgReadability')
+      .select("AVG(JSON_EXTRACT(doc.quality_score, '$.overall'))", 'avgOverall')
+      .addSelect(
+        "AVG(JSON_EXTRACT(doc.quality_score, '$.completeness'))",
+        'avgCompleteness',
+      )
+      .addSelect(
+        "AVG(JSON_EXTRACT(doc.quality_score, '$.relevance'))",
+        'avgRelevance',
+      )
+      .addSelect(
+        "AVG(JSON_EXTRACT(doc.quality_score, '$.freshness'))",
+        'avgFreshness',
+      )
+      .addSelect(
+        "AVG(JSON_EXTRACT(doc.quality_score, '$.authority'))",
+        'avgAuthority',
+      )
+      .addSelect(
+        "AVG(JSON_EXTRACT(doc.quality_score, '$.readability'))",
+        'avgReadability',
+      )
       .where('doc.quality_score IS NOT NULL')
-      .andWhere('doc.status = :activeStatus', { activeStatus: DocumentStatus.ACTIVE })
+      .andWhere('doc.status = :activeStatus', {
+        activeStatus: DocumentStatus.ACTIVE,
+      })
       .getRawOne();
 
     return {
@@ -261,7 +313,9 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
   /**
    * 获取文档数量统计（按处理状态）
    */
-  async getCountByProcessingStatus(): Promise<Array<{ processingStatus: string; count: number }>> {
+  async getCountByProcessingStatus(): Promise<
+    Array<{ processingStatus: string; count: number }>
+  > {
     const results = await this.createQueryBuilder('doc')
       .select('doc.processingStatus', 'processingStatus')
       .addSelect('COUNT(*)', 'count')

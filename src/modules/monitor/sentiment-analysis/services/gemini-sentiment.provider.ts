@@ -14,7 +14,7 @@ export class GeminiSentimentProvider implements ISentimentAnalysisProvider {
    */
   async analyze(
     text: string,
-    options?: any
+    options?: any,
   ): Promise<{
     polarity: 'positive' | 'negative' | 'neutral';
     score: number;
@@ -160,7 +160,9 @@ export class GeminiSentimentProvider implements ISentimentAnalysisProvider {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Gemini API调用失败: HTTP ${response.status}: ${errorText.substring(0, 200)}`);
+        throw new Error(
+          `Gemini API调用失败: HTTP ${response.status}: ${errorText.substring(0, 200)}`,
+        );
       }
 
       const data = await response.json();
@@ -191,7 +193,10 @@ export class GeminiSentimentProvider implements ISentimentAnalysisProvider {
       let jsonText = responseText.trim();
 
       // 移除可能的Markdown代码块
-      jsonText = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
+      jsonText = jsonText
+        .replace(/```json/g, '')
+        .replace(/```/g, '')
+        .trim();
 
       // 解析JSON
       const result = JSON.parse(jsonText);
@@ -204,21 +209,23 @@ export class GeminiSentimentProvider implements ISentimentAnalysisProvider {
       // 确保极性值有效
       const validPolarities = ['positive', 'negative', 'neutral'];
       const polarity = validPolarities.includes(result.polarity)
-        ? result.polarity as 'positive' | 'negative' | 'neutral'
+        ? (result.polarity as 'positive' | 'negative' | 'neutral')
         : 'neutral';
 
       // 确保分数在-1到1之间
       const score = Math.max(-1, Math.min(1, result.score));
 
       // 确保置信度在0到1之间
-      const confidence = result.confidence !== undefined
-        ? Math.max(0, Math.min(1, result.confidence))
-        : 0.8;
+      const confidence =
+        result.confidence !== undefined
+          ? Math.max(0, Math.min(1, result.confidence))
+          : 0.8;
 
       // 确保强度在0到1之间
-      const intensity = result.intensity !== undefined
-        ? Math.max(0, Math.min(1, result.intensity))
-        : Math.abs(score); // 使用分数绝对值作为强度
+      const intensity =
+        result.intensity !== undefined
+          ? Math.max(0, Math.min(1, result.intensity))
+          : Math.abs(score); // 使用分数绝对值作为强度
 
       return {
         polarity,
@@ -229,7 +236,9 @@ export class GeminiSentimentProvider implements ISentimentAnalysisProvider {
         reasons: result.reasons || [],
       };
     } catch (error) {
-      this.logger.error(`解析Gemini响应失败: ${error.message}, 原始响应: ${responseText.substring(0, 200)}`);
+      this.logger.error(
+        `解析Gemini响应失败: ${error.message}, 原始响应: ${responseText.substring(0, 200)}`,
+      );
 
       // 尝试从文本中提取情感信息
       const fallbackResult = this.extractSentimentFromText(responseText);
@@ -247,8 +256,26 @@ export class GeminiSentimentProvider implements ISentimentAnalysisProvider {
     intensity: number;
   } {
     // 简单的关键词匹配作为回退
-    const positiveWords = ['好', '优秀', '满意', '喜欢', '推荐', '棒', '赞', '不错'];
-    const negativeWords = ['差', '糟糕', '不满意', '讨厌', '不推荐', '差劲', '烂', '问题'];
+    const positiveWords = [
+      '好',
+      '优秀',
+      '满意',
+      '喜欢',
+      '推荐',
+      '棒',
+      '赞',
+      '不错',
+    ];
+    const negativeWords = [
+      '差',
+      '糟糕',
+      '不满意',
+      '讨厌',
+      '不推荐',
+      '差劲',
+      '烂',
+      '问题',
+    ];
 
     const lowerText = text.toLowerCase();
 

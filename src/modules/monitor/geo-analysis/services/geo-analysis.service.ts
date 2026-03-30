@@ -2,12 +2,19 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GeoRegion } from '../entities/geo-region.entity';
-import { GeoAnalysisResult, AnalysisStatus, AnalysisType } from '../entities/geo-analysis-result.entity';
+import {
+  GeoAnalysisResult,
+  AnalysisStatus,
+  AnalysisType,
+} from '../entities/geo-analysis-result.entity';
 import { SeoSuggestion } from '../entities/seo-suggestion.entity';
 import { RegionAnalysisService } from './region-analysis.service';
 import { CompetitiveAnalysisService } from './competitive-analysis.service';
 import { SeoSuggestionService } from './seo-suggestion.service';
-import { GeoAnalysisRequest, GeoAnalysisResponse } from '../interfaces/geo-analysis.interface';
+import {
+  GeoAnalysisRequest,
+  GeoAnalysisResponse,
+} from '../interfaces/geo-analysis.interface';
 import { GeoAnalysisRequestDto } from '../dto/geo-analysis-request.dto';
 
 @Injectable()
@@ -52,7 +59,8 @@ export class GeoAnalysisService {
       analysisStartedAt: new Date(),
     });
 
-    const savedAnalysis = await this.geoAnalysisResultRepository.save(analysisRecord);
+    const savedAnalysis =
+      await this.geoAnalysisResultRepository.save(analysisRecord);
 
     try {
       // 异步执行分析（实际应使用队列）
@@ -73,7 +81,8 @@ export class GeoAnalysisService {
         visualizations: this.generateVisualizations(results),
         recommendations: this.generateRecommendations(results),
         metadata: {
-          processingTime: Date.now() - analysisRecord.analysisStartedAt.getTime(),
+          processingTime:
+            Date.now() - analysisRecord.analysisStartedAt.getTime(),
           dataSourcesUsed: request.dataSources || ['internal', 'public'],
           algorithmVersion: '1.0.0',
           generatedAt: new Date(),
@@ -97,7 +106,10 @@ export class GeoAnalysisService {
   /**
    * 执行分析
    */
-  private async executeAnalysis(analysisId: string, request: GeoAnalysisRequestDto): Promise<any> {
+  private async executeAnalysis(
+    analysisId: string,
+    request: GeoAnalysisRequestDto,
+  ): Promise<any> {
     const results: any = {};
     const analysisTypes = request.analysisTypes;
 
@@ -107,19 +119,37 @@ export class GeoAnalysisService {
     for (const analysisType of analysisTypes) {
       switch (analysisType) {
         case AnalysisType.REGIONAL_ANALYSIS:
-          results.regionalAnalysis = await this.regionAnalysisService.analyzeRegions(targetRegions, request);
+          results.regionalAnalysis =
+            await this.regionAnalysisService.analyzeRegions(
+              targetRegions,
+              request,
+            );
           break;
         case AnalysisType.COMPETITIVE_ANALYSIS:
-          results.competitiveAnalysis = await this.competitiveAnalysisService.analyzeCompetition(targetRegions, request);
+          results.competitiveAnalysis =
+            await this.competitiveAnalysisService.analyzeCompetition(
+              targetRegions,
+              request,
+            );
           break;
         case AnalysisType.SEO_SUGGESTION:
-          results.seoSuggestions = await this.seoSuggestionService.generateSuggestions(targetRegions, request);
+          results.seoSuggestions =
+            await this.seoSuggestionService.generateSuggestions(
+              targetRegions,
+              request,
+            );
           break;
         case AnalysisType.OPPORTUNITY_IDENTIFICATION:
-          results.opportunityIdentification = await this.identifyOpportunities(targetRegions, request);
+          results.opportunityIdentification = await this.identifyOpportunities(
+            targetRegions,
+            request,
+          );
           break;
         case AnalysisType.TREND_ANALYSIS:
-          results.trendAnalysis = await this.analyzeTrends(targetRegions, request);
+          results.trendAnalysis = await this.analyzeTrends(
+            targetRegions,
+            request,
+          );
           break;
       }
     }
@@ -135,17 +165,29 @@ export class GeoAnalysisService {
   /**
    * 获取目标地区数据
    */
-  private async getTargetRegions(request: GeoAnalysisRequestDto): Promise<GeoRegion[]> {
-    let query = this.geoRegionRepository.createQueryBuilder('region')
+  private async getTargetRegions(
+    request: GeoAnalysisRequestDto,
+  ): Promise<GeoRegion[]> {
+    let query = this.geoRegionRepository
+      .createQueryBuilder('region')
       .where('region.tenantId = :tenantId', { tenantId: request.tenantId })
       .andWhere('region.isActive = :isActive', { isActive: true });
 
     if (request.targetRegionIds && request.targetRegionIds.length > 0) {
-      query = query.andWhere('region.id IN (:...ids)', { ids: request.targetRegionIds });
-    } else if (request.targetRegionNames && request.targetRegionNames.length > 0) {
-      query = query.andWhere('region.name IN (:...names)', { names: request.targetRegionNames });
+      query = query.andWhere('region.id IN (:...ids)', {
+        ids: request.targetRegionIds,
+      });
+    } else if (
+      request.targetRegionNames &&
+      request.targetRegionNames.length > 0
+    ) {
+      query = query.andWhere('region.name IN (:...names)', {
+        names: request.targetRegionNames,
+      });
     } else if (request.regionLevel) {
-      query = query.andWhere('region.regionLevel = :level', { level: request.regionLevel });
+      query = query.andWhere('region.regionLevel = :level', {
+        level: request.regionLevel,
+      });
     }
 
     const regions = await query.getMany();
@@ -160,7 +202,10 @@ export class GeoAnalysisService {
   /**
    * 识别机会
    */
-  private async identifyOpportunities(regions: GeoRegion[], request: GeoAnalysisRequestDto): Promise<any> {
+  private async identifyOpportunities(
+    regions: GeoRegion[],
+    request: GeoAnalysisRequestDto,
+  ): Promise<any> {
     const opportunities: {
       untappedMarkets: Array<{
         region: string;
@@ -183,7 +228,8 @@ export class GeoAnalysisService {
       // 分析未开发市场
       if (region.competitors && region.competitors.length > 0) {
         const marketCoverage = this.calculateMarketCoverage(region);
-        if (marketCoverage < 0.7) { // 市场覆盖率低于70%
+        if (marketCoverage < 0.7) {
+          // 市场覆盖率低于70%
           opportunities.untappedMarkets.push({
             region: region.name,
             marketSize: region.gdp * 0.01, // 简化估算
@@ -195,8 +241,14 @@ export class GeoAnalysisService {
       }
 
       // 分析产品差距
-      if (region.consumerBehavior && region.consumerBehavior.favoriteCategories) {
-        const productGaps = this.identifyProductGaps(region, request.industries);
+      if (
+        region.consumerBehavior &&
+        region.consumerBehavior.favoriteCategories
+      ) {
+        const productGaps = this.identifyProductGaps(
+          region,
+          request.industries,
+        );
         opportunities.productGaps.push(...productGaps);
       }
 
@@ -219,12 +271,35 @@ export class GeoAnalysisService {
   /**
    * 分析趋势
    */
-  private async analyzeTrends(regions: GeoRegion[], request: GeoAnalysisRequestDto): Promise<any> {
+  private async analyzeTrends(
+    regions: GeoRegion[],
+    request: GeoAnalysisRequestDto,
+  ): Promise<any> {
     const trends: {
-      historicalTrends: Array<{ metric: string; values: { date: string; value: number }[]; trendDirection: string; growthRate: number }>;
-      predictiveInsights: Array<{ metric: string; forecast: { date: string; value: number }[]; confidenceLevel: number; keyDrivers: string[] }>;
-      seasonalityPatterns: Array<{ patternType: string; months: string[]; impactLevel: string; recommendations: string[] }>;
-      emergingTrends: Array<{ trend: string; emergenceDate: string; adoptionRate: number; potentialImpact: string }>;
+      historicalTrends: Array<{
+        metric: string;
+        values: { date: string; value: number }[];
+        trendDirection: string;
+        growthRate: number;
+      }>;
+      predictiveInsights: Array<{
+        metric: string;
+        forecast: { date: string; value: number }[];
+        confidenceLevel: number;
+        keyDrivers: string[];
+      }>;
+      seasonalityPatterns: Array<{
+        patternType: string;
+        months: string[];
+        impactLevel: string;
+        recommendations: string[];
+      }>;
+      emergingTrends: Array<{
+        trend: string;
+        emergenceDate: string;
+        adoptionRate: number;
+        potentialImpact: string;
+      }>;
     } = {
       historicalTrends: [],
       predictiveInsights: [],
@@ -247,7 +322,11 @@ export class GeoAnalysisService {
         metric: 'customer_growth',
         forecast: this.generateForecastData(6),
         confidenceLevel: 0.8,
-        keyDrivers: ['economic_growth', 'digital_adoption', 'consumer_confidence'],
+        keyDrivers: [
+          'economic_growth',
+          'digital_adoption',
+          'consumer_confidence',
+        ],
       });
 
       // 季节性模式
@@ -396,7 +475,9 @@ export class GeoAnalysisService {
         implementationDifficulty: 40,
         timeframe: '2-4周',
         requiredResources: ['SEO专家', '内容团队', '分析工具'],
-        relatedRegions: results.seoSuggestions.map((s: any) => s.targetRegionId),
+        relatedRegions: results.seoSuggestions.map(
+          (s: any) => s.targetRegionId,
+        ),
       });
     }
 
@@ -410,7 +491,10 @@ export class GeoAnalysisService {
     // 简化计算：基于竞争对手数量和市场集中度
     if (!region.competitors || region.competitors.length === 0) return 0;
 
-    const totalMarketShare = region.competitors.reduce((sum, comp) => sum + (comp.marketShare || 0), 0);
+    const totalMarketShare = region.competitors.reduce(
+      (sum, comp) => sum + (comp.marketShare || 0),
+      0,
+    );
     return Math.min(1, totalMarketShare / 100);
   }
 
@@ -418,7 +502,8 @@ export class GeoAnalysisService {
     const factors: string[] = [];
 
     if (region.competitionIntensity > 0.7) factors.push('high_competition');
-    if (region.entryBarriers && region.entryBarriers.length > 3) factors.push('high_barriers');
+    if (region.entryBarriers && region.entryBarriers.length > 3)
+      factors.push('high_barriers');
     if (region.marketConcentration > 0.8) factors.push('high_concentration');
 
     if (factors.length >= 2) return 'high';
@@ -443,7 +528,7 @@ export class GeoAnalysisService {
       const popularCategories = region.consumerBehavior.favoriteCategories;
       const potentialCategories = ['健康食品', '智能家居', '绿色出行'];
 
-      potentialCategories.forEach(category => {
+      potentialCategories.forEach((category) => {
         if (!popularCategories.includes(category)) {
           gaps.push({
             productCategory: category,
@@ -461,8 +546,9 @@ export class GeoAnalysisService {
     const opportunities: any[] = [];
     // 简化实现
     if (region.competitors) {
-      region.competitors.forEach(competitor => {
-        if (competitor.marketShare < 0.3) { // 小玩家可能愿意合作
+      region.competitors.forEach((competitor) => {
+        if (competitor.marketShare < 0.3) {
+          // 小玩家可能愿意合作
           opportunities.push({
             partnerType: '互补业务',
             potentialPartners: [competitor.companyName],
@@ -489,7 +575,9 @@ export class GeoAnalysisService {
     return areas;
   }
 
-  private generateHistoricalData(months: number): { date: string; value: number }[] {
+  private generateHistoricalData(
+    months: number,
+  ): { date: string; value: number }[] {
     const data: { date: string; value: number }[] = [];
     const now = new Date();
     for (let i = months - 1; i >= 0; i--) {
@@ -503,7 +591,9 @@ export class GeoAnalysisService {
     return data;
   }
 
-  private generateForecastData(months: number): { date: string; value: number }[] {
+  private generateForecastData(
+    months: number,
+  ): { date: string; value: number }[] {
     const data: { date: string; value: number }[] = [];
     const now = new Date();
     for (let i = 1; i <= months; i++) {
@@ -536,16 +626,21 @@ export class GeoAnalysisService {
    * 获取地区列表
    */
   async getRegions(tenantId: string, filters?: any): Promise<GeoRegion[]> {
-    const query = this.geoRegionRepository.createQueryBuilder('region')
+    const query = this.geoRegionRepository
+      .createQueryBuilder('region')
       .where('region.tenantId = :tenantId', { tenantId })
       .andWhere('region.isActive = :isActive', { isActive: true });
 
     if (filters?.regionLevel) {
-      query.andWhere('region.regionLevel = :regionLevel', { regionLevel: filters.regionLevel });
+      query.andWhere('region.regionLevel = :regionLevel', {
+        regionLevel: filters.regionLevel,
+      });
     }
 
     if (filters?.regionType) {
-      query.andWhere('region.regionType = :regionType', { regionType: filters.regionType });
+      query.andWhere('region.regionType = :regionType', {
+        regionType: filters.regionType,
+      });
     }
 
     return query.getMany();
@@ -554,17 +649,25 @@ export class GeoAnalysisService {
   /**
    * 获取SEO建议
    */
-  async getSeoSuggestions(tenantId: string, filters?: any): Promise<SeoSuggestion[]> {
-    const query = this.seoSuggestionRepository.createQueryBuilder('suggestion')
+  async getSeoSuggestions(
+    tenantId: string,
+    filters?: any,
+  ): Promise<SeoSuggestion[]> {
+    const query = this.seoSuggestionRepository
+      .createQueryBuilder('suggestion')
       .where('suggestion.tenantId = :tenantId', { tenantId })
       .andWhere('suggestion.isActive = :isActive', { isActive: true });
 
     if (filters?.suggestionType) {
-      query.andWhere('suggestion.suggestionType = :suggestionType', { suggestionType: filters.suggestionType });
+      query.andWhere('suggestion.suggestionType = :suggestionType', {
+        suggestionType: filters.suggestionType,
+      });
     }
 
     if (filters?.priority) {
-      query.andWhere('suggestion.priority = :priority', { priority: filters.priority });
+      query.andWhere('suggestion.priority = :priority', {
+        priority: filters.priority,
+      });
     }
 
     return query.orderBy('suggestion.expectedImpact', 'DESC').getMany();

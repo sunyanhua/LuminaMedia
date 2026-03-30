@@ -23,17 +23,12 @@ export class StructuredLoggerService implements OnModuleDestroy {
   private readonly serviceName: string;
   private readonly environment: string;
 
-  constructor(
-    @Optional() @Inject('LOG_WRITERS') writers?: LogWriter[],
-  ) {
+  constructor(@Optional() @Inject('LOG_WRITERS') writers?: LogWriter[]) {
     this.serviceName = process.env.SERVICE_NAME || 'lumina-media';
     this.environment = process.env.NODE_ENV || 'development';
 
     // 默认使用控制台和文件写入器
-    this.writers = writers || [
-      new ConsoleLogWriter(),
-      new FileLogWriter(),
-    ];
+    this.writers = writers || [new ConsoleLogWriter(), new FileLogWriter()];
   }
 
   /**
@@ -116,10 +111,12 @@ export class StructuredLoggerService implements OnModuleDestroy {
 
     // 并行写入所有写入器
     await Promise.allSettled(
-      this.writers.map(writer => writer.write(log).catch(err => {
-        // 写入器错误不应影响应用，但可以在控制台记录
-        console.error(`Failed to write log to writer: ${err.message}`);
-      })),
+      this.writers.map((writer) =>
+        writer.write(log).catch((err) => {
+          // 写入器错误不应影响应用，但可以在控制台记录
+          console.error(`Failed to write log to writer: ${err.message}`);
+        }),
+      ),
     );
   }
 
@@ -131,7 +128,13 @@ export class StructuredLoggerService implements OnModuleDestroy {
     action: string,
     options?: LogOptions & { status?: 'success' | 'failure' | 'partial' },
   ): Promise<void> {
-    return this.log('info', module, action, options?.status || 'success', options);
+    return this.log(
+      'info',
+      module,
+      action,
+      options?.status || 'success',
+      options,
+    );
   }
 
   /**
@@ -174,7 +177,13 @@ export class StructuredLoggerService implements OnModuleDestroy {
     action: string,
     options?: LogOptions & { status?: 'success' | 'failure' | 'partial' },
   ): Promise<void> {
-    return this.log('debug', module, action, options?.status || 'success', options);
+    return this.log(
+      'debug',
+      module,
+      action,
+      options?.status || 'success',
+      options,
+    );
   }
 
   /**
@@ -185,7 +194,13 @@ export class StructuredLoggerService implements OnModuleDestroy {
     action: string,
     options?: LogOptions & { status?: 'success' | 'failure' | 'partial' },
   ): Promise<void> {
-    return this.log('verbose', module, action, options?.status || 'success', options);
+    return this.log(
+      'verbose',
+      module,
+      action,
+      options?.status || 'success',
+      options,
+    );
   }
 
   /**
@@ -201,7 +216,9 @@ export class StructuredLoggerService implements OnModuleDestroy {
     const requestId = options?.requestId || this.getCurrentRequestId();
 
     try {
-      const result = await (typeof operation === 'function' ? operation() : operation);
+      const result = await (typeof operation === 'function'
+        ? operation()
+        : operation);
       const duration = Date.now() - startTime;
 
       await this.log('info', module, action, 'success', {
@@ -213,7 +230,8 @@ export class StructuredLoggerService implements OnModuleDestroy {
       return result;
     } catch (error) {
       const duration = Date.now() - startTime;
-      const errorObj = error instanceof Error ? error : new Error(String(error));
+      const errorObj =
+        error instanceof Error ? error : new Error(String(error));
 
       await this.log('error', module, action, 'failure', {
         ...options,
@@ -230,9 +248,11 @@ export class StructuredLoggerService implements OnModuleDestroy {
   async onModuleDestroy() {
     // 关闭所有写入器
     await Promise.allSettled(
-      this.writers.map(writer => writer.close?.().catch(err => {
-        console.error(`Failed to close log writer: ${err.message}`);
-      })),
+      this.writers.map((writer) =>
+        writer.close?.().catch((err) => {
+          console.error(`Failed to close log writer: ${err.message}`);
+        }),
+      ),
     );
   }
 }

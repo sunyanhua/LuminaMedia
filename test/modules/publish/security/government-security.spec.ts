@@ -35,8 +35,9 @@ describe('政府内容安全测试', () => {
       ];
 
       for (const endpoint of publicEndpoints) {
-        const response = await request(app.getHttpServer())
-          [endpoint.method.toLowerCase() as 'get'](endpoint.path);
+        const response = await request(app.getHttpServer())[
+          endpoint.method.toLowerCase() as 'get'
+        ](endpoint.path);
 
         // 公开API应可访问或返回适当的错误
         expect([200, 401, 403]).toContain(response.status);
@@ -84,11 +85,13 @@ describe('政府内容安全测试', () => {
 
         if (createResponse.status === 201 || createResponse.status === 200) {
           // 获取账号详情，验证凭证不直接暴露
-          const accountResponse = await request(app.getHttpServer())
-            .get('/accounts/test-account-1');
+          const accountResponse = await request(app.getHttpServer()).get(
+            '/accounts/test-account-1',
+          );
 
           if (accountResponse.status === 200) {
-            const account = accountResponse.body.account || accountResponse.body;
+            const account =
+              accountResponse.body.account || accountResponse.body;
 
             // 验证加密字段
             expect(account.encryptedCredentials).toBeDefined();
@@ -162,8 +165,14 @@ describe('政府内容安全测试', () => {
       const invalidRequests = [
         { contentType: 'INVALID_TYPE', theme: '测试' }, // 无效类型
         { contentType: GovernmentContentType.OFFICIAL_DOCUMENT, theme: '' }, // 空主题
-        { contentType: GovernmentContentType.OFFICIAL_DOCUMENT, theme: 'a'.repeat(1000) }, // 超长主题
-        { contentType: GovernmentContentType.OFFICIAL_DOCUMENT, params: { invalidField: 'test' } }, // 无效字段
+        {
+          contentType: GovernmentContentType.OFFICIAL_DOCUMENT,
+          theme: 'a'.repeat(1000),
+        }, // 超长主题
+        {
+          contentType: GovernmentContentType.OFFICIAL_DOCUMENT,
+          params: { invalidField: 'test' },
+        }, // 无效字段
       ];
 
       for (const requestData of invalidRequests) {
@@ -204,7 +213,7 @@ describe('政府内容安全测试', () => {
       console.log(`速率限制测试响应状态: ${responses.join(', ')}`);
 
       // 验证至少有一些请求成功（或全部成功，如果没有速率限制）
-      const successCount = responses.filter(status => status === 200).length;
+      const successCount = responses.filter((status) => status === 200).length;
       expect(successCount).toBeGreaterThan(0);
     });
 
@@ -268,7 +277,9 @@ describe('政府内容安全测试', () => {
 
           // 包含敏感词的内容可能会合规性检查失败或得分较低
           const complianceResult = complianceResponse.body;
-          console.log(`敏感词测试 "${theme}": 合规性${complianceResult.passed ? '通过' : '失败'}, 得分: ${complianceResult.score}`);
+          console.log(
+            `敏感词测试 "${theme}": 合规性${complianceResult.passed ? '通过' : '失败'}, 得分: ${complianceResult.score}`,
+          );
         }
       }
     });
@@ -301,7 +312,9 @@ describe('政府内容安全测试', () => {
         expect(complianceCheck.score).toBeGreaterThanOrEqual(0);
         expect(complianceCheck.score).toBeLessThanOrEqual(100);
 
-        console.log(`内容类型 ${contentType} 合规性得分: ${complianceCheck.score}`);
+        console.log(
+          `内容类型 ${contentType} 合规性得分: ${complianceCheck.score}`,
+        );
       }
     });
   });
@@ -334,13 +347,22 @@ describe('政府内容安全测试', () => {
           if (errorBody.message) {
             expect(typeof errorBody.message).toBe('string');
             // 错误消息不应包含技术细节
-            const technicalTerms = ['stack', 'trace', 'sql', 'query', 'database', 'internal'];
+            const technicalTerms = [
+              'stack',
+              'trace',
+              'sql',
+              'query',
+              'database',
+              'internal',
+            ];
             const message = errorBody.message.toLowerCase();
             for (const term of technicalTerms) {
               // 注意：某些错误消息可能包含这些术语，但不应包含详细技术信息
               // 这里只是基本检查
               if (message.includes(term)) {
-                console.warn(`错误消息可能包含技术术语 "${term}": ${errorBody.message}`);
+                console.warn(
+                  `错误消息可能包含技术术语 "${term}": ${errorBody.message}`,
+                );
               }
             }
           }
@@ -367,7 +389,9 @@ describe('政府内容安全测试', () => {
         expect(response.status).not.toBe(500);
 
         // 应返回适当的错误或处理请求
-        console.log(`边缘情况测试 ${JSON.stringify(requestData)}: 状态码 ${response.status}`);
+        console.log(
+          `边缘情况测试 ${JSON.stringify(requestData)}: 状态码 ${response.status}`,
+        );
       }
     });
   });

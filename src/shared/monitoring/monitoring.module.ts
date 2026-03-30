@@ -13,7 +13,12 @@ import { HttpMetricsInterceptor } from './interceptors/http-metrics.interceptor'
 import { DatabaseMetricsSubscriber } from './subscribers/database-metrics.subscriber';
 
 @Module({
-  imports: [ConfigModule, ScheduleModule.forRoot(), LoggingModule, AutoscalingModule],
+  imports: [
+    ConfigModule,
+    ScheduleModule.forRoot(),
+    LoggingModule,
+    AutoscalingModule,
+  ],
   controllers: [MonitoringController],
   providers: [
     SkywalkingApmService,

@@ -18,7 +18,11 @@ export interface ApmService {
    * @param tags 标签
    * @param logs 日志
    */
-  createCustomTrace(operation: string, tags?: Record<string, any>, logs?: Record<string, any>): void;
+  createCustomTrace(
+    operation: string,
+    tags?: Record<string, any>,
+    logs?: Record<string, any>,
+  ): void;
 
   /**
    * 记录错误
@@ -33,7 +37,11 @@ export interface ApmService {
    * @param value 指标值
    * @param tags 标签
    */
-  recordMetric(name: string, value: number, tags?: Record<string, string>): void;
+  recordMetric(
+    name: string,
+    value: number,
+    tags?: Record<string, string>,
+  ): void;
 }
 
 /**

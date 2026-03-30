@@ -1,5 +1,16 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
-import { TaskStatus, PlatformType, CollectionMethod } from '../interfaces/data-collection.interface';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Index,
+} from 'typeorm';
+import {
+  TaskStatus,
+  PlatformType,
+  CollectionMethod,
+} from '../interfaces/data-collection.interface';
 
 @Entity('data_collection_tasks')
 @Index(['platform', 'status'])
@@ -14,7 +25,7 @@ export class DataCollectionTask {
   @Column({
     type: 'enum',
     enum: PlatformType,
-    comment: '目标平台: wechat, weibo, xiaohongshu, douyin, news, forum'
+    comment: '目标平台: wechat, weibo, xiaohongshu, douyin, news, forum',
   })
   platform: PlatformType;
 
@@ -22,7 +33,7 @@ export class DataCollectionTask {
     type: 'enum',
     enum: CollectionMethod,
     default: CollectionMethod.API,
-    comment: '采集方式: API, RSS, CRAWLER'
+    comment: '采集方式: API, RSS, CRAWLER',
   })
   method: CollectionMethod;
 
@@ -38,7 +49,7 @@ export class DataCollectionTask {
   @Column({
     type: 'enum',
     enum: TaskStatus,
-    default: TaskStatus.PENDING
+    default: TaskStatus.PENDING,
   })
   status: TaskStatus;
 

@@ -87,10 +87,17 @@ export class ScalingDecisionEngine {
     );
 
     // 2. 获取所有指标值
-    const metricValues = await this.metricsService.getMetricValues(rule.metrics);
+    const metricValues = await this.metricsService.getMetricValues(
+      rule.metrics,
+    );
 
     // 3. 为每个指标计算期望副本数
-    const metricEvaluations: Array<{ metric: ScalingMetric; currentValue: number; targetValue: number; calculatedReplicas: number }> = [];
+    const metricEvaluations: Array<{
+      metric: ScalingMetric;
+      currentValue: number;
+      targetValue: number;
+      calculatedReplicas: number;
+    }> = [];
     let calculatedReplicas = currentReplicas;
 
     for (const { metric, value } of metricValues) {
@@ -184,7 +191,9 @@ export class ScalingDecisionEngine {
     // 8. 保存决策历史
     this.saveDecision(decision);
 
-    this.logger.debug(`规则评估完成: ${rule.name}，决策: ${JSON.stringify(decision)}`);
+    this.logger.debug(
+      `规则评估完成: ${rule.name}，决策: ${JSON.stringify(decision)}`,
+    );
     return decision;
   }
 
@@ -221,7 +230,11 @@ export class ScalingDecisionEngine {
    * 应用策略
    */
   private applyPolicies(
-    policies: Array<{ type: 'Pods' | 'Percent'; value: number; periodSeconds: number }>,
+    policies: Array<{
+      type: 'Pods' | 'Percent';
+      value: number;
+      periodSeconds: number;
+    }>,
     desiredReplicas: number,
     currentReplicas: number,
   ): number {
@@ -491,7 +504,9 @@ export class ScalingDecisionEngine {
     enabledRules: number;
   } {
     const lastDecision = this.decisions[this.decisions.length - 1];
-    const enabledRules = PREDEFINED_SCALING_RULES.filter((rule) => rule.enabled).length;
+    const enabledRules = PREDEFINED_SCALING_RULES.filter(
+      (rule) => rule.enabled,
+    ).length;
 
     return {
       totalDecisions: this.decisions.length,

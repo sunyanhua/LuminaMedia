@@ -99,7 +99,10 @@ export class ScalingMetricsService {
       const sum = values.reduce((a, b) => a + b, 0);
       return sum / values.length;
     } catch (error) {
-      this.logger.warn(`从指标收集器获取数据失败，使用模拟数据: ${metricName}`, error.message);
+      this.logger.warn(
+        `从指标收集器获取数据失败，使用模拟数据: ${metricName}`,
+        error.message,
+      );
       // 如果指标收集器失败，返回模拟数据
       return await this.getSimulatedPodMetric(metricName);
     }
@@ -139,7 +142,10 @@ export class ScalingMetricsService {
     const baseUsage = 50; // 基础使用率
     const timeFactor = Math.sin(Date.now() / 60000); // 每分钟波动
     const randomFactor = Math.random() * 20 - 10; // 随机波动
-    return Math.max(10, Math.min(95, baseUsage + timeFactor * 10 + randomFactor));
+    return Math.max(
+      10,
+      Math.min(95, baseUsage + timeFactor * 10 + randomFactor),
+    );
   }
 
   /**
@@ -150,7 +156,10 @@ export class ScalingMetricsService {
     const baseUsage = 60;
     const timeFactor = Math.cos(Date.now() / 90000); // 每1.5分钟波动
     const randomFactor = Math.random() * 15 - 7.5;
-    return Math.max(20, Math.min(90, baseUsage + timeFactor * 8 + randomFactor));
+    return Math.max(
+      20,
+      Math.min(90, baseUsage + timeFactor * 8 + randomFactor),
+    );
   }
 
   /**
@@ -188,7 +197,11 @@ export class ScalingMetricsService {
     let baseUsers = 500;
 
     // 高峰时段（10-12点，14-16点，20-22点）
-    if ((hour >= 10 && hour < 12) || (hour >= 14 && hour < 16) || (hour >= 20 && hour < 22)) {
+    if (
+      (hour >= 10 && hour < 12) ||
+      (hour >= 14 && hour < 16) ||
+      (hour >= 20 && hour < 22)
+    ) {
       baseUsers = 1200;
     }
     // 低谷时段（0-6点）
@@ -222,7 +235,9 @@ export class ScalingMetricsService {
   /**
    * 获取模拟的业务指标
    */
-  private async getSimulatedBusinessMetric(metricName: string): Promise<number> {
+  private async getSimulatedBusinessMetric(
+    metricName: string,
+  ): Promise<number> {
     // 通用业务指标模拟
     return 100 + Math.random() * 200;
   }
@@ -230,7 +245,9 @@ export class ScalingMetricsService {
   /**
    * 批量获取指标值
    */
-  async getMetricValues(metrics: ScalingMetric[]): Promise<Array<{ metric: ScalingMetric; value: number }>> {
+  async getMetricValues(
+    metrics: ScalingMetric[],
+  ): Promise<Array<{ metric: ScalingMetric; value: number }>> {
     const results: Array<{ metric: ScalingMetric; value: number }> = [];
     for (const metric of metrics) {
       try {

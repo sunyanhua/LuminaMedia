@@ -35,11 +35,15 @@ export class SkywalkingApmService implements ApmService, OnModuleInit {
       // 暂时使用模拟实现，待实际安装包后替换
       this.skywalkingAgent = this.createMockAgent();
 
-      this.logger.log(`SkyWalking APM agent initialized for service: ${this.config.serviceName}`);
+      this.logger.log(
+        `SkyWalking APM agent initialized for service: ${this.config.serviceName}`,
+      );
       this.isInitialized = true;
 
       // 记录启动事件
-      this.recordMetric('apm_agent_started', 1, { service: this.config.serviceName });
+      this.recordMetric('apm_agent_started', 1, {
+        service: this.config.serviceName,
+      });
     } catch (error) {
       this.logger.error('Failed to initialize SkyWalking APM agent', error);
       throw error;
@@ -60,7 +64,11 @@ export class SkywalkingApmService implements ApmService, OnModuleInit {
   /**
    * 创建自定义追踪
    */
-  createCustomTrace(operation: string, tags?: Record<string, any>, logs?: Record<string, any>): void {
+  createCustomTrace(
+    operation: string,
+    tags?: Record<string, any>,
+    logs?: Record<string, any>,
+  ): void {
     if (!this.isInitialized) {
       return;
     }
@@ -104,7 +112,11 @@ export class SkywalkingApmService implements ApmService, OnModuleInit {
   /**
    * 记录业务指标
    */
-  recordMetric(name: string, value: number, tags?: Record<string, string>): void {
+  recordMetric(
+    name: string,
+    value: number,
+    tags?: Record<string, string>,
+  ): void {
     if (!this.isInitialized) {
       return;
     }
@@ -124,10 +136,21 @@ export class SkywalkingApmService implements ApmService, OnModuleInit {
    */
   private loadConfig(): ApmConfig {
     return {
-      serviceName: this.configService.get<string>('APM_SERVICE_NAME', 'lumina-media'),
-      serviceInstance: this.configService.get<string>('APM_SERVICE_INSTANCE', 'lumina-media-instance-1'),
-      oapServer: this.configService.get<string>('APM_OAP_SERVER', 'http://skywalking-oap:12800'),
-      sampleRate: parseFloat(this.configService.get<string>('APM_SAMPLE_RATE', '1.0')),
+      serviceName: this.configService.get<string>(
+        'APM_SERVICE_NAME',
+        'lumina-media',
+      ),
+      serviceInstance: this.configService.get<string>(
+        'APM_SERVICE_INSTANCE',
+        'lumina-media-instance-1',
+      ),
+      oapServer: this.configService.get<string>(
+        'APM_OAP_SERVER',
+        'http://skywalking-oap:12800',
+      ),
+      sampleRate: parseFloat(
+        this.configService.get<string>('APM_SAMPLE_RATE', '1.0'),
+      ),
       enabled: this.configService.get<string>('APM_ENABLED', 'true') === 'true',
     };
   }

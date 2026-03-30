@@ -1,7 +1,19 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsDate, IsEnum, IsNotEmpty, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
-import { AnalysisType, RegionLevel } from '../interfaces/geo-analysis.interface';
+import {
+  IsArray,
+  IsDate,
+  IsEnum,
+  IsNotEmpty,
+  IsObject,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+import {
+  AnalysisType,
+  RegionLevel,
+} from '../interfaces/geo-analysis.interface';
 
 export class TimeRangeDto {
   @ApiProperty({ type: Date, description: '开始时间' })
@@ -16,11 +28,19 @@ export class TimeRangeDto {
 }
 
 export class AnalysisOptionsDto {
-  @ApiPropertyOptional({ type: Boolean, description: '是否包含可视化', default: true })
+  @ApiPropertyOptional({
+    type: Boolean,
+    description: '是否包含可视化',
+    default: true,
+  })
   @IsOptional()
   includeVisualizations?: boolean = true;
 
-  @ApiPropertyOptional({ type: Boolean, description: '是否包含推荐建议', default: true })
+  @ApiPropertyOptional({
+    type: Boolean,
+    description: '是否包含推荐建议',
+    default: true,
+  })
   @IsOptional()
   includeRecommendations?: boolean = true;
 
@@ -29,7 +49,11 @@ export class AnalysisOptionsDto {
   @IsString()
   language?: string = 'zh-CN';
 
-  @ApiPropertyOptional({ enum: ['basic', 'standard', 'comprehensive'], description: '分析深度', default: 'standard' })
+  @ApiPropertyOptional({
+    enum: ['basic', 'standard', 'comprehensive'],
+    description: '分析深度',
+    default: 'standard',
+  })
   @IsOptional()
   @IsEnum(['basic', 'standard', 'comprehensive'])
   depth?: 'basic' | 'standard' | 'comprehensive' = 'standard';
@@ -58,7 +82,11 @@ export class GeoAnalysisRequestDto {
   @IsString({ each: true })
   targetRegionNames?: string[];
 
-  @ApiProperty({ enum: AnalysisType, isArray: true, description: '分析类型列表' })
+  @ApiProperty({
+    enum: AnalysisType,
+    isArray: true,
+    description: '分析类型列表',
+  })
   @IsArray()
   @IsEnum(AnalysisType, { each: true })
   analysisTypes: AnalysisType[];

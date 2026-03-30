@@ -25,7 +25,11 @@ import { DataCollectionProcessor } from './processors/data-collection.processor'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([DataCollectionTask, PlatformConfig, CollectedData]),
+    TypeOrmModule.forFeature([
+      DataCollectionTask,
+      PlatformConfig,
+      CollectedData,
+    ]),
     BullModule.registerQueue({
       name: 'data-collection',
       redis: {

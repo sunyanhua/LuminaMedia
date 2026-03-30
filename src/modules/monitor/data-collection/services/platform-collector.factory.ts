@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PlatformCollector } from './interfaces/platform-collector.interface';
-import { PlatformType, CollectionMethod } from '../interfaces/data-collection.interface';
+import {
+  PlatformType,
+  CollectionMethod,
+} from '../interfaces/data-collection.interface';
 
 @Injectable()
 export class PlatformCollectorFactory {

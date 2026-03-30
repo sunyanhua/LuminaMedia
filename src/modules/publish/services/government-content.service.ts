@@ -64,12 +64,16 @@ export class GovernmentContentService {
   /**
    * 生成政府内容
    */
-  async generateContent(request: GovernmentContentRequest): Promise<GovernmentContentResponse> {
+  async generateContent(
+    request: GovernmentContentRequest,
+  ): Promise<GovernmentContentResponse> {
     const startTime = Date.now();
     this.stats.totalGenerations++;
 
     try {
-      this.logger.log(`Generating government content: ${request.contentType} - ${request.theme}`);
+      this.logger.log(
+        `Generating government content: ${request.contentType} - ${request.theme}`,
+      );
 
       let content: GovernmentContent;
       let complianceCheck: ComplianceCheckResult;
@@ -103,15 +107,21 @@ export class GovernmentContentService {
 
       // 更新统计信息
       this.stats.typeBreakdown[request.contentType]++;
-      this.stats.successRate = (this.stats.successRate * (this.stats.totalGenerations - 1) + 1) / this.stats.totalGenerations;
+      this.stats.successRate =
+        (this.stats.successRate * (this.stats.totalGenerations - 1) + 1) /
+        this.stats.totalGenerations;
 
       const generationTime = Date.now() - startTime;
       this.stats.averageGenerationTime =
-        (this.stats.averageGenerationTime * (this.stats.totalGenerations - 1) + generationTime) / this.stats.totalGenerations;
+        (this.stats.averageGenerationTime * (this.stats.totalGenerations - 1) +
+          generationTime) /
+        this.stats.totalGenerations;
 
       if (complianceCheck.passed) {
         this.stats.compliancePassRate =
-          (this.stats.compliancePassRate * (this.stats.totalGenerations - 1) + 1) / this.stats.totalGenerations;
+          (this.stats.compliancePassRate * (this.stats.totalGenerations - 1) +
+            1) /
+          this.stats.totalGenerations;
       }
 
       return {
@@ -123,10 +133,15 @@ export class GovernmentContentService {
         summary: this.generateContentSummary(content),
       };
     } catch (error) {
-      this.logger.error(`Failed to generate government content: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to generate government content: ${error.message}`,
+        error.stack,
+      );
 
       // 更新失败统计
-      this.stats.successRate = (this.stats.successRate * (this.stats.totalGenerations - 1)) / this.stats.totalGenerations;
+      this.stats.successRate =
+        (this.stats.successRate * (this.stats.totalGenerations - 1)) /
+        this.stats.totalGenerations;
 
       return {
         success: false,
@@ -139,14 +154,19 @@ export class GovernmentContentService {
   /**
    * 生成政府公文
    */
-  private async generateOfficialDocument(request: GovernmentContentRequest): Promise<OfficialDocument> {
+  private async generateOfficialDocument(
+    request: GovernmentContentRequest,
+  ): Promise<OfficialDocument> {
     const { theme, params = {} } = request;
 
     // 提取参数或使用默认值
     const issuingAuthority = params.issuingAuthority || 'XX市人民政府办公室';
-    const documentNumber = params.documentNumber || `XX政办发〔${new Date().getFullYear()}〕${Math.floor(Math.random() * 1000)}号`;
+    const documentNumber =
+      params.documentNumber ||
+      `XX政办发〔${new Date().getFullYear()}〕${Math.floor(Math.random() * 1000)}号`;
     const issuer = params.issuer || 'XXX';
-    const mainRecipient = params.mainRecipient || '各区、县人民政府，市政府各委、办、局';
+    const mainRecipient =
+      params.mainRecipient || '各区、县人民政府，市政府各委、办、局';
 
     const header: DocumentHeader = {
       issuingAuthority,
@@ -188,7 +208,10 @@ export class GovernmentContentService {
     const footer: DocumentFooter = {
       contactPerson: params.contactPerson || '王某某',
       contactInfo: params.contactInfo || '联系电话：010-XXXXXXX',
-      attachments: params.attachments || [`附件：1. ${theme}实施方案`, `2. ${theme}责任分工表`],
+      attachments: params.attachments || [
+        `附件：1. ${theme}实施方案`,
+        `2. ${theme}责任分工表`,
+      ],
       printingAuthority: issuingAuthority,
       printingDate: new Date().toISOString().split('T')[0],
       copies: params.copies || 100,
@@ -207,16 +230,21 @@ export class GovernmentContentService {
   /**
    * 生成防诈骗宣传内容
    */
-  private async generateAntiFraudContent(request: GovernmentContentRequest): Promise<AntiFraudContent> {
+  private async generateAntiFraudContent(
+    request: GovernmentContentRequest,
+  ): Promise<AntiFraudContent> {
     const { theme, params = {} } = request;
 
-    const fraudType = params.fraudType || theme.split('防')[1] || '电信网络诈骗';
+    const fraudType =
+      params.fraudType || theme.split('防')[1] || '电信网络诈骗';
 
     return {
       type: GovernmentContentType.ANTI_FRAUD,
       title: `警惕新型${fraudType}！${theme}防范指南`,
       fraudType,
-      recentCase: params.recentCase || `近期，我市发生多起${fraudType}案件，受害人以老年人、学生等群体为主，涉案金额从几千元到几十万元不等。`,
+      recentCase:
+        params.recentCase ||
+        `近期，我市发生多起${fraudType}案件，受害人以老年人、学生等群体为主，涉案金额从几千元到几十万元不等。`,
       fraudMethods: params.fraudMethods || [
         '冒充公检法工作人员，以涉嫌犯罪为由要求转账',
         '冒充客服人员，以退款、理赔为由索要验证码',
@@ -261,11 +289,15 @@ export class GovernmentContentService {
   /**
    * 生成政策解读内容
    */
-  private async generatePolicyInterpretationContent(request: GovernmentContentRequest): Promise<PolicyInterpretationContent> {
+  private async generatePolicyInterpretationContent(
+    request: GovernmentContentRequest,
+  ): Promise<PolicyInterpretationContent> {
     const { theme, params = {} } = request;
 
     const issuingAuthority = params.issuingAuthority || 'XX市发展和改革委员会';
-    const documentNumber = params.documentNumber || `XX发改规〔${new Date().getFullYear()}〕${Math.floor(Math.random() * 100)}号`;
+    const documentNumber =
+      params.documentNumber ||
+      `XX发改规〔${new Date().getFullYear()}〕${Math.floor(Math.random() * 100)}号`;
 
     const keyPoints: PolicyKeyPoint[] = [
       {
@@ -302,12 +334,14 @@ export class GovernmentContentService {
       },
       {
         question: `如何申请${theme}政策支持？`,
-        answer: '通过市政务服务网在线提交申请，或前往各区政务服务大厅窗口办理。',
+        answer:
+          '通过市政务服务网在线提交申请，或前往各区政务服务大厅窗口办理。',
         reference: '政策文件第三章第十二条',
       },
       {
         question: `政策支持的力度有多大？`,
-        answer: '根据不同类型和规模，支持力度从几万元到几百万元不等，具体以实施细则为准。',
+        answer:
+          '根据不同类型和规模，支持力度从几万元到几百万元不等，具体以实施细则为准。',
         reference: '政策文件第三章第十五条',
       },
       {
@@ -323,9 +357,13 @@ export class GovernmentContentService {
       issuingAuthority,
       documentNumber,
       issueDate: new Date().toISOString().split('T')[0],
-      background: params.background || `为贯彻落实国家关于${theme}的决策部署，结合我市实际，制定本政策。`,
+      background:
+        params.background ||
+        `为贯彻落实国家关于${theme}的决策部署，结合我市实际，制定本政策。`,
       keyPoints,
-      applicableScope: params.applicableScope || '本市行政区域内符合条件的企业、事业单位、社会团体和个人。',
+      applicableScope:
+        params.applicableScope ||
+        '本市行政区域内符合条件的企业、事业单位、社会团体和个人。',
       operationGuide: params.operationGuide || [
         '登录市政务服务网，进入政策申报系统',
         '填写申报信息，上传相关证明材料',
@@ -348,7 +386,9 @@ export class GovernmentContentService {
   /**
    * 生成政务服务内容
    */
-  private async generateGovernmentServiceContent(request: GovernmentContentRequest): Promise<GovernmentServiceContent> {
+  private async generateGovernmentServiceContent(
+    request: GovernmentContentRequest,
+  ): Promise<GovernmentServiceContent> {
     const { theme, params = {} } = request;
 
     const procedures: ProcedureStep[] = [
@@ -407,8 +447,10 @@ export class GovernmentContentService {
     return {
       type: GovernmentContentType.GOVERNMENT_SERVICE,
       serviceName: theme,
-      responsibleDepartment: params.responsibleDepartment || 'XX市政务服务管理局',
-      targetAudience: params.targetAudience || '在本市注册登记的企业、个体工商户和市民',
+      responsibleDepartment:
+        params.responsibleDepartment || 'XX市政务服务管理局',
+      targetAudience:
+        params.targetAudience || '在本市注册登记的企业、个体工商户和市民',
       eligibility: params.eligibility || [
         '在本市合法注册登记',
         '符合相关法律法规规定',
@@ -436,7 +478,9 @@ export class GovernmentContentService {
   /**
    * 生成公共通知内容
    */
-  private async generatePublicAnnouncementContent(request: GovernmentContentRequest): Promise<PublicAnnouncementContent> {
+  private async generatePublicAnnouncementContent(
+    request: GovernmentContentRequest,
+  ): Promise<PublicAnnouncementContent> {
     const { theme, params = {} } = request;
 
     return {
@@ -444,10 +488,16 @@ export class GovernmentContentService {
       title: theme,
       issuingUnit: params.issuingUnit || 'XX市城市管理委员会',
       announcementTime: new Date().toISOString(),
-      content: params.content || `根据工作安排，现将${theme}有关事项通知如下：\n\n${theme}事关市民切身利益，请广大市民予以理解、支持和配合。我们将努力做好相关工作，最大限度减少对市民生活的影响。`,
+      content:
+        params.content ||
+        `根据工作安排，现将${theme}有关事项通知如下：\n\n${theme}事关市民切身利益，请广大市民予以理解、支持和配合。我们将努力做好相关工作，最大限度减少对市民生活的影响。`,
       affectedAreas: params.affectedAreas || ['XX区', 'XX街道', 'XX社区'],
-      effectiveTime: params.effectiveTime || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      deadline: params.deadline || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      effectiveTime:
+        params.effectiveTime ||
+        new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      deadline:
+        params.deadline ||
+        new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       precautions: params.precautions || [
         '请提前做好相关准备',
         '如有疑问请及时咨询',
@@ -463,7 +513,9 @@ export class GovernmentContentService {
   /**
    * 生成应急响应内容
    */
-  private async generateEmergencyResponseContent(request: GovernmentContentRequest): Promise<EmergencyResponseContent> {
+  private async generateEmergencyResponseContent(
+    request: GovernmentContentRequest,
+  ): Promise<EmergencyResponseContent> {
     const { theme, params = {} } = request;
 
     const eventType = params.eventType || '自然灾害';
@@ -546,8 +598,13 @@ export class GovernmentContentService {
       title: `关于${theme}的应急响应通告`,
       issuingUnit: params.issuingUnit || 'XX市应急管理局',
       issueTime: new Date().toISOString(),
-      eventOverview: params.eventOverview || `根据气象部门预报，我市将出现${theme}，预计影响范围广、强度大。请各单位和广大市民做好防范准备。`,
-      affectedAreas: params.affectedAreas || ['全市范围', '重点区域：XX区、XX县'],
+      eventOverview:
+        params.eventOverview ||
+        `根据气象部门预报，我市将出现${theme}，预计影响范围广、强度大。请各单位和广大市民做好防范准备。`,
+      affectedAreas: params.affectedAreas || [
+        '全市范围',
+        '重点区域：XX区、XX县',
+      ],
       responseMeasures: params.responseMeasures || [
         '启动应急响应机制',
         '加强监测预警',
@@ -566,7 +623,9 @@ export class GovernmentContentService {
   /**
    * 检查内容合规性
    */
-  async checkCompliance(content: GovernmentContent): Promise<ComplianceCheckResult> {
+  async checkCompliance(
+    content: GovernmentContent,
+  ): Promise<ComplianceCheckResult> {
     const items: any[] = [];
     const warnings: string[] = [];
     const requiredFixes: string[] = [];
@@ -611,9 +670,10 @@ export class GovernmentContentService {
     }
 
     // 计算合规分数
-    const passedItems = items.filter(item => item.passed).length;
+    const passedItems = items.filter((item) => item.passed).length;
     const totalItems = items.length;
-    const score = totalItems > 0 ? Math.round((passedItems / totalItems) * 100) : 100;
+    const score =
+      totalItems > 0 ? Math.round((passedItems / totalItems) * 100) : 100;
 
     // 添加警告和建议
     if (score < 80) {
@@ -666,12 +726,15 @@ export class GovernmentContentService {
    * 检查公文合规性
    */
   private checkOfficialDocumentCompliance(document: OfficialDocument): any[] {
-    const items = [];
+    const items: any[] = [];
 
     items.push({
       name: '公文头完整性',
       description: '检查公文头是否完整',
-      passed: !!document.header.issuingAuthority && !!document.header.title && !!document.header.issueDate,
+      passed:
+        !!document.header.issuingAuthority &&
+        !!document.header.title &&
+        !!document.header.issueDate,
       details: document.header.issuingAuthority ? '公文头完整' : '缺少必要字段',
       severity: 'high' as const,
     });
@@ -687,7 +750,9 @@ export class GovernmentContentService {
     items.push({
       name: '发文机关合法性',
       description: '检查发文机关是否符合规范',
-      passed: document.header.issuingAuthority.includes('政府') || document.header.issuingAuthority.includes('委员会'),
+      passed:
+        document.header.issuingAuthority.includes('政府') ||
+        document.header.issuingAuthority.includes('委员会'),
       details: document.header.issuingAuthority,
       severity: 'high' as const,
     });
@@ -699,7 +764,7 @@ export class GovernmentContentService {
    * 检查防诈骗内容合规性
    */
   private checkAntiFraudCompliance(content: AntiFraudContent): any[] {
-    const items = [];
+    const items: any[] = [];
 
     items.push({
       name: '诈骗类型明确性',
@@ -731,8 +796,10 @@ export class GovernmentContentService {
   /**
    * 检查政策解读合规性
    */
-  private checkPolicyInterpretationCompliance(content: PolicyInterpretationContent): any[] {
-    const items = [];
+  private checkPolicyInterpretationCompliance(
+    content: PolicyInterpretationContent,
+  ): any[] {
+    const items: any[] = [];
 
     items.push({
       name: '政策名称准确性',
@@ -745,7 +812,9 @@ export class GovernmentContentService {
     items.push({
       name: '发文机关权威性',
       description: '检查发文机关是否具有权威性',
-      passed: content.issuingAuthority.includes('政府') || content.issuingAuthority.includes('委员会'),
+      passed:
+        content.issuingAuthority.includes('政府') ||
+        content.issuingAuthority.includes('委员会'),
       details: content.issuingAuthority,
       severity: 'high' as const,
     });
@@ -766,12 +835,41 @@ export class GovernmentContentService {
    */
   private getSuggestedPlatforms(contentType: GovernmentContentType): string[] {
     const platformMap: Record<GovernmentContentType, string[]> = {
-      [GovernmentContentType.OFFICIAL_DOCUMENT]: ['政府门户网站', '政务新媒体', '政府公报'],
-      [GovernmentContentType.ANTI_FRAUD]: ['社区宣传栏', '微信公众号', '短视频平台', '广播电视台'],
-      [GovernmentContentType.POLICY_INTERPRETATION]: ['政府门户网站', '政务新媒体', '新闻发布会', '政策宣讲会'],
-      [GovernmentContentType.GOVERNMENT_SERVICE]: ['政务服务网', '政务APP', '办事大厅', '12345热线'],
-      [GovernmentContentType.PUBLIC_ANNOUNCEMENT]: ['社区公告栏', '微信公众号', '短信平台', '广播'],
-      [GovernmentContentType.EMERGENCY_RESPONSE]: ['应急广播', '短信平台', '电视滚动字幕', '新媒体平台'],
+      [GovernmentContentType.OFFICIAL_DOCUMENT]: [
+        '政府门户网站',
+        '政务新媒体',
+        '政府公报',
+      ],
+      [GovernmentContentType.ANTI_FRAUD]: [
+        '社区宣传栏',
+        '微信公众号',
+        '短视频平台',
+        '广播电视台',
+      ],
+      [GovernmentContentType.POLICY_INTERPRETATION]: [
+        '政府门户网站',
+        '政务新媒体',
+        '新闻发布会',
+        '政策宣讲会',
+      ],
+      [GovernmentContentType.GOVERNMENT_SERVICE]: [
+        '政务服务网',
+        '政务APP',
+        '办事大厅',
+        '12345热线',
+      ],
+      [GovernmentContentType.PUBLIC_ANNOUNCEMENT]: [
+        '社区公告栏',
+        '微信公众号',
+        '短信平台',
+        '广播',
+      ],
+      [GovernmentContentType.EMERGENCY_RESPONSE]: [
+        '应急广播',
+        '短信平台',
+        '电视滚动字幕',
+        '新媒体平台',
+      ],
     };
 
     return platformMap[contentType] || ['政府门户网站'];
@@ -917,7 +1015,10 @@ export class GovernmentContentService {
           name: '宣传内容创建',
           description: '创建多平台宣传内容',
           action: 'create_propaganda_content',
-          params: { formats: ['长图文', '短视频'], platforms: ['微信', '抖音'] },
+          params: {
+            formats: ['长图文', '短视频'],
+            platforms: ['微信', '抖音'],
+          },
           expectedResult: '生成多平台宣传内容',
           demonstrationPoints: ['内容适配能力', '批量生成效率'],
           timeAllocation: 120,
@@ -941,11 +1042,7 @@ export class GovernmentContentService {
         '展示内容生成能力',
         '展示发布监测能力',
       ],
-      precautions: [
-        '确保网络连接稳定',
-        '准备演示用数据',
-        '提前测试发布流程',
-      ],
+      precautions: ['确保网络连接稳定', '准备演示用数据', '提前测试发布流程'],
       createdAt: new Date(),
     });
   }

@@ -1,14 +1,34 @@
 // 重新导出相关接口
-import type { DemographicProfile, EconomicProfile, CulturalProfile, DigitalProfile } from './geo-analysis.interface';
+import type {
+  DemographicProfile,
+  EconomicProfile,
+  CulturalProfile,
+  DigitalProfile,
+} from './geo-analysis.interface';
 import { RegionLevel } from './geo-analysis.interface';
 import type { Competitor } from './geo-analysis.interface';
 import { PriorityLevel } from './geo-analysis.interface';
-import type { KeywordOpportunity, ContentGap, TechnicalIssue, LinkOpportunity } from './geo-analysis.interface';
-export type { DemographicProfile, EconomicProfile, CulturalProfile, DigitalProfile } from './geo-analysis.interface';
+import type {
+  KeywordOpportunity,
+  ContentGap,
+  TechnicalIssue,
+  LinkOpportunity,
+} from './geo-analysis.interface';
+export type {
+  DemographicProfile,
+  EconomicProfile,
+  CulturalProfile,
+  DigitalProfile,
+} from './geo-analysis.interface';
 export { RegionLevel } from './geo-analysis.interface';
 export type { Competitor } from './geo-analysis.interface';
 export { PriorityLevel } from './geo-analysis.interface';
-export type { KeywordOpportunity, ContentGap, TechnicalIssue, LinkOpportunity } from './geo-analysis.interface';
+export type {
+  KeywordOpportunity,
+  ContentGap,
+  TechnicalIssue,
+  LinkOpportunity,
+} from './geo-analysis.interface';
 
 export interface GeoOptimizationReport {
   reportId: string;
@@ -523,4 +543,3 @@ export interface ChartReference {
   page: number;
   description: string;
 }
-

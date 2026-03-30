@@ -36,11 +36,13 @@ export class MetricsCollectorService implements MetricsCollector {
    */
   private initializeMetrics(): void {
     // 为每个预定义指标创建存储桶
-    this.businessMetrics.forEach(metric => {
+    this.businessMetrics.forEach((metric) => {
       this.metrics.set(metric.name, []);
     });
 
-    this.logger.log(`Initialized ${this.businessMetrics.length} business metrics`);
+    this.logger.log(
+      `Initialized ${this.businessMetrics.length} business metrics`,
+    );
   }
 
   /**
@@ -55,7 +57,10 @@ export class MetricsCollectorService implements MetricsCollector {
       this.apmService.recordMetric(metric.name, metric.value, metric.tags);
 
       // 记录到日志（调试用）
-      this.logger.debug(`Metric recorded: ${metric.name}=${metric.value}`, metric.tags);
+      this.logger.debug(
+        `Metric recorded: ${metric.name}=${metric.value}`,
+        metric.tags,
+      );
     } catch (error) {
       this.logger.error(`Failed to record metric: ${metric.name}`, error);
     }
@@ -64,9 +69,13 @@ export class MetricsCollectorService implements MetricsCollector {
   /**
    * 记录业务指标
    */
-  async recordBusinessMetric(name: string, value: number, tags?: Record<string, string>): Promise<void> {
+  async recordBusinessMetric(
+    name: string,
+    value: number,
+    tags?: Record<string, string>,
+  ): Promise<void> {
     // 查找指标定义
-    const metricDef = this.businessMetrics.find(m => m.name === name);
+    const metricDef = this.businessMetrics.find((m) => m.name === name);
     if (!metricDef) {
       this.logger.warn(`Unknown business metric: ${name}`);
       return;
@@ -86,7 +95,10 @@ export class MetricsCollectorService implements MetricsCollector {
   /**
    * 获取指标值
    */
-  async getMetric(name: string, tags?: Record<string, string>): Promise<MetricValue | null> {
+  async getMetric(
+    name: string,
+    tags?: Record<string, string>,
+  ): Promise<MetricValue | null> {
     const metrics = this.metrics.get(name);
     if (!metrics || metrics.length === 0) {
       return null;
@@ -94,7 +106,7 @@ export class MetricsCollectorService implements MetricsCollector {
 
     // 如果有标签过滤，则匹配标签
     if (tags && Object.keys(tags).length > 0) {
-      const filtered = metrics.filter(m => this.matchTags(m.tags, tags));
+      const filtered = metrics.filter((m) => this.matchTags(m.tags, tags));
       if (filtered.length === 0) {
         return null;
       }
@@ -121,12 +133,12 @@ export class MetricsCollectorService implements MetricsCollector {
     }
 
     let filtered = metrics.filter(
-      m => m.timestamp >= startTime && m.timestamp <= endTime,
+      (m) => m.timestamp >= startTime && m.timestamp <= endTime,
     );
 
     // 标签过滤
     if (tags && Object.keys(tags).length > 0) {
-      filtered = filtered.filter(m => this.matchTags(m.tags, tags));
+      filtered = filtered.filter((m) => this.matchTags(m.tags, tags));
     }
 
     return filtered;
@@ -143,7 +155,9 @@ export class MetricsCollectorService implements MetricsCollector {
    * 添加自定义业务指标
    */
   registerBusinessMetric(metric: BusinessMetric): void {
-    const existingIndex = this.businessMetrics.findIndex(m => m.name === metric.name);
+    const existingIndex = this.businessMetrics.findIndex(
+      (m) => m.name === metric.name,
+    );
     if (existingIndex >= 0) {
       this.businessMetrics[existingIndex] = metric;
       this.logger.debug(`Updated business metric: ${metric.name}`);
@@ -173,7 +187,11 @@ export class MetricsCollectorService implements MetricsCollector {
     await this.recordBusinessMetric('http_requests_total', 1, tags);
 
     // 记录请求耗时
-    await this.recordBusinessMetric('http_request_duration_ms', durationMs, tags);
+    await this.recordBusinessMetric(
+      'http_request_duration_ms',
+      durationMs,
+      tags,
+    );
 
     // 记录错误（如果有）
     if (statusCode >= 400) {
@@ -200,7 +218,11 @@ export class MetricsCollectorService implements MetricsCollector {
     await this.recordBusinessMetric('database_queries_total', 1, tags);
 
     // 记录查询耗时
-    await this.recordBusinessMetric('database_query_duration_ms', durationMs, tags);
+    await this.recordBusinessMetric(
+      'database_query_duration_ms',
+      durationMs,
+      tags,
+    );
   }
 
   /**
@@ -248,7 +270,10 @@ export class MetricsCollectorService implements MetricsCollector {
   /**
    * 匹配标签
    */
-  private matchTags(metricTags?: Record<string, string>, filterTags?: Record<string, string>): boolean {
+  private matchTags(
+    metricTags?: Record<string, string>,
+    filterTags?: Record<string, string>,
+  ): boolean {
     if (!filterTags || Object.keys(filterTags).length === 0) {
       return true;
     }
@@ -269,9 +294,13 @@ export class MetricsCollectorService implements MetricsCollector {
   /**
    * 获取指标统计
    */
-  getMetricsStats(): { totalMetrics: number; metricNames: string[]; totalDataPoints: number } {
+  getMetricsStats(): {
+    totalMetrics: number;
+    metricNames: string[];
+    totalDataPoints: number;
+  } {
     let totalDataPoints = 0;
-    this.metrics.forEach(metrics => {
+    this.metrics.forEach((metrics) => {
       totalDataPoints += metrics.length;
     });
 

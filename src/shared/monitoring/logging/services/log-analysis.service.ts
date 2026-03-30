@@ -13,10 +13,14 @@ export class LogAnalysisService {
 
   constructor(
     private readonly configService: ConfigService,
-    @Optional() @Inject('ELASTICSEARCH_SERVICE')
+    @Optional()
+    @Inject('ELASTICSEARCH_SERVICE')
     elasticsearchService?: any,
   ) {
-    this.indexPrefix = this.configService.get('ELASTICSEARCH_INDEX_PREFIX', 'lumina-logs');
+    this.indexPrefix = this.configService.get(
+      'ELASTICSEARCH_INDEX_PREFIX',
+      'lumina-logs',
+    );
     this.elasticsearchService = elasticsearchService || null;
   }
 
@@ -63,7 +67,9 @@ export class LogAnalysisService {
           errors: Math.floor(Math.random() * 10),
         })),
         daily: Array.from({ length: 7 }, (_, i) => ({
-          day: new Date(now.getTime() - i * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          day: new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split('T')[0],
           count: Math.floor(Math.random() * 500),
           errors: Math.floor(Math.random() * 50),
         })),
@@ -124,8 +130,14 @@ export class LogAnalysisService {
   /**
    * 检查告警规则
    */
-  async checkAlertRules(rules: LogAlertRule[]): Promise<Array<{ rule: LogAlertRule; triggered: boolean; details?: any }>> {
-    const results: Array<{ rule: LogAlertRule; triggered: boolean; details?: any }> = [];
+  async checkAlertRules(
+    rules: LogAlertRule[],
+  ): Promise<Array<{ rule: LogAlertRule; triggered: boolean; details?: any }>> {
+    const results: Array<{
+      rule: LogAlertRule;
+      triggered: boolean;
+      details?: any;
+    }> = [];
 
     for (const rule of rules) {
       if (!rule.enabled) {
@@ -163,7 +175,9 @@ export class LogAnalysisService {
    */
   async getErrorTrends(days: number = 7): Promise<any> {
     const to = new Date().toISOString();
-    const from = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+    const from = new Date(
+      Date.now() - days * 24 * 60 * 60 * 1000,
+    ).toISOString();
 
     const analysis = await this.analyzeLogs({ from, to });
     return analysis.trends.daily;
@@ -213,7 +227,9 @@ export class LogAnalysisService {
       body: {
         query,
         size: options.pagination?.pageSize || 100,
-        from: ((options.pagination?.page || 1) - 1) * (options.pagination?.pageSize || 100),
+        from:
+          ((options.pagination?.page || 1) - 1) *
+          (options.pagination?.pageSize || 100),
         sort: options.sort
           ? [{ [options.sort.field]: { order: options.sort.order } }]
           : [{ '@timestamp': { order: 'desc' } }],
@@ -221,8 +237,8 @@ export class LogAnalysisService {
     };
 
     try {
-      const result = await (this.elasticsearchService as any).search(searchRequest);
-      return (result as any).body ?? result;
+      const result = await this.elasticsearchService.search(searchRequest);
+      return result.body ?? result;
     } catch (error) {
       console.error('Elasticsearch query failed:', error);
       throw error;

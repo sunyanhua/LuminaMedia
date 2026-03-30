@@ -7,15 +7,7 @@ import { DocumentPipelineService } from './services/document-pipeline.service';
 @Global()
 @Module({
   imports: [ConfigModule],
-  providers: [
-    QdrantAdapter,
-    VectorSearchService,
-    DocumentPipelineService,
-  ],
-  exports: [
-    QdrantAdapter,
-    VectorSearchService,
-    DocumentPipelineService,
-  ],
+  providers: [QdrantAdapter, VectorSearchService, DocumentPipelineService],
+  exports: [QdrantAdapter, VectorSearchService, DocumentPipelineService],
 })
 export class VectorModule {}

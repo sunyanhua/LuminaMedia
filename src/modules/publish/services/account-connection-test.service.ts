@@ -3,7 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PlatformAdapterFactory } from '../adapters/platform-adapter.factory';
 import { AccountCredentialService } from './account-credential.service';
-import { PlatformType, PlatformConfig, WechatCredentials, XHSCredentials, WeiboCredentials, DouyinCredentials } from '../interfaces/platform-adapter.interface';
+import {
+  PlatformType,
+  PlatformConfig,
+  WechatCredentials,
+  XHSCredentials,
+  WeiboCredentials,
+  DouyinCredentials,
+} from '../interfaces/platform-adapter.interface';
 import { SocialAccount } from '../../../entities/social-account.entity';
 import { AccountStatus } from '../../../shared/enums/account-status.enum';
 
@@ -25,13 +32,17 @@ export class AccountConnectionTestService {
   /**
    * 测试账号连接
    */
-  async testAccountConnection(accountId: string, tenantId: string = 'demo-tenant'): Promise<TestResult> {
+  async testAccountConnection(
+    accountId: string,
+    tenantId: string = 'demo-tenant',
+  ): Promise<TestResult> {
     try {
       this.logger.log(`Testing connection for account: ${accountId}`);
 
       // 获取账号信息和凭证
-      const accounts = await this.accountCredentialService.getAllAccounts(tenantId);
-      const account = accounts.find(acc => acc.id === accountId);
+      const accounts =
+        await this.accountCredentialService.getAllAccounts(tenantId);
+      const account = accounts.find((acc) => acc.id === accountId);
 
       if (!account) {
         return {
@@ -44,22 +55,34 @@ export class AccountConnectionTestService {
       }
 
       // 获取解密后的凭证
-      const credentials = await this.accountCredentialService.getDecryptedCredentials(accountId, tenantId);
+      const credentials =
+        await this.accountCredentialService.getDecryptedCredentials(
+          accountId,
+          tenantId,
+        );
 
       // 根据平台类型测试连接
       let result: TestResult;
       switch (account.platform) {
         case PlatformType.WECHAT:
-          result = await this.testWechatConnection(credentials as WechatCredentials);
+          result = await this.testWechatConnection(
+            credentials as WechatCredentials,
+          );
           break;
         case PlatformType.XIAOHONGSHU:
-          result = await this.testXiaohongshuConnection(credentials as XHSCredentials);
+          result = await this.testXiaohongshuConnection(
+            credentials as XHSCredentials,
+          );
           break;
         case PlatformType.WEIBO:
-          result = await this.testWeiboConnection(credentials as WeiboCredentials);
+          result = await this.testWeiboConnection(
+            credentials as WeiboCredentials,
+          );
           break;
         case PlatformType.DOUYIN:
-          result = await this.testDouyinConnection(credentials as DouyinCredentials);
+          result = await this.testDouyinConnection(
+            credentials as DouyinCredentials,
+          );
           break;
         default:
           result = {
@@ -80,7 +103,10 @@ export class AccountConnectionTestService {
         timestamp: new Date(),
       };
     } catch (error) {
-      this.logger.error(`Connection test failed for account ${accountId}: ${error.message}`, error.stack);
+      this.logger.error(
+        `Connection test failed for account ${accountId}: ${error.message}`,
+        error.stack,
+      );
       return {
         success: false,
         platform: 'unknown' as PlatformType,
@@ -95,8 +121,11 @@ export class AccountConnectionTestService {
   /**
    * 测试所有账号连接
    */
-  async testAllAccounts(tenantId: string = 'demo-tenant'): Promise<BatchTestResult> {
-    const accounts = await this.accountCredentialService.getAllAccounts(tenantId);
+  async testAllAccounts(
+    tenantId: string = 'demo-tenant',
+  ): Promise<BatchTestResult> {
+    const accounts =
+      await this.accountCredentialService.getAllAccounts(tenantId);
     const results: TestResult[] = [];
 
     for (const account of accounts) {
@@ -120,8 +149,8 @@ export class AccountConnectionTestService {
     return {
       total: accounts.length,
       tested: results.length,
-      successful: results.filter(r => r.success).length,
-      failed: results.filter(r => !r.success).length,
+      successful: results.filter((r) => r.success).length,
+      failed: results.filter((r) => !r.success).length,
       results,
       timestamp: new Date(),
     };
@@ -130,7 +159,9 @@ export class AccountConnectionTestService {
   /**
    * 测试微信公众号连接
    */
-  private async testWechatConnection(credentials: WechatCredentials): Promise<TestResult> {
+  private async testWechatConnection(
+    credentials: WechatCredentials,
+  ): Promise<TestResult> {
     try {
       // 创建测试配置
       const testConfig: PlatformConfig = {
@@ -159,7 +190,9 @@ export class AccountConnectionTestService {
       return {
         success: health.status === 'healthy',
         platform: PlatformType.WECHAT,
-        message: health.message || `微信公众号连接${health.status === 'healthy' ? '成功' : '失败'}`,
+        message:
+          health.message ||
+          `微信公众号连接${health.status === 'healthy' ? '成功' : '失败'}`,
         details: {
           healthStatus: health.status,
           metrics: health.metrics,
@@ -180,7 +213,9 @@ export class AccountConnectionTestService {
   /**
    * 测试小红书连接
    */
-  private async testXiaohongshuConnection(credentials: XHSCredentials): Promise<TestResult> {
+  private async testXiaohongshuConnection(
+    credentials: XHSCredentials,
+  ): Promise<TestResult> {
     try {
       // 创建测试配置
       const testConfig: PlatformConfig = {
@@ -209,7 +244,9 @@ export class AccountConnectionTestService {
       return {
         success: health.status === 'healthy',
         platform: PlatformType.XIAOHONGSHU,
-        message: health.message || `小红书连接${health.status === 'healthy' ? '成功' : '失败'}`,
+        message:
+          health.message ||
+          `小红书连接${health.status === 'healthy' ? '成功' : '失败'}`,
         details: {
           healthStatus: health.status,
           metrics: health.metrics,
@@ -230,7 +267,9 @@ export class AccountConnectionTestService {
   /**
    * 测试微博连接
    */
-  private async testWeiboConnection(credentials: WeiboCredentials): Promise<TestResult> {
+  private async testWeiboConnection(
+    credentials: WeiboCredentials,
+  ): Promise<TestResult> {
     try {
       // 创建测试配置
       const testConfig: PlatformConfig = {
@@ -259,7 +298,9 @@ export class AccountConnectionTestService {
       return {
         success: health.status === 'healthy',
         platform: PlatformType.WEIBO,
-        message: health.message || `微博连接${health.status === 'healthy' ? '成功' : '失败'}`,
+        message:
+          health.message ||
+          `微博连接${health.status === 'healthy' ? '成功' : '失败'}`,
         details: {
           healthStatus: health.status,
           metrics: health.metrics,
@@ -280,7 +321,9 @@ export class AccountConnectionTestService {
   /**
    * 测试抖音连接
    */
-  private async testDouyinConnection(credentials: DouyinCredentials): Promise<TestResult> {
+  private async testDouyinConnection(
+    credentials: DouyinCredentials,
+  ): Promise<TestResult> {
     try {
       // 创建测试配置
       const testConfig: PlatformConfig = {
@@ -309,7 +352,9 @@ export class AccountConnectionTestService {
       return {
         success: health.status === 'healthy',
         platform: PlatformType.DOUYIN,
-        message: health.message || `抖音连接${health.status === 'healthy' ? '成功' : '失败'}`,
+        message:
+          health.message ||
+          `抖音连接${health.status === 'healthy' ? '成功' : '失败'}`,
         details: {
           healthStatus: health.status,
           metrics: health.metrics,
@@ -330,7 +375,10 @@ export class AccountConnectionTestService {
   /**
    * 更新账号测试结果
    */
-  private async updateAccountTestResult(account: SocialAccount, testResult: TestResult): Promise<void> {
+  private async updateAccountTestResult(
+    account: SocialAccount,
+    testResult: TestResult,
+  ): Promise<void> {
     try {
       account.lastTestedAt = new Date();
       account.testResult = {
@@ -348,7 +396,10 @@ export class AccountConnectionTestService {
       await this.accountRepository.save(account);
       this.logger.log(`Test result updated for account: ${account.id}`);
     } catch (error) {
-      this.logger.error(`Failed to update test result: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to update test result: ${error.message}`,
+        error.stack,
+      );
     }
   }
 }

@@ -12,7 +12,15 @@ import { ConfigService } from '@nestjs/config';
 import { Repository, In } from 'typeorm';
 import * as crypto from 'crypto';
 
-import { KnowledgeDocument, DocumentSourceType, DocumentStatus, DocumentProcessingStatus, FileInfo, DocumentMetadata, DocumentQualityScore } from '../../../entities/knowledge-document.entity';
+import {
+  KnowledgeDocument,
+  DocumentSourceType,
+  DocumentStatus,
+  DocumentProcessingStatus,
+  FileInfo,
+  DocumentMetadata,
+  DocumentQualityScore,
+} from '../../../entities/knowledge-document.entity';
 import { KnowledgeDocumentRepository } from '../../../shared/repositories/knowledge-document.repository';
 import { VectorSearchService } from '../../../shared/vector/services/vector-search.service';
 import { Document } from '../../../shared/vector/interfaces/vector-search.interface';
@@ -93,10 +101,14 @@ export class KnowledgeDocumentService {
       }
 
       // 计算内容哈希（用于去重）
-      const contentHash = crypto.createHash('sha256').update(data.content).digest('hex');
+      const contentHash = crypto
+        .createHash('sha256')
+        .update(data.content)
+        .digest('hex');
 
       // 检查是否已存在相同内容的文档
-      const existingDoc = await this.knowledgeDocumentRepository.findByContentHash(contentHash);
+      const existingDoc =
+        await this.knowledgeDocumentRepository.findByContentHash(contentHash);
       if (existingDoc) {
         throw new ConflictException('已存在相同内容的文档');
       }
@@ -125,22 +137,31 @@ export class KnowledgeDocumentService {
         qualityScore: this.assessDocumentQuality(data.content, data.metadata),
       } as any);
 
-      const savedDocument = await this.knowledgeDocumentRepository.save(document);
+      const savedDocument =
+        await this.knowledgeDocumentRepository.save(document);
       // TypeORM的save方法可能返回数组，确保获取单个实体
-      const result = Array.isArray(savedDocument) ? savedDocument[0] : savedDocument;
+      const result = Array.isArray(savedDocument)
+        ? savedDocument[0]
+        : savedDocument;
       this.logger.log(`文档创建成功: ${result.id}`);
 
       // 如果启用自动向量化，则启动处理
       if (options?.autoVectorize !== false) {
         this.processDocumentForVectorization(result.id).catch((error) => {
-          this.logger.error(`文档向量化处理失败: ${error.message}`, error.stack);
+          this.logger.error(
+            `文档向量化处理失败: ${error.message}`,
+            error.stack,
+          );
         });
       }
 
       return result;
     } catch (error) {
       this.logger.error(`创建文档失败: ${error.message}`, error.stack);
-      if (error instanceof ConflictException || error instanceof BadRequestException) {
+      if (
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
         throw error;
       }
       throw new InternalServerErrorException('创建文档失败');
@@ -151,7 +172,8 @@ export class KnowledgeDocumentService {
    * 获取文档详情
    */
   async getDocument(documentId: string): Promise<KnowledgeDocument> {
-    const document = await this.knowledgeDocumentRepository.findById(documentId);
+    const document =
+      await this.knowledgeDocumentRepository.findById(documentId);
     if (!document) {
       throw new NotFoundException(`文档不存在: ${documentId}`);
     }
@@ -189,19 +211,31 @@ export class KnowledgeDocumentService {
 
       // 如果内容有更新，重新计算哈希和质量评分
       if (updates.content && updates.content !== document.content) {
-        const contentHash = crypto.createHash('sha256').update(updates.content).digest('hex');
+        const contentHash = crypto
+          .createHash('sha256')
+          .update(updates.content)
+          .digest('hex');
         updates['contentHash'] = contentHash;
-        updates['qualityScore'] = this.assessDocumentQuality(updates.content, updates.metadata || document.metadata);
+        updates['qualityScore'] = this.assessDocumentQuality(
+          updates.content,
+          updates.metadata || document.metadata,
+        );
         updates['processingStatus'] = DocumentProcessingStatus.PENDING; // 需要重新向量化
       }
 
       // 更新文档
-      await this.knowledgeDocumentRepository.updateById(documentId, updates as any);
+      await this.knowledgeDocumentRepository.updateById(
+        documentId,
+        updates as any,
+      );
 
       // 如果内容已更新且文档为活跃状态，重新向量化
       if (updates.content && document.status === DocumentStatus.ACTIVE) {
         this.processDocumentForVectorization(documentId).catch((error) => {
-          this.logger.error(`文档重新向量化失败: ${error.message}`, error.stack);
+          this.logger.error(
+            `文档重新向量化失败: ${error.message}`,
+            error.stack,
+          );
         });
       }
 
@@ -277,7 +311,14 @@ export class KnowledgeDocumentService {
       offset?: number;
     },
   ): Promise<{ documents: KnowledgeDocument[]; total: number }> {
-    const { category, sourceType, status, tags, limit = 50, offset = 0 } = filters || {};
+    const {
+      category,
+      sourceType,
+      status,
+      tags,
+      limit = 50,
+      offset = 0,
+    } = filters || {};
 
     // 构建查询条件
     const whereConditions: any = {};
@@ -297,11 +338,14 @@ export class KnowledgeDocumentService {
     // 文本搜索
     let documents: KnowledgeDocument[];
     if (query) {
-      documents = await this.knowledgeDocumentRepository.searchDocuments(query, {
-        category,
-        sourceType,
-        limit,
-      });
+      documents = await this.knowledgeDocumentRepository.searchDocuments(
+        query,
+        {
+          category,
+          sourceType,
+          limit,
+        },
+      );
     } else {
       // 无查询文本时，获取所有文档
       documents = await this.knowledgeDocumentRepository.find({
@@ -314,8 +358,8 @@ export class KnowledgeDocumentService {
 
     // 标签过滤（如果指定了标签）
     if (tags && tags.length > 0) {
-      documents = documents.filter((doc) =>
-        doc.tags && tags.some((tag) => doc.tags.includes(tag)),
+      documents = documents.filter(
+        (doc) => doc.tags && tags.some((tag) => doc.tags.includes(tag)),
       );
     }
 
@@ -339,7 +383,8 @@ export class KnowledgeDocumentService {
 
       // 提取文件内容（这里需要实现文件内容提取逻辑）
       const content = await this.extractFileContent(file);
-      const title = options?.title || file.originalName.replace(/\.[^/.]+$/, ''); // 移除扩展名
+      const title =
+        options?.title || file.originalName.replace(/\.[^/.]+$/, ''); // 移除扩展名
 
       // 提取文件元数据
       const metadata: DocumentMetadata = {
@@ -487,13 +532,22 @@ export class KnowledgeDocumentService {
 
         switch (importItem.type) {
           case 'file':
-            document = await this.importFileDocument(importItem.data, importItem.options);
+            document = await this.importFileDocument(
+              importItem.data,
+              importItem.options,
+            );
             break;
           case 'url':
-            document = await this.importUrlDocument(importItem.data, importItem.options);
+            document = await this.importUrlDocument(
+              importItem.data,
+              importItem.options,
+            );
             break;
           case 'api':
-            document = await this.importApiDocument(importItem.data, importItem.options);
+            document = await this.importApiDocument(
+              importItem.data,
+              importItem.options,
+            );
             break;
           case 'manual':
             document = await this.createDocument({
@@ -504,7 +558,9 @@ export class KnowledgeDocumentService {
             });
             break;
           default:
-            throw new BadRequestException(`不支持的导入类型: ${importItem.type}`);
+            throw new BadRequestException(
+              `不支持的导入类型: ${importItem.type}`,
+            );
         }
 
         results.push(document);
@@ -520,7 +576,9 @@ export class KnowledgeDocumentService {
   /**
    * 处理文档向量化
    */
-  private async processDocumentForVectorization(documentId: string): Promise<void> {
+  private async processDocumentForVectorization(
+    documentId: string,
+  ): Promise<void> {
     try {
       this.logger.log(`处理文档向量化: ${documentId}`);
 
@@ -554,10 +612,14 @@ export class KnowledgeDocumentService {
       };
 
       // 添加到向量数据库
-      const vectorId = await this.vectorSearchService.addDocument(vectorDocument);
+      const vectorId =
+        await this.vectorSearchService.addDocument(vectorDocument);
 
       // 更新向量信息
-      await this.knowledgeDocumentRepository.updateVectorInfo(documentId, vectorId);
+      await this.knowledgeDocumentRepository.updateVectorInfo(
+        documentId,
+        vectorId,
+      );
 
       this.logger.log(`文档向量化完成: ${documentId} -> ${vectorId}`);
     } catch (error) {
@@ -580,7 +642,8 @@ export class KnowledgeDocumentService {
     try {
       this.logger.log(`批量处理待向量化文档，批量大小: ${batchSize}`);
 
-      const pendingDocs = await this.knowledgeDocumentRepository.findPendingProcessing(batchSize);
+      const pendingDocs =
+        await this.knowledgeDocumentRepository.findPendingProcessing(batchSize);
 
       if (pendingDocs.length === 0) {
         this.logger.debug('没有待处理的文档');
@@ -650,8 +713,13 @@ export class KnowledgeDocumentService {
   /**
    * 重新向量化所有文档
    */
-  async revectorizeAllDocuments(): Promise<{ total: number; processed: number; failed: number }> {
-    const vectorizedDocs = await this.knowledgeDocumentRepository.findVectorizedDocuments();
+  async revectorizeAllDocuments(): Promise<{
+    total: number;
+    processed: number;
+    failed: number;
+  }> {
+    const vectorizedDocs =
+      await this.knowledgeDocumentRepository.findVectorizedDocuments();
 
     let processed = 0;
     let failed = 0;
@@ -684,7 +752,10 @@ export class KnowledgeDocumentService {
   /**
    * 评估文档质量
    */
-  private assessDocumentQuality(content: string, metadata?: DocumentMetadata): DocumentQualityScore {
+  private assessDocumentQuality(
+    content: string,
+    metadata?: DocumentMetadata,
+  ): DocumentQualityScore {
     // 简化版质量评估
     // 实际应该使用更复杂的算法
 
@@ -699,7 +770,9 @@ export class KnowledgeDocumentService {
     // 新鲜度：基于发布日期（如果有）
     let freshness = 70; // 默认值
     if (metadata?.publishDate) {
-      const daysOld = (new Date().getTime() - new Date(metadata.publishDate).getTime()) / (1000 * 60 * 60 * 24);
+      const daysOld =
+        (new Date().getTime() - new Date(metadata.publishDate).getTime()) /
+        (1000 * 60 * 60 * 24);
       freshness = Math.max(0, 100 - (daysOld / 365) * 100); // 一年内为新鲜
     }
 
@@ -710,7 +783,12 @@ export class KnowledgeDocumentService {
     const readability = this.assessReadability(content);
 
     // 综合评分
-    const overall = (completeness * 0.2) + (relevance * 0.2) + (freshness * 0.2) + (authority * 0.2) + (readability * 0.2);
+    const overall =
+      completeness * 0.2 +
+      relevance * 0.2 +
+      freshness * 0.2 +
+      authority * 0.2 +
+      readability * 0.2;
 
     return {
       completeness: Math.round(completeness),
@@ -727,8 +805,10 @@ export class KnowledgeDocumentService {
    */
   private assessReadability(content: string): number {
     // 简化版可读性评估
-    const sentences = content.split(/[.!?。！？]+/).filter(s => s.trim().length > 0);
-    const words = content.split(/\s+/).filter(w => w.length > 0);
+    const sentences = content
+      .split(/[.!?。！？]+/)
+      .filter((s) => s.trim().length > 0);
+    const words = content.split(/\s+/).filter((w) => w.length > 0);
 
     if (sentences.length === 0 || words.length === 0) {
       return 50;
@@ -737,7 +817,7 @@ export class KnowledgeDocumentService {
     const avgSentenceLength = words.length / sentences.length;
 
     // 句子长度越短，可读性越高（简单评估）
-    let readability = 100 - (avgSentenceLength * 2);
+    const readability = 100 - avgSentenceLength * 2;
     return Math.max(0, Math.min(100, readability));
   }
 
@@ -760,7 +840,8 @@ export class KnowledgeDocumentService {
       summary.lastIndexOf('?'),
     );
 
-    if (lastPunctuation > maxLength * 0.5) { // 如果找到标点且在摘要后半部分
+    if (lastPunctuation > maxLength * 0.5) {
+      // 如果找到标点且在摘要后半部分
       summary = summary.substring(0, lastPunctuation + 1);
     }
 
@@ -808,7 +889,9 @@ export class KnowledgeDocumentService {
   /**
    * 获取所有分类
    */
-  async getAllCategories(): Promise<Array<{ category: string; count: number }>> {
+  async getAllCategories(): Promise<
+    Array<{ category: string; count: number }>
+  > {
     return this.knowledgeDocumentRepository.getCategoryStats();
   }
 
@@ -838,15 +921,20 @@ export class KnowledgeDocumentService {
   /**
    * 更新分类名称（批量更新文档分类）
    */
-  async updateCategory(oldCategory: string, newCategory: string): Promise<{ updated: number }> {
-    const documents = await this.knowledgeDocumentRepository.findByCategory(oldCategory);
-    const documentIds = documents.map(doc => doc.id);
+  async updateCategory(
+    oldCategory: string,
+    newCategory: string,
+  ): Promise<{ updated: number }> {
+    const documents =
+      await this.knowledgeDocumentRepository.findByCategory(oldCategory);
+    const documentIds = documents.map((doc) => doc.id);
 
     if (documentIds.length === 0) {
       return { updated: 0 };
     }
 
-    await this.knowledgeDocumentRepository.createQueryBuilder()
+    await this.knowledgeDocumentRepository
+      .createQueryBuilder()
       .update(KnowledgeDocument)
       .set({ category: newCategory })
       .where('id IN (:...ids)', { ids: documentIds })
@@ -858,14 +946,18 @@ export class KnowledgeDocumentService {
   /**
    * 合并标签
    */
-  async mergeTags(sourceTag: string, targetTag: string): Promise<{ updated: number }> {
-    const documents = await this.knowledgeDocumentRepository.findByTag(sourceTag);
+  async mergeTags(
+    sourceTag: string,
+    targetTag: string,
+  ): Promise<{ updated: number }> {
+    const documents =
+      await this.knowledgeDocumentRepository.findByTag(sourceTag);
     let updatedCount = 0;
 
     for (const doc of documents) {
       if (doc.tags) {
         // 移除源标签，添加目标标签（如果不存在）
-        const updatedTags = doc.tags.filter(tag => tag !== sourceTag);
+        const updatedTags = doc.tags.filter((tag) => tag !== sourceTag);
         if (!updatedTags.includes(targetTag)) {
           updatedTags.push(targetTag);
         }
@@ -893,11 +985,17 @@ export class KnowledgeDocumentService {
     const words = content.split(/\s+/);
     const wordFrequency = new Map<string, number>();
 
-    words.forEach(word => {
-      if (word.length > 1) { // 忽略单字
-        const normalizedWord = word.toLowerCase().replace(/[^\w\u4e00-\u9fa5]/g, '');
+    words.forEach((word) => {
+      if (word.length > 1) {
+        // 忽略单字
+        const normalizedWord = word
+          .toLowerCase()
+          .replace(/[^\w\u4e00-\u9fa5]/g, '');
         if (normalizedWord.length > 1) {
-          wordFrequency.set(normalizedWord, (wordFrequency.get(normalizedWord) || 0) + 1);
+          wordFrequency.set(
+            normalizedWord,
+            (wordFrequency.get(normalizedWord) || 0) + 1,
+          );
         }
       }
     });
@@ -909,9 +1007,20 @@ export class KnowledgeDocumentService {
       .map(([word]) => word);
 
     // 过滤常见停用词（简单实现）
-    const stopWords = ['的', '了', '在', '是', '和', '与', '及', '等', '这个', '那个'];
+    const stopWords = [
+      '的',
+      '了',
+      '在',
+      '是',
+      '和',
+      '与',
+      '及',
+      '等',
+      '这个',
+      '那个',
+    ];
     const suggestedTags = sortedWords
-      .filter(word => !stopWords.includes(word))
+      .filter((word) => !stopWords.includes(word))
       .slice(0, limit);
 
     return suggestedTags;
@@ -932,11 +1041,11 @@ export class KnowledgeDocumentService {
 
     // 简单关键词匹配分类（实际应该使用机器学习模型）
     const categoryKeywords: Record<string, string[]> = {
-      '技术': ['编程', '代码', '算法', '开发', '软件', '硬件', '网络'],
-      '营销': ['推广', '广告', '品牌', '销售', '市场', '客户', '流量'],
-      '管理': ['团队', '领导', '战略', '规划', '组织', '效率', '绩效'],
-      '金融': ['投资', '股票', '基金', '银行', '保险', '理财', '经济'],
-      '教育': ['学习', '培训', '课程', '教学', '学生', '教师', '学校'],
+      技术: ['编程', '代码', '算法', '开发', '软件', '硬件', '网络'],
+      营销: ['推广', '广告', '品牌', '销售', '市场', '客户', '流量'],
+      管理: ['团队', '领导', '战略', '规划', '组织', '效率', '绩效'],
+      金融: ['投资', '股票', '基金', '银行', '保险', '理财', '经济'],
+      教育: ['学习', '培训', '课程', '教学', '学生', '教师', '学校'],
     };
 
     const words = content.toLowerCase();
@@ -944,7 +1053,9 @@ export class KnowledgeDocumentService {
     let maxMatches = 0;
 
     for (const [category, keywords] of Object.entries(categoryKeywords)) {
-      const matches = keywords.filter(keyword => words.includes(keyword.toLowerCase())).length;
+      const matches = keywords.filter((keyword) =>
+        words.includes(keyword.toLowerCase()),
+      ).length;
       if (matches > maxMatches) {
         maxMatches = matches;
         bestCategory = category;
@@ -970,12 +1081,12 @@ export class KnowledgeDocumentService {
 
         // 移除标签
         if (tagUpdates.remove) {
-          tags = tags.filter(tag => !tagUpdates.remove!.includes(tag));
+          tags = tags.filter((tag) => !tagUpdates.remove!.includes(tag));
         }
 
         // 添加标签（去重）
         if (tagUpdates.add) {
-          tagUpdates.add.forEach(tag => {
+          tagUpdates.add.forEach((tag) => {
             if (!tags.includes(tag)) {
               tags.push(tag);
             }
@@ -995,7 +1106,9 @@ export class KnowledgeDocumentService {
   /**
    * 映射文档来源类型到向量数据库元数据类型
    */
-  private mapDocumentSourceType(sourceType: DocumentSourceType): 'file' | 'web' | 'api' | 'manual' {
+  private mapDocumentSourceType(
+    sourceType: DocumentSourceType,
+  ): 'file' | 'web' | 'api' | 'manual' {
     switch (sourceType) {
       case DocumentSourceType.FILE:
         return 'file';
@@ -1021,7 +1134,9 @@ export class KnowledgeDocumentService {
 
     for (const documentId of documentIds) {
       try {
-        await this.knowledgeDocumentRepository.updateById(documentId, { category });
+        await this.knowledgeDocumentRepository.updateById(documentId, {
+          category,
+        });
         updatedCount++;
       } catch (error) {
         this.logger.error(`更新文档 ${documentId} 分类失败: ${error.message}`);
