@@ -1,0 +1,19 @@
+{
+  "generation_date": "2026-03-30T14:34:14.354Z",
+  "total_customers": 10000,
+  "total_purchases": 105719,
+  "total_activities": 25138,
+  "total_social": 50292,
+  "customers_by_gender": {
+    "F": 4988,
+    "M": 5012
+  },
+  "customers_by_membership": {
+    "bronze": 2475,
+    "gold": 2487,
+    "silver": 2525,
+    "platinum": 2513
+  },
+  "average_age": 44.0925,
+  "total_revenue": 159706551.2799982
+}
