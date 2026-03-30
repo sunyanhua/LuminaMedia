@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MetricsCollectorService } from '../../metrics/collectors/metrics-collector.service';
 import {
@@ -17,7 +17,7 @@ export class ScalingMetricsService {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly metricsCollector: MetricsCollectorService,
+    @Optional() private readonly metricsCollector?: MetricsCollectorService,
   ) {}
 
   /**
@@ -82,7 +82,7 @@ export class ScalingMetricsService {
 
     try {
       // 获取时间序列数据
-      const timeSeries = await this.metricsCollector.getTimeSeries(
+      const timeSeries = await this.metricsCollector!.getTimeSeries(
         metricName,
         fiveMinutesAgo,
         now,

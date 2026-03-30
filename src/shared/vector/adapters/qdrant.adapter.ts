@@ -28,7 +28,11 @@ export class QdrantAdapter implements VectorSearchService, OnModuleInit {
    * 模块初始化：连接Qdrant数据库
    */
   async onModuleInit() {
-    await this.initialize();
+    try {
+      await this.initialize();
+    } catch (error) {
+      this.logger.warn(`Qdrant初始化失败，向量搜索功能不可用: ${error.message}`);
+    }
   }
 
   /**

@@ -227,14 +227,14 @@ describe('CloudProvider Interface Integration', () => {
           const { ai } = adapter;
 
           // 测试callModel
-          const modelResponse = await ai.callModel('test-model', 'test prompt');
+          const modelResponse = await ai.callModel('qwen-max', 'test prompt');
           expect(modelResponse).toBeDefined();
           expect(modelResponse.text).toBeDefined();
           expect(typeof modelResponse.text).toBe('string');
 
           // 测试callLocalModel
           const localResponse = await ai.callLocalModel(
-            'local-model',
+            'qwen-max',
             'test prompt',
           );
           expect(localResponse).toBeDefined();

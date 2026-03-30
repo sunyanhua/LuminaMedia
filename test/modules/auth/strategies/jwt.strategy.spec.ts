@@ -7,11 +7,10 @@ import { User } from '../../../../src/entities/user.entity';
 import { UserRole } from '../../../../src/entities/user-role.entity';
 import { Role } from '../../../../src/entities/role.entity';
 import { Permission } from '../../../../src/entities/permission.entity';
-import { UserRepository } from '../../../../src/shared/repositories/user.repository';
 
 describe('JwtStrategy', () => {
   let jwtStrategy: JwtStrategy;
-  let userRepository: Repository<User>;
+  let userRepository: jest.Mocked<Repository<User>>;
   let userRoleRepository: Repository<UserRole>;
   let roleRepository: Repository<Role>;
   let configService: ConfigService;
@@ -27,7 +26,7 @@ describe('JwtStrategy', () => {
           },
         },
         {
-          provide: UserRepository,
+          provide: getRepositoryToken(User),
           useValue: {
             findOne: jest.fn(),
           },
@@ -49,7 +48,7 @@ describe('JwtStrategy', () => {
 
     jwtStrategy = module.get<JwtStrategy>(JwtStrategy);
     configService = module.get<ConfigService>(ConfigService);
-    userRepository = module.get<UserRepository>(UserRepository);
+    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
     userRoleRepository = module.get<Repository<UserRole>>(
       getRepositoryToken(UserRole),
     );

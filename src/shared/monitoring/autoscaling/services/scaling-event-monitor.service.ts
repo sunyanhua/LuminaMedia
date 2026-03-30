@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { AlertRuleService } from '../../alerts/rules/alert-rule.service';
@@ -29,7 +29,7 @@ export class ScalingEventMonitor {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly alertRuleService: AlertRuleService,
+    @Optional() private readonly alertRuleService: AlertRuleService,
     private readonly decisionEngine: ScalingDecisionEngine,
   ) {}
 
