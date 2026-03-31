@@ -3,7 +3,7 @@
  * 解决移动端常见触摸交互问题
  */
 
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export interface TouchPreventionOptions {
   /**
@@ -343,7 +343,7 @@ export function useTouchPrevention(
  */
 export function withScrollPrevention<P extends object>(
   WrappedComponent: React.ComponentType<P>
-) {
+): (props: P) => React.ReactElement {
   return function ScrollPreventionWrapper(props: P) {
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -366,7 +366,7 @@ export function withScrollPrevention<P extends object>(
 export function withFastClickPrevention<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   threshold: number = 300
-) {
+): (props: P) => React.ReactElement {
   return function FastClickPreventionWrapper(props: P) {
     const lastClickTime = useRef(0);
 

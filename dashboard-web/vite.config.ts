@@ -1,8 +1,6 @@
 import path from 'path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
-import imagemin from 'vite-plugin-imagemin';
-import webp from 'vite-plugin-webp';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
@@ -23,18 +21,23 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    imagemin({
-      gifsicle: { optimizationLevel: 3 },
-      mozjpeg: { quality: 80 },
-      pngquant: { quality: [0.8, 0.9] },
-      svgo: {
-        plugins: [
-          { name: 'removeViewBox' },
-          { name: 'removeEmptyAttrs', active: false },
-        ],
-      },
-    }),
-    webp(),
+    // 仅在生产环境中使用图像优化插件，避免开发环境的类型问题
+    ...(process.env.NODE_ENV === 'production'
+      ? [
+          require('vite-plugin-imagemin')({
+            gifsicle: { optimizationLevel: 3 },
+            mozjpeg: { quality: 80 },
+            pngquant: { quality: [0.8, 0.9] },
+            svgo: {
+              plugins: [
+                { name: 'removeViewBox' },
+                { name: 'removeEmptyAttrs', active: false },
+              ],
+            },
+          }),
+          require('vite-plugin-webp')(),
+        ]
+      : []),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],

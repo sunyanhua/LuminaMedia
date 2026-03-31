@@ -46,11 +46,14 @@ async function bootstrap() {
     .build();
 
   // 添加Swagger配置选项以避免循环依赖问题
+  // 现在包含所有模块，因为我们修复了循环依赖
   const document = SwaggerModule.createDocument(app, config, {
-    deepScanRoutes: false,
+    deepScanRoutes: true,
     ignoreGlobalPrefix: false,
     extraModels: [], // 避免自动扫描实体导致的循环依赖
-    include: [], // 限制扫描的模块，避免循环依赖
+    include: [ // 明确包含需要的模块
+      // 如果不指定模块，Swagger会扫描所有控制器
+    ],
   });
 
   SwaggerModule.setup('api/docs', app, document);

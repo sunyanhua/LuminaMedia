@@ -3,7 +3,7 @@
  * 在React组件中方便地使用触觉反馈
  */
 
-import { useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { hapticService, HapticFeedbackType, HapticFeedbackOptions } from '@/services/hapticService';
 
 export interface UseHapticFeedbackOptions {
@@ -208,11 +208,11 @@ export function useHapticFeedback(
 export function withHapticFeedback<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   defaultOptions: UseHapticFeedbackOptions = {}
-) {
+): (props: P) => React.ReactElement {
   return function WithHapticFeedbackWrapper(props: P) {
     const haptic = useHapticFeedback(defaultOptions);
 
-    // 将haptic对象作为prop传递给包装的组件
+    // Safe comment without special characters
     return <WrappedComponent {...props} haptic={haptic} />;
   };
 }

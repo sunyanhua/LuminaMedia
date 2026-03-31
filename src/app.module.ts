@@ -39,6 +39,7 @@ import { MonitorModule } from './modules/monitor/monitor.module';
 import { UserModule } from './modules/user/user.module';
 import { MonitoringModule } from './shared/monitoring/monitoring.module';
 import { LoggingModule } from './shared/monitoring/logging/logging.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -105,6 +106,7 @@ import { LoggingModule } from './shared/monitoring/logging/logging.module';
     MonitorModule,
     UserModule,
     MonitoringModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
