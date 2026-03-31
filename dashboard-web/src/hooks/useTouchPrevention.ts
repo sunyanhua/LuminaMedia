@@ -343,8 +343,8 @@ export function useTouchPrevention(
  */
 export function withScrollPrevention<P extends object>(
   WrappedComponent: React.ComponentType<P>
-): (props: P) => React.ReactElement {
-  return function ScrollPreventionWrapper(props: P) {
+) {
+  return function ScrollPreventionWrapper(props: P): React.ReactElement {
     const containerRef = useRef<HTMLDivElement>(null);
 
     useTouchPrevention(containerRef, {
@@ -352,10 +352,11 @@ export function withScrollPrevention<P extends object>(
       preventFastClick: true,
     });
 
-    return (
-      <div ref={containerRef} style={{ height: '100%', overflow: 'auto' }}>
-        <WrappedComponent {...props} />
-      </div>
+    return React.createElement('div', {
+      ref: containerRef,
+      style: { height: '100%', overflow: 'auto' }
+    },
+      React.createElement(WrappedComponent, { ...props })
     );
   };
 }
@@ -366,8 +367,8 @@ export function withScrollPrevention<P extends object>(
 export function withFastClickPrevention<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   threshold: number = 300
-): (props: P) => React.ReactElement {
-  return function FastClickPreventionWrapper(props: P) {
+) {
+  return function FastClickPreventionWrapper(props: P): React.ReactElement {
     const lastClickTime = useRef(0);
 
     const handleClick = (e: React.MouseEvent) => {
@@ -388,7 +389,7 @@ export function withFastClickPrevention<P extends object>(
       }
     };
 
-    return <WrappedComponent {...props} onClick={handleClick} />;
+    return React.createElement(WrappedComponent, { ...props, onClick: handleClick });
   };
 }
 

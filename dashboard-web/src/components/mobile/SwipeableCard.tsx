@@ -6,6 +6,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { useGestures, GestureCallbacks } from './gestures';
+import './SwipeableCard.css';
 
 export interface SwipeAction {
   /**
@@ -510,55 +511,6 @@ export function SwipeableCard({
           </div>
         )}
       </div>
-
-      <style jsx global>{`
-        .swipeable-card {
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-          transition: box-shadow 0.2s ease;
-        }
-
-        .swipeable-card:active {
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .swipeable-card-content {
-          touch-action: pan-y;
-        }
-
-        .swipe-action-button {
-          transition: background-color 0.2s ease, transform 0.2s ease;
-        }
-
-        .swipe-action-button:hover {
-          filter: brightness(0.9);
-        }
-
-        .swipe-action-button:active {
-          transform: scale(0.95);
-        }
-
-        .action-icon {
-          font-size: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .action-text {
-          white-space: nowrap;
-        }
-
-        /* 滑动时的视觉效果 */
-        .swipeable-card-content[data-swiping="true"] {
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        /* 禁用状态 */
-        .swipeable-card[data-disabled="true"] {
-          opacity: 0.6;
-          pointer-events: none;
-        }
-      `}</style>
     </div>
   );
 }

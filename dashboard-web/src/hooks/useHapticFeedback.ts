@@ -206,14 +206,14 @@ export function useHapticFeedback(
  * 高阶组件：为组件添加触觉反馈支持
  */
 export function withHapticFeedback<P extends object>(
-  WrappedComponent: React.ComponentType<P>,
+  WrappedComponent: React.ComponentType<P & { haptic?: UseHapticFeedbackResult }>,
   defaultOptions: UseHapticFeedbackOptions = {}
-): (props: P) => React.ReactElement {
-  return function WithHapticFeedbackWrapper(props: P) {
+) {
+  return function WithHapticFeedbackWrapper(props: P): React.ReactElement {
     const haptic = useHapticFeedback(defaultOptions);
 
     // Safe comment without special characters
-    return <WrappedComponent {...props} haptic={haptic} />;
+    return React.createElement(WrappedComponent, { ...props, haptic });
   };
 }
 

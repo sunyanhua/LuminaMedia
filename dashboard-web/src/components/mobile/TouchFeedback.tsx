@@ -5,6 +5,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import './TouchFeedback.css';
 
 export interface TouchFeedbackProps {
   /**
@@ -278,29 +279,6 @@ export function TouchFeedback({
       ))}
 
       {enhancedChild}
-
-      <style jsx global>{`
-        @keyframes ripple-animation {
-          0% {
-            opacity: 1;
-            transform: scale(0);
-          }
-          100% {
-            opacity: 0;
-            transform: scale(1);
-          }
-        }
-
-        .touch-feedback:focus-visible {
-          outline: 2px solid #3b82f6;
-          outline-offset: 2px;
-        }
-
-        .touch-feedback[aria-disabled="true"] {
-          pointer-events: none;
-          opacity: 0.5;
-        }
-      `}</style>
     </div>
   );
 }

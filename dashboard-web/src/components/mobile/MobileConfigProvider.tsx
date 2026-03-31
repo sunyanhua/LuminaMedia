@@ -5,6 +5,8 @@
 
 import React from 'react';
 import { ConfigProvider } from 'antd-mobile';
+import zhCN from 'antd-mobile/es/locales/zh-CN';
+import enUS from 'antd-mobile/es/locales/en-US';
 import { getThemeConfig } from './theme';
 
 interface MobileConfigProviderProps {
@@ -33,20 +35,10 @@ export function MobileConfigProvider({
   const themeConfig = getThemeConfig(darkMode);
 
   // 语言配置
-  const localeConfig = {
-    'zh-CN': {
-      locale: 'zh-CN',
-      // 可以在这里添加自定义的中文文本
-    },
-    'en-US': {
-      locale: 'en-US',
-      // 可以在这里添加自定义的英文文本
-    },
-  }[locale];
+  const localeConfig = locale === 'zh-CN' ? zhCN : enUS;
 
   return (
     <ConfigProvider
-      theme={themeConfig}
       locale={localeConfig}
     >
       {children}

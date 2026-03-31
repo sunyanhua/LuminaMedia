@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Share2, Link, Copy, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useWeChatShare, isInWeChatBrowser } from '@/services/wechatService';
+import { useWeChatShare, useWeChatLogin, isInWeChatBrowser } from '@/services/wechatService';
 import { useWeChatShare as useWeChatShareHook } from '@/hooks/useWeChatFix';
 
 interface WeChatShareButtonProps {

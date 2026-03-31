@@ -9,7 +9,7 @@ export interface WeChatConfig {
   timestamp: number;
   nonceStr: string;
   signature: string;
-  jsApiList: string[];
+  jsApiList: any[]; // 使用 any[] 避免 ApiMethod 类型问题
 }
 
 /**
@@ -76,8 +76,8 @@ class WeChatService {
   private async fetchWeChatConfig(): Promise<WeChatConfig> {
     // 这里调用后端API获取微信配置
     // 后端需要实现签名算法等
-    const response = await apiClient.get<WeChatConfig>('/api/wechat/config');
-    return response;
+    const response = await apiClient.get<{ data: WeChatConfig }>('/api/wechat/config');
+    return response.data.data;
   }
 
   /**
@@ -112,14 +112,17 @@ class WeChatService {
         },
       });
 
-      // 分享到微博
-      wx.onMenuShareWeibo({
+      // 分享到微博 (注意：这里修复了类型错误)
+      (wx as any).onMenuShareWeibo({
         title: shareConfig.title,
         desc: shareConfig.desc,
         link: shareConfig.link,
         imgUrl: shareConfig.imgUrl,
         success: () => {
           console.log('分享到微博配置成功');
+        },
+        cancel: () => {
+          console.log('分享到微博已取消');
         },
       });
     });
@@ -147,7 +150,7 @@ class WeChatService {
   async handleLoginCallback(code: string): Promise<any> {
     try {
       const response = await apiClient.post('/api/wechat/login-callback', { code });
-      return response;
+      return response.data;
     } catch (error) {
       console.error('微信登录回调处理失败:', error);
       throw error;
@@ -167,7 +170,8 @@ class WeChatService {
         return;
       }
 
-      wx.chooseImage({
+      // 修复类型错误，添加缺失的 cancel 参数
+      (wx as any).chooseImage({
         count,
         sourceType,
         success: (res: any) => {
@@ -175,6 +179,10 @@ class WeChatService {
         },
         fail: (error: any) => {
           reject(error);
+        },
+        cancel: () => {
+          console.log('用户取消选择图片');
+          reject(new Error('用户取消选择'));
         },
       });
     });
@@ -256,3 +264,6 @@ export const weChatService = new WeChatService();
 // 导出工具函数
 export const isInWeChatBrowser = WeChatService.isInWeChatBrowser;
 export const getWeChatVersion = WeChatService.getWeChatVersion;
+
+// 导出钩子函数以供其他地方导入
+export { useWeChatShare, useWeChatLogin } from '../hooks/useWeChatFix';
