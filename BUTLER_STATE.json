@@ -1,4 +1,6 @@
 {
-  "status": "VERIFYING_COMPLETE",
-  "round": 4
+  "status": "RUNNING",
+  "task_index": 1,
+  "current_task": "1.1 在项目根目录下创建一个空白文件 test.txt",
+  "attempt": 1
 }
