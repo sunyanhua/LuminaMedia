@@ -3,6 +3,28 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Set environment variables to skip problematic native builds
+ENV CI=true
+ENV GIFSICLE_VERSION=skip
+ENV OPTIPNG_VERSION=skip
+ENV MOZJPEG_VERSION=skip
+ENV NPM_CONFIG_IGNORE_SCRIPTS=true
+ENV ROLLUP_NATIVE=false
+
+# Install minimal build tools for native dependencies (gifsicle)
+RUN apk update && apk add --no-cache \
+    autoconf \
+    automake \
+    libtool \
+    make \
+    gcc \
+    g++ \
+    libc-dev \
+    zlib-dev \
+    libpng-dev \
+    nasm \
+    && rm -rf /var/cache/apk/*
+
 # Copy package files
 COPY package*.json ./
 COPY tsconfig*.json ./
@@ -11,8 +33,8 @@ COPY tailwind.config.js ./
 COPY postcss.config.js ./
 COPY components.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies with optional flag to skip problematic ones if needed
+RUN npm install --legacy-peer-deps
 
 # Expose port for development server
 EXPOSE 5174

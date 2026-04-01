@@ -42,7 +42,8 @@
       "Bash(grep:*)",
       "Bash(npm audit:*)",
       "Bash(docker-compose exec:*)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(docker-compose rm:*)"
     ]
   }
 }
