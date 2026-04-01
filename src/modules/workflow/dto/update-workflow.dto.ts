@@ -38,7 +38,11 @@ export class UpdateWorkflowDto {
   @Type(() => Date)
   expectedCompletionAt?: Date;
 
-  @ApiPropertyOptional({ enum: WorkflowStatus, description: '工作流状态' })
+  @ApiPropertyOptional({
+    enum: WorkflowStatus,
+    description: '工作流状态',
+    example: 'DRAFT'
+  })
   @IsOptional()
   @IsEnum(WorkflowStatus)
   status?: WorkflowStatus;

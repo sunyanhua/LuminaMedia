@@ -18,6 +18,10 @@ try {
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { Workflow } from './modules/workflow/entities/workflow.entity';
+import { WorkflowNode } from './modules/workflow/entities/workflow-node.entity';
+import { ApprovalRecord } from './modules/workflow/entities/approval-record.entity';
+import { Notification } from './modules/workflow/entities/notification.entity';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -46,11 +50,16 @@ async function bootstrap() {
     .build();
 
   // 添加Swagger配置选项以避免循环依赖问题
-  // 现在包含所有模块，因为我们修复了循环依赖
   const document = SwaggerModule.createDocument(app, config, {
     deepScanRoutes: true,
     ignoreGlobalPrefix: false,
-    extraModels: [], // 避免自动扫描实体导致的循环依赖
+    extraModels: [
+      // 手动注册可能引起循环依赖的模型
+      Workflow,
+      WorkflowNode,
+      ApprovalRecord,
+      Notification,
+    ],
     include: [ // 明确包含需要的模块
       // 如果不指定模块，Swagger会扫描所有控制器
     ],

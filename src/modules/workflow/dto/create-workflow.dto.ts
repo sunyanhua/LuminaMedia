@@ -13,7 +13,11 @@ import { Type } from 'class-transformer';
 import { ApprovalNodeType } from '../../../shared/enums/workflow-status.enum';
 
 class WorkflowNodeConfigDto {
-  @ApiProperty({ enum: ApprovalNodeType, description: '节点类型' })
+  @ApiProperty({
+    enum: ApprovalNodeType,
+    description: '节点类型',
+    example: 'EDITOR'
+  })
   @IsEnum(ApprovalNodeType)
   type: ApprovalNodeType;
 
