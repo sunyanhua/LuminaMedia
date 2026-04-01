@@ -36,7 +36,7 @@ export class User implements TenantEntity {
   socialAccounts: SocialAccount[];
 
   @OneToMany(() => ContentDraft, (draft) => draft.user)
-  contentDrafts: ContentDraft[];
+  contentDrafts: Promise<ContentDraft[]>;
 
   @OneToMany(() => UserRole, (userRole) => userRole.user)
   userRoles: UserRole[];

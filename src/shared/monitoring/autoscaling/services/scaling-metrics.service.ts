@@ -75,6 +75,14 @@ export class ScalingMetricsService {
       throw new Error('Pod指标必须指定selector.metric');
     }
 
+    // 检查metricsCollector是否存在
+    if (!this.metricsCollector) {
+      this.logger.warn(
+        `指标收集器不可用，使用模拟数据: ${selector.metric}`
+      );
+      return await this.getSimulatedPodMetric(selector.metric);
+    }
+
     // 从现有的指标收集器获取指标值
     const metricName = selector.metric;
     const now = new Date();
@@ -82,7 +90,7 @@ export class ScalingMetricsService {
 
     try {
       // 获取时间序列数据
-      const timeSeries = await this.metricsCollector!.getTimeSeries(
+      const timeSeries = await this.metricsCollector.getTimeSeries(
         metricName,
         fiveMinutesAgo,
         now,

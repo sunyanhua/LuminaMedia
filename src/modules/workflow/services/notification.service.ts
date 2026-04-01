@@ -206,9 +206,9 @@ export class NotificationService {
   }
 
   /**
-   * 定时任务：发送待处理通知
+   * 定时任务：发送待处理通知（降低频率以减少CPU使用）
    */
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron('0 */5 * * * *') // 每5分钟执行一次，而不是每分钟
   async processPendingNotifications(): Promise<void> {
     try {
       this.logger.debug('Processing pending notifications...');

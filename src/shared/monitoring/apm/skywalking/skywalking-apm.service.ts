@@ -123,7 +123,10 @@ export class SkywalkingApmService implements ApmService, OnModuleInit {
 
     try {
       // 实际实现应调用SkyWalking指标API
-      this.logger.debug(`Metric recorded: ${name}=${value}`, { tags });
+      // 只在开发环境下记录debug日志，避免生产环境过多日志
+      if (this.configService.get<string>('NODE_ENV') === 'development') {
+        this.logger.debug(`Metric recorded: ${name}=${value}`, { tags });
+      }
 
       // 这里可以添加指标聚合和上报逻辑
     } catch (error) {

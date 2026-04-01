@@ -29,9 +29,9 @@ export class UserFactory {
     user.tenantId = overrides.tenantId || 'default-tenant';
     user.createdAt = overrides.createdAt || new Date();
 
-    // 关系字段不在此初始化
+    // 关系字段使用Promise包装
     user.socialAccounts = [];
-    user.contentDrafts = [];
+    user.contentDrafts = Promise.resolve([]);
     user.userRoles = [];
 
     return user;

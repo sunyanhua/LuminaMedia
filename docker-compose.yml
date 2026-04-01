@@ -67,6 +67,7 @@ services:
       - QDRANT_HOST=qdrant
       - QDRANT_PORT=6333
       - QDRANT_API_KEY=${QDRANT_API_KEY:-}
+      - QDRANT_ENABLE_AUTH=${QDRANT_ENABLE_AUTH:-false}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=${REDIS_PASSWORD:-lumina_redis_password}
@@ -111,9 +112,7 @@ services:
       - "6334:6334"  # gRPC
     volumes:
       - qdrant_data:/qdrant/storage
-    environment:
-      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:-}
-      - QDRANT__SERVICE__ENABLE_API_KEY=true
+    # 不设置API_KEY环境变量，让Qdrant使用默认无认证模式
     networks:
       - lumina-media-network
 

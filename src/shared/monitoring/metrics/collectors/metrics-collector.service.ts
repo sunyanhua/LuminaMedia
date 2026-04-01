@@ -56,11 +56,13 @@ export class MetricsCollectorService implements MetricsCollector {
       // 上报到APM
       this.apmService.recordMetric(metric.name, metric.value, metric.tags);
 
-      // 记录到日志（调试用）
-      this.logger.debug(
-        `Metric recorded: ${metric.name}=${metric.value}`,
-        metric.tags,
-      );
+      // 仅在开发环境记录到日志，生产环境避免过多日志
+      if (this.configService.get<string>('NODE_ENV') === 'development') {
+        this.logger.debug(
+          `Metric recorded: ${metric.name}=${metric.value}`,
+          metric.tags,
+        );
+      }
     } catch (error) {
       this.logger.error(`Failed to record metric: ${metric.name}`, error);
     }

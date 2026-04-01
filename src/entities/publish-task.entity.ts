@@ -27,11 +27,9 @@ export class PublishTask {
   @Column({ name: 'draft_id' })
   draftId: string;
 
-  @ManyToOne(() => ContentDraft, (draft) => draft.publishTasks, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => ContentDraft, { onDelete: 'CASCADE', eager: false })
   @JoinColumn({ name: 'draft_id' })
-  draft: ContentDraft;
+  draft: Promise<ContentDraft>;
 
   @Column({ name: 'account_id' })
   accountId: string;

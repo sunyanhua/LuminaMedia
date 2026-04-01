@@ -90,9 +90,9 @@ export class AlertRuleService implements OnModuleInit {
   }
 
   /**
-   * 定时检查告警规则（每分钟）
+   * 定时检查告警规则（每5分钟执行一次，降低频率以减少CPU使用）
    */
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron('0 */5 * * * *') // 每5分钟执行一次，而不是每分钟
   async checkAllRules(): Promise<void> {
     if (this.rules.size === 0) {
       return;

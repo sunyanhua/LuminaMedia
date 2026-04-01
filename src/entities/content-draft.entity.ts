@@ -31,9 +31,9 @@ export class ContentDraft {
   @Column({ name: 'user_id' })
   userId: string;
 
-  @ManyToOne(() => User, (user) => user.contentDrafts, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, { onDelete: 'CASCADE', eager: false })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: Promise<User>;
 
   @Column({
     name: 'platform_type',
@@ -84,6 +84,6 @@ export class ContentDraft {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToMany(() => PublishTask, (task) => task.draft)
-  publishTasks: PublishTask[];
+  @OneToMany(() => PublishTask, (task) => task.draft, { eager: false })
+  publishTasks: Promise<PublishTask[]>;
 }

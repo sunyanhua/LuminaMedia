@@ -33,7 +33,7 @@ export class ScalingDecisionEngine {
   /**
    * 定期评估所有启用的规则
    */
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron('0 */5 * * * *') // 每5分钟执行一次，而不是每分钟
   async evaluateAllRules(): Promise<void> {
     try {
       this.logger.debug('开始定期评估扩缩容规则');

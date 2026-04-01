@@ -150,11 +150,9 @@ export class Workflow {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  /** 关联的审批节点 */
   @OneToMany(() => WorkflowNode, (node) => node.workflow)
-  nodes: WorkflowNode[];
+  nodes: Promise<WorkflowNode[]>;
 
-  /** 关联的审批记录 */
   @OneToMany(() => ApprovalRecord, (record) => record.workflow)
-  approvalRecords: ApprovalRecord[];
+  approvalRecords: Promise<ApprovalRecord[]>;
 }

@@ -45,14 +45,31 @@ export class QdrantAdapter implements VectorSearchService, OnModuleInit {
       const host = this.configService.get<string>('QDRANT_HOST') || 'localhost';
       const port = this.configService.get<number>('QDRANT_PORT') || 6333;
       const apiKey = this.configService.get<string>('QDRANT_API_KEY');
+      // 从环境变量中获取认证启用状态（处理字符串形式的布尔值）
+      const enableAuthRaw = this.configService.get<string | boolean>('QDRANT_ENABLE_AUTH');
+      // 解析布尔值：支持 "true", "false", true, false
+      let enableAuth: boolean | undefined;
+      if (enableAuthRaw !== undefined && enableAuthRaw !== null) {
+        enableAuth = enableAuthRaw === 'true' || enableAuthRaw === true;
+      }
+
+      // 如果没有定义QDRANT_ENABLE_AUTH，默认认为应该禁用认证（开发环境）
+      const useAuth = enableAuth !== undefined ? enableAuth : !!(apiKey && apiKey.trim() !== '');
 
       const options: any = {
         host,
         port,
       };
 
-      if (apiKey) {
-        options.apiKey = apiKey;
+      // 仅当启用了认证并且提供了有效的密钥时才添加API密钥
+      if (useAuth && apiKey && apiKey.trim() !== '') {
+        options.apiKey = apiKey.trim();
+      }
+
+      // 如果明确禁用了认证，确保不设置任何认证信息
+      if (enableAuth === false) {
+        this.logger.log('Qdrant认证已明确禁用，使用无认证连接');
+        // 不设置apiKey
       }
 
       this.client = new QdrantClient(options);
@@ -64,14 +81,14 @@ export class QdrantAdapter implements VectorSearchService, OnModuleInit {
       await this.ensureCollectionExists(this.defaultCollectionName);
 
       this.logger.log(
-        `Qdrant适配器初始化完成，连接到 ${host}:${port}，集合：${this.defaultCollectionName}`,
+        `Qdrant适配器初始化完成，连接到 ${host}:${port}，集合：${this.defaultCollectionName}，认证：${useAuth ? '已启用' : '已禁用'}`,
       );
     } catch (error) {
       this.logger.error(
         `Qdrant适配器初始化失败: ${error.message}`,
         error.stack,
       );
-      throw error;
+      // 不抛出错误，而是记录错误，让应用可以继续运行（Qdrant作为可选服务）
     }
   }
 

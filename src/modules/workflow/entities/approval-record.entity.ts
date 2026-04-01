@@ -38,19 +38,17 @@ export class ApprovalRecord {
   @Column({ name: 'workflow_id' })
   workflowId: string;
 
-  @ManyToOne(() => Workflow, (workflow) => workflow.approvalRecords, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => Workflow, { onDelete: 'CASCADE', eager: false })
   @JoinColumn({ name: 'workflow_id' })
-  workflow: Workflow;
+  workflow: Promise<Workflow>;
 
   /** 所属节点ID */
   @Column({ name: 'node_id', nullable: true })
   nodeId: string;
 
-  @ManyToOne(() => WorkflowNode, { nullable: true, onDelete: 'CASCADE' })
+  @ManyToOne(() => WorkflowNode, { nullable: true, onDelete: 'CASCADE', eager: false })
   @JoinColumn({ name: 'node_id' })
-  node: WorkflowNode;
+  node: Promise<WorkflowNode>;
 
   /** 审批动作 */
   @Column({

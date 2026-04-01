@@ -41,11 +41,9 @@ export class WorkflowNode {
   @Column({ name: 'workflow_id' })
   workflowId: string;
 
-  @ManyToOne(() => Workflow, (workflow) => workflow.nodes, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => Workflow, { onDelete: 'CASCADE', eager: false })
   @JoinColumn({ name: 'workflow_id' })
-  workflow: Workflow;
+  workflow: Promise<Workflow>;
 
   /** 节点索引（顺序） */
   @Column({ name: 'node_index' })

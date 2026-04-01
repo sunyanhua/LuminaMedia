@@ -36,7 +36,7 @@ export class ScalingEventMonitor {
   /**
    * 定期检查扩缩容事件并触发告警
    */
-  @Cron(CronExpression.EVERY_5_MINUTES)
+  @Cron('0 */10 * * * *') // 每10分钟执行一次，而不是每5分钟
   async monitorScalingEvents(): Promise<void> {
     try {
       this.logger.debug('开始监控扩缩容事件');
