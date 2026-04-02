@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader as Loader2, Sparkles } from 'lucide-react';
+import { Loader as Loader2, Sparkles, Building2, Landmark } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 export function Login() {
   const [isLogin, setIsLogin] = useState(true);
@@ -14,6 +15,7 @@ export function Login() {
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +38,13 @@ export function Login() {
           description: '请使用您的账号登录',
         });
         setIsLogin(true);
+      } else {
+        // 登录成功，跳转到版本选择页
+        toast({
+          title: '登录成功',
+          description: '欢迎回来！',
+        });
+        navigate('/');
       }
     } catch (error) {
       toast({
@@ -46,6 +55,26 @@ export function Login() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // 填充商务版演示账号
+  const fillBusinessAccount = () => {
+    setEmail('admin@demo.lumina.com');
+    setPassword('demo123');
+    toast({
+      title: '已填充',
+      description: '商务版演示账号已填充',
+    });
+  };
+
+  // 填充政务版演示账号
+  const fillGovernmentAccount = () => {
+    setEmail('gov-admin');
+    setPassword('gov123');
+    toast({
+      title: '已填充',
+      description: '政务版演示账号已填充',
+    });
   };
 
   return (
@@ -63,18 +92,18 @@ export function Login() {
             灵曜智媒
           </CardTitle>
           <CardDescription className="text-slate-400 text-base">
-            AI驱动的零售新媒体管理平台
+            AI驱动的企业级内容营销平台
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-slate-200 font-medium">
-                邮箱地址
+                邮箱地址 / 用户名
               </Label>
               <Input
                 id="email"
-                type="email"
+                type="text"
                 placeholder="your@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -115,6 +144,39 @@ export function Login() {
               )}
             </Button>
 
+            {/* 演示账号快捷填充 */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-700"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 text-slate-500 bg-slate-900">演示账号</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={fillBusinessAccount}
+                disabled={loading}
+                className="border-slate-700 hover:border-amber-500/50 hover:bg-amber-500/5 text-slate-300"
+              >
+                <Building2 className="w-4 h-4 mr-2 text-amber-500" />
+                商务版账号
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={fillGovernmentAccount}
+                disabled={loading}
+                className="border-slate-700 hover:border-blue-500/50 hover:bg-blue-500/5 text-slate-300"
+              >
+                <Landmark className="w-4 h-4 mr-2 text-blue-500" />
+                政务版账号
+              </Button>
+            </div>
+
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-slate-700"></div>
@@ -134,6 +196,14 @@ export function Login() {
               {isLogin ? '还没有账号？立即注册' : '已有账号？返回登录'}
             </Button>
           </form>
+
+          {/* 演示账号提示 */}
+          <div className="mt-6 p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+            <p className="text-xs text-slate-500 text-center">
+              商务版: admin@demo.lumina.com / demo123<br />
+              政务版: gov-admin / gov123
+            </p>
+          </div>
         </CardContent>
       </Card>
 
@@ -143,3 +213,5 @@ export function Login() {
     </div>
   );
 }
+
+export default Login;
