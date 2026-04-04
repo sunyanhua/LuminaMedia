@@ -15,8 +15,28 @@ export class FeatureConfigService {
   /**
    * 获取所有功能配置
    */
-  async getAllFeatureConfigs(): Promise<FeatureConfig[]> {
-    return await this.featureConfigRepository.find();
+  async getAllFeatureConfigs(
+    page: number = 1,
+    pageSize: number = 20,
+    where?: any,
+    sortBy?: string,
+    sortOrder?: 'asc' | 'desc',
+  ): Promise<[FeatureConfig[], number]> {
+    const skip = (page - 1) * pageSize;
+    const take = pageSize;
+    const order: any = {};
+    if (sortBy) {
+      order[sortBy] = sortOrder || 'asc';
+    }
+
+    const [data, total] = await this.featureConfigRepository.findAndCount({
+      where: where || {},
+      skip,
+      take,
+      order,
+    });
+
+    return [data, total];
   }
 
   /**

@@ -35,6 +35,7 @@ import { ContentGenerationController } from './controllers/content-generation.co
 import { DemoController } from './controllers/demo.controller';
 import { CustomerDataModule } from '../customer-data/customer-data.module';
 import { AuthModule } from '../auth/auth.module';
+import { GovernmentModule } from '../government/government.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { AuthModule } from '../auth/auth.module';
     ]),
     CustomerDataModule,
     AuthModule,
+    GovernmentModule,
   ],
   controllers: [
     UserBehaviorController,

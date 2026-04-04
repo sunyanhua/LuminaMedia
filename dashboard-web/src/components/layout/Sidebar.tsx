@@ -1,38 +1,57 @@
-import { LayoutDashboard, ChartBar as BarChart3, Network, Shield, Sparkles, ChevronLeft, ChevronRight, PlayCircle, FileText, AlertTriangle, Siren, ChevronLeft as ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, ChartBar as BarChart3, Network, Shield, Sparkles, ChevronLeft, ChevronRight, PlayCircle, FileText, AlertTriangle, Siren, ChevronLeft as ArrowLeft, Settings, Cpu, Activity } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAppStore, useDemoVersion } from '@/store/useAppStore';
-
-// 商务版菜单项
-const businessMenuItems = [
-  { id: 'dashboard', path: '/business/dashboard', label: '仪表盘', icon: LayoutDashboard },
-  { id: 'analytics', path: '/business/analytics', label: '数据统计分析', icon: BarChart3 },
-  { id: 'ai-strategy', path: '/business/ai-strategy', label: 'AI智策中心', icon: Sparkles },
-  { id: 'matrix', path: '/business/matrix', label: '新媒体矩阵', icon: Network },
-  { id: 'demo', path: '/business/demo', label: '交互式演示', icon: PlayCircle },
-];
-
-// 政务版菜单项
-const governmentMenuItems = [
-  { id: 'dashboard', path: '/government/dashboard', label: '政务仪表盘', icon: LayoutDashboard },
-  { id: 'governance', path: '/government/governance', label: '发稿审核', icon: Shield },
-  { id: 'policy', path: '/government/policy', label: '政策解读', icon: FileText },
-  { id: 'anti-fraud', path: '/government/anti-fraud', label: '防诈骗宣传', icon: AlertTriangle },
-  { id: 'emergency', path: '/government/emergency', label: '应急响应', icon: Siren },
-];
+import { useMenuPermissionService } from '@/services/permission.service';
+import { MENU_CONFIG, getFilteredMenu, getDefaultPath } from '@/config/menu.config';
 
 export function Sidebar() {
   const location = useLocation();
   const demoVersion = useDemoVersion();
   const { setCurrentPage, sidebarCollapsed, toggleSidebar, setDemoVersion } = useAppStore();
 
-  // 根据版本选择菜单项
-  const menuItems = demoVersion === 'government' ? governmentMenuItems : businessMenuItems;
+  // 使用菜单权限服务获取动态菜单
+  const { menuItems: allMenuItems, isLoaded } = useMenuPermissionService();
+
+  // 根据当前版本过滤菜单
+  const enabledFeatures = ['customer-analytics', 'ai-strategy', 'matrix-publish', 'government-publish']; // 模拟已启用的功能
+  const menuItems = getFilteredMenu(MENU_CONFIG, demoVersion || 'business', enabledFeatures).filter(
+    item => item.key !== 'admin' // 管理菜单单独处理
+  );
+
+  // 添加管理菜单项
+  const adminMenuItems = MENU_CONFIG.filter(item => item.key === 'admin')[0]?.children || [];
 
   // 判断是否为激活状态
   const isActive = (path: string) => {
-    return location.pathname === path || location.pathname.startsWith(path + '/');
+    return path && (location.pathname === path || location.pathname.startsWith(path + '/'));
   };
+
+  if (!isLoaded) {
+    return (
+      <div className={cn(
+        'bg-slate-900 border-r border-slate-800 transition-all duration-300 flex flex-col',
+        sidebarCollapsed ? 'w-16' : 'w-64'
+      )}>
+        <div className="p-4 border-b border-slate-800">
+          <div className="animate-pulse flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-slate-800"></div>
+            {!sidebarCollapsed && (
+              <div className="space-y-2">
+                <div className="h-4 bg-slate-800 rounded w-24"></div>
+                <div className="h-3 bg-slate-800 rounded w-16"></div>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="flex-1 p-2 space-y-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="w-full h-10 rounded-lg bg-slate-800 animate-pulse"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -46,8 +65,8 @@ export function Sidebar() {
           <div className="flex items-center gap-2">
             <div className={cn(
               "w-8 h-8 rounded-lg flex items-center justify-center",
-              demoVersion === 'government' 
-                ? 'bg-gradient-to-br from-blue-500 to-cyan-500' 
+              demoVersion === 'government'
+                ? 'bg-gradient-to-br from-blue-500 to-cyan-500'
                 : 'bg-gradient-to-br from-amber-500 to-amber-600'
             )}>
               <Sparkles className="w-5 h-5 text-slate-950" />
@@ -69,30 +88,132 @@ export function Sidebar() {
         </button>
       </div>
 
-      <nav className="flex-1 p-2">
+      <nav className="flex-1 p-2 overflow-y-auto">
+        {/* 主要菜单项 */}
         {menuItems.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item.path);
+          if (item.path) {
+            let Icon: any;
+            switch (item.icon) {
+              case 'dashboard': Icon = LayoutDashboard; break;
+              case 'analytics': Icon = BarChart3; break;
+              case 'ai': Icon = Cpu; break;
+              case 'matrix': Icon = Network; break;
+              case 'governance': Icon = Shield; break;
+              case 'demo': Icon = PlayCircle; break;
+              case 'sentiment': Icon = Activity; break;
+              case 'geo': Icon = Activity; break;
+              case 'admin': Icon = Settings; break;
+              default: Icon = Sparkles;
+            }
 
-          return (
-            <Link
-              key={item.id}
-              to={item.path}
-              onClick={() => setCurrentPage(item.id)}
-              className={cn(
-                'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all mb-1',
-                active
-                  ? demoVersion === 'government'
-                    ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                    : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              )}
-            >
-              <Icon className="w-5 h-5 flex-shrink-0" />
-              {!sidebarCollapsed && <span className="text-sm font-medium">{item.label}</span>}
-            </Link>
-          );
+            const active = isActive(item.path);
+
+            return (
+              <Link
+                key={item.key}
+                to={item.path}
+                onClick={() => setCurrentPage(item.key)}
+                className={cn(
+                  'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all mb-1',
+                  active
+                    ? demoVersion === 'government'
+                      ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                      : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                )}
+              >
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                {!sidebarCollapsed && <span className="text-sm font-medium">{item.title}</span>}
+              </Link>
+            );
+          }
+
+          // 对于有子菜单的项目，我们可以展开显示子菜单或显示主菜单项
+          if (item.children && item.children.length > 0) {
+            return item.children.map((child) => {
+              if (!child.path) return null;
+
+              let Icon: any;
+              switch (child.icon) {
+                case 'dashboard': Icon = LayoutDashboard; break;
+                case 'analytics': Icon = BarChart3; break;
+                case 'ai': Icon = Cpu; break;
+                case 'matrix': Icon = Network; break;
+                case 'governance': Icon = Shield; break;
+                case 'demo': Icon = PlayCircle; break;
+                case 'sentiment': Icon = Activity; break;
+                case 'geo': Icon = Activity; break;
+                case 'admin': Icon = Settings; break;
+                case 'feature-config': Icon = Settings; break;
+                case 'quota-management': Icon = Activity; break;
+                case 'tenant-feature': Icon = Activity; break;
+                default: Icon = Sparkles;
+              }
+
+              const active = isActive(child.path!);
+
+              return (
+                <Link
+                  key={`${item.key}-${child.key}`}
+                  to={child.path!}
+                  onClick={() => setCurrentPage(child.key)}
+                  className={cn(
+                    'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all mb-1 ml-2',
+                    active
+                      ? demoVersion === 'government'
+                        ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                        : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                  )}
+                >
+                  <Icon className="w-5 h-5 flex-shrink-0" />
+                  {!sidebarCollapsed && <span className="text-sm font-medium">{child.title}</span>}
+                </Link>
+              );
+            });
+          }
+
+          return null;
         })}
+
+        {/* 管理菜单项 */}
+        {adminMenuItems && adminMenuItems.length > 0 && (
+          <div className="pt-4 border-t border-slate-800">
+            <h3 className={!sidebarCollapsed ? "px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider" : ""}>
+              {!sidebarCollapsed ? "管理工具" : null}
+            </h3>
+            {adminMenuItems.map((item) => {
+              if (!item.path) return null;
+
+              let Icon: any;
+              switch (item.icon) {
+                case 'feature-config': Icon = Settings; break;
+                case 'quota-management': Icon = Activity; break;
+                case 'tenant-feature': Icon = Activity; break;
+                default: Icon = Settings;
+              }
+
+              const active = isActive(item.path);
+
+              return (
+                <Link
+                  key={`admin-${item.key}`}
+                  to={item.path}
+                  onClick={() => setCurrentPage(item.key)}
+                  className={cn(
+                    'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all mb-1',
+                    active
+                      ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                  )}
+                >
+                  <Icon className="w-5 h-5 flex-shrink-0" />
+                  {!sidebarCollapsed && <span className="text-sm font-medium">{item.title}</span>}
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </nav>
 
       {/* 版本切换和返回入口 */}
@@ -127,8 +248,8 @@ export function Sidebar() {
               </span>
             </div>
             <p className="text-xs text-slate-400">
-              {demoVersion === 'government' 
-                ? '符合政府信息系统安全要求' 
+              {demoVersion === 'government'
+                ? '符合政府信息系统安全要求'
                 : '所有数据加密且合规'}
             </p>
           </div>

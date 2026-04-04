@@ -4,6 +4,8 @@ import { Header } from './Header';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useSetDemoVersion } from '@/store/useAppStore';
+import DemoBanner from '@/components/DemoBanner';
+import QuotaDisplay from '@/components/QuotaDisplay';
 
 function GovernmentLayout() {
   const location = useLocation();
@@ -47,15 +49,21 @@ function GovernmentLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-950 overflow-hidden">
-      <Sidebar />
-
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header breadcrumbs={getBreadcrumbs()} />
-
-        <main className="flex-1 overflow-auto p-6">
-          <Outlet />
-        </main>
+    <div className="flex h-screen bg-slate-950 overflow-hidden flex-col">
+      <DemoBanner />
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header breadcrumbs={getBreadcrumbs()} />
+          <div className="flex flex-1 overflow-auto">
+            <main className="flex-1 p-6">
+              <Outlet />
+            </main>
+            <div className="w-64 p-4 hidden lg:block border-l border-slate-800 bg-slate-900/50">
+              <QuotaDisplay />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

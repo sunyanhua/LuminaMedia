@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThan } from 'typeorm';
+import { Repository, MoreThan, FindManyOptions, Like, Between } from 'typeorm';
 import { TenantQuota } from '../../../entities/tenant-quota.entity';
+import { QuotaQueryDto } from '../dto/quota.dto';
 
 @Injectable()
 export class QuotaService {
@@ -203,5 +204,112 @@ export class QuotaService {
         now.setHours(0, 0, 0, 0);
         return now;
     }
+  }
+
+  /**
+   * 获取配额列表（支持分页和过滤）
+   */
+  async getQuotas(query: QuotaQueryDto): Promise<{ data: TenantQuota[]; total: number; page: number; pageSize: number }> {
+    const { tenantId, featureKey, quotaPeriod, page = 1, pageSize = 20 } = query;
+
+    const skip = (page - 1) * pageSize;
+    const where: any = {};
+
+    if (tenantId) {
+      where.tenantId = tenantId;
+    }
+
+    if (featureKey) {
+      where.featureKey = featureKey;
+    }
+
+    if (quotaPeriod) {
+      where.quotaPeriod = quotaPeriod;
+    }
+
+    const [data, total] = await this.tenantQuotaRepository.findAndCount({
+      where,
+      skip,
+      take: pageSize,
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    return {
+      data,
+      total,
+      page,
+      pageSize,
+    };
+  }
+
+  /**
+   * 获取所有租户的配额列表（无过滤）
+   */
+  async getAllQuotas(): Promise<TenantQuota[]> {
+    return await this.tenantQuotaRepository.find({
+      order: {
+        tenantId: 'ASC',
+        featureKey: 'ASC',
+      },
+    });
+  }
+
+  /**
+   * 获取租户的所有配额使用情况
+   */
+  async getTenantQuotaUsage(tenantId: string): Promise<Array<{
+    featureKey: string;
+    usedCount: number;
+    maxCount: number;
+    remaining: number;
+    quotaPeriod: 'daily' | 'weekly' | 'monthly';
+    resetTime?: Date;
+  }>> {
+    const quotaRecords = await this.tenantQuotaRepository.find({
+      where: { tenantId },
+    });
+
+    const result = [];
+
+    for (const record of quotaRecords) {
+      // 检查是否需要重置配额
+      await this.maybeResetQuota(record);
+
+      const remaining = record.maxCount - record.usedCount;
+      result.push({
+        featureKey: record.featureKey,
+        usedCount: record.usedCount,
+        maxCount: record.maxCount,
+        remaining: remaining > 0 ? remaining : 0,
+        quotaPeriod: record.quotaPeriod,
+        resetTime: record.resetTime,
+      });
+    }
+
+    return result;
+  }
+
+  /**
+   * 获取功能的所有配额配置
+   */
+  async getFeatureQuotas(featureKey: string): Promise<TenantQuota[]> {
+    return await this.tenantQuotaRepository.find({
+      where: { featureKey },
+      order: {
+        tenantId: 'ASC',
+      },
+    });
+  }
+
+  /**
+   * 删除配额配置
+   */
+  async deleteQuota(tenantId: string, featureKey: string): Promise<void> {
+    await this.tenantQuotaRepository.delete({
+      tenantId,
+      featureKey,
+    });
   }
 }

@@ -9,10 +9,14 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { DemoService } from '../services/demo.service';
+import { GovernmentDemoService } from '../../government/services/government-demo.service';
 
 @Controller('api/v1/analytics/demo')
 export class DemoController {
-  constructor(private readonly demoService: DemoService) {}
+  constructor(
+    private readonly demoService: DemoService,
+    private readonly governmentDemoService: GovernmentDemoService,
+  ) {}
 
   /**
    * 快速启动完整演示流程
@@ -337,6 +341,75 @@ export class DemoController {
         error: {
           code: 'REPORT_ERROR',
           message: error.message || '生成演示报告失败',
+        },
+      };
+    }
+  }
+
+  @Get('data-types')
+  async getDemoDataTypes() {
+    try {
+      const dataTypes = [
+        { id: 'mall-customer', name: '商场顾客营销方案', description: '商场顾客数据导入到营销内容生成全流程' },
+        { id: 'government-demo', name: '政务版演示数据', description: '政务内容、舆情监测和地理分析数据' },
+        { id: 'e-commerce', name: '电商用户行为分析', description: '电商用户购买行为分析和个性化推荐' },
+        { id: 'social-media', name: '社交媒体舆情监测', description: '社交媒体舆情数据收集和情感分析' },
+      ];
+
+      return {
+        success: true,
+        data: dataTypes,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          code: 'DATA_TYPES_ERROR',
+          message: error.message || '获取演示数据类型失败',
+        },
+      };
+    }
+  }
+
+  @Post('government/generate')
+  async generateGovernmentDemoData(@Query('tenantId') tenantId?: string) {
+    try {
+      await this.governmentDemoService.generateGovernmentDemoData(
+        tenantId || 'demo-government-001',
+      );
+
+      return {
+        success: true,
+        message: '政务版演示数据生成成功',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          code: 'GOVERNMENT_DEMO_ERROR',
+          message: error.message || '政务版演示数据生成失败',
+        },
+      };
+    }
+  }
+
+  @Delete('government/reset')
+  async resetGovernmentDemoData(@Query('tenantId') tenantId?: string) {
+    try {
+      await this.governmentDemoService.clearGovernmentDemoData(
+        tenantId || 'demo-government-001',
+      );
+
+      return {
+        success: true,
+        message: '政务版演示数据重置成功',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          code: 'GOVERNMENT_RESET_ERROR',
+          message: error.message || '政务版演示数据重置失败',
         },
       };
     }

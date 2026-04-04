@@ -20,6 +20,9 @@ import { QuotaService } from './services/quota.service';
 import { AuthController } from './controllers/auth.controller';
 import { RoleController } from './controllers/role.controller';
 import { PermissionController } from './controllers/permission.controller';
+import { FeatureConfigController } from './controllers/feature-config.controller';
+import { TenantFeatureController } from './controllers/tenant-feature.controller';
+import { QuotaController } from './controllers/quota.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
@@ -44,7 +47,14 @@ import { UserModule } from '../user/user.module';
     }),
     UserModule, // 导入UserModule以获取UserService
   ],
-  controllers: [AuthController, RoleController, PermissionController],
+  controllers: [
+    AuthController,
+    RoleController,
+    PermissionController,
+    FeatureConfigController,
+    TenantFeatureController,
+    QuotaController
+  ],
   providers: [
     AuthService,
     TenantService,

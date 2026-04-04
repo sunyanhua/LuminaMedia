@@ -23,6 +23,12 @@ const GovernmentPolicy = lazy(() => import('../components/government/GovernmentP
 const GovernmentAntiFraud = lazy(() => import('../components/government/GovernmentAntiFraud'));
 const GovernmentEmergency = lazy(() => import('../components/government/GovernmentEmergency'));
 
+// 管理页面组件
+const FeatureConfigList = lazy(() => import('../pages/Admin/FeatureConfigList'));
+const TenantFeatureList = lazy(() => import('../pages/Admin/TenantFeatureList'));
+const QuotaOverview = lazy(() => import('../pages/Dashboard/QuotaOverview'));
+const QuotaConfig = lazy(() => import('../pages/Admin/QuotaConfig'));
+
 // 加载中组件
 const LoadingFallback = () => (
   <div className="flex items-center justify-center h-64">
@@ -205,6 +211,55 @@ export const router = createBrowserRouter([
   {
     path: '*',
     element: <Navigate to="/" replace />,
+  },
+  // 管理页面路由
+  {
+    path: '/admin',
+    element: (
+      <VersionGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <BusinessLayout />
+        </Suspense>
+      </VersionGuard>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Navigate to="/admin/feature-config" replace />,
+      },
+      {
+        path: 'feature-config',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <FeatureConfigList />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'tenant-feature',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <TenantFeatureList />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'quota-management',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <QuotaOverview />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'quota-config',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <QuotaConfig />
+          </Suspense>
+        ),
+      },
+    ],
   },
 ]);
 
