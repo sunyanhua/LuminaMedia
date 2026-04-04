@@ -43,7 +43,9 @@
       "Bash(npm audit:*)",
       "Bash(docker-compose exec:*)",
       "Read(//tmp/**)",
-      "Bash(docker-compose rm:*)"
+      "Bash(docker-compose rm:*)",
+      "Bash(docker-compose restart:*)",
+      "Bash(xargs cat:*)"
     ]
   }
 }
