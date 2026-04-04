@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from '../auth/auth.module'; // 导入AuthModule以使用FeatureGuard
 import { CustomerProfile } from '../../entities/customer-profile.entity';
 import { DataImportJob } from '../../entities/data-import-job.entity';
 import { CustomerSegment } from '../../entities/customer-segment.entity';
@@ -26,6 +27,7 @@ import { CustomerAnalyticsController } from './controllers/customer-analytics.co
       DataImportJobRepository,
       CustomerSegmentRepository,
     ]),
+    AuthModule, // 添加AuthModule导入
   ],
   controllers: [
     CustomerProfileController,

@@ -141,7 +141,7 @@ export class QuotaService {
   /**
    * 获取或创建配额记录
    */
-  private async getOrCreateQuotaRecord(tenantId: string, featureKey: string): Promise<TenantQuota> {
+  async getOrCreateQuotaRecord(tenantId: string, featureKey: string): Promise<TenantQuota> {
     let quotaRecord = await this.tenantQuotaRepository.findOne({
       where: { tenantId, featureKey },
     });
@@ -271,7 +271,14 @@ export class QuotaService {
       where: { tenantId },
     });
 
-    const result = [];
+    const result: Array<{
+      featureKey: string;
+      usedCount: number;
+      maxCount: number;
+      remaining: number;
+      quotaPeriod: 'daily' | 'weekly' | 'monthly';
+      resetTime?: Date;
+    }> = [];
 
     for (const record of quotaRecords) {
       // 检查是否需要重置配额

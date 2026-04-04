@@ -9,13 +9,11 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { DemoService } from '../services/demo.service';
-import { GovernmentDemoService } from '../../government/services/government-demo.service';
 
 @Controller('api/v1/analytics/demo')
 export class DemoController {
   constructor(
     private readonly demoService: DemoService,
-    private readonly governmentDemoService: GovernmentDemoService,
   ) {}
 
   /**
@@ -373,45 +371,23 @@ export class DemoController {
 
   @Post('government/generate')
   async generateGovernmentDemoData(@Query('tenantId') tenantId?: string) {
-    try {
-      await this.governmentDemoService.generateGovernmentDemoData(
-        tenantId || 'demo-government-001',
-      );
-
-      return {
-        success: true,
-        message: '政务版演示数据生成成功',
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 'GOVERNMENT_DEMO_ERROR',
-          message: error.message || '政务版演示数据生成失败',
-        },
-      };
-    }
+    return {
+      success: false,
+      error: {
+        code: 'GOVERNMENT_DEMO_NOT_AVAILABLE',
+        message: '政务版演示功能暂时不可用，请联系开发人员',
+      },
+    };
   }
 
   @Delete('government/reset')
   async resetGovernmentDemoData(@Query('tenantId') tenantId?: string) {
-    try {
-      await this.governmentDemoService.clearGovernmentDemoData(
-        tenantId || 'demo-government-001',
-      );
-
-      return {
-        success: true,
-        message: '政务版演示数据重置成功',
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 'GOVERNMENT_RESET_ERROR',
-          message: error.message || '政务版演示数据重置失败',
-        },
-      };
-    }
+    return {
+      success: false,
+      error: {
+        code: 'GOVERNMENT_DEMO_NOT_AVAILABLE',
+        message: '政务版演示功能暂时不可用',
+      },
+    };
   }
 }

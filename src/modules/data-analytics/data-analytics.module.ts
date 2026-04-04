@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserBehavior } from './entities/user-behavior.entity';
-import { MarketingCampaign } from './entities/marketing-campaign.entity';
-import { MarketingStrategy } from './entities/marketing-strategy.entity';
+import { MarketingCampaign } from '../../entities/marketing-campaign.entity';
+import { MarketingStrategy } from '../../entities/marketing-strategy.entity';
 import { CustomerProfile } from '../../entities/customer-profile.entity';
 import { CustomerSegment } from '../../entities/customer-segment.entity';
 import { DataImportJob } from '../../entities/data-import-job.entity';
@@ -16,6 +16,7 @@ import { MarketingStrategyRepository } from '../../shared/repositories/marketing
 import { CustomerProfileRepository } from '../../shared/repositories/customer-profile.repository';
 import { CustomerSegmentRepository } from '../../shared/repositories/customer-segment.repository';
 import { DataImportJobRepository } from '../../shared/repositories/data-import-job.repository';
+import { ContentDraftRepository } from '../../shared/repositories/content-draft.repository';
 import { TenantContextService } from '../../shared/services/tenant-context.service';
 import { AnalyticsService } from './services/analytics.service';
 import { MarketingStrategyService } from './services/marketing-strategy.service';
@@ -35,7 +36,8 @@ import { ContentGenerationController } from './controllers/content-generation.co
 import { DemoController } from './controllers/demo.controller';
 import { CustomerDataModule } from '../customer-data/customer-data.module';
 import { AuthModule } from '../auth/auth.module';
-import { GovernmentModule } from '../government/government.module';
+import { SharedMarketingModule } from '../shared-marketing/shared-marketing.module';
+// import { GovernmentModule } from '../government/government.module';
 
 @Module({
   imports: [
@@ -56,10 +58,12 @@ import { GovernmentModule } from '../government/government.module';
       CustomerProfileRepository,
       CustomerSegmentRepository,
       DataImportJobRepository,
+      ContentDraftRepository,
     ]),
     CustomerDataModule,
     AuthModule,
-    GovernmentModule,
+    SharedMarketingModule,
+    // GovernmentModule, // 注释掉GovernmentModule导入以避免循环依赖
   ],
   controllers: [
     UserBehaviorController,
@@ -92,6 +96,25 @@ import { GovernmentModule } from '../government/government.module';
     ContentGenerationService,
     DemoService,
     DemoResetService,
+    TypeOrmModule.forFeature([
+      UserBehavior,
+      MarketingCampaign,
+      MarketingStrategy,
+      CustomerProfile,
+      CustomerSegment,
+      DataImportJob,
+      ContentDraft,
+      GovernmentContent,
+      SocialInteraction,
+      Tenant,
+      UserBehaviorRepository,
+      MarketingCampaignRepository,
+      MarketingStrategyRepository,
+      CustomerProfileRepository,
+      CustomerSegmentRepository,
+      DataImportJobRepository,
+      ContentDraftRepository,
+    ]),
   ],
 })
 export class DataAnalyticsModule {}

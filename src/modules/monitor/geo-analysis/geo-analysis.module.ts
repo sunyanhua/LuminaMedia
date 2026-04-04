@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from '../../auth/auth.module'; // 导入AuthModule以使用FeatureGuard
 import { GeoRegion } from './entities/geo-region.entity';
 import { GeoAnalysisResult } from './entities/geo-analysis-result.entity';
 import { SeoSuggestion } from './entities/seo-suggestion.entity';
@@ -13,6 +14,7 @@ import { GeoReportController } from './controllers/geo-report.controller';
 @Module({
   imports: [
     TypeOrmModule.forFeature([GeoRegion, GeoAnalysisResult, SeoSuggestion]),
+    AuthModule, // 添加AuthModule导入
   ],
   controllers: [GeoAnalysisController, GeoReportController],
   providers: [

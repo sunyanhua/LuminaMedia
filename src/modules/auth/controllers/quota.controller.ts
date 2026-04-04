@@ -268,6 +268,14 @@ export class QuotaController {
     resetTime?: Date;
     quotaPeriod: 'daily' | 'weekly' | 'monthly';
   }> {
-    return await this.quotaService.getQuotaInfo(tenantId, featureKey);
+    const quotaInfo = await this.quotaService.getQuotaInfo(tenantId, featureKey);
+
+    // 确保返回的对象包含所有必需字段，特别是quotaPeriod
+    const quotaRecord = await this.quotaService.getOrCreateQuotaRecord(tenantId, featureKey);
+
+    return {
+      ...quotaInfo,
+      quotaPeriod: quotaRecord.quotaPeriod || 'daily' // 确保返回包含quotaPeriod
+    };
   }
 }

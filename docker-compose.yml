@@ -186,69 +186,71 @@ services:
       - "8080:8080"
     environment:
       SW_OAP_ADDRESS: skywalking-oap:12800
+      SW_UI_DEFAULT_INDEX: "service"
     depends_on:
       - skywalking-oap
     networks:
       - lumina-media-network
 
-  elasticsearch:
-    image: elasticsearch:8.10.0
-    container_name: lumina-media-elasticsearch
-    restart: always
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ports:
-      - "9200:9200"
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-    networks:
-      - lumina-media-network
+  # ELK Stack 已注释（第3轮质检发现Kibana镜像拉取失败）
+  # elasticsearch:
+  #   image: elasticsearch:8.10.0
+  #   container_name: lumina-media-elasticsearch
+  #   restart: always
+  #   environment:
+  #     - discovery.type=single-node
+  #     - xpack.security.enabled=false
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #   ports:
+  #     - "9200:9200"
+  #   volumes:
+  #     - elasticsearch_data:/usr/share/elasticsearch/data
+  #   networks:
+  #     - lumina-media-network
 
-  logstash:
-    image: logstash:8.10.0
-    container_name: lumina-media-logstash
-    restart: always
-    ports:
-      - "5044:5044"  # Beats input
-      - "5000:5000"  # TCP input
-    volumes:
-      - ./config/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
-      - ./logs:/app/logs:ro
-    environment:
-      - LS_JAVA_OPTS=-Xms256m -Xmx256m
-    depends_on:
-      - elasticsearch
-    networks:
-      - lumina-media-network
+  # logstash:
+  #   image: logstash:8.10.0
+  #   container_name: lumina-media-logstash
+  #   restart: always
+  #   ports:
+  #     - "5044:5044"  # Beats input
+  #     - "5000:5000"  # TCP input
+  #   volumes:
+  #     - ./config/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+  #     - ./logs:/app/logs:ro
+  #   environment:
+  #     - LS_JAVA_OPTS=-Xms256m -Xmx256m
+  #   depends_on:
+  #     - elasticsearch
+  #   networks:
+  #     - lumina-media-network
 
-  kibana:
-    image: kibana:8.10.0
-    container_name: lumina-media-kibana
-    restart: always
-    ports:
-      - "5601:5601"
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    depends_on:
-      - elasticsearch
-    networks:
-      - lumina-media-network
+  # kibana:
+  #   image: kibana:8.10.0
+  #   container_name: lumina-media-kibana
+  #   restart: always
+  #   ports:
+  #     - "5601:5601"
+  #   environment:
+  #     - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+  #   depends_on:
+  #     - elasticsearch
+  #   networks:
+  #     - lumina-media-network
 
-  filebeat:
-    image: elastic/filebeat:8.10.0
-    container_name: lumina-media-filebeat
-    restart: always
-    volumes:
-      - ./config/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - ./logs:/app/logs:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    depends_on:
-      - logstash
-    networks:
-      - lumina-media-network
+  # filebeat:
+  #   image: elastic/filebeat:8.10.0
+  #   container_name: lumina-media-filebeat
+  #   restart: always
+  #   volumes:
+  #     - ./config/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+  #     - ./logs:/app/logs:ro
+  #     - /var/lib/docker/containers:/var/lib/docker/containers:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #   depends_on:
+  #     - logstash
+  #   networks:
+  #     - lumina-media-network
 
 volumes:
   mysql_data:
@@ -257,8 +259,8 @@ volumes:
     driver: local
   redis_data:
     driver: local
-  elasticsearch_data:
-    driver: local
+  # elasticsearch_data:
+  #   driver: local
 
 networks:
   lumina-media-network:

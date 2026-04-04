@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from '../auth/auth.module'; // 导入AuthModule以使用FeatureGuard
 
 // 适配器
 import { WechatAdapter } from './adapters/wechat.adapter';
@@ -34,6 +35,7 @@ import { GovernmentController } from './controllers/government.controller';
   imports: [
     EventEmitterModule.forRoot(),
     TypeOrmModule.forFeature([SocialAccount]),
+    AuthModule, // 添加AuthModule导入
   ],
   controllers: [
     AccountController,

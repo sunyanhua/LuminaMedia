@@ -45,10 +45,8 @@ export class DemoService {
     private customerSegmentRepository: CustomerSegmentRepository,
     @InjectRepository(DataImportJobRepository)
     private dataImportJobRepository: DataImportJobRepository,
-    @InjectRepository(MarketingCampaignRepository)
-    private marketingCampaignRepository: MarketingCampaignRepository,
-    @InjectRepository(MarketingStrategyRepository)
-    private marketingStrategyRepository: MarketingStrategyRepository,
+    private readonly marketingCampaignRepository: MarketingCampaignRepository,
+    private readonly marketingStrategyRepository: MarketingStrategyRepository,
     @InjectRepository(UserBehaviorRepository)
     private userBehaviorRepository: UserBehaviorRepository,
     private readonly contentGenerationService: ContentGenerationService,

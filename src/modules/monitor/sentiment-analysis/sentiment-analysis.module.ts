@@ -1,5 +1,6 @@
 import { Module, Provider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from '../../auth/auth.module'; // 导入AuthModule以使用FeatureGuard
 
 // 服务
 import { SentimentAnalysisService } from './services/sentiment-analysis.service';
@@ -26,7 +27,7 @@ const sentimentProviders: Provider[] = [
 ];
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, AuthModule], // 添加AuthModule导入
   controllers: [SentimentAnalysisController],
   providers: [...sentimentProviders, SentimentAnalysisService],
   exports: [
