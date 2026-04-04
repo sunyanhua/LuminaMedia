@@ -63,7 +63,7 @@ import { SharedMarketingModule } from '../shared-marketing/shared-marketing.modu
     CustomerDataModule,
     AuthModule,
     SharedMarketingModule,
-    // GovernmentModule, // 注释掉GovernmentModule导入以避免循环依赖
+    GovernmentModule, // 启用GovernmentModule导入以提供GovernmentDemoService
   ],
   controllers: [
     UserBehaviorController,

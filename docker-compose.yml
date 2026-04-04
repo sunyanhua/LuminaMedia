@@ -185,7 +185,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SW_OAP_ADDRESS: skywalking-oap:12800
+      SW_OAP_ADDRESS: http://skywalking-oap:12800
       SW_UI_DEFAULT_INDEX: "service"
     depends_on:
       - skywalking-oap
