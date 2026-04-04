@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  UpdateDateColumn,
   ManyToOne,
   JoinColumn,
   OneToMany,
@@ -68,10 +69,16 @@ export class CustomerProfile implements TenantEntity {
   @Column({ name: 'behavior_insights', type: 'json', nullable: true })
   behaviorInsights: Record<string, any>;
 
+  @Column({ default: false })
+  isPreset: boolean;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  demoScenario?: string;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @CreateDateColumn({ name: 'updated_at', nullable: true })
+  @UpdateDateColumn({ name: 'updated_at', nullable: true })
   updatedAt: Date;
 
   @OneToMany(() => DataImportJob, (importJob) => importJob.customerProfile)

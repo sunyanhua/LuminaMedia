@@ -41,6 +41,15 @@ export enum Industry {
   /** 体育健身 */
   SPORTS_FITNESS = 'SPORTS_FITNESS',
 
+  /** 政府机构 */
+  GOVERNMENT = 'GOVERNMENT',
+
+  /** 研究机构 */
+  RESEARCH = 'RESEARCH',
+
+  /** 公共服务 */
+  PUBLIC_SERVICE = 'PUBLIC_SERVICE',
+
   /** 其他 */
   OTHER = 'OTHER',
 }

@@ -302,6 +302,9 @@ export class CustomerProfileController {
       [Industry.AUTOMOTIVE]: '汽车',
       [Industry.FASHION_BEAUTY]: '时尚美容',
       [Industry.SPORTS_FITNESS]: '体育健身',
+      [Industry.GOVERNMENT]: '政府机构',
+      [Industry.RESEARCH]: '研究机构',
+      [Industry.PUBLIC_SERVICE]: '公共服务',
       [Industry.OTHER]: '其他',
     };
     return labels[industry] || industry;

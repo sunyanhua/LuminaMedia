@@ -78,6 +78,12 @@ export class ContentDraft {
   })
   aiGeneratedContent: Record<string, any>;
 
+  @Column({ default: false })
+  isPreset: boolean;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  demoScenario?: string;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

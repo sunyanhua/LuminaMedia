@@ -7,6 +7,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -14,7 +15,11 @@ import {
   ApiResponse,
   ApiParam,
   ApiQuery,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { FeatureGuard } from '../../auth/guards/feature.guard';
+import { Feature } from '../../auth/decorators/feature.decorator';
 import { GovernmentContentService } from '../services/government-content.service';
 import { ComplianceCheckService } from '../services/compliance-check.service';
 import type {
@@ -36,7 +41,10 @@ import {
  * 提供政府场景内容生成、合规性检查和演示剧本管理功能
  */
 @ApiTags('政府内容管理')
+@ApiBearerAuth()
 @Controller('government')
+@UseGuards(JwtAuthGuard, FeatureGuard)
+@Feature('government-publish')
 export class GovernmentController {
   constructor(
     private readonly governmentContentService: GovernmentContentService,

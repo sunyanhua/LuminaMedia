@@ -9,6 +9,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -16,7 +17,11 @@ import {
   ApiResponse,
   ApiParam,
   ApiQuery,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { FeatureGuard } from '../../auth/guards/feature.guard';
+import { Feature } from '../../auth/decorators/feature.decorator';
 import { AccountCredentialService } from '../services/account-credential.service';
 import {
   AccountConnectionTestService,
@@ -33,7 +38,10 @@ import {
  * 提供社交媒体账号的配置、管理和测试功能
  */
 @ApiTags('账号管理')
+@ApiBearerAuth()
 @Controller('accounts')
+@UseGuards(JwtAuthGuard, FeatureGuard)
+@Feature('matrix-publish')
 export class AccountController {
   constructor(
     private readonly accountCredentialService: AccountCredentialService,

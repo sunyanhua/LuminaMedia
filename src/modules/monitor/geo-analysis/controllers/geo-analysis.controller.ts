@@ -1,17 +1,24 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiParam,
   ApiQuery,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { FeatureGuard } from '../../../auth/guards/feature.guard';
+import { Feature } from '../../../auth/decorators/feature.decorator';
 import { GeoAnalysisService } from '../services/geo-analysis.service';
 import { GeoAnalysisRequestDto } from '../dto/geo-analysis-request.dto';
 import { GeoAnalysisResponse } from '../interfaces/geo-analysis.interface';
 
 @ApiTags('GEO分析')
+@ApiBearerAuth()
 @Controller('geo-analysis')
+@UseGuards(JwtAuthGuard, FeatureGuard)
+@Feature('geo-analysis')
 export class GeoAnalysisController {
   constructor(private readonly geoAnalysisService: GeoAnalysisService) {}
 

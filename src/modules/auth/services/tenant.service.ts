@@ -5,16 +5,18 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Tenant, TenantStatus } from '../../../entities/tenant.entity';
+import { Tenant, TenantStatus, TenantType } from '../../../entities/tenant.entity';
 
 export interface CreateTenantDto {
   name: string;
   status?: TenantStatus;
+  tenantType?: TenantType;
 }
 
 export interface UpdateTenantDto {
   name?: string;
   status?: TenantStatus;
+  tenantType?: TenantType;
 }
 
 @Injectable()

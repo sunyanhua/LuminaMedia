@@ -6,6 +6,7 @@ import {
   Param,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -13,13 +14,20 @@ import {
   ApiResponse,
   ApiParam,
   ApiBody,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { FeatureGuard } from '../../auth/guards/feature.guard';
+import { Feature } from '../../auth/decorators/feature.decorator';
 import { CustomerAnalyticsService } from '../services/customer-analytics.service';
 import { CustomerSegment } from '../../../entities/customer-segment.entity';
 import { SegmentationRequestDto } from '../dto/segmentation-request.dto';
 
 @ApiTags('customer-data')
+@ApiBearerAuth()
 @Controller('api/v1/customer-data')
+@UseGuards(JwtAuthGuard, FeatureGuard)
+@Feature('customer-analytics')
 export class CustomerAnalyticsController {
   constructor(
     private readonly customerAnalyticsService: CustomerAnalyticsService,

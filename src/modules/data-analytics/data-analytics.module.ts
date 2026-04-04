@@ -6,6 +6,10 @@ import { MarketingStrategy } from './entities/marketing-strategy.entity';
 import { CustomerProfile } from '../../entities/customer-profile.entity';
 import { CustomerSegment } from '../../entities/customer-segment.entity';
 import { DataImportJob } from '../../entities/data-import-job.entity';
+import { ContentDraft } from '../../entities/content-draft.entity';
+import { GovernmentContent } from '../../entities/government-content.entity';
+import { SocialInteraction } from '../../entities/social-interaction.entity';
+import { Tenant } from '../../entities/tenant.entity';
 import { UserBehaviorRepository } from '../../shared/repositories/user-behavior.repository';
 import { MarketingCampaignRepository } from '../../shared/repositories/marketing-campaign.repository';
 import { MarketingStrategyRepository } from '../../shared/repositories/marketing-strategy.repository';
@@ -21,6 +25,7 @@ import { GeminiService } from './services/gemini.service';
 import { QwenService } from './services/qwen.service';
 import { ContentGenerationService } from './services/content-generation.service';
 import { DemoService } from './services/demo.service';
+import { DemoResetService } from './services/demo-reset.service';
 import { UserBehaviorController } from './controllers/user-behavior.controller';
 import { MarketingCampaignController } from './controllers/marketing-campaign.controller';
 import { MarketingStrategyController } from './controllers/marketing-strategy.controller';
@@ -40,6 +45,10 @@ import { AuthModule } from '../auth/auth.module';
       CustomerProfile,
       CustomerSegment,
       DataImportJob,
+      ContentDraft,
+      GovernmentContent,
+      SocialInteraction,
+      Tenant,
       UserBehaviorRepository,
       MarketingCampaignRepository,
       MarketingStrategyRepository,
@@ -68,6 +77,7 @@ import { AuthModule } from '../auth/auth.module';
     QwenService,
     ContentGenerationService,
     DemoService,
+    DemoResetService,
     TenantContextService,
   ],
   exports: [
@@ -78,6 +88,8 @@ import { AuthModule } from '../auth/auth.module';
     GeminiService,
     QwenService,
     ContentGenerationService,
+    DemoService,
+    DemoResetService,
   ],
 })
 export class DataAnalyticsModule {}

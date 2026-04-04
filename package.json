@@ -67,7 +67,8 @@
     "path-to-regexp": "^8.4.0",
     "picomatch": "^4.0.4",
     "ajv": "^8.18.0",
-    "ajv-keywords": "^3.5.2"
+    "ajv-keywords": "^3.5.2",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^2.1.4",

@@ -17,6 +17,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import type { MulterFile } from 'src/shared/types/multer-file.interface';
 import {
   ApiTags,
   ApiOperation,
@@ -360,7 +361,7 @@ export class KnowledgeDocumentController {
         ],
       }),
     )
-    file: Express.Multer.File,
+    file: MulterFile,
     @Body() importFileDto: ImportFileDto,
   ): Promise<KnowledgeDocument> {
     const fileInfo = {

@@ -14,6 +14,13 @@ export enum TenantStatus {
   PENDING = 'pending',
 }
 
+export enum TenantType {
+  BUSINESS = 'business',
+  GOVERNMENT = 'government',
+  DEMO_BUSINESS = 'demo_business',
+  DEMO_GOVERNMENT = 'demo_government',
+}
+
 @Entity('tenants')
 export class Tenant {
   @PrimaryGeneratedColumn('uuid')
@@ -21,6 +28,13 @@ export class Tenant {
 
   @Column({ length: 255 })
   name: string;
+
+  @Column({
+    type: 'enum',
+    enum: TenantType,
+    default: TenantType.BUSINESS,
+  })
+  tenantType: TenantType;
 
   @Column({
     type: 'enum',

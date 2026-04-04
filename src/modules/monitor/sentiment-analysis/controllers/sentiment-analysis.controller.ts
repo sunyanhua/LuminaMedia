@@ -6,6 +6,7 @@ import {
   Query,
   HttpStatus,
   HttpException,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -13,7 +14,11 @@ import {
   ApiResponse,
   ApiBody,
   ApiQuery,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { FeatureGuard } from '../../../auth/guards/feature.guard';
+import { Feature } from '../../../auth/decorators/feature.decorator';
 
 import { SentimentAnalysisService } from '../services/sentiment-analysis.service';
 import {
@@ -48,7 +53,10 @@ class AlertCheckRequestDto {
 }
 
 @ApiTags('sentiment-analysis')
+@ApiBearerAuth()
 @Controller('sentiment-analysis')
+@UseGuards(JwtAuthGuard, FeatureGuard)
+@Feature('sentiment-analysis')
 export class SentimentAnalysisController {
   constructor(private readonly sentimentService: SentimentAnalysisService) {}
 
