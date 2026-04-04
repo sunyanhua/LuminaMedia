@@ -1,0 +1,30 @@
+import { ConfigService } from '@nestjs/config';
+import { GeminiService } from '../../../../data-analytics/services/gemini.service';
+import { QwenService } from '../../../../data-analytics/services/qwen.service';
+import { CopywritingAgentInput, CopywritingAgentOutput } from '../interfaces/copywriting-agent.interface';
+export declare class CopywritingAgentService {
+    private readonly configService;
+    private readonly geminiService;
+    private readonly qwenService;
+    private readonly logger;
+    private readonly defaultAiEngine;
+    constructor(configService: ConfigService, geminiService: GeminiService, qwenService: QwenService);
+    execute(input: CopywritingAgentInput): Promise<CopywritingAgentOutput>;
+    private selectTemplate;
+    private determineContentType;
+    private buildCopywritingPrompt;
+    private extractIndustryContext;
+    private extractTargetAudience;
+    private generateCopywritingWithAI;
+    private parseCopywritingResponse;
+    private enrichWithBrandGuidelines;
+    private checkForbiddenWords;
+    private extractAllText;
+    private applyBrandTone;
+    private applyBrandColors;
+    private updateComplianceForBrand;
+    private addMetadata;
+    private calculateQualityScore;
+    private estimateEngagement;
+    private generateFallbackCopywriting;
+}

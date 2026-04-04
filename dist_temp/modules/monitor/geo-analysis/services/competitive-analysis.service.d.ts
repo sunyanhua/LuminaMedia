@@ -1,0 +1,38 @@
+import { GeoRegion } from '../entities/geo-region.entity';
+import { GeoAnalysisRequestDto } from '../dto/geo-analysis-request.dto';
+export declare class CompetitiveAnalysisService {
+    private readonly logger;
+    analyzeCompetition(regions: GeoRegion[], request: GeoAnalysisRequestDto): Promise<any>;
+    private calculateMarketSize;
+    private calculateMarketGrowth;
+    private identifyMarketTrends;
+    private identifyMarketDrivers;
+    private analyzeCompetitors;
+    private buildCompetitiveMatrix;
+    private calculateMarketShareDistribution;
+    private assessOurPosition;
+    private recommendPositioning;
+    private developPositioningStrategy;
+    private getYoungPopulationRatio;
+    private assessCulturalOpenness;
+    private estimateMarketShare;
+    private inferStrengths;
+    private inferWeaknesses;
+    private inferStrategies;
+    private assessThreatLevel;
+    private estimateCustomerSatisfaction;
+    private assessDigitalPresence;
+    private assessFinancialHealth;
+    private assessInnovationCapability;
+    private assessInnovationAdoption;
+    private assessBrandStrength;
+    private selectCompetitiveDimensions;
+    private scoreCompetitorOnDimension;
+    private scoreOurPositionOnDimension;
+    private determineShareTrend;
+    private identifyCompetitiveGaps;
+    private findCommonWeaknesses;
+    private identifyUnderservedSegments;
+    private recommendPricingStrategy;
+    private recommendDistributionChannels;
+}

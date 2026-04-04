@@ -1,0 +1,31 @@
+import { GeoRegion } from '../entities/geo-region.entity';
+import { GeoAnalysisRequestDto } from '../dto/geo-analysis-request.dto';
+export declare class SeoSuggestionService {
+    private readonly logger;
+    generateSuggestions(regions: GeoRegion[], request: GeoAnalysisRequestDto): Promise<any>;
+    private analyzeKeywordOpportunities;
+    private generateBaseKeywords;
+    private generateLongTailKeywords;
+    private generateQuestionKeywords;
+    private generateLocalizationSuggestions;
+    private recommendChannels;
+    private suggestTechnicalOptimizations;
+    private inferProductsServices;
+    private identifyRegionalNeeds;
+    private estimateSearchVolume;
+    private assessKeywordCompetition;
+    private calculateOpportunityScore;
+    private suggestKeywordActions;
+    private identifyCulturalElements;
+    private suggestLanguageAdaptations;
+    private suggestLocalReferences;
+    private suggestSeasonalContent;
+    private estimateEngagement;
+    private getYoungPopulationRatio;
+    private assessCostEffectiveness;
+    private suggestChannelActions;
+    private estimateEcommerceReach;
+    private deduplicateAndRankKeywords;
+    private deduplicateAndRankChannels;
+    private prioritizeTechnicalOptimizations;
+}

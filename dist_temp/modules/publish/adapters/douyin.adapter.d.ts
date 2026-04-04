@@ -1,0 +1,36 @@
+import type { PlatformConfig } from '../interfaces/platform-adapter.interface';
+import { PlatformAdapter, PlatformType, PublishContentInput, PublishResult, PublishStatus, PlatformHealthStatus, PlatformStats } from '../interfaces/platform-adapter.interface';
+export declare class DouyinAdapter implements PlatformAdapter {
+    private readonly logger;
+    private readonly http;
+    private credentials;
+    private config;
+    private accessToken;
+    private refreshToken;
+    private openId;
+    constructor(config: PlatformConfig);
+    getPlatformName(): string;
+    getPlatformType(): PlatformType;
+    initialize(): Promise<void>;
+    healthCheck(): Promise<PlatformHealthStatus>;
+    publishContent(content: PublishContentInput): Promise<PublishResult>;
+    getPublishStatus(publishId: string): Promise<PublishStatus>;
+    updateContent(publishId: string, content: Partial<PublishContentInput>): Promise<PublishResult>;
+    deleteContent(publishId: string): Promise<void>;
+    getPlatformStats(): Promise<PlatformStats>;
+    cleanup(): Promise<void>;
+    private verifyCredentials;
+    private refreshAccessToken;
+    private publishVideo;
+    private publishImages;
+    private formatDouyinText;
+    private downloadVideo;
+    private uploadVideo;
+    private uploadImage;
+    private downloadImage;
+    private getDouyinStatusMessage;
+    private getNextMidnight;
+    private delay;
+    getUserVideos(cursor?: number, count?: number): Promise<any>;
+    getUserFollowers(cursor?: number, count?: number): Promise<any>;
+}

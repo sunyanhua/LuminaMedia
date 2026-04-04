@@ -1,0 +1,48 @@
+import { ConfigService } from '@nestjs/config';
+import { AnalysisAgentService } from '../../analysis/services/analysis-agent.service';
+import { StrategyAgentService } from '../../strategy/services/strategy-agent.service';
+import { CopywritingAgentService } from '../../copywriting/services/copywriting-agent.service';
+import { KnowledgeRetrievalService } from '../../analysis/services/knowledge-retrieval.service';
+import { AgentWorkflowInput, AgentWorkflowOutput, WorkflowExecutionStatus, WorkflowStepStatus, WorkflowAuditLog } from '../interfaces/workflow-agent.interface';
+export declare class AgentWorkflowService {
+    private readonly configService;
+    private readonly analysisAgent;
+    private readonly strategyAgent;
+    private readonly copywritingAgent;
+    private readonly knowledgeRetrievalService;
+    private readonly logger;
+    private readonly defaultConfig;
+    private executionStates;
+    constructor(configService: ConfigService, analysisAgent: AnalysisAgentService, strategyAgent: StrategyAgentService, copywritingAgent: CopywritingAgentService, knowledgeRetrievalService: KnowledgeRetrievalService);
+    executeCampaignWorkflow(input: AgentWorkflowInput): Promise<AgentWorkflowOutput>;
+    getWorkflowStatus(executionId: string): {
+        status: WorkflowExecutionStatus;
+        steps: WorkflowStepStatus[];
+        logs: WorkflowAuditLog[];
+        startTime: Date;
+        endTime?: Date;
+        input?: AgentWorkflowInput;
+        output?: AgentWorkflowOutput;
+    } | null;
+    pauseWorkflow(executionId: string): boolean;
+    resumeWorkflow(executionId: string): boolean;
+    cancelWorkflow(executionId: string): boolean;
+    getAuditLogs(executionId: string): WorkflowAuditLog[];
+    cleanupOldExecutions(): void;
+    private mergeConfigFromEnvironment;
+    private generateExecutionId;
+    private initializeExecutionState;
+    private updateExecutionStatus;
+    private createStepStatus;
+    private updateStepStatus;
+    private addAuditLog;
+    private executeWithTimeout;
+    private handlePartialFailure;
+    private generateFallbackAnalysis;
+    private generateFallbackStrategy;
+    private generateFallbackCopywriting;
+    private getCurrentEvents;
+    private getHolidays;
+    private getDefaultPlatformSpecs;
+    private getDefaultBrandGuidelines;
+}
