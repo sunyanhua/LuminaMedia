@@ -4,8 +4,10 @@ import { Repository } from 'typeorm';
 import { GovernmentContent } from '../../../entities/government-content.entity';
 import { SocialInteraction } from '../../../entities/social-interaction.entity';
 import { CustomerProfile } from '../../../entities/customer-profile.entity';
-import { MarketingCampaign } from '../../../entities/marketing-campaign.entity';
-import { MarketingStrategy } from '../../../entities/marketing-strategy.entity';
+import { MarketingCampaign } from '../../data-analytics/entities/marketing-campaign.entity';
+import { MarketingStrategy } from '../../data-analytics/entities/marketing-strategy.entity';
+import { MarketingCampaignRepository } from '../../../shared/repositories/marketing-campaign.repository';
+import { MarketingStrategyRepository } from '../../../shared/repositories/marketing-strategy.repository';
 import { ContentDraft } from '../../../entities/content-draft.entity';
 import { CustomerType } from '../../../shared/enums/customer-type.enum';
 import { Industry } from '../../../shared/enums/industry.enum';
@@ -19,10 +21,10 @@ export class GovernmentDemoService {
     private socialInteractionRepository: Repository<SocialInteraction>,
     @InjectRepository(CustomerProfile)
     private customerProfileRepository: Repository<CustomerProfile>,
-    @InjectRepository(MarketingCampaign)
-    private marketingCampaignRepository: Repository<MarketingCampaign>,
-    @InjectRepository(MarketingStrategy)
-    private marketingStrategyRepository: Repository<MarketingStrategy>,
+    @InjectRepository(MarketingCampaignRepository)
+    private marketingCampaignRepository: MarketingCampaignRepository,
+    @InjectRepository(MarketingStrategyRepository)
+    private marketingStrategyRepository: MarketingStrategyRepository,
     @InjectRepository(ContentDraft)
     private contentDraftRepository: Repository<ContentDraft>,
   ) {}
@@ -70,10 +72,10 @@ export class GovernmentDemoService {
     });
 
     // 删除非预置的营销活动（在政务版中可能代表政策宣传活动）
-    await this.marketingCampaignRepository.delete({
-      tenantId,
-      isPreset: false,
+    const campaigns = await this.marketingCampaignRepository.find({
+      where: { tenantId, isPreset: false }
     });
+    await this.marketingCampaignRepository.remove(campaigns);
   }
 
   /**

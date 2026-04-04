@@ -18,9 +18,22 @@ try {
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // 启用全局验证管道
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,        // 移除未定义的属性
+      forbidNonWhitelisted: true, // 拒绝未定义的属性
+      transform: true,        // 自动转换类型
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    })
+  );
 
   // 设置全局前缀以匹配API规范
   app.setGlobalPrefix('api');
