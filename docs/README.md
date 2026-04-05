@@ -1,6 +1,6 @@
 # LuminaMedia 项目文档目录
 
-本文档目录包含 LuminaMedia 3.0 DEMO版 的所有项目文档，按功能分类组织。
+本文档目录包含 LuminaMedia 3.1 DEMO细节推进版 的所有项目文档，按功能分类组织。
 
 ## 文档索引
 
@@ -63,25 +63,31 @@
 - [data-collection-compliance.md](./compliance/data-collection-compliance.md) - 数据采集合规说明
 
 #### tasks/ - 实施任务清单（按版本组织）
-- [tasks/3.0-demo/](./tasks/3.0-demo/) - 3.0 DEMO版六阶段任务清单
+- [tasks/3.1-demo/](./tasks/3.1-demo/) - 3.1 DEMO细节推进版六阶段任务清单
+- [tasks/3.0-demo/](./tasks/3.0-demo/) - 3.0 DEMO版六阶段任务清单（已归档）
 - [tasks/archive/](./tasks/archive/) - 历史版本归档
 
-#### archive/deprecated/ - 归档文档（已过时）
+#### archive/ - 归档文档
+- [PROGRESS_3.0_Archive.md](./archive/PROGRESS_3.0_Archive.md) - 3.0 DEMO版完整实施历程归档
+
+#### archive/deprecated/ - 过时文档（已弃用）
 此目录包含已过时或已被取代的历史文档，仅供参考。
 
 ---
 
 ## 文档版本
 
-**当前版本**: v3.0 DEMO版 (2026-04-04)  
+**当前版本**: v3.1 DEMO细节推进版 (规划中)  
+**上一版本**: v3.0 DEMO版 (已归档)  
 **最后更新**: 2026-04-05  
-**状态**: 文档整理完成
+**状态**: 3.1任务清单已制定，等待执行
 
 ## 快速导航
 
 - **开发指南**: 参见 [../CLAUDE.md](../CLAUDE.md)
 - **项目进度**: 参见 [../PROGRESS.md](../PROGRESS.md)
-- **任务清单**: 参见 [./tasks/](./tasks/)（按版本分目录：3.0-demo/、archive/）
+- **任务清单**: 参见 [./tasks/](./tasks/)（按版本分目录：3.1-demo/、3.0-demo/、archive/）
+- **3.1实施规划**: 参见 [./archive/shiny-giggling-diffie.md](./archive/shiny-giggling-diffie.md)
 - **质检报告**: 参见 [../Audit_Report/](../Audit_Report/)
 - **文档管理规范**: 参见 [./Document_Management_Policy.md](./Document_Management_Policy.md)
 - **测试文件规范**: 参见 [./Test_File_Management_Policy.md](./Test_File_Management_Policy.md)

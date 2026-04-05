@@ -1,236 +1,107 @@
 # LuminaMedia 内容营销平台开发实施进度计划
 
-> ⚠️ **执行准则**：所有任务执行必须严格遵守 [CLAUDE.md](./CLAUDE.md) 中定义的《项目开发任务执行机制》。
+> **执行准则**：所有任务执行必须严格遵守 [CLAUDE.md](./CLAUDE.md) 中定义的《项目开发任务执行机制》。
 > 核心提醒：单步执行、物理闭环、严禁跨步。
 
+---
+
 ## 项目状态概览
-**当前版本**: v18.1 (3.0 DEMO版第四轮质检修复完成)
-**最后更新**: 2026-04-04 (3.0 DEMO版第四轮全量质检修复完成)
-**当前阶段**: 4.0版本规划准备
-**项目状态**: 🟢 **绿色** - 3.0 DEMO版第四轮质检修复完成，综合评分97分
+
+**当前版本**: v19.0 (3.1 DEMO细节推进版 规划中)  
+**上一版本**: v18.1 (3.0 DEMO版 已归档)  
+**当前阶段**: 3.1 DEMO细节推进版 - 任务清单已制定  
+**项目状态**: 🟡 **黄色** - 方案已确认，等待管家派发任务执行  
+**质量评分**: 97.0/100 (3.0 DEMO版第四轮质检)  
+
 **最新进展**:
-- ✅ **2026-04-04**: 3.0 DEMO版第四轮质检修复完成 - 解决GovernmentDemoService注入失败和SkyWalking-UI健康检查问题
-- ✅ **2026-04-04**: 3.0 DEMO版第四轮全量质检通过 - 解决模块循环依赖和容器问题，综合评分97/100
-- ✅ **2026-04-04**: 3.0 DEMO版第三轮质检修复完成 - 修复模块加载错误、依赖注入问题和SkyWalking-UI重启问题
-- ✅ **2026-04-04**: 3.0 DEMO版第二轮全量修复完成 - 解决模块循环依赖导致的启动问题
-- ✅ **2026-04-04**: 3.0 DEMO版第一轮质检修复完成 - TypeScript编译错误修复、安全验证管道添加
-
-## 已完成工作（关键里程碑）
-
-**前期主要工作**：
-- ✅ **2026-03-20**: AI智策中心GEMINI API集成完成，支持多Key轮询
-- ✅ **2026-03-21**: 前端重构实施计划制定，基于Bolt.new框架集成真实API
-- ✅ **2026-03-25**: API数据流问题诊断完成，JSON字段反序列化正常工作
-- ✅ **2026-03-26**: 2.0系统重构分析报告完成，全面评估架构状态
-- ✅ **2026-03-26**: 2.0重构方案根据补充要求调整完成，制定详细实施计划
-
-**核心成果**：
-- 当前系统已具备基础DEMO功能，支持数据导入、AI分析、营销方案生成
-- Gemini API集成稳定，支持多Key轮询绕过频率限制
-- 前后端联调完成，基本数据流正常
-- **2.0重构计划基础版本已全部完成**：四大核心模块（SmartDataEngine、AI Agent、矩阵分发、客户大脑）完整实现
-- **质量基线建立**：测试通过率100%，安全漏洞清零，综合评分98分
-- **运行环境稳定**：Docker容器稳定运行29小时+，核心服务正常
+- ✅ **2026-04-05**: 3.1 DEMO版实施规划方案确认完成，进入执行准备阶段
+- ✅ **2026-04-05**: 六阶段详细任务清单制定完成
+- ✅ **2026-04-05**: 3.0 DEMO版实施历程归档完成
 
 ---
 
-## 3.0 DEMO版开发工作计划
+## 3.0 DEMO版 成果总结（已归档）
 
-根据演示版升级方案，已制定详细的六阶段实施计划，每个阶段包含具体任务清单：
+**3.0 DEMO版已圆满完成**，六阶段工作全部完成并通过验收：
 
-### 第一阶段：数据库迁移 (预计2天) ✅ 已完成 (2026-04-04)
-**主要工作**: 执行数据库迁移脚本，创建功能配置系统和演示数据基础架构
-**任务清单**: [phase-1-database-migration.md](./docs/tasks/3.0-demo/phase-1-database-migration.md)
-**核心交付物**:
-- 功能配置表（feature_configs、tenant_feature_toggles）创建完成
-- 商务版演示租户（demo-business-001）初始化
-- 政务版演示租户（demo-government-001）初始化
-- 预置演示数据导入完成（商务版+政务版）
-- 相关表结构更新（is_preset、demo_scenario字段）
+| 阶段 | 状态 | 核心交付 |
+|------|------|----------|
+| 第一阶段：数据库迁移 | ✅ 已归档 | 功能配置系统表、演示租户初始化 |
+| 第二阶段：后端服务实现 | ✅ 已归档 | FeatureConfigService、配额限制系统 |
+| 第三阶段：功能开关集成 | ✅ 已归档 | 所有控制器功能开关、管理API |
+| 第四阶段：前端适配 | ✅ 已归档 | 登录页改造、演示环境标识组件 |
+| 第五阶段：测试和验证 | ✅ 已归档 | 功能开关测试、租户隔离测试 |
+| 第六阶段：部署和文档 | ✅ 已归档 | 演示环境部署、用户手册 |
 
-**最终状态**:
-- ✅ **2026-04-04**: 功能配置系统表创建完成，9条功能配置数据初始化成功
-- ✅ **2026-04-04**: 角色和权限表扩展完成，tenant_type字段修改为VARCHAR(50)
-- ✅ **2026-04-04**: 演示数据字段扩展完成，相关索引创建成功
-- ✅ **2026-04-04**: 商务版演示租户创建完成，账号和预置数据导入成功
-- ✅ **2026-04-04**: 政务版演示租户创建完成，账号和预置数据导入成功
-- ✅ **2026-04-04**: 数据库验证通过，脚本版本管理完成
-- ✅ **第一阶段正式验收通过**
+**详细实施历程**请参阅归档文档：[docs/archive/PROGRESS_3.0_Archive.md](./docs/archive/PROGRESS_3.0_Archive.md)
 
-### 第二阶段：后端服务实现 (预计4天) ✅ 已完成 (2026-04-04)
-**主要工作**: 实现功能配置系统、配额限制系统、演示数据管理服务
-**任务清单**: [phase-2-backend-services.md](./docs/tasks/3.0-demo/phase-2-backend-services.md)
-**核心交付物**:
-- FeatureConfigService（功能配置服务）
-- TenantFeatureService（租户功能服务）
-- FeatureGuard（功能开关Guard）
-- QuotaCheckMiddleware（配额检查中间件）
-- DemoResetService（演示数据重置服务）
-- GovernmentDemoService（政务版演示服务）
-- 扩展Industry枚举以支持新行业类型
-
-**最终状态**:
-- ✅ **2026-04-04**: 功能配置实体和服务创建完成
-- ✅ **2026-04-04**: 功能开关Guard实现完成
-- ✅ **2026-04-04**: 配额限制系统实现完成
-- ✅ **2026-04-04**: 演示数据重置服务实现完成
-- ✅ **2026-04-04**: 政务版演示服务实现完成
-- ✅ **2026-04-04**: 商务版演示服务完善完成
-- ✅ **2026-04-04**: 角色和权限系统扩展完成（Industry枚举扩展）
-- ✅ **2026-04-04**: 服务单元测试和集成测试通过，项目构建成功
-- ✅ **第二阶段正式验收通过**
-
-### 第三阶段：功能开关集成 (预计3天) ✅ 已完成 (2026-04-04)
-**主要工作**: 在所有控制器集成功能开关，添加功能配置管理API
-**任务清单**: [phase-3-feature-integration.md](./docs/tasks/3.0-demo/phase-3-feature-integration.md)
-**核心交付物**:
-- 所有控制器集成@Feature()装饰器
-- 功能配置管理API（增删改查）
-- 配额查询和重置API
-- 演示数据管理API
-
-**最终状态**:
-- ✅ **2026-04-04**: 所有控制器功能开关集成完成
-- ✅ **2026-04-04**: 功能配置管理API开发完成
-- ✅ **2026-04-04**: 配额管理API开发完成
-- ✅ **2026-04-04**: 演示数据管理API开发完成
-- ✅ **2026-04-04**: 功能开关系统全面测试通过
-- ✅ **第三阶段正式验收通过**
-
-### 第四阶段：前端适配 (预计3天) ✅ 已完成 (2026-04-04)
-**主要工作**: 改造登录页，添加演示环境标识和配额显示
-**任务清单**: [phase-4-frontend-adaptation.md](./docs/tasks/3.0-demo/phase-4-frontend-adaptation.md)
-**核心交付物**:
-- 登录页改造完成（商务版/政务版入口）
-- 演示环境标识（蓝色横幅）
-- 配额显示组件
-- 重置演示按钮
-- 功能配置管理界面
-
-**最终状态**:
-- ✅ **2026-04-04**: 登录页改造完成，商务版/政务版入口实现
-- ✅ **2026-04-04**: 演示环境标识横幅组件开发完成
-- ✅ **2026-04-04**: 配额显示组件开发完成
-- ✅ **2026-04-04**: 重置演示按钮组件开发完成
-- ✅ **2026-04-04**: 功能配置管理界面开发完成
-- ✅ **2026-04-04**: 前端组件均遵循Bolt设计规范
-- ✅ **第四阶段正式验收通过**
-
-### 第五阶段：测试和验证 (预计2天) ✅ 已完成 (2026-04-04)
-**主要工作**: 全面测试功能开关、租户隔离、配额限制等核心功能
-**任务清单**: [phase-5-testing-validation.md](./docs/tasks/3.0-demo/phase-5-testing-validation.md)
-**核心交付物**:
-- 功能开关测试通过
-- 租户隔离测试通过
-- 配额限制测试通过
-- 商务版完整流程测试通过
-- 政务版完整流程测试通过
-- 性能和安全测试通过
-
-**最终状态**:
-- ✅ **2026-04-04**: 功能开关测试100%通过
-- ✅ **2026-04-04**: 租户隔离测试100%通过
-- ✅ **2026-04-04**: 配额限制测试100%通过
-- ✅ **2026-04-04**: 商务版完整流程测试通过
-- ✅ **2026-04-04**: 政务版完整流程测试通过
-- ✅ **2026-04-04**: 性能和安全测试通过
-- ✅ **2026-04-04**: 用户体验测试通过
-- ✅ **第五阶段正式验收通过**
-
-### 第六阶段：部署和文档 (预计1-2天) ✅ 已完成 (2026-04-04)
-**主要工作**: 部署到演示环境，编写用户手册和管理员配置手册
-**任务清单**: [phase-6-deployment-documentation.md](./docs/tasks/3.0-demo/phase-6-deployment-documentation.md)
-**核心交付物**:
-- 演示环境部署完成
-- 用户操作手册
-- 管理员配置手册
-- 演示视频
-- 演示环境访问说明
-
-**最终状态**:
-- ✅ **2026-04-04**: 演示环境服务器配置完成
-- ✅ **2026-04-04**: 后端服务部署成功
-- ✅ **2026-04-04**: 前端服务部署成功
-- ✅ **2026-04-04**: 数据库初始化完成
-- ✅ **2026-04-04**: Nginx反向代理配置完成
-- ✅ **2026-04-04**: SSL证书配置完成
-- ✅ **2026-04-04**: 服务健康检查通过
-- ✅ **2026-04-04**: 用户操作手册编写完成
-- ✅ **2026-04-04**: 管理员配置手册编写完成
-- ✅ **2026-04-04**: 演示视频录制完成（体现Bolt设计风格）
-- ✅ **2026-04-04**: 演示环境访问说明编写完成
-- ✅ **2026-04-04**: 部署验收报告编写完成
-- ✅ **2026-04-04**: 项目总结报告编写完成
-- ✅ **第六阶段正式验收通过**
+**核心成就**:
+- ✅ 功能配置系统、配额限制系统、演示数据管理系统完整实现
+- ✅ 质量基线建立（测试通过率100%，综合评分97分）
+- ✅ 文档体系完善（用户手册、管理员手册、部署文档齐全）
 
 ---
 
-## 3.0 DEMO版完整实施完成总结 (2026-04-04)
+## 3.1 DEMO细节推进版 规划（已确认）
 
-### 完成状态
-**3.0 DEMO版全部六阶段工作已全部完成**：
-1. ✅ **第一阶段（数据库迁移）**：功能配置系统、演示租户、演示数据字段全部完成
-2. ✅ **第二阶段（后端服务实现）**：功能配置系统、配额限制系统、演示数据管理系统全部实现
-3. ✅ **第三阶段（功能开关集成）**：所有控制器功能开关集成、功能配置管理API、配额管理API、演示数据管理API全部实现
-4. ✅ **第四阶段（前端适配）**：登录页改造、演示环境标识、配额显示组件、重置演示按钮、功能配置管理界面全部完成
-5. ✅ **第五阶段（测试和验证）**：功能开关、租户隔离、配额限制、业务流程、性能安全、用户体验测试全部通过
-6. ✅ **第六阶段（部署和文档）**：演示环境部署、用户手册、管理员手册、演示视频、访问说明全部完成
-7. ✅ **多轮全量修复**：解决TypeScript编译错误、安全漏洞、模块路径问题、数据库表结构问题、模块加载错误、依赖注入问题、循环依赖问题
+### 版本目标
+**打造可向政务客户正式演示的完整版本，聚焦微信公众号运营场景**
 
-### 核心成就
-- ✅ **功能配置系统完整**：FeatureConfigService、TenantFeatureService、FeatureGuard、@Feature()装饰器全部实现
-- ✅ **配额限制系统完整**：QuotaService、QuotaCheckMiddleware实现，支持API层配额拦截
-- ✅ **演示数据管理系统完整**：DemoResetService、GovernmentDemoService、DemoService全部实现
-- ✅ **数据库架构完善**：功能配置表、租户功能开关表、演示数据字段全部就绪
-- ✅ **演示租户和账号就绪**：商务版和政务版演示租户、账号、预置数据全部创建完成
-- ✅ **前端组件系统完整**：DemoBanner、QuotaDisplay、DemoResetButton等组件按Bolt设计规范实现
-- ✅ **管理界面完善**：功能配置管理、配额管理等管理后台界面全部完成
-- ✅ **文档体系完备**：用户手册、管理员手册、部署文档、API文档全部完成
-- ✅ **代码质量达标**：项目构建成功，单元测试通过，集成测试通过
+**核心特性**：
+1. **租户-用户两层架构** - 一个租户下多个用户，不同审核权限
+2. **智慧档案** - 知识库管理 + 单位画像生成
+3. **参考信息** - 每日自动抓取政策资讯，支持一键采用
+4. **公众号管理** - 微信公众号绑定、内容发布四步流程、一键发布
+5. **三审三校** - 完整审核流程，支持用户切换体验
+6. **舆情监测** - 实时舆情数据监测和分析
+7. **一键报告** - 智能报告 + 自定义报告（支持Word导出和PPT大纲）
 
-### 当前状态
-- **系统状态**: ✅ 稳定运行，核心功能完整，模块加载正常
-- **质量状态**: ✅ 项目构建通过，无TypeScript编译错误，无严重安全漏洞
-- **六阶段验收**: ✅ 所有阶段正式验收通过
-- **质检修复**: ✅ 完成三轮全量质检修复，模块依赖问题已解决
-- **阶段文档**: 
-  - ✅ [phase-1-database-migration.md](./docs/tasks/3.0-demo/phase-1-database-migration.md) - 第一阶段任务完成
-  - ✅ [phase-2-backend-services.md](./docs/tasks/3.0-demo/phase-2-backend-services.md) - 第二阶段任务完成
-  - ✅ [phase-3-feature-integration.md](./docs/tasks/3.0-demo/phase-3-feature-integration.md) - 第三阶段任务完成
-  - ✅ [phase-4-frontend-adaptation.md](./docs/tasks/3.0-demo/phase-4-frontend-adaptation.md) - 第四阶段任务完成
-  - ✅ [phase-5-testing-validation.md](./docs/tasks/3.0-demo/phase-5-testing-validation.md) - 第五阶段任务完成
-  - ✅ [phase-6-deployment-documentation.md](./docs/tasks/3.0-demo/phase-6-deployment-documentation.md) - 第六阶段任务完成
-- **核心文档**:
-  - ✅ [Demonstration_Upgrade_Summary.md](./docs/Demonstration_Upgrade_Summary.md) - 完整实施方案（含环境架构、功能配置、演示数据）
-  - ✅ [Feature_Config_Detail_Plan.md](./docs/Feature_Config_Detail_Plan.md) - 功能配置细化方案
-  - ✅ [Demo_Data_Preparation_Plan.md](./docs/Demo_Data_Preparation_Plan.md) - 演示数据准备方案
-  - ✅ [User_Manual.md](./docs/User_Manual.md) - 用户操作手册
-  - ✅ [Admin_Manual.md](./docs/Admin_Manual.md) - 管理员配置手册
-  - ✅ [Project_Completion_Report.md](./docs/Project_Completion_Report.md) - 项目完成报告
-  - ✅ [Project_Summary_Report.md](./docs/Project_Summary_Report.md) - 项目总结报告
-  - ✅ [Design_Style_Acceptance_Report.md](./docs/Design_Style_Acceptance_Report.md) - 设计风格验收报告
-  - ✅ [docs/README.md](./docs/README.md) - 文档目录索引
+### 实施计划
 
-### 验收结论
-**LuminaMedia 3.0 DEMO版项目正式验收通过**，具备完整的前后端系统、功能配置系统、配额限制系统、演示数据管理系统，以及完善的文档体系，项目圆满完成。
+| 阶段 | 任务清单 | 目标 | 周期 | 状态 |
+|------|----------|------|------|------|
+| Phase 1 | [phase-1-user-system.md](./docs/tasks/3.1-demo/phase-1-user-system.md) | 租户-用户体系与权限 | 3天 | ⏳ 待执行 |
+| Phase 2 | [phase-2-smart-archive.md](./docs/tasks/3.1-demo/phase-2-smart-archive.md) | 智慧档案 + 参考信息 | 5天 | ⏳ 待执行 |
+| Phase 3 | [phase-3-wechat-mp.md](./docs/tasks/3.1-demo/phase-3-wechat-mp.md) | 公众号管理核心 | 8天 | ⏳ 待执行 |
+| Phase 4 | [phase-4-review-publish.md](./docs/tasks/3.1-demo/phase-4-review-publish.md) | 三审三校 + 一键发布 | 4天 | ⏳ 待执行 |
+| Phase 5 | [phase-5-sentiment-report.md](./docs/tasks/3.1-demo/phase-5-sentiment-report.md) | 舆情监测 + 一键报告 | 4天 | ⏳ 待执行 |
+| Phase 6 | [phase-6-demo-prep.md](./docs/tasks/3.1-demo/phase-6-demo-prep.md) | 演示准备 | 3天 | ⏳ 待执行 |
 
-**3.0 DEMO版第四轮全量质检修复总结 (2026-04-04)**：
-- ✅ **完成状态**：第四轮质检发现的所有核心问题已全部修复
-- ✅ **关键修复**：
-  - GovernmentDemoService注入失败修复：修复GovernmentModule.exports配置，确保GovernmentDemoService正确导出
-  - MarketingCampaignRepository和MarketingStrategyRepository导出：添加共享Repository到exports中
-  - SkyWalking-UI健康检查配置移除：移除导致NullPointerException的healthcheck配置，容器稳定运行
-- ✅ **系统状态**：应用正常运行，模块加载正常，核心功能完整，SkyWalking监控系统正常工作
-- ✅ **质量状态**：项目构建通过，无严重安全漏洞，综合评分97/100
+**预计总周期**: 27工作日
 
-**3.0 DEMO版第三轮全量质检修复总结 (2026-04-04)**：
-- ✅ **完成状态**：第三轮质检发现的所有核心问题已全部修复
-- ✅ **关键修复**：
-  - 模块加载错误修复：重建Docker镜像解决模块路径问题
-  - 依赖注入问题修复：SentimentAnalysisModule、PublishModule、GeoAnalysisModule、CustomerDataModule添加AuthModule导入
-  - 循环依赖问题修复：重构GovernmentModule，消除与DataAnalyticsModule的循环依赖
-  - SkyWalking-UI重启问题修复：添加健康检查配置，确保服务稳定运行
-- ✅ **系统状态**：应用正常运行，模块加载正常，核心功能完整
-- ✅ **质量状态**：项目构建通过，无严重安全漏洞
+### 政务版DEMO演示账号
 
+| 用户账号 | 角色 | 权限 |
+|----------|------|------|
+| editor@demo-gov | 编辑 | 创建内容、编辑初审 |
+| manager@demo-gov | 主管 | 主管复审 |
+| legal@demo-gov | 法务 | 法务终审 |
+| admin@demo-gov | 管理员 | 全部权限 |
 
+---
+
+## 文档索引
+
+### 当前版本文档 (3.1)
+- [docs/tasks/3.1-demo/README.md](./docs/tasks/3.1-demo/README.md) - 3.1版本任务清单索引
+- [docs/tasks/3.1-demo/phase-1-user-system.md](./docs/tasks/3.1-demo/phase-1-user-system.md) - Phase 1: 用户体系
+- [docs/tasks/3.1-demo/phase-2-smart-archive.md](./docs/tasks/3.1-demo/phase-2-smart-archive.md) - Phase 2: 智慧档案
+- [docs/tasks/3.1-demo/phase-3-wechat-mp.md](./docs/tasks/3.1-demo/phase-3-wechat-mp.md) - Phase 3: 公众号管理
+- [docs/tasks/3.1-demo/phase-4-review-publish.md](./docs/tasks/3.1-demo/phase-4-review-publish.md) - Phase 4: 三审三校
+- [docs/tasks/3.1-demo/phase-5-sentiment-report.md](./docs/tasks/3.1-demo/phase-5-sentiment-report.md) - Phase 5: 舆情监测
+- [docs/tasks/3.1-demo/phase-6-demo-prep.md](./docs/tasks/3.1-demo/phase-6-demo-prep.md) - Phase 6: 演示准备
+
+### 历史版本文档
+- [docs/archive/PROGRESS_3.0_Archive.md](./docs/archive/PROGRESS_3.0_Archive.md) - 3.0 DEMO版完整实施历程
+- [docs/tasks/3.0-demo/](./docs/tasks/3.0-demo/) - 3.0 DEMO版六阶段任务清单
+
+### 管理制度文档
+- [CLAUDE.md](./CLAUDE.md) - 项目开发任务执行机制
+- [docs/Document_Management_Policy.md](./docs/Document_Management_Policy.md) - 文档管理制度
+- [docs/Test_File_Management_Policy.md](./docs/Test_File_Management_Policy.md) - 测试文件管理制度
+
+---
+
+**文档版本**: v19.0  
+**最后更新**: 2026-04-05  
+**状态**: 3.1方案已确认，任务清单已制定，等待执行
