@@ -45,7 +45,10 @@
       "Read(//tmp/**)",
       "Bash(docker-compose rm:*)",
       "Bash(docker-compose restart:*)",
-      "Bash(xargs cat:*)"
+      "Bash(xargs cat:*)",
+      "Bash(python -m json.tool)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'状态: {d[\\\\\"status\\\\\"]}\\\\\\\\n时间: {d[\\\\\"timestamp\\\\\"]}'\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('Health Status:', d['status']\\)\")"
     ]
   }
 }

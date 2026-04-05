@@ -1,4 +1,7 @@
-# LuminaMedia 3.0 内容营销平台DEMO版开发实施进度计划
+# LuminaMedia 内容营销平台开发实施进度计划
+
+> ⚠️ **执行准则**：所有任务执行必须严格遵守 [CLAUDE.md](./CLAUDE.md) 中定义的《项目开发任务执行机制》。
+> 核心提醒：单步执行、物理闭环、严禁跨步。
 
 ## 项目状态概览
 **当前版本**: v18.1 (3.0 DEMO版第四轮质检修复完成)
@@ -37,7 +40,7 @@
 
 ### 第一阶段：数据库迁移 (预计2天) ✅ 已完成 (2026-04-04)
 **主要工作**: 执行数据库迁移脚本，创建功能配置系统和演示数据基础架构
-**任务清单**: [phase-1-database-migration.md](./tasks/phase-1-database-migration.md)
+**任务清单**: [phase-1-database-migration.md](./docs/tasks/3.0-demo/phase-1-database-migration.md)
 **核心交付物**:
 - 功能配置表（feature_configs、tenant_feature_toggles）创建完成
 - 商务版演示租户（demo-business-001）初始化
@@ -56,7 +59,7 @@
 
 ### 第二阶段：后端服务实现 (预计4天) ✅ 已完成 (2026-04-04)
 **主要工作**: 实现功能配置系统、配额限制系统、演示数据管理服务
-**任务清单**: [phase-2-backend-services.md](./tasks/phase-2-backend-services.md)
+**任务清单**: [phase-2-backend-services.md](./docs/tasks/3.0-demo/phase-2-backend-services.md)
 **核心交付物**:
 - FeatureConfigService（功能配置服务）
 - TenantFeatureService（租户功能服务）
@@ -79,7 +82,7 @@
 
 ### 第三阶段：功能开关集成 (预计3天) ✅ 已完成 (2026-04-04)
 **主要工作**: 在所有控制器集成功能开关，添加功能配置管理API
-**任务清单**: [phase-3-feature-integration.md](./tasks/phase-3-feature-integration.md)
+**任务清单**: [phase-3-feature-integration.md](./docs/tasks/3.0-demo/phase-3-feature-integration.md)
 **核心交付物**:
 - 所有控制器集成@Feature()装饰器
 - 功能配置管理API（增删改查）
@@ -96,7 +99,7 @@
 
 ### 第四阶段：前端适配 (预计3天) ✅ 已完成 (2026-04-04)
 **主要工作**: 改造登录页，添加演示环境标识和配额显示
-**任务清单**: [phase-4-frontend-adaptation.md](./tasks/phase-4-frontend-adaptation.md)
+**任务清单**: [phase-4-frontend-adaptation.md](./docs/tasks/3.0-demo/phase-4-frontend-adaptation.md)
 **核心交付物**:
 - 登录页改造完成（商务版/政务版入口）
 - 演示环境标识（蓝色横幅）
@@ -115,7 +118,7 @@
 
 ### 第五阶段：测试和验证 (预计2天) ✅ 已完成 (2026-04-04)
 **主要工作**: 全面测试功能开关、租户隔离、配额限制等核心功能
-**任务清单**: [phase-5-testing-validation.md](./tasks/phase-5-testing-validation.md)
+**任务清单**: [phase-5-testing-validation.md](./docs/tasks/3.0-demo/phase-5-testing-validation.md)
 **核心交付物**:
 - 功能开关测试通过
 - 租户隔离测试通过
@@ -136,7 +139,7 @@
 
 ### 第六阶段：部署和文档 (预计1-2天) ✅ 已完成 (2026-04-04)
 **主要工作**: 部署到演示环境，编写用户手册和管理员配置手册
-**任务清单**: [phase-6-deployment-documentation.md](./tasks/phase-6-deployment-documentation.md)
+**任务清单**: [phase-6-deployment-documentation.md](./docs/tasks/3.0-demo/phase-6-deployment-documentation.md)
 **核心交付物**:
 - 演示环境部署完成
 - 用户操作手册
@@ -191,24 +194,22 @@
 - **六阶段验收**: ✅ 所有阶段正式验收通过
 - **质检修复**: ✅ 完成三轮全量质检修复，模块依赖问题已解决
 - **阶段文档**: 
-  - ✅ [phase-1-database-migration.md](./tasks/phase-1-database-migration.md) - 第一阶段任务完成
-  - ✅ [phase-2-backend-services.md](./tasks/phase-2-backend-services.md) - 第二阶段任务完成
-  - ✅ [phase-3-feature-integration.md](./tasks/phase-3-feature-integration.md) - 第三阶段任务完成
-  - ✅ [phase-4-frontend-adaptation.md](./tasks/phase-4-frontend-adaptation.md) - 第四阶段任务完成
-  - ✅ [phase-5-testing-validation.md](./tasks/phase-5-testing-validation.md) - 第五阶段任务完成
-  - ✅ [phase-6-deployment-documentation.md](./tasks/phase-6-deployment-documentation.md) - 第六阶段任务完成
-- **核心文档**: 
-  - ✅ [Demonstration_Upgrade_Summary.md](./docs/Demonstration_Upgrade_Summary.md) - 完整实施方案
-  - ✅ [Demonstration_Upgrade_Plan.md](./docs/Demonstration_Upgrade_Plan.md) - 环境架构设计
-  - ✅ [Feature_Config_Detail_Plan.md](./docs/Feature_Config_Detail_Plan.md) - 功能配置细化
-  - ✅ [Demo_Data_Preparation_Plan.md](./docs/Demo_Data_Preparation_Plan.md) - 演示数据准备
+  - ✅ [phase-1-database-migration.md](./docs/tasks/3.0-demo/phase-1-database-migration.md) - 第一阶段任务完成
+  - ✅ [phase-2-backend-services.md](./docs/tasks/3.0-demo/phase-2-backend-services.md) - 第二阶段任务完成
+  - ✅ [phase-3-feature-integration.md](./docs/tasks/3.0-demo/phase-3-feature-integration.md) - 第三阶段任务完成
+  - ✅ [phase-4-frontend-adaptation.md](./docs/tasks/3.0-demo/phase-4-frontend-adaptation.md) - 第四阶段任务完成
+  - ✅ [phase-5-testing-validation.md](./docs/tasks/3.0-demo/phase-5-testing-validation.md) - 第五阶段任务完成
+  - ✅ [phase-6-deployment-documentation.md](./docs/tasks/3.0-demo/phase-6-deployment-documentation.md) - 第六阶段任务完成
+- **核心文档**:
+  - ✅ [Demonstration_Upgrade_Summary.md](./docs/Demonstration_Upgrade_Summary.md) - 完整实施方案（含环境架构、功能配置、演示数据）
+  - ✅ [Feature_Config_Detail_Plan.md](./docs/Feature_Config_Detail_Plan.md) - 功能配置细化方案
+  - ✅ [Demo_Data_Preparation_Plan.md](./docs/Demo_Data_Preparation_Plan.md) - 演示数据准备方案
   - ✅ [User_Manual.md](./docs/User_Manual.md) - 用户操作手册
   - ✅ [Admin_Manual.md](./docs/Admin_Manual.md) - 管理员配置手册
   - ✅ [Project_Completion_Report.md](./docs/Project_Completion_Report.md) - 项目完成报告
   - ✅ [Project_Summary_Report.md](./docs/Project_Summary_Report.md) - 项目总结报告
   - ✅ [Design_Style_Acceptance_Report.md](./docs/Design_Style_Acceptance_Report.md) - 设计风格验收报告
-  - ✅ [修复报告第3轮](./Audit_Report/修复报告第3轮.md) - 第三轮修复报告
-  - ✅ [Audit_20260404_全量质检第3轮.md](./Audit_Report/Audit_20260404_全量质检第3轮.md) - 第三轮质检报告
+  - ✅ [docs/README.md](./docs/README.md) - 文档目录索引
 
 ### 验收结论
 **LuminaMedia 3.0 DEMO版项目正式验收通过**，具备完整的前后端系统、功能配置系统、配额限制系统、演示数据管理系统，以及完善的文档体系，项目圆满完成。
@@ -232,41 +233,4 @@
 - ✅ **系统状态**：应用正常运行，模块加载正常，核心功能完整
 - ✅ **质量状态**：项目构建通过，无严重安全漏洞
 
----
 
-## 实施说明
-
-**文件结构**：
-- `tasks/phase-1-database-migration.md` - 第一阶段详细任务清单（已完成）
-- `tasks/phase-2-backend-services.md` - 第二阶段详细任务清单（已完成）
-- `tasks/phase-3-feature-integration.md` - 第三阶段详细任务清单（已完成）
-- `tasks/phase-4-frontend-adaptation.md` - 第四阶段详细任务清单（已完成）
-- `tasks/phase-5-testing-validation.md` - 第五阶段详细任务清单（已完成）
-- `tasks/phase-6-deployment-documentation.md` - 第六阶段详细任务清单（已完成）
-
-**管家执行规范**：
-1. **任务派送流程**：
-   - 管家根据本文件中的3.0 DEMO版开发工作计划，按阶段顺序调用CC执行具体任务
-   - CC收到任务后，需首先读取对应阶段的任务清单文件（`tasks/phase-*.md`），明确具体任务要求
-
-2. **任务执行和状态更新**：
-   - 每完成一个任务，必须在对应的任务清单文件中标注"✅ 已完成"状态及完成时间戳
-   - 任务状态更新格式：`- ✅ **YYYY-MM-DD**: 任务描述（实际完成时间）`
-   - 大阶段（里程碑）完成后，需在本文件中标注"✅ 已完成"状态及完成时间
-
-3. **进度文档更新规范**：
-   - 本文件的更新仅限于以下情况：
-     1. **状态概览更新**：项目状态、当前阶段、最新进展
-     2. **各阶段完成状态更新**：阶段完成后标记完成状态
-     3. **执行过程中出现的重大问题或调整**：需要记录的重大变更
-   - **禁止**在本文件中记录日常任务完成细节，这些细节应保留在任务清单文件中
-
-4. **单步执行原则**：
-   - 每个进程只处理一个Step（任务）
-   - 完成指定Step后的第一动作是更新进度文档（任务清单文件），第二动作是立即终止会话
-   - 严禁跨步执行多个任务
-
-5. **文档优先原则**：
-   - 任务清单文件是任务执行的唯一依据
-   - 任务分解程度确保管家安排实施时无误解疑义
-   - 保持文档与代码同步，文档状态反映实际进度

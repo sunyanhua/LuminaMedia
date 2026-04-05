@@ -10,7 +10,7 @@
 
 本次讨论已输出以下四个完整文档：
 
-### 1. [Demonstration_Upgrade_Plan.md](./Demonstration_Upgrade_Plan.md)
+### 1. [Demonstration_Upgrade_Summary.md](./Demonstration_Upgrade_Summary.md) - 完整实施方案
 **主要内容**：
 - 环境架构设计（租户隔离、配额限制）
 - 商务版/政务版功能差异化设计

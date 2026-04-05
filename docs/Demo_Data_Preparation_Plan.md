@@ -781,5 +781,5 @@ async resetDemoData(tenantId: string): Promise<{ deleted: number }> {
 **更新日期**: 2026-04-04  
 **作者**: LuminaMedia AI Team  
 **关联文档**: 
-- [Demonstration_Upgrade_Plan.md](./Demonstration_Upgrade_Plan.md)
+- [Demonstration_Upgrade_Summary.md](./Demonstration_Upgrade_Summary.md) - 演示版升级完整方案
 - [Feature_Config_Detail_Plan.md](./Feature_Config_Detail_Plan.md)

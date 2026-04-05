@@ -17,7 +17,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import type { MulterFile } from 'src/shared/types/multer-file.interface';
+import type { MulterFile } from '../../../shared/types/multer-file.interface';
 import {
   ApiTags,
   ApiOperation,
