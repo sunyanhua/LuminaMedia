@@ -2,12 +2,13 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { useLogin, useLogout } from '@/store/useAppStore';
+import env from '@/config/env';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signIn: (email: string, password: string, tenantType?: 'business' | 'government') => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
@@ -22,11 +23,17 @@ const DEMO_ACCOUNTS = {
     { email: 'analyst@demo.lumina.com', password: 'demo123', name: '数据分析师' },
   ],
   government: [
-    { email: 'gov-admin', password: 'gov123', name: '系统管理员' },
-    { email: 'propaganda-director', password: 'gov123', name: '宣传处长' },
-    { email: 'content-editor', password: 'gov123', name: '内容编辑' },
-    { email: 'security-reviewer', password: 'gov123', name: '安全审核员' },
+    { email: 'admin@demo-gov', password: 'LuminaDemo2026', name: '系统管理员' },
+    { email: 'editor@demo-gov', password: 'LuminaDemo2026', name: '编辑' },
+    { email: 'manager@demo-gov', password: 'LuminaDemo2026', name: '主管' },
+    { email: 'legal@demo-gov', password: 'LuminaDemo2026', name: '法务' },
   ],
+};
+
+// 租户ID映射
+const TENANT_IDS = {
+  business: '11111111-1111-1111-1111-111111111111', // 商务版演示租户
+  government: '33333333-3333-3333-3333-333333333333', // 政务版演示租户
 };
 
 // 查找演示账号
@@ -56,7 +63,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const mockUser: User = {
             id: userInfo.email,
             email: userInfo.email,
-            user_metadata: { name: userInfo.name },
+            user_metadata: {
+              name: userInfo.name,
+              roles: userInfo.roles || []
+            },
             app_metadata: {},
             aud: 'authenticated',
             created_at: new Date().toISOString(),
@@ -86,17 +96,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, tenantType: 'business' | 'government' = 'business') => {
     try {
-      // 先尝试使用演示账号登录
-      const demoAccount = findDemoAccount(email, password);
-      
-      if (demoAccount) {
-        // 演示账号登录成功
+      const tenantId = TENANT_IDS[tenantType];
+
+      // 调用后端登录API
+      const response = await fetch(`${env.apiBaseUrl}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-tenant-id': tenantId,
+        },
+        body: JSON.stringify({
+          username: email,
+          password,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        // 创建模拟用户对象（兼容现有代码）
         const mockUser: User = {
-          id: demoAccount.email,
-          email: demoAccount.email,
-          user_metadata: { name: demoAccount.name },
+          id: data.user?.id || email,
+          email: data.user?.email || email,
+          user_metadata: {
+            name: data.user?.username || email,
+            roles: data.user?.roles || []
+          },
           app_metadata: {},
           aud: 'authenticated',
           created_at: new Date().toISOString(),
@@ -105,7 +132,93 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } as User;
 
         setUser(mockUser);
-        
+
+        // 同步到 store
+        storeLogin({
+          name: data.user?.username || email,
+          email: data.user?.email || email,
+        });
+
+        // 存储token和用户信息到localStorage
+        localStorage.setItem('lumina-auth', 'true');
+        localStorage.setItem('lumina-user', JSON.stringify({
+          name: data.user?.username || email,
+          email: data.user?.email || email,
+          tenantId: data.user?.tenantId || tenantId,
+          tenantType: tenantType, // 存储租户类型
+          roles: data.user?.roles || []
+        }));
+        // 同时存储到store的demoVersion字段
+        localStorage.setItem('lumina-demo-version', tenantType);
+
+        // 存储token用于后续API调用
+        localStorage.setItem('lumina-token', data.access_token);
+
+        return { error: null };
+      } else {
+        // 如果后端登录失败，尝试使用演示账号作为回退
+        const demoAccount = findDemoAccount(email, password);
+
+        if (demoAccount) {
+          // 演示账号登录成功
+          const mockUser: User = {
+            id: demoAccount.email,
+            email: demoAccount.email,
+            user_metadata: {
+              name: demoAccount.name,
+              roles: [] // 演示账号暂无角色信息
+            },
+            app_metadata: {},
+            aud: 'authenticated',
+            created_at: new Date().toISOString(),
+            role: 'authenticated',
+            updated_at: new Date().toISOString(),
+          } as User;
+
+          setUser(mockUser);
+
+          // 同步到 store
+          storeLogin({
+            name: demoAccount.name,
+            email: demoAccount.email,
+          });
+
+          return { error: null };
+        }
+
+        // 尝试从错误响应中获取错误信息
+        let errorMessage = '登录失败';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          // 忽略JSON解析错误
+        }
+
+        return { error: new Error(errorMessage) };
+      }
+    } catch (error) {
+      // 网络错误或其他异常，尝试使用演示账号作为回退
+      const demoAccount = findDemoAccount(email, password);
+
+      if (demoAccount) {
+        // 演示账号登录成功
+        const mockUser: User = {
+          id: demoAccount.email,
+          email: demoAccount.email,
+          user_metadata: {
+            name: demoAccount.name,
+            roles: [] // 演示账号暂无角色信息
+          },
+          app_metadata: {},
+          aud: 'authenticated',
+          created_at: new Date().toISOString(),
+          role: 'authenticated',
+          updated_at: new Date().toISOString(),
+        } as User;
+
+        setUser(mockUser);
+
         // 同步到 store
         storeLogin({
           name: demoAccount.name,
@@ -115,18 +228,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: null };
       }
 
-      // 如果不是演示账号，尝试使用 supabase（为将来扩展保留）
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        return { error };
-      }
-
-      return { error: null };
-    } catch (error) {
       return { error: error as Error };
     }
   };

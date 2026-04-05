@@ -19,6 +19,23 @@ export enum DocumentSourceType {
   MANUAL = 'manual', // 手动输入
 }
 
+// 文件类型（针对文件上传）
+export enum FileType {
+  WORD = 'word', // Word文档
+  PDF = 'pdf', // PDF文档
+  MARKDOWN = 'markdown', // Markdown文档
+  WEB_PAGE = 'web_page', // 网页（用于网页采集）
+  OTHER = 'other', // 其他类型
+}
+
+// 文档分类
+export enum DocumentCategory {
+  POLICY = 'policy', // 政策文件
+  HISTORICAL_ARTICLE = 'historical_article', // 历史文章
+  REFERENCE_MATERIAL = 'reference_material', // 参考资料
+  OTHER = 'other', // 其他
+}
+
 // 文档状态
 export enum DocumentStatus {
   DRAFT = 'draft', // 草稿
@@ -122,6 +139,15 @@ export class KnowledgeDocument implements TenantEntity {
   // 来源URL（如果是网址或API）
   @Column({ name: 'source_url', type: 'varchar', length: 2000, nullable: true })
   sourceUrl: string;
+
+  // 文件类型（针对文件上传）
+  @Column({
+    name: 'file_type',
+    type: 'enum',
+    enum: FileType,
+    nullable: true,
+  })
+  fileType: FileType;
 
   // 文件信息（如果是文件上传）
   @Column({ name: 'file_info', type: 'json', nullable: true })

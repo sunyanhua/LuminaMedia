@@ -7,6 +7,8 @@ import {
   OneToMany,
 } from 'typeorm';
 import { User } from './user.entity';
+import { Topic } from './topic.entity';
+import { Sentiment } from './sentiment.entity';
 
 export enum TenantStatus {
   ACTIVE = 'active',
@@ -49,6 +51,12 @@ export class Tenant {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToMany(() => User, (user) => user.tenantId)
+  @OneToMany(() => User, (user) => user.tenant)
   users: User[];
+
+  @OneToMany(() => Topic, (topic) => topic.tenant)
+  topics: Promise<Topic[]>;
+
+  @OneToMany(() => Sentiment, (sentiment) => sentiment.tenant)
+  sentiments: Promise<Sentiment[]>;
 }

@@ -2205,8 +2205,15 @@ ${platformInstructions}
       }
 
       const data = await response.json();
-      if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-        const text = data.candidates[0].content.parts[0].text;
+      if (!data.candidates?.length) {
+        throw new Error('REST API response missing candidates array or empty');
+      }
+      if (data.candidates[0] && data.candidates[0].content) {
+        const parts = data.candidates[0].content.parts;
+        if (!parts?.length) {
+          throw new Error('REST API response missing content parts');
+        }
+        const text = parts[0].text;
         const finishReason = data.candidates[0].finishReason;
 
         // 记录finishReason用于调试

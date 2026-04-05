@@ -12,6 +12,7 @@ export function Login() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [tenantType, setTenantType] = useState<'business' | 'government'>('business');
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
@@ -23,7 +24,7 @@ export function Login() {
 
     try {
       const { error } = isLogin
-        ? await signIn(email, password)
+        ? await signIn(email, password, tenantType)
         : await signUp(email, password);
 
       if (error) {
@@ -61,6 +62,7 @@ export function Login() {
   const fillBusinessAccount = () => {
     setEmail('admin@demo.lumina.com');
     setPassword('demo123');
+    setTenantType('business');
     toast({
       title: '已填充',
       description: '商务版演示账号已填充',
@@ -69,8 +71,9 @@ export function Login() {
 
   // 填充政务版演示账号
   const fillGovernmentAccount = () => {
-    setEmail('gov-admin');
-    setPassword('gov123');
+    setEmail('admin@demo-gov');
+    setPassword('LuminaDemo2026');
+    setTenantType('government');
     toast({
       title: '已填充',
       description: '政务版演示账号已填充',
@@ -97,6 +100,47 @@ export function Login() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* 租户选择 */}
+            <div className="space-y-2">
+              <Label htmlFor="tenantType" className="text-slate-200 font-medium">
+                版本选择
+              </Label>
+              <div className="relative">
+                <select
+                  id="tenantType"
+                  value={tenantType}
+                  onChange={(e) => setTenantType(e.target.value as 'business' | 'government')}
+                  disabled={loading}
+                  className="w-full bg-slate-800/50 border border-slate-700 text-slate-100 rounded-md px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 appearance-none"
+                >
+                  <option value="business">商务版 - 企业客户演示环境</option>
+                  <option value="government">政务版 - 政府机构演示环境</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+              </div>
+              {/* 登录角色提示 */}
+              <div className="mt-2 p-3 bg-slate-800/30 rounded-lg border border-slate-700">
+                <p className="text-sm text-slate-300">
+                  {tenantType === 'business' ? (
+                    <>商务版提供企业营销全流程演示，包含市场分析、客户洞察、营销活动管理等功能。</>
+                  ) : (
+                    <>政务版提供政府宣传全流程演示，包含政策解读、宣传策划、三审三校、舆情监测等功能。</>
+                  )}
+                </p>
+                <p className="text-xs text-slate-400 mt-1">
+                  {tenantType === 'business' ? (
+                    <>演示账号: admin@demo.lumina.com / demo123</>
+                  ) : (
+                    <>演示账号: editor@demo-gov (编辑), manager@demo-gov (主管), legal@demo-gov (法务), admin@demo-gov (管理员) / LuminaDemo2026</>
+                  )}
+                </p>
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="email" className="text-slate-200 font-medium">
                 邮箱地址 / 用户名
@@ -201,7 +245,7 @@ export function Login() {
           <div className="mt-6 p-3 bg-slate-800/50 rounded-lg border border-slate-700">
             <p className="text-xs text-slate-500 text-center">
               商务版: admin@demo.lumina.com / demo123<br />
-              政务版: gov-admin / gov123
+              政务版: admin@demo-gov, editor@demo-gov, manager@demo-gov, legal@demo-gov / LuminaDemo2026
             </p>
           </div>
         </CardContent>

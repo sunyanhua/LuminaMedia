@@ -5,11 +5,21 @@ import {
   CreateDateColumn,
   OneToMany,
   Index,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { SocialAccount } from './social-account.entity';
 import { ContentDraft } from './content-draft.entity';
 import { UserRole } from './user-role.entity';
 import { TenantEntity } from '../shared/interfaces/tenant-entity.interface';
+import { Tenant } from './tenant.entity';
+import { Topic } from './topic.entity';
+
+export enum UserStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  SUSPENDED = 'suspended',
+}
 
 @Entity('users')
 @Index(['tenantId'])
@@ -26,11 +36,31 @@ export class User implements TenantEntity {
   @Column({ unique: true })
   email: string;
 
+  @Column({ name: 'display_name', nullable: true })
+  displayName: string;
+
+  @Column({ nullable: true })
+  avatar: string;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
   @Column({ name: 'tenant_id', default: 'default-tenant' })
   tenantId: string;
+
+  @Column({ nullable: true })
+  phone: string;
+
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.ACTIVE,
+  })
+  status: UserStatus;
+
+  @ManyToOne(() => Tenant, (tenant) => tenant.users, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'tenant_id', referencedColumnName: 'id' })
+  tenant: Tenant;
 
   @OneToMany(() => SocialAccount, (account) => account.user)
   socialAccounts: SocialAccount[];
@@ -40,4 +70,7 @@ export class User implements TenantEntity {
 
   @OneToMany(() => UserRole, (userRole) => userRole.user)
   userRoles: UserRole[];
+
+  @OneToMany(() => Topic, (topic) => topic.user)
+  topics: Promise<Topic[]>;
 }

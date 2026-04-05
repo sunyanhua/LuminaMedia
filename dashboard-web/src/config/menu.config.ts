@@ -51,6 +51,53 @@ export const MENU_CONFIG: MenuItem[] = [
     tenantType: 'government',
   },
   {
+    key: 'review',
+    title: '审核工作台',
+    icon: 'governance', // 使用相同的图标
+    path: '/government/review',
+    featureKey: 'government-publish',
+    tenantType: 'government',
+  },
+  {
+    key: 'smart-archive',
+    title: '智慧档案',
+    icon: 'analytics',
+    path: '/government/smart-archive',
+    featureKey: 'smart-archive',
+    tenantType: 'government',
+  },
+  {
+    key: 'wechat-mp',
+    title: '公众号管理',
+    icon: 'wechat', // 需要添加图标
+    tenantType: 'government',
+    children: [
+      {
+        key: 'wechat-account',
+        title: '账号绑定',
+        path: '/government/wechat-mp',
+      },
+      {
+        key: 'content-list',
+        title: '内容列表',
+        path: '/government/content-list',
+      },
+      {
+        key: 'wechat-dashboard',
+        title: '数据看板',
+        path: '/government/wechat-dashboard',
+      },
+    ],
+  },
+  {
+    key: 'reference-info',
+    title: '参考信息',
+    icon: 'info', // 可能需要添加图标
+    path: '/government/reference-info',
+    featureKey: 'reference-info',
+    tenantType: 'government',
+  },
+  {
     key: 'sentiment-analysis',
     title: '舆情监测',
     icon: 'sentiment',

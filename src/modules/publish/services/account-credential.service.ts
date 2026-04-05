@@ -25,13 +25,17 @@ export class AccountCredentialService {
     private readonly accountRepository: Repository<SocialAccount>,
     private readonly configService: ConfigService,
   ) {
-    // 从配置获取加密密钥，如果没有则生成一个（仅用于开发）
+    // 从配置获取加密密钥，生产环境必须配置
     const keyHex = this.configService.get<string>('ENCRYPTION_KEY');
     if (keyHex) {
       this.encryptionKey = Buffer.from(keyHex, 'hex');
       this.logger.log('Encryption key loaded from configuration');
     } else {
-      // 开发环境：使用固定密钥（生产环境必须配置ENCRYPTION_KEY）
+      const nodeEnv = this.configService.get<string>('NODE_ENV', 'development');
+      if (nodeEnv === 'production') {
+        throw new Error('ENCRYPTION_KEY environment variable is required in production');
+      }
+      // 开发/测试环境：使用固定密钥（仅用于开发和测试）
       this.encryptionKey = crypto.scryptSync('development-key', 'salt', 32);
       this.logger.warn(
         'Using development encryption key - NOT SECURE FOR PRODUCTION',

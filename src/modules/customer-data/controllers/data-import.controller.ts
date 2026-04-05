@@ -8,6 +8,8 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  ParseIntPipe,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -111,23 +113,35 @@ export class DataImportController {
   }
 
   /**
-   * 获取客户档案的所有导入任务
+   * 获取客户档案的所有导入任务（分页）
    */
   @Get('profiles/:profileId/import-jobs')
   @ApiOperation({
-    summary: '获取客户档案的导入任务列表',
-    description: '获取指定客户档案的所有数据导入任务列表',
+    summary: '获取客户档案的导入任务列表（分页）',
+    description: '获取指定客户档案的所有数据导入任务列表，支持分页查询',
   })
   @ApiParam({ name: 'profileId', description: '客户档案ID' })
+  @ApiQuery({ name: 'page', required: false, description: '页码，默认1', type: Number })
+  @ApiQuery({ name: 'limit', required: false, description: '每页数量，默认100，最大1000', type: Number })
   @ApiResponse({
     status: 200,
     description: '获取成功',
-    type: [DataImportJob],
+    schema: {
+      type: 'object',
+      properties: {
+        data: { type: 'array', items: { $ref: '#/components/schemas/DataImportJob' } },
+        total: { type: 'number' },
+      },
+    },
   })
   async getImportJobsByProfile(
     @Param('profileId') profileId: string,
-  ): Promise<DataImportJob[]> {
-    return await this.dataImportService.getImportJobsByProfile(profileId);
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(100), ParseIntPipe) limit: number,
+  ): Promise<{ data: DataImportJob[]; total: number }> {
+    // 限制最大每页数量
+    const safeLimit = Math.min(limit, 1000);
+    return await this.dataImportService.getImportJobsByProfile(profileId, page, safeLimit);
   }
 
   /**

@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { User } from './entities/user.entity';
 import { SocialAccount } from './entities/social-account.entity';
 import { ContentDraft } from './entities/content-draft.entity';
+import { ReviewRecord } from './entities/review-record.entity';
 import { PublishTask } from './entities/publish-task.entity';
 import { CustomerProfile } from './entities/customer-profile.entity';
 import { DataImportJob } from './entities/data-import-job.entity';
@@ -26,6 +27,9 @@ import { SeoSuggestion } from './modules/monitor/geo-analysis/entities/seo-sugge
 import { UserBehavior } from './modules/data-analytics/entities/user-behavior.entity';
 import { MarketingCampaign } from './modules/data-analytics/entities/marketing-campaign.entity';
 import { MarketingStrategy } from './modules/data-analytics/entities/marketing-strategy.entity';
+import { Sentiment } from './entities/sentiment.entity';
+import { Report } from './entities/report.entity';
+import { UserDocument } from './entities/user-document.entity';
 import { DataAnalyticsModule } from './modules/data-analytics/data-analytics.module';
 import { CustomerDataModule } from './modules/customer-data/customer-data.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
@@ -37,6 +41,7 @@ import { PublishModule } from './modules/publish/publish.module';
 import { KnowledgeModule } from './modules/knowledge/knowledge.module';
 import { MonitorModule } from './modules/monitor/monitor.module';
 import { UserModule } from './modules/user/user.module';
+import { ReviewModule } from './modules/review/review.module';
 import { MonitoringModule } from './shared/monitoring/monitoring.module';
 import { LoggingModule } from './shared/monitoring/logging/logging.module';
 import { HealthModule } from './health/health.module';
@@ -61,6 +66,7 @@ import { HealthModule } from './health/health.module';
           User,
           SocialAccount,
           ContentDraft,
+          ReviewRecord,
           PublishTask,
           CustomerProfile,
           DataImportJob,
@@ -81,6 +87,9 @@ import { HealthModule } from './health/health.module';
           GeoRegion,
           GeoAnalysisResult,
           SeoSuggestion,
+          Sentiment,
+          Report,
+          UserDocument,
         ],
         synchronize:
           configService.get('TYPEORM_SYNCHRONIZE', 'false') === 'true',
@@ -105,6 +114,7 @@ import { HealthModule } from './health/health.module';
     KnowledgeModule,
     MonitorModule,
     UserModule,
+    ReviewModule,
     MonitoringModule,
     HealthModule,
   ],

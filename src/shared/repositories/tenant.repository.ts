@@ -136,9 +136,14 @@ export abstract class TenantRepository<
       .orderBy(`${this.metadata.name}.updatedAt`, 'DESC')
       .getOne();
 
+    let lastUpdated: Date | null = null;
+    if (latest) {
+      lastUpdated = (latest as any).updatedAt || null;
+    }
+
     return {
       totalCount: count,
-      lastUpdated: (latest as any)?.updatedAt || null,
+      lastUpdated,
       sizeEstimate: count * 1024, // 假设每行1KB
     };
   }

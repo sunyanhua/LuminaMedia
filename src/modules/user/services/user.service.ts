@@ -13,12 +13,16 @@ export interface CreateUserDto {
   username: string;
   email: string;
   password: string;
+  displayName?: string;
+  avatar?: string;
 }
 
 export interface UpdateUserDto {
   username?: string;
   email?: string;
   password?: string;
+  displayName?: string;
+  avatar?: string;
 }
 
 @Injectable()
@@ -98,7 +102,10 @@ export class UserService {
     // 创建用户（密码哈希）
     const hashedPassword = await this.hashPassword(createUserDto.password);
     const user = this.userRepository.create({
-      ...createUserDto,
+      username: createUserDto.username,
+      email: createUserDto.email,
+      displayName: createUserDto.displayName,
+      avatar: createUserDto.avatar,
       tenantId,
       passwordHash: hashedPassword,
     });

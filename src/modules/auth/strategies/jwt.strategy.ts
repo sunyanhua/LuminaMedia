@@ -19,10 +19,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     @InjectRepository(Role)
     private roleRepository: Repository<Role>,
   ) {
+    const jwtSecret = configService.get<string>('JWT_SECRET');
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET environment variable is required');
+    }
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken() as any,
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET', 'your-secret-key'),
+      secretOrKey: jwtSecret,
     });
   }
 
@@ -30,38 +34,34 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const user = await this.userRepository.findOne({
       where: { id: payload.sub },
       select: ['id', 'username', 'email', 'tenantId'],
+      relations: ['userRoles', 'userRoles.role', 'userRoles.role.permissions'],
     });
 
     if (!user) {
       return null;
     }
 
-    // 获取用户的角色
-    const userRoles = await this.userRoleRepository.find({
-      where: { userId: user.id },
-      relations: ['role'],
-    });
-
-    const roleIds = userRoles.map((ur) => ur.roleId);
-    const roles = await this.roleRepository.find({
-      where: { id: In(roleIds) },
-      relations: ['permissions'],
-    });
-
-    // 提取所有权限
+    // 从加载的关联中提取角色和权限
+    const roles: Role[] = [];
     const permissions: Array<{ id: string; module: string; action: string }> =
       [];
-    roles.forEach((role) => {
-      if (role.permissions) {
-        role.permissions.forEach((permission) => {
-          permissions.push({
-            id: permission.id,
-            module: permission.module,
-            action: permission.action,
-          });
-        });
-      }
-    });
+
+    if (user.userRoles) {
+      user.userRoles.forEach((userRole) => {
+        if (userRole.role) {
+          roles.push(userRole.role);
+          if (userRole.role.permissions) {
+            userRole.role.permissions.forEach((permission) => {
+              permissions.push({
+                id: permission.id,
+                module: permission.module,
+                action: permission.action,
+              });
+            });
+          }
+        }
+      });
+    }
 
     // 去重权限
     const uniquePermissions = Array.from(

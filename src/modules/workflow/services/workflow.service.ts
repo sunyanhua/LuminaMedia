@@ -134,7 +134,7 @@ export class WorkflowService {
     await this.createWorkflowNodes(savedWorkflow, config.nodes);
 
     // 发送事件
-    this.eventEmitter.emit(WorkflowEventType.WORKFLOW_CREATED, {
+    void this.eventEmitter.emit(WorkflowEventType.WORKFLOW_CREATED, {
       workflowId: savedWorkflow.id,
       userId: creatorId,
       timestamp: new Date(),
@@ -203,7 +203,7 @@ export class WorkflowService {
     const savedWorkflow = await this.workflowRepository.save(workflow);
 
     // 发送事件
-    this.eventEmitter.emit(WorkflowEventType.WORKFLOW_STATUS_CHANGED, {
+    void this.eventEmitter.emit(WorkflowEventType.WORKFLOW_STATUS_CHANGED, {
       workflowId,
       userId,
       previousStatus: WorkflowStatus.DRAFT,
@@ -351,7 +351,7 @@ export class WorkflowService {
       });
 
       // 发送事件
-      this.eventEmitter.emit(WorkflowEventType.WORKFLOW_STATUS_CHANGED, {
+      void this.eventEmitter.emit(WorkflowEventType.WORKFLOW_STATUS_CHANGED, {
         workflowId,
         userId,
         previousStatus,
@@ -567,7 +567,7 @@ export class WorkflowService {
     const savedWorkflow = await this.workflowRepository.save(workflow);
 
     // 发送事件和通知
-    this.eventEmitter.emit(WorkflowEventType.WORKFLOW_STATUS_CHANGED, {
+    void this.eventEmitter.emit(WorkflowEventType.WORKFLOW_STATUS_CHANGED, {
       workflowId,
       userId,
       previousStatus,
@@ -628,7 +628,7 @@ export class WorkflowService {
       });
     }
 
-    this.eventEmitter.emit(WorkflowEventType.NODE_ASSIGNED, {
+    void this.eventEmitter.emit(WorkflowEventType.NODE_ASSIGNED, {
       workflowId: workflow.id,
       nodeId: node.id,
       userId,

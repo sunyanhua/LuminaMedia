@@ -8,10 +8,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import DemoModeIndicator from '@/components/demo/DemoModeIndicator';
-import { useDemoMode, useToggleDemoMode } from '@/store/useAppStore';
+import { UserSwitcher } from '@/components/demo/UserSwitcher';
+import { useDemoMode, useToggleDemoMode, useUser, useDemoVersion } from '@/store/useAppStore';
 
 interface HeaderProps {
   breadcrumbs: { label: string; active?: boolean }[];
@@ -32,8 +33,24 @@ export function Header({
   onMobileMenuToggle
 }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(showMobileMenu);
+  const [userRoles, setUserRoles] = useState<string[]>([]);
   const isDemoMode = useDemoMode();
   const toggleDemoMode = useToggleDemoMode();
+  const user = useUser();
+  const demoVersion = useDemoVersion();
+
+  // 从localStorage读取用户角色
+  useEffect(() => {
+    const storedUser = localStorage.getItem('lumina-user');
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        setUserRoles(userData.roles || []);
+      } catch {
+        setUserRoles([]);
+      }
+    }
+  }, [user?.email]); // 当用户变更时重新读取
 
   const handleMobileMenuToggle = () => {
     const newState = !isMobileMenuOpen;
@@ -113,6 +130,26 @@ export function Header({
             <span className="absolute top-1 right-1 w-2 h-2 bg-amber-500 rounded-full" />
           </button>
 
+          {/* 用户切换器 - 仅限演示模式且用户已登录时显示 */}
+          {isDemoMode && user?.email && demoVersion && (
+            <div className="hidden md:flex items-center gap-2">
+              <UserSwitcher
+                currentUserEmail={user.email}
+                tenantType={demoVersion}
+                onUserSwitch={(email) => {
+                  console.log('用户切换至:', email);
+                  // 这里可以更新store中的用户信息
+                }}
+              />
+              {/* 当前角色提示 */}
+              {userRoles.length > 0 && (
+                <div className="px-2 py-1 text-xs rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                  {userRoles.map(role => role.replace(/_/g, ' ')).join(', ')}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* 用户菜单 */}
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-800 transition-colors touch-target">
@@ -121,14 +158,14 @@ export function Header({
               </div>
               {/* 用户名 - 移动端隐藏，桌面端显示 */}
               <span className="hidden lg:inline text-sm text-slate-300">
-                管理员
+                {user?.name || '用户'}
               </span>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className="bg-slate-900 border-slate-800 text-slate-200"
               align="end"
             >
-              <DropdownMenuLabel>管理员账户</DropdownMenuLabel>
+              <DropdownMenuLabel>{user?.name || '用户'}账户</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-slate-800" />
               <DropdownMenuItem className="hover:bg-slate-800 focus:bg-slate-800">
                 个人设置
@@ -161,6 +198,11 @@ export function Header({
             <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700 transition-colors">
               <User className="w-5 h-5 text-slate-400" />
               <span className="text-slate-300">个人设置</span>
+              {userRoles.length > 0 && (
+                <span className="ml-auto px-2 py-0.5 text-xs rounded-full bg-slate-700 text-slate-300">
+                  {userRoles[0].replace(/_/g, ' ')}
+                </span>
+              )}
             </div>
             <div
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700 transition-colors cursor-pointer"

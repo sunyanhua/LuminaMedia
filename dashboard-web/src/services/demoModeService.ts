@@ -150,6 +150,141 @@ export const generateMockData = {
         };
     }
   },
+
+  // 模拟微信公众号数据看板汇总
+  wechatDashboardSummary: () => ({
+    totalAccounts: 2,
+    totalFans: 21400,
+    totalRead: 591300,
+    totalLike: 14590,
+    totalShare: 7340,
+    netFansToday: 90,
+    readToday: 2400,
+    likeToday: 60,
+    shareToday: 30,
+    weeklyTrend: {
+      fans: [12500, 12650, 12800, 12950, 13100, 13250, 13400],
+      read: [8500, 8200, 7800, 8600, 9200, 8800, 9400],
+      like: [210, 205, 195, 220, 230, 215, 240],
+      share: [105, 100, 95, 110, 115, 105, 120],
+    },
+    topArticles: [
+      {
+        title: '最新政策解读：数字化转型助力政务公开',
+        publishTime: new Date(Date.now() - 86400000).toISOString(),
+        readCount: 8500,
+        likeCount: 210,
+        shareCount: 105,
+        url: '#',
+        accountName: '政务宣传公众号',
+        accountId: 'wechat_001',
+      },
+      {
+        title: '政务新媒体运营经验分享',
+        publishTime: new Date(Date.now() - 172800000).toISOString(),
+        readCount: 7200,
+        likeCount: 180,
+        shareCount: 90,
+        url: '#',
+        accountName: '政务宣传公众号',
+        accountId: 'wechat_001',
+      },
+      {
+        title: '智慧政务建设成果展示',
+        publishTime: new Date(Date.now() - 259200000).toISOString(),
+        readCount: 6500,
+        likeCount: 160,
+        shareCount: 80,
+        url: '#',
+        accountName: '政策解读公众号',
+        accountId: 'wechat_002',
+      },
+      {
+        title: '政务服务便民措施解读',
+        publishTime: new Date(Date.now() - 345600000).toISOString(),
+        readCount: 5800,
+        likeCount: 145,
+        shareCount: 72,
+        url: '#',
+        accountName: '政策解读公众号',
+        accountId: 'wechat_002',
+      },
+    ],
+    updatedAt: new Date().toISOString(),
+  }),
+
+  // 模拟微信公众号文章排行
+  wechatArticleRank: (type: 'read' | 'like' | 'share' = 'read', limit: number = 10) => {
+    const articles = [
+      {
+        title: '最新政策解读：数字化转型助力政务公开',
+        publishTime: new Date(Date.now() - 86400000).toISOString(),
+        readCount: 8500,
+        likeCount: 210,
+        shareCount: 105,
+        url: '#',
+        accountName: '政务宣传公众号',
+        accountId: 'wechat_001',
+        wechatId: 'gh_demo123456',
+      },
+      {
+        title: '政务新媒体运营经验分享',
+        publishTime: new Date(Date.now() - 172800000).toISOString(),
+        readCount: 7200,
+        likeCount: 180,
+        shareCount: 90,
+        url: '#',
+        accountName: '政务宣传公众号',
+        accountId: 'wechat_001',
+        wechatId: 'gh_demo123456',
+      },
+      {
+        title: '智慧政务建设成果展示',
+        publishTime: new Date(Date.now() - 259200000).toISOString(),
+        readCount: 6500,
+        likeCount: 160,
+        shareCount: 80,
+        url: '#',
+        accountName: '政策解读公众号',
+        accountId: 'wechat_002',
+        wechatId: 'gh_demo789012',
+      },
+      {
+        title: '政务服务便民措施解读',
+        publishTime: new Date(Date.now() - 345600000).toISOString(),
+        readCount: 5800,
+        likeCount: 145,
+        shareCount: 72,
+        url: '#',
+        accountName: '政策解读公众号',
+        accountId: 'wechat_002',
+        wechatId: 'gh_demo789012',
+      },
+      {
+        title: '政务公开透明度提升方案',
+        publishTime: new Date(Date.now() - 432000000).toISOString(),
+        readCount: 5200,
+        likeCount: 130,
+        shareCount: 65,
+        url: '#',
+        accountName: '政务宣传公众号',
+        accountId: 'wechat_001',
+        wechatId: 'gh_demo123456',
+      },
+    ];
+
+    // 根据类型排序
+    let sortedArticles = [...articles];
+    if (type === 'like') {
+      sortedArticles.sort((a, b) => b.likeCount - a.likeCount);
+    } else if (type === 'share') {
+      sortedArticles.sort((a, b) => b.shareCount - a.shareCount);
+    } else {
+      sortedArticles.sort((a, b) => b.readCount - a.readCount);
+    }
+
+    return sortedArticles.slice(0, limit);
+  },
 };
 
 /**

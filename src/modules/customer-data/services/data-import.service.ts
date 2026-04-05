@@ -72,15 +72,20 @@ export class DataImportService {
   }
 
   /**
-   * 获取客户档案的所有导入任务
+   * 获取客户档案的所有导入任务（支持分页）
    */
   async getImportJobsByProfile(
     customerProfileId: string,
-  ): Promise<DataImportJob[]> {
-    return await this.dataImportJobRepository.find({
+    page: number = 1,
+    limit: number = 100,
+  ): Promise<{ data: DataImportJob[]; total: number }> {
+    const [data, total] = await this.dataImportJobRepository.findAndCount({
       where: { customerProfileId },
       order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+    return { data, total };
   }
 
   /**
@@ -343,7 +348,7 @@ export class DataImportService {
   async getImportStats(
     customerProfileId: string,
   ): Promise<Record<string, any>> {
-    const importJobs = await this.getImportJobsByProfile(customerProfileId);
+    const { data: importJobs } = await this.getImportJobsByProfile(customerProfileId, 1, 1000); // 获取最多1000条记录用于统计
 
     const totalJobs = importJobs.length;
     const completedJobs = importJobs.filter(

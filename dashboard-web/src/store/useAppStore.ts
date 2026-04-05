@@ -26,6 +26,9 @@ interface AppState {
     name: string;
     email: string;
     avatar?: string;
+    roles?: string[];
+    tenantId?: string;
+    tenantType?: 'business' | 'government';
   } | null;
   // 设置用户信息
   setUser: (user: AppState['user']) => void;

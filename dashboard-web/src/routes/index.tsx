@@ -29,6 +29,20 @@ const TenantFeatureList = lazy(() => import('../pages/Admin/TenantFeatureList'))
 const QuotaOverview = lazy(() => import('../pages/Dashboard/QuotaOverview'));
 const QuotaConfig = lazy(() => import('../pages/Admin/QuotaConfig'));
 
+// 3.1 DEMO版新增页面
+const KnowledgeBase = lazy(() => import('../pages/SmartArchive/KnowledgeBase'));
+const ReferenceInfo = lazy(() => import('../pages/SmartArchive/ReferenceInfo'));
+const WechatAccountBinding = lazy(() => import('../pages/WechatMp/WechatAccountBinding'));
+const ContentConfirmation = lazy(() => import('../pages/WechatMp/ContentConfirmation'));
+const ContentList = lazy(() => import('../pages/WechatMp/ContentList'));
+const PublishQueue = lazy(() => import('../pages/Publish/PublishQueue'));
+// 审核管理页面
+const MyPendingReviews = lazy(() => import('../pages/Review/MyPendingReviews'));
+// 微信公众号数据看板
+const WechatDataDashboard = lazy(() => import('../pages/WechatMp/WechatDataDashboard'));
+// 智能报告页面
+const IntelligentReports = lazy(() => import('../pages/Reports/IntelligentReports'));
+
 // 加载中组件
 const LoadingFallback = () => (
   <div className="flex items-center justify-center h-64">
@@ -205,6 +219,78 @@ export const router = createBrowserRouter([
           </Suspense>
         ),
       },
+      {
+        path: 'smart-archive',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <KnowledgeBase />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'reference-info',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <ReferenceInfo />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'wechat-mp',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <WechatAccountBinding />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'content-confirm/:id?',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <ContentConfirmation />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'content-list',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <ContentList />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'review',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <MyPendingReviews />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'publish-queue',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <PublishQueue />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'wechat-dashboard',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <WechatDataDashboard />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'intelligent-reports',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <IntelligentReports />
+          </Suspense>
+        ),
+      },
     ],
   },
   // 通配符路由 - 重定向到版本选择
@@ -283,6 +369,15 @@ export const ROUTE_PATHS = {
   GOVERNMENT_POLICY: '/government/policy',
   GOVERNMENT_ANTI_FRAUD: '/government/anti-fraud',
   GOVERNMENT_EMERGENCY: '/government/emergency',
+  GOVERNMENT_SMART_ARCHIVE: '/government/smart-archive',
+  GOVERNMENT_REFERENCE_INFO: '/government/reference-info',
+  GOVERNMENT_WECHAT_MP: '/government/wechat-mp',
+  GOVERNMENT_CONTENT_CONFIRM: '/government/content-confirm',
+  GOVERNMENT_CONTENT_LIST: '/government/content-list',
+  GOVERNMENT_REVIEW: '/government/review',
+  GOVERNMENT_PUBLISH_QUEUE: '/government/publish-queue',
+  GOVERNMENT_WECHAT_DASHBOARD: '/government/wechat-dashboard',
+  GOVERNMENT_INTELLIGENT_REPORTS: '/government/intelligent-reports',
 } as const;
 
 // 页面标题映射
@@ -299,4 +394,12 @@ export const PAGE_TITLES: Record<string, string> = {
   '/government/policy': '政策解读',
   '/government/anti-fraud': '防诈骗宣传',
   '/government/emergency': '应急响应',
+  '/government/smart-archive': '智慧档案',
+  '/government/wechat-mp': '公众号管理',
+  '/government/content-confirm': '内容确认',
+  '/government/content-list': '内容列表',
+  '/government/review': '审核工作台',
+  '/government/publish-queue': '一键发布',
+  '/government/wechat-dashboard': '公众号数据看板',
+  '/government/intelligent-reports': '智能报告中心',
 };

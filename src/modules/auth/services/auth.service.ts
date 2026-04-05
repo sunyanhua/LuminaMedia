@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
+import { SwitchUserDto } from '../dto/switch-user.dto';
 import { User } from '../../../entities/user.entity';
 import { TenantContextService } from '../../../shared/services/tenant-context.service';
 
@@ -18,6 +19,7 @@ interface JwtPayload {
   username?: string;
   email?: string;
   tenantId: string;
+  roles: string[];
 }
 
 @Injectable()
@@ -32,11 +34,12 @@ export class AuthService {
   async validateUser(
     username: string,
     password: string,
-  ): Promise<Omit<User, 'passwordHash'> | null> {
+  ): Promise<(Omit<User, 'passwordHash'> & { roles: string[] }) | null> {
     const tenantId = this.tenantContextService.getCurrentTenantId();
     const user = await this.userRepository.findOne({
       where: { username, tenantId },
       select: ['id', 'username', 'passwordHash', 'email', 'tenantId'],
+      relations: ['userRoles', 'userRoles.role'],
     });
 
     if (
@@ -47,8 +50,9 @@ export class AuthService {
         user.passwordHash,
       ))
     ) {
-      const { passwordHash: __, ...result } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
-      return result;
+      const { passwordHash: __, userRoles, ...result } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
+      const roles = userRoles?.map(ur => ur.role.name) || [];
+      return { ...result, roles };
     }
     return null;
   }
@@ -59,11 +63,12 @@ export class AuthService {
       throw new UnauthorizedException('用户名或密码错误');
     }
 
-    const payload = {
+    const payload: JwtPayload = {
       sub: user.id,
       username: user.username,
       email: user.email,
       tenantId: user.tenantId,
+      roles: user.roles,
     };
 
     return {
@@ -74,6 +79,7 @@ export class AuthService {
         username: user.username,
         email: user.email,
         tenantId: user.tenantId,
+        roles: user.roles,
       },
     };
   }
@@ -117,11 +123,12 @@ export class AuthService {
     const savedUser = await this.userRepository.save(user);
 
     // 生成令牌
-    const payload = {
+    const payload: JwtPayload = {
       sub: savedUser.id,
       username: savedUser.username,
       email: savedUser.email,
       tenantId: savedUser.tenantId,
+      roles: [],
     };
 
     return {
@@ -132,6 +139,7 @@ export class AuthService {
         username: savedUser.username,
         email: savedUser.email,
         tenantId: savedUser.tenantId,
+        roles: [],
       },
     };
   }
@@ -146,17 +154,20 @@ export class AuthService {
       const user = await this.userRepository.findOne({
         where: { id: payload.sub, tenantId: payload.tenantId },
         select: ['id', 'username', 'email', 'tenantId'],
+        relations: ['userRoles', 'userRoles.role'],
       });
 
       if (!user) {
         throw new UnauthorizedException('用户不存在');
       }
 
-      const newPayload = {
+      const roles = user.userRoles?.map(ur => ur.role.name) || [];
+      const newPayload: JwtPayload = {
         sub: user.id,
         username: user.username,
         email: user.email,
         tenantId: user.tenantId,
+        roles,
       };
 
       return {
@@ -181,5 +192,86 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async switchUser(switchUserDto: SwitchUserDto, currentUserId: string) {
+    const tenantId = this.tenantContextService.getCurrentTenantId();
+
+    // 获取当前用户信息，验证权限
+    const currentUser = await this.userRepository.findOne({
+      where: { id: currentUserId, tenantId },
+      relations: ['userRoles', 'userRoles.role'],
+    });
+
+    if (!currentUser) {
+      throw new UnauthorizedException('当前用户不存在');
+    }
+
+    // 检查当前用户是否有切换权限（管理员角色）
+    const currentUserRoles = currentUser.userRoles?.map(ur => ur.role.name) || [];
+    const isAdmin = currentUserRoles.includes('ADMIN');
+
+    // 在DEMO环境中，允许所有用户切换（为了演示方便）
+    // 在生产环境中，应该只允许管理员切换
+    // 这里我们检查是否为DEMO环境，通过检查租户ID是否为演示租户
+    const isDemoTenant = tenantId === '33333333-3333-3333-3333-333333333333' || // 政务版演示租户
+                         tenantId === '11111111-1111-1111-1111-111111111111'; // 商务版演示租户
+
+    if (!isAdmin && !isDemoTenant) {
+      throw new UnauthorizedException('无权切换用户');
+    }
+
+    // 获取目标用户：支持按ID或email查找
+    let targetUser: User | null = null;
+
+    // 检查是否为UUID格式
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(switchUserDto.targetUserId);
+
+    if (isUuid) {
+      targetUser = await this.userRepository.findOne({
+        where: { id: switchUserDto.targetUserId, tenantId },
+        relations: ['userRoles', 'userRoles.role'],
+      });
+    } else {
+      // 按email查找
+      targetUser = await this.userRepository.findOne({
+        where: { email: switchUserDto.targetUserId, tenantId },
+        relations: ['userRoles', 'userRoles.role'],
+      });
+
+      // 如果按email找不到，尝试按username查找
+      if (!targetUser) {
+        targetUser = await this.userRepository.findOne({
+          where: { username: switchUserDto.targetUserId, tenantId },
+          relations: ['userRoles', 'userRoles.role'],
+        });
+      }
+    }
+
+    if (!targetUser) {
+      throw new UnauthorizedException('目标用户不存在或不属于当前租户');
+    }
+
+    // 生成新的JWT令牌
+    const targetUserRoles = targetUser.userRoles?.map(ur => ur.role.name) || [];
+    const payload: JwtPayload = {
+      sub: targetUser.id,
+      username: targetUser.username,
+      email: targetUser.email,
+      tenantId: targetUser.tenantId,
+      roles: targetUserRoles,
+    };
+
+    return {
+      access_token: this.jwtService.sign(payload),
+      refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
+      user: {
+        id: targetUser.id,
+        username: targetUser.username,
+        email: targetUser.email,
+        tenantId: targetUser.tenantId,
+        roles: targetUserRoles,
+      },
+    };
   }
 }

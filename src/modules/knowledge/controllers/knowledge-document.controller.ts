@@ -15,7 +15,12 @@ import {
   MaxFileSizeValidator,
   FileTypeValidator,
   BadRequestException,
+  NotFoundException,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
+import * as fs from 'fs/promises';
+import { createReadStream } from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { MulterFile } from '../../../shared/types/multer-file.interface';
 import {
@@ -180,6 +185,84 @@ export class KnowledgeDocumentController {
   @ApiResponse({ status: 404, description: '文档不存在' })
   async getDocument(@Param('id') id: string): Promise<KnowledgeDocument> {
     return await this.knowledgeDocumentService.getDocument(id);
+  }
+
+  /**
+   * 获取文档预览内容
+   */
+  @Get(':id/preview')
+  @ApiOperation({
+    summary: '获取文档预览内容',
+    description: '获取文档的预览内容，支持PDF文件下载和Markdown内容返回',
+  })
+  @ApiParam({ name: 'id', description: '文档ID' })
+  @ApiOkResponse({
+    description: '获取成功',
+    schema: {
+      type: 'object',
+      properties: {
+        documentId: { type: 'string' },
+        title: { type: 'string' },
+        fileType: { type: 'string', enum: ['word', 'pdf', 'markdown', 'web_page', 'other'] },
+        contentType: { type: 'string', enum: ['text', 'file'] },
+        content: { type: 'string', nullable: true },
+        downloadUrl: { type: 'string', nullable: true },
+        canPreview: { type: 'boolean' },
+      },
+    },
+  })
+  @ApiResponse({ status: 404, description: '文档不存在' })
+  async getDocumentPreview(@Param('id') id: string): Promise<{
+    documentId: string;
+    title: string;
+    fileType: string;
+    contentType: 'text' | 'file';
+    content?: string;
+    downloadUrl?: string;
+    canPreview: boolean;
+  }> {
+    const document = await this.knowledgeDocumentService.getDocument(id);
+
+    // 确定预览类型
+    const isTextBased = document.fileType === 'markdown' || document.fileType === 'web_page' ||
+                       (document.sourceType === DocumentSourceType.URL) ||
+                       (document.sourceType === DocumentSourceType.MANUAL) ||
+                       (document.sourceType === DocumentSourceType.API);
+
+    const isFileBased = document.fileType === 'pdf' || document.fileType === 'word';
+
+    if (isTextBased) {
+      // 文本类型文档，返回内容
+      return {
+        documentId: document.id,
+        title: document.title,
+        fileType: document.fileType || 'other',
+        contentType: 'text',
+        content: document.content || '暂无内容',
+        canPreview: true,
+      };
+    } else if (isFileBased) {
+      // 文件类型文档，返回下载URL
+      // 注意：实际应用中需要生成安全的文件下载URL
+      const downloadUrl = `/api/v1/knowledge/documents/${document.id}/download`;
+      return {
+        documentId: document.id,
+        title: document.title,
+        fileType: document.fileType,
+        contentType: 'file',
+        downloadUrl,
+        canPreview: document.fileType === 'pdf', // PDF可以预览，Word可能需要下载
+      };
+    } else {
+      // 其他类型
+      return {
+        documentId: document.id,
+        title: document.title,
+        fileType: document.fileType || 'other',
+        contentType: 'file',
+        canPreview: false,
+      };
+    }
   }
 
   /**
@@ -861,5 +944,68 @@ export class KnowledgeDocumentController {
       processingStatus: DocumentProcessingStatus.PENDING,
       vectorId: null,
     });
+  }
+
+  /**
+   * 下载文档文件
+   */
+  @Get(':id/download')
+  @ApiOperation({
+    summary: '下载文档文件',
+    description: '下载文档的原始文件（仅适用于文件上传类型的文档），支持预览模式',
+  })
+  @ApiParam({ name: 'id', description: '文档ID' })
+  @ApiQuery({
+    name: 'preview',
+    required: false,
+    description: '预览模式（true=在线预览，false=下载）',
+    type: Boolean,
+  })
+  @ApiOkResponse({
+    description: '文件下载或预览',
+    content: {
+      'application/octet-stream': {
+        schema: { type: 'string', format: 'binary' },
+      },
+    },
+  })
+  @ApiResponse({ status: 404, description: '文档不存在或没有文件' })
+  @ApiResponse({ status: 400, description: '文档不是文件类型' })
+  async downloadDocumentFile(
+    @Param('id') id: string,
+    @Query('preview') preview?: boolean,
+    @Res() res: Response,
+  ) {
+    const document = await this.knowledgeDocumentService.getDocument(id);
+
+    // 检查是否是文件类型
+    if (document.sourceType !== DocumentSourceType.FILE || !document.fileInfo?.storagePath) {
+      throw new BadRequestException('该文档没有可下载的文件');
+    }
+
+    const filePath = document.fileInfo.storagePath;
+
+    // 检查文件是否存在
+    try {
+      await fs.access(filePath);
+    } catch {
+      throw new NotFoundException('文件不存在');
+    }
+
+    // 设置响应头
+    const fileName = document.fileInfo.originalName || document.title;
+    const mimeType = document.fileInfo.mimeType || 'application/octet-stream';
+    res.setHeader('Content-Type', mimeType);
+
+    // 根据预览模式设置Content-Disposition
+    const isPreview = preview === true;
+    const contentDisposition = isPreview
+      ? `inline; filename="${encodeURIComponent(fileName)}"`
+      : `attachment; filename="${encodeURIComponent(fileName)}"`;
+    res.setHeader('Content-Disposition', contentDisposition);
+
+    // 发送文件
+    const fileStream = createReadStream(filePath);
+    fileStream.pipe(res);
   }
 }

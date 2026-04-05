@@ -1,0 +1,53 @@
+.intelligent-reports-page {
+  padding: 24px;
+}
+
+.intelligent-reports-page .ant-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.intelligent-reports-page .ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.intelligent-reports-page .ant-card-head-title {
+  font-weight: 600;
+}
+
+.intelligent-reports-page .ant-table {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.intelligent-reports-page .ant-table-thead > tr > th {
+  background-color: #fafafa;
+  font-weight: 600;
+}
+
+.intelligent-reports-page .ant-btn-primary {
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  border: none;
+}
+
+.intelligent-reports-page .ant-btn-primary:hover {
+  background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%);
+}
+
+.intelligent-reports-page .ant-select {
+  min-width: 120px;
+}
+
+.intelligent-reports-page .ant-picker-range {
+  width: 300px;
+}
+
+@media (max-width: 768px) {
+  .intelligent-reports-page .ant-picker-range {
+    width: 100%;
+  }
+
+  .intelligent-reports-page .ant-select {
+    width: 100%;
+  }
+}

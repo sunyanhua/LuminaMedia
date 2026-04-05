@@ -11,6 +11,7 @@ import { AuthService } from '../services/auth.service';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
+import { SwitchUserDto } from '../dto/switch-user.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import {
   ApiTags,
@@ -56,5 +57,19 @@ export class AuthController {
   @ApiResponse({ status: 401, description: '未认证' })
   async getProfile(@Request() req: ExpressRequest & { user: { id: string } }) {
     return this.authService.getProfile(req.user.id);
+  }
+
+  @Post('switch-user')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '切换用户（DEMO演示功能）' })
+  @ApiResponse({ status: 200, description: '切换成功，返回新用户的JWT令牌' })
+  @ApiResponse({ status: 401, description: '未认证或无权限' })
+  @ApiResponse({ status: 404, description: '目标用户不存在' })
+  async switchUser(
+    @Body() switchUserDto: SwitchUserDto,
+    @Request() req: ExpressRequest & { user: { id: string } },
+  ) {
+    return this.authService.switchUser(switchUserDto, req.user.id);
   }
 }
