@@ -37,7 +37,7 @@ import { DemoController } from './controllers/demo.controller';
 import { CustomerDataModule } from '../customer-data/customer-data.module';
 import { AuthModule } from '../auth/auth.module';
 import { SharedMarketingModule } from '../shared-marketing/shared-marketing.module';
-// import { GovernmentModule } from '../government/government.module';
+import { GovernmentModule } from '../government/government.module';
 
 @Module({
   imports: [
@@ -63,7 +63,7 @@ import { SharedMarketingModule } from '../shared-marketing/shared-marketing.modu
     CustomerDataModule,
     AuthModule,
     SharedMarketingModule,
-    GovernmentModule, // 启用GovernmentModule导入以提供GovernmentDemoService
+    GovernmentModule,
   ],
   controllers: [
     UserBehaviorController,
