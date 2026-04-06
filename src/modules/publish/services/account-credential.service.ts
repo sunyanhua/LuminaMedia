@@ -35,10 +35,15 @@ export class AccountCredentialService {
       if (nodeEnv === 'production') {
         throw new Error('ENCRYPTION_KEY environment variable is required in production');
       }
-      // 开发/测试环境：使用固定密钥（仅用于开发和测试）
-      this.encryptionKey = crypto.scryptSync('development-key', 'salt', 32);
+      // 开发/测试环境：生成随机密钥（每次启动不同）
+      // 注意：这会导致重启后无法解密之前加密的数据，仅适用于开发和测试
+      const randomKey = crypto.randomBytes(32);
+      this.encryptionKey = randomKey;
       this.logger.warn(
-        'Using development encryption key - NOT SECURE FOR PRODUCTION',
+        'Using randomly generated encryption key for development - NOT SECURE FOR PRODUCTION',
+      );
+      this.logger.warn(
+        'NOTE: Data encrypted with this key will be undecryptable after restart',
       );
     }
   }
@@ -50,7 +55,7 @@ export class AccountCredentialService {
     accountId: string,
     platform: PlatformType,
     credentials: PlatformCredentials,
-    tenantId: string = 'demo-tenant',
+    tenantId: string,
   ): Promise<SocialAccount> {
     try {
       // 序列化凭证
@@ -117,7 +122,7 @@ export class AccountCredentialService {
    */
   async getDecryptedCredentials(
     accountId: string,
-    tenantId: string = 'demo-tenant',
+    tenantId: string,
   ): Promise<PlatformCredentials> {
     try {
       const account = await this.accountRepository.findOne({
@@ -154,7 +159,7 @@ export class AccountCredentialService {
   async updateCredentials(
     accountId: string,
     credentials: Partial<PlatformCredentials>,
-    tenantId: string = 'demo-tenant',
+    tenantId: string,
   ): Promise<SocialAccount> {
     try {
       // 获取现有凭证
@@ -198,7 +203,7 @@ export class AccountCredentialService {
    */
   async deleteCredentials(
     accountId: string,
-    tenantId: string = 'demo-tenant',
+    tenantId: string,
   ): Promise<void> {
     try {
       const account = await this.accountRepository.findOne({
@@ -231,7 +236,7 @@ export class AccountCredentialService {
    */
   async validateCredentials(
     accountId: string,
-    tenantId: string = 'demo-tenant',
+    tenantId: string,
   ): Promise<boolean> {
     try {
       const account = await this.accountRepository.findOne({
@@ -255,7 +260,7 @@ export class AccountCredentialService {
    * 获取所有账号ID（不包含凭证）
    */
   async getAllAccounts(
-    tenantId: string = 'demo-tenant',
+    tenantId: string,
   ): Promise<SocialAccount[]> {
     return this.accountRepository.find({
       where: { tenantId },

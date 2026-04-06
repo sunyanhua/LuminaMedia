@@ -1,7 +1,7 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { VectorSearchService } from '../../../../../shared/vector/services/vector-search.service';
-import { Document } from '../../../../../shared/vector/interfaces/vector-search.interface';
+import { VectorSearchService } from '@shared/vector/services/vector-search.service';
+import { Document } from '@shared/vector/interfaces/vector-search.interface';
 
 /**
  * 知识库检索服务（基础版本）

@@ -34,7 +34,7 @@ export class AccountConnectionTestService {
    */
   async testAccountConnection(
     accountId: string,
-    tenantId: string = 'demo-tenant',
+    tenantId: string,
   ): Promise<TestResult> {
     try {
       this.logger.log(`Testing connection for account: ${accountId}`);
@@ -122,7 +122,7 @@ export class AccountConnectionTestService {
    * 测试所有账号连接
    */
   async testAllAccounts(
-    tenantId: string = 'demo-tenant',
+    tenantId: string,
   ): Promise<BatchTestResult> {
     const accounts =
       await this.accountCredentialService.getAllAccounts(tenantId);

@@ -45,17 +45,33 @@ export class DataCollectionSchedulerService {
 
       this.logger.log(`找到 ${pendingTasks.length} 个待调度任务`);
 
+      // 批量获取平台配置，避免N+1查询
+      const uniqueTenantIds = Array.from(
+        new Set(pendingTasks.map((task) => task.tenantId)),
+      );
+      const uniquePlatforms = Array.from(
+        new Set(pendingTasks.map((task) => task.platform)),
+      );
+      const platformConfigs = await this.platformConfigRepository.find({
+        where: {
+          tenantId: In(uniqueTenantIds),
+          platform: In(uniquePlatforms),
+          isActive: true,
+        },
+      });
+      // 创建快速查找映射
+      const platformConfigMap = new Map();
+      platformConfigs.forEach((config) => {
+        platformConfigMap.set(`${config.tenantId}:${config.platform}`, config);
+      });
+
       let scheduledCount = 0;
       for (const task of pendingTasks) {
         try {
-          // 检查平台配置是否激活
-          const platformConfig = await this.platformConfigRepository.findOne({
-            where: {
-              tenantId: task.tenantId,
-              platform: task.platform,
-              isActive: true,
-            },
-          });
+          // 检查平台配置是否激活（从映射中查找）
+          const platformConfig = platformConfigMap.get(
+            `${task.tenantId}:${task.platform}`,
+          );
 
           if (!platformConfig) {
             this.logger.warn(

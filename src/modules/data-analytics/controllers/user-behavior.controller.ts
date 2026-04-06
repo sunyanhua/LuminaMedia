@@ -12,6 +12,7 @@ import {
 import { AnalyticsService } from '../services/analytics.service';
 import { TrackBehaviorDto } from '../dto/track-behavior.dto';
 import { DateRange } from '../interfaces/date-range.interface';
+import { DateRangeDto } from '../dto/date-range.dto';
 
 @Controller('api/v1/analytics/behavior')
 export class UserBehaviorController {
@@ -36,16 +37,16 @@ export class UserBehaviorController {
   }
 
   @Get(':userId')
+  @UsePipes(new ValidationPipe({ transform: true }))
   async getUserBehavior(
     @Param('userId') userId: string,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
+    @Query() dateRangeDto: DateRangeDto,
   ) {
     const dateRange: DateRange = {
-      startDate: startDate
-        ? new Date(startDate)
+      startDate: dateRangeDto.startDate
+        ? new Date(dateRangeDto.startDate)
         : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 默认最近30天
-      endDate: endDate ? new Date(endDate) : new Date(),
+      endDate: dateRangeDto.endDate ? new Date(dateRangeDto.endDate) : new Date(),
     };
 
     const analysis = await this.analyticsService.analyzeUserBehavior(

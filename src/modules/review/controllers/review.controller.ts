@@ -21,7 +21,9 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { FeatureGuard } from '../../auth/guards/feature.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Feature } from '../../auth/decorators/feature.decorator';
+import { Roles } from '../../auth/decorators/roles.decorator';
 import { ReviewService } from '../services/review.service';
 import { ReviewRecord } from '../../../entities/review-record.entity';
 import { SubmitReviewDto } from '../dto/submit-review.dto';
@@ -29,15 +31,17 @@ import { SubmitReviewDto } from '../dto/submit-review.dto';
 @ApiTags('审核管理')
 @ApiBearerAuth()
 @Controller('review')
-@UseGuards(JwtAuthGuard, FeatureGuard)
+@UseGuards(JwtAuthGuard, FeatureGuard, RolesGuard)
 @Feature('review')
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
   /**
    * 获取我的待审列表
+   * 编辑、主管、法务、管理员可访问
    */
   @Get('pending')
+  @Roles('EDITOR', 'MANAGER', 'LEGAL', 'ADMIN')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '获取我的待审列表',
@@ -70,8 +74,10 @@ export class ReviewController {
 
   /**
    * 获取我已审核列表
+   * 编辑、主管、法务、管理员可访问
    */
   @Get('history')
+  @Roles('EDITOR', 'MANAGER', 'LEGAL', 'ADMIN')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '获取我已审核列表',
@@ -104,8 +110,10 @@ export class ReviewController {
 
   /**
    * 获取内容审核追踪
+   * 编辑、主管、法务、管理员可访问
    */
   @Get('content/:contentDraftId/history')
+  @Roles('EDITOR', 'MANAGER', 'LEGAL', 'ADMIN')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '获取内容审核追踪',
@@ -123,8 +131,10 @@ export class ReviewController {
 
   /**
    * 提交审核结果
+   * 编辑、主管、法务、管理员可访问
    */
   @Post('submit')
+  @Roles('EDITOR', 'MANAGER', 'LEGAL', 'ADMIN')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '提交审核结果',
@@ -148,8 +158,10 @@ export class ReviewController {
 
   /**
    * 创建初始审核记录（内部使用）
+   * 编辑、管理员可访问
    */
   @Post('initialize')
+  @Roles('EDITOR', 'ADMIN')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: '创建初始审核记录',

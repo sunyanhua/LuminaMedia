@@ -15,7 +15,9 @@
     "rootDir": "./src",
     "baseUrl": "./src",
     "paths": {
-      "@src/*": ["*"]
+      "@src/*": ["*"],
+      "@shared/*": ["shared/*"],
+      "@modules/*": ["modules/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

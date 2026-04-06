@@ -22,7 +22,9 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { FeatureGuard } from '../../auth/guards/feature.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Feature } from '../../auth/decorators/feature.decorator';
+import { Roles } from '../../auth/decorators/roles.decorator';
 import { ContentDraftService } from '../services/content-draft.service';
 import { ContentDraft, ContentStatus } from '../../../entities/content-draft.entity';
 import { ContentDraftFilterDto } from '../dto/content-draft-filter.dto';
@@ -30,15 +32,17 @@ import { ContentDraftFilterDto } from '../dto/content-draft-filter.dto';
 @ApiTags('内容草稿管理')
 @ApiBearerAuth()
 @Controller('content-drafts')
-@UseGuards(JwtAuthGuard, FeatureGuard)
+@UseGuards(JwtAuthGuard, FeatureGuard, RolesGuard)
 @Feature('content-draft')
 export class ContentDraftController {
   constructor(private readonly contentDraftService: ContentDraftService) {}
 
   /**
    * 创建内容草稿
+   * 编辑、管理员可访问
    */
   @Post()
+  @Roles('EDITOR', 'ADMIN')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: '创建内容草稿',
@@ -56,8 +60,10 @@ export class ContentDraftController {
 
   /**
    * 更新内容草稿
+   * 编辑、管理员可访问
    */
   @Put(':id')
+  @Roles('EDITOR', 'ADMIN')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '更新内容草稿',
@@ -77,8 +83,10 @@ export class ContentDraftController {
 
   /**
    * 获取草稿详情
+   * 所有登录用户可访问
    */
   @Get(':id')
+  @Roles('EDITOR', 'MANAGER', 'LEGAL', 'ADMIN')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '获取草稿详情',
@@ -97,8 +105,10 @@ export class ContentDraftController {
 
   /**
    * 获取草稿列表
+   * 所有登录用户可访问
    */
   @Get()
+  @Roles('EDITOR', 'MANAGER', 'LEGAL', 'ADMIN')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '获取草稿列表',
@@ -139,8 +149,10 @@ export class ContentDraftController {
 
   /**
    * 提交审核
+   * 编辑、管理员可访问
    */
   @Post(':id/submit')
+  @Roles('EDITOR', 'ADMIN')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '提交审核',
@@ -159,8 +171,10 @@ export class ContentDraftController {
 
   /**
    * 撤回修改（审核通过前可撤回）
+   * 编辑、管理员可访问
    */
   @Post(':id/withdraw')
+  @Roles('EDITOR', 'ADMIN')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '撤回修改',
@@ -179,8 +193,10 @@ export class ContentDraftController {
 
   /**
    * 检查内容合规性
+   * 编辑、管理员可访问
    */
   @Post(':id/check-compliance')
+  @Roles('EDITOR', 'ADMIN')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '检查内容合规性',
@@ -204,8 +220,10 @@ export class ContentDraftController {
 
   /**
    * 删除草稿
+   * 编辑、管理员可访问
    */
   @Delete(':id')
+  @Roles('EDITOR', 'ADMIN')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: '删除草稿',
@@ -224,8 +242,10 @@ export class ContentDraftController {
 
   /**
    * 获取待发文章列表（状态为APPROVED）
+   * 所有登录用户可访问
    */
   @Get('approved-for-publishing')
+  @Roles('EDITOR', 'MANAGER', 'LEGAL', 'ADMIN')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '获取待发文章列表',
@@ -265,8 +285,10 @@ export class ContentDraftController {
 
   /**
    * 更新发布顺序
+   * 编辑、管理员可访问
    */
   @Put('publish-order')
+  @Roles('EDITOR', 'ADMIN')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '更新发布顺序',
@@ -283,8 +305,10 @@ export class ContentDraftController {
 
   /**
    * 发布单个文章
+   * 管理员可访问
    */
   @Post(':id/publish')
+  @Roles('ADMIN')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '发布文章',
@@ -306,8 +330,10 @@ export class ContentDraftController {
 
   /**
    * 批量发布
+   * 管理员可访问
    */
   @Post('batch-publish')
+  @Roles('ADMIN')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '批量发布',

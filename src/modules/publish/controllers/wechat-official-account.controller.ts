@@ -11,6 +11,7 @@ import {
   HttpStatus,
   UseGuards,
   Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -61,7 +62,11 @@ export class WechatOfficialAccountController {
     @Query('redirectUri') redirectUri: string,
     @Req() req: Request,
   ) {
-    const tenantId = (req.user as any)?.tenantId || 'demo-tenant';
+    const user = req.user as any;
+    if (!user?.tenantId) {
+      throw new UnauthorizedException('未授权：租户ID缺失');
+    }
+    const tenantId = user.tenantId;
     const result = await this.wechatAccountService.getAuthorizationUrl(
       tenantId,
       redirectUri,
@@ -100,7 +105,11 @@ export class WechatOfficialAccountController {
     @Query('state') state: string,
     @Req() req: Request,
   ) {
-    const tenantId = (req.user as any)?.tenantId || 'demo-tenant';
+    const user = req.user as any;
+    if (!user?.tenantId) {
+      throw new UnauthorizedException('未授权：租户ID缺失');
+    }
+    const tenantId = user.tenantId;
     const result = await this.wechatAccountService.handleAuthorizationCallback(
       code,
       state,
@@ -134,7 +143,11 @@ export class WechatOfficialAccountController {
   })
   @ApiResponse({ status: 200, description: '成功获取列表' })
   async getAccounts(@Req() req: Request) {
-    const tenantId = (req.user as any)?.tenantId || 'demo-tenant';
+    const user = req.user as any;
+    if (!user?.tenantId) {
+      throw new UnauthorizedException('未授权：租户ID缺失');
+    }
+    const tenantId = user.tenantId;
     const accounts = await this.wechatAccountService.getBoundAccounts(tenantId);
 
     return {
@@ -160,7 +173,11 @@ export class WechatOfficialAccountController {
     @Param('accountId') accountId: string,
     @Req() req: Request,
   ) {
-    const tenantId = (req.user as any)?.tenantId || 'demo-tenant';
+    const user = req.user as any;
+    if (!user?.tenantId) {
+      throw new UnauthorizedException('未授权：租户ID缺失');
+    }
+    const tenantId = user.tenantId;
     try {
       const details = await this.wechatAccountService.getAccountDetails(
         accountId,
@@ -195,7 +212,11 @@ export class WechatOfficialAccountController {
     @Param('accountId') accountId: string,
     @Req() req: Request,
   ) {
-    const tenantId = (req.user as any)?.tenantId || 'demo-tenant';
+    const user = req.user as any;
+    if (!user?.tenantId) {
+      throw new UnauthorizedException('未授权：租户ID缺失');
+    }
+    const tenantId = user.tenantId;
     try {
       const stats = await this.wechatAccountService.getAccountStats(
         accountId,
@@ -230,7 +251,11 @@ export class WechatOfficialAccountController {
     @Param('accountId') accountId: string,
     @Req() req: Request,
   ) {
-    const tenantId = (req.user as any)?.tenantId || 'demo-tenant';
+    const user = req.user as any;
+    if (!user?.tenantId) {
+      throw new UnauthorizedException('未授权：租户ID缺失');
+    }
+    const tenantId = user.tenantId;
     const result = await this.wechatAccountService.refreshAccessToken(
       accountId,
       tenantId,
@@ -268,7 +293,11 @@ export class WechatOfficialAccountController {
     @Param('accountId') accountId: string,
     @Req() req: Request,
   ) {
-    const tenantId = (req.user as any)?.tenantId || 'demo-tenant';
+    const user = req.user as any;
+    if (!user?.tenantId) {
+      throw new UnauthorizedException('未授权：租户ID缺失');
+    }
+    const tenantId = user.tenantId;
     const result = await this.wechatAccountService.updateAccountData(
       accountId,
       tenantId,
@@ -305,7 +334,11 @@ export class WechatOfficialAccountController {
     @Param('accountId') accountId: string,
     @Req() req: Request,
   ) {
-    const tenantId = (req.user as any)?.tenantId || 'demo-tenant';
+    const user = req.user as any;
+    if (!user?.tenantId) {
+      throw new UnauthorizedException('未授权：租户ID缺失');
+    }
+    const tenantId = user.tenantId;
     const result = await this.wechatAccountService.unbindAccount(
       accountId,
       tenantId,
@@ -339,7 +372,11 @@ export class WechatOfficialAccountController {
     @Body() body: { accountIds: string[] },
     @Req() req: Request,
   ) {
-    const tenantId = (req.user as any)?.tenantId || 'demo-tenant';
+    const user = req.user as any;
+    if (!user?.tenantId) {
+      throw new UnauthorizedException('未授权：租户ID缺失');
+    }
+    const tenantId = user.tenantId;
     const { accountIds } = body;
 
     const results = await Promise.all(
@@ -387,7 +424,11 @@ export class WechatOfficialAccountController {
   })
   @ApiResponse({ status: 200, description: '成功获取数据看板汇总' })
   async getDashboardSummary(@Req() req: Request) {
-    const tenantId = (req.user as any)?.tenantId || 'demo-tenant';
+    const user = req.user as any;
+    if (!user?.tenantId) {
+      throw new UnauthorizedException('未授权：租户ID缺失');
+    }
+    const tenantId = user.tenantId;
     try {
       // 获取所有已绑定的公众号
       const accounts = await this.wechatAccountService.getBoundAccounts(tenantId);
@@ -521,7 +562,11 @@ export class WechatOfficialAccountController {
     @Query('limit') limit: string = '10',
     @Req() req: Request,
   ) {
-    const tenantId = (req.user as any)?.tenantId || 'demo-tenant';
+    const user = req.user as any;
+    if (!user?.tenantId) {
+      throw new UnauthorizedException('未授权：租户ID缺失');
+    }
+    const tenantId = user.tenantId;
     const limitNum = parseInt(limit, 10) || 10;
 
     try {

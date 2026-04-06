@@ -81,13 +81,15 @@ export class TagCalculatorService {
 
         // 批量更新客户画像
         let updateCount = 0;
-        for (const result of tagResults) {
-          await this.updateCustomerTags(
-            result.customerId,
-            tagDef.name,
-            result.tagValue,
-          );
-          updateCount++;
+        // 收集批量更新
+        const batchUpdates = tagResults.map(result => ({
+          customerId: result.customerId,
+          tagName: tagDef.name,
+          tagValue: result.tagValue,
+        }));
+
+        if (batchUpdates.length > 0) {
+          updateCount = await this.batchUpdateCustomerTags(batchUpdates);
         }
 
         result.tagUpdates[tagDef.name] = updateCount;

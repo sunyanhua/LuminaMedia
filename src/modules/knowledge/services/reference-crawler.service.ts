@@ -5,6 +5,7 @@ import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import * as cheerio from 'cheerio';
 import * as crypto from 'crypto';
+import { In } from 'typeorm';
 
 import { ReferenceInfoService, CrawlResult } from './reference-info.service';
 import { ReferenceInfo } from '../../../entities/reference-info.entity';
@@ -259,28 +260,39 @@ export class ReferenceCrawlerService {
     const tenantId = this.tenantContextService.getTenantId();
     let savedCount = 0;
 
+    if (results.length === 0) {
+      return 0;
+    }
+
+    // 批量检查已存在的记录，避免N+1查询
+    const sourceUrls = results.map(result => result.sourceUrl);
+    const existingRecords = await this.referenceInfoService['referenceInfoRepository'].find({
+      where: {
+        tenantId,
+        sourceUrl: In(sourceUrls),
+      },
+      select: ['sourceUrl'],
+    });
+    const existingUrls = new Set(existingRecords.map(record => record.sourceUrl));
+
+    // 获取租户关键词（一次获取，避免多次查询）
+    const tenantKeywords = await this.getTenantKeywords();
+
     for (const result of results) {
       try {
-        // 检查是否已存在相同内容的记录（通过内容哈希去重）
+        // 检查是否已存在相同URL的记录
+        if (existingUrls.has(result.sourceUrl)) {
+          this.logger.debug(`Skipping duplicate: ${result.title}`);
+          continue;
+        }
+
+        // 计算内容哈希
         const contentHash = crypto
           .createHash('md5')
           .update(result.title + result.content)
           .digest('hex');
 
-        const existing = await this.referenceInfoService['referenceInfoRepository'].findOne({
-          where: {
-            tenantId,
-            sourceUrl: result.sourceUrl,
-          },
-        });
-
-        if (existing) {
-          this.logger.debug(`Skipping duplicate: ${result.title}`);
-          continue;
-        }
-
         // 计算相关度评分（基于租户关键词）
-        const tenantKeywords = await this.getTenantKeywords();
         const relevance = this.referenceInfoService.calculateRelevance(
           result.content,
           tenantKeywords,

@@ -33,6 +33,8 @@ const QuotaConfig = lazy(() => import('../pages/Admin/QuotaConfig'));
 const KnowledgeBase = lazy(() => import('../pages/SmartArchive/KnowledgeBase'));
 const ReferenceInfo = lazy(() => import('../pages/SmartArchive/ReferenceInfo'));
 const WechatAccountBinding = lazy(() => import('../pages/WechatMp/WechatAccountBinding'));
+const TopicSelection = lazy(() => import('../pages/WechatMp/TopicSelection'));
+const MaterialSupplement = lazy(() => import('../pages/WechatMp/MaterialSupplement'));
 const ContentConfirmation = lazy(() => import('../pages/WechatMp/ContentConfirmation'));
 const ContentList = lazy(() => import('../pages/WechatMp/ContentList'));
 const PublishQueue = lazy(() => import('../pages/Publish/PublishQueue'));
@@ -42,6 +44,8 @@ const MyPendingReviews = lazy(() => import('../pages/Review/MyPendingReviews'));
 const WechatDataDashboard = lazy(() => import('../pages/WechatMp/WechatDataDashboard'));
 // 智能报告页面
 const IntelligentReports = lazy(() => import('../pages/Reports/IntelligentReports'));
+// 舆情监测页面
+const SentimentMonitor = lazy(() => import('../pages/Sentiment/SentimentMonitor'));
 
 // 加载中组件
 const LoadingFallback = () => (
@@ -236,6 +240,22 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: 'topic-selection',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <TopicSelection />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'material-supplement/:id',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <MaterialSupplement />
+          </Suspense>
+        ),
+      },
+      {
         path: 'wechat-mp',
         element: (
           <Suspense fallback={<LoadingFallback />}>
@@ -288,6 +308,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingFallback />}>
             <IntelligentReports />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'sentiment-monitor',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <SentimentMonitor />
           </Suspense>
         ),
       },
@@ -372,12 +400,15 @@ export const ROUTE_PATHS = {
   GOVERNMENT_SMART_ARCHIVE: '/government/smart-archive',
   GOVERNMENT_REFERENCE_INFO: '/government/reference-info',
   GOVERNMENT_WECHAT_MP: '/government/wechat-mp',
+  GOVERNMENT_TOPIC_SELECTION: '/government/topic-selection',
+  GOVERNMENT_MATERIAL_SUPPLEMENT: '/government/material-supplement',
   GOVERNMENT_CONTENT_CONFIRM: '/government/content-confirm',
   GOVERNMENT_CONTENT_LIST: '/government/content-list',
   GOVERNMENT_REVIEW: '/government/review',
   GOVERNMENT_PUBLISH_QUEUE: '/government/publish-queue',
   GOVERNMENT_WECHAT_DASHBOARD: '/government/wechat-dashboard',
   GOVERNMENT_INTELLIGENT_REPORTS: '/government/intelligent-reports',
+  GOVERNMENT_SENTIMENT_MONITOR: '/government/sentiment-monitor',
 } as const;
 
 // 页面标题映射
@@ -396,10 +427,13 @@ export const PAGE_TITLES: Record<string, string> = {
   '/government/emergency': '应急响应',
   '/government/smart-archive': '智慧档案',
   '/government/wechat-mp': '公众号管理',
+  '/government/topic-selection': '选题策划',
+  '/government/material-supplement': '资料补充',
   '/government/content-confirm': '内容确认',
   '/government/content-list': '内容列表',
   '/government/review': '审核工作台',
   '/government/publish-queue': '一键发布',
   '/government/wechat-dashboard': '公众号数据看板',
   '/government/intelligent-reports': '智能报告中心',
+  '/government/sentiment-monitor': '舆情监测',
 };

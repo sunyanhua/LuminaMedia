@@ -1,8 +1,8 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GeminiService } from '../../../../data-analytics/services/gemini.service';
-import { QwenService } from '../../../../data-analytics/services/qwen.service';
-import { Platform } from '../../../../../shared/enums/platform.enum';
+import { GeminiService } from '@modules/data-analytics/services/gemini.service';
+import { QwenService } from '@modules/data-analytics/services/qwen.service';
+import { Platform } from '@shared/enums/platform.enum';
 import {
   AnalysisAgentInput,
   AnalysisAgentOutput,

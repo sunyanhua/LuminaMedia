@@ -1,4 +1,3 @@
-
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { Outlet, useLocation } from 'react-router-dom';
@@ -42,7 +41,7 @@ function GovernmentLayout() {
         { label: '灵曜智媒' },
         { label: '政务版' },
         { label: '应急响应', active: true },
-      },
+      ],
       '/government/smart-archive': [
         { label: '灵曜智媒' },
         { label: '政务版' },

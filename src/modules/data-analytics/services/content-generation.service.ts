@@ -259,25 +259,24 @@ export class ContentGenerationService {
   ): Promise<ContentGenerationResult[]> {
     this.logger.log(`Batch generating ${optionsList.length} content items`);
 
-    const results: ContentGenerationResult[] = [];
-
-    for (const options of optionsList) {
+    // 并发执行所有生成任务
+    const promises = optionsList.map(async (options) => {
       try {
-        const result = await this.generateContent(options);
-        results.push(result);
+        return await this.generateContent(options);
       } catch (error) {
         this.logger.error(`Batch item failed: ${error.message}`);
-        results.push({
+        return {
           success: false,
           error: {
             code: 'BATCH_ITEM_ERROR',
             message: 'Batch generation item failed',
             details: error.message,
           },
-        });
+        } as ContentGenerationResult;
       }
-    }
+    });
 
+    const results = await Promise.all(promises);
     return results;
   }
 
