@@ -22,7 +22,7 @@ import {
   ApiOkResponse,
   ApiNoContentResponse,
 } from '@nestjs/swagger';
-import { ReferenceInfoService, ReferenceInfoQueryOptions } from '../services/reference-info.service';
+import { ReferenceInfoService, type ReferenceInfoQueryOptions } from '../services/reference-info.service';
 import { ReferenceCrawlerService } from '../services/reference-crawler.service';
 import { ReferenceInfo, ReferenceInfoStatus } from '../../../entities/reference-info.entity';
 

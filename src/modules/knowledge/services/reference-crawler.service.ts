@@ -31,7 +31,7 @@ interface CrawlSourceConfig {
 @Injectable()
 export class ReferenceCrawlerService {
   private readonly logger = new Logger(ReferenceCrawlerService.name);
-  private readonly crawlSources: CrawlSourceConfig[] = [];
+  private crawlSources: CrawlSourceConfig[] = [];
 
   constructor(
     private readonly configService: ConfigService,

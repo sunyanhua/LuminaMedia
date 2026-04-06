@@ -123,7 +123,7 @@ export class UserDocumentRepository extends BaseRepository<UserDocument> {
    */
   async updateExtractionStatus(
     documentId: string,
-    status: string,
+    status: 'pending' | 'processing' | 'completed' | 'failed',
     errorMessage?: string,
     content?: string,
     summary?: string,

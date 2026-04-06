@@ -22,6 +22,8 @@ import {
   PublishingHabitsDetail,
   ProfileRawData,
 } from '../../../entities/tenant-profile.entity';
+import { DocumentStatus } from '../../../entities/knowledge-document.entity';
+import { Platform } from '../../../shared/enums/platform.enum';
 
 /**
  * 租户画像生成服务
@@ -103,7 +105,7 @@ export class TenantProfileService {
         where: {
           id: documentIds as any,
           tenantId,
-          status: 'active',
+          status: DocumentStatus.ACTIVE,
         },
         take: 20, // 限制最多20个文档进行分析
       });
@@ -112,7 +114,7 @@ export class TenantProfileService {
       return this.knowledgeDocumentRepository.find({
         where: {
           tenantId,
-          status: 'active',
+          status: DocumentStatus.ACTIVE,
         },
         order: {
           createdAt: 'DESC',
@@ -240,7 +242,7 @@ ${documentsText}
       // 使用Gemini服务生成内容
       const result = await this.geminiService.generateContent({
         prompt,
-        platform: 'analysis', // 自定义平台类型
+        platform: Platform.ANALYSIS, // 自定义平台类型
         tone: 'professional',
         wordCount: 1000,
       });
@@ -425,9 +427,11 @@ ${documentsText}
    * 获取租户画像详情
    */
   async getProfile(profileId: string): Promise<TenantProfile> {
-    const profile = await this.tenantProfileRepository.findOne({
-      where: { id: profileId, deletedAt: null },
-    });
+    const profile = await this.tenantProfileRepository
+      .createQueryBuilder('profile')
+      .where('profile.id = :profileId', { profileId })
+      .andWhere('profile.deletedAt IS NULL')
+      .getOne();
 
     if (!profile) {
       throw new NotFoundException(`租户画像不存在: ${profileId}`);

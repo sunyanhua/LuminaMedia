@@ -18,7 +18,7 @@ import {
   NotFoundException,
   Res,
 } from '@nestjs/common';
-import { Response } from 'express';
+import type { Response } from 'express';
 import * as fs from 'fs/promises';
 import { createReadStream } from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -973,8 +973,8 @@ export class KnowledgeDocumentController {
   @ApiResponse({ status: 400, description: '文档不是文件类型' })
   async downloadDocumentFile(
     @Param('id') id: string,
-    @Query('preview') preview?: boolean,
     @Res() res: Response,
+    @Query('preview') preview?: boolean,
   ) {
     const document = await this.knowledgeDocumentService.getDocument(id);
 

@@ -1,7 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
-import { Request } from 'express';
+import type { Request } from 'express';
 
 export const ROLES_KEY = 'roles';
 

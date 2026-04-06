@@ -14,6 +14,7 @@ import { KnowledgeDocumentService } from './services/knowledge-document.service'
 import { TenantProfileService } from './services/tenant-profile.service';
 import { ReferenceInfoService } from './services/reference-info.service';
 import { ReferenceCrawlerService } from './services/reference-crawler.service';
+import { ReferenceInfoController } from './controllers/reference-info.controller';
 import { EnterpriseProfileController } from './controllers/enterprise-profile.controller';
 import { KnowledgeDocumentController } from './controllers/knowledge-document.controller';
 import { TenantProfileController } from './controllers/tenant-profile.controller';

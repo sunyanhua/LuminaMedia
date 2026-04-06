@@ -19,7 +19,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../shared/guards/tenant.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { UserRole } from '../../../entities/user.entity';
+import { UserRole } from '../../../shared/enums/user-role.enum';
 
 @ApiTags('知识库 - 租户画像')
 @ApiBearerAuth()
@@ -31,7 +31,7 @@ export class TenantProfileController {
   constructor(private readonly tenantProfileService: TenantProfileService) {}
 
   @Post('generate')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.EDITOR)
+  @Roles(UserRole.ADMIN, UserRole.CONTENT_MANAGER, UserRole.CONTENT_EDITOR)
   @ApiOperation({ summary: '生成租户画像', description: '基于知识库文档生成或重新生成租户画像' })
   @ApiResponse({ status: HttpStatus.CREATED, description: '画像生成任务已启动', type: TenantProfile })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '没有可用的知识库文档' })
@@ -50,7 +50,7 @@ export class TenantProfileController {
   }
 
   @Get('current')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.EDITOR, UserRole.VIEWER)
+  @Roles(UserRole.ADMIN, UserRole.CONTENT_MANAGER, UserRole.CONTENT_EDITOR, UserRole.VIEWER)
   @ApiOperation({ summary: '获取当前租户画像', description: '获取当前租户的最新版本画像' })
   @ApiResponse({ status: HttpStatus.OK, description: '返回当前租户画像', type: TenantProfile })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '未找到画像' })
@@ -60,7 +60,7 @@ export class TenantProfileController {
   }
 
   @Get('versions')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.EDITOR, UserRole.VIEWER)
+  @Roles(UserRole.ADMIN, UserRole.CONTENT_MANAGER, UserRole.CONTENT_EDITOR, UserRole.VIEWER)
   @ApiOperation({ summary: '获取租户画像版本列表', description: '获取租户的所有画像版本' })
   @ApiResponse({ status: HttpStatus.OK, description: '返回画像版本列表', type: [TenantProfile] })
   async getProfileVersions(): Promise<TenantProfile[]> {
@@ -69,7 +69,7 @@ export class TenantProfileController {
   }
 
   @Get(':id')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.EDITOR, UserRole.VIEWER)
+  @Roles(UserRole.ADMIN, UserRole.CONTENT_MANAGER, UserRole.CONTENT_EDITOR, UserRole.VIEWER)
   @ApiOperation({ summary: '获取画像详情', description: '根据ID获取特定画像详情' })
   @ApiParam({ name: 'id', description: '画像ID' })
   @ApiResponse({ status: HttpStatus.OK, description: '返回画像详情', type: TenantProfile })
@@ -79,7 +79,7 @@ export class TenantProfileController {
   }
 
   @Put(':id')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @Roles(UserRole.ADMIN, UserRole.CONTENT_MANAGER)
   @ApiOperation({ summary: '更新画像', description: '人工调整画像内容' })
   @ApiParam({ name: 'id', description: '画像ID' })
   @ApiResponse({ status: HttpStatus.OK, description: '更新成功', type: TenantProfile })
@@ -105,7 +105,7 @@ export class TenantProfileController {
   }
 
   @Get(':id/status')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.EDITOR, UserRole.VIEWER)
+  @Roles(UserRole.ADMIN, UserRole.CONTENT_MANAGER, UserRole.CONTENT_EDITOR, UserRole.VIEWER)
   @ApiOperation({ summary: '获取画像生成状态', description: '获取画像的生成状态信息' })
   @ApiParam({ name: 'id', description: '画像ID' })
   @ApiResponse({ status: HttpStatus.OK, description: '返回状态信息' })
@@ -119,7 +119,7 @@ export class TenantProfileController {
   }
 
   @Post(':id/regenerate')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @Roles(UserRole.ADMIN, UserRole.CONTENT_MANAGER)
   @ApiOperation({ summary: '重新生成画像', description: '基于最新文档重新生成画像' })
   @ApiParam({ name: 'id', description: '当前画像ID' })
   @ApiResponse({ status: HttpStatus.CREATED, description: '重新生成任务已启动', type: TenantProfile })

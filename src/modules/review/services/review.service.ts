@@ -193,7 +193,7 @@ export class ReviewService {
     } else {
       // 更新现有记录
       reviewRecord.status = data.status;
-      reviewRecord.comment = data.comment;
+      reviewRecord.comment = data.comment ?? '';
       reviewRecord.reviewedAt = new Date();
     }
 
@@ -253,7 +253,7 @@ export class ReviewService {
         contentDraftId: contentDraft.id,
         tenantId: contentDraft.tenantId,
         reviewerId: 'system', // 系统用户
-        reviewerRole: 'SYSTEM',
+        reviewerRole: UserRole.SUPER_ADMIN, // 系统用户作为超级管理员
         reviewStep: ReviewStep.AI_REVIEW,
         status: ReviewStatus.PENDING,
       });
@@ -279,7 +279,7 @@ export class ReviewService {
         contentDraftId: contentDraft.id,
         tenantId: contentDraft.tenantId,
         reviewerId: 'pending', // 待指定主管
-        reviewerRole: 'CONTENT_MANAGER',
+        reviewerRole: UserRole.CONTENT_MANAGER,
         reviewStep: ReviewStep.MANAGER_REVIEW,
         status: ReviewStatus.PENDING,
       });
@@ -294,7 +294,7 @@ export class ReviewService {
         contentDraftId: contentDraft.id,
         tenantId: contentDraft.tenantId,
         reviewerId: 'pending',
-        reviewerRole: 'CONTENT_MANAGER',
+        reviewerRole: UserRole.CONTENT_MANAGER,
         reviewStep: ReviewStep.MANAGER_REVIEW,
         status: ReviewStatus.PENDING,
       });

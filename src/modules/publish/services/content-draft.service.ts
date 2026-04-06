@@ -333,7 +333,7 @@ export class ContentDraftService {
     tenantId: string,
     userId: string,
   ): Promise<{ success: string[]; failed: Array<{ id: string; reason: string }> }> {
-    const results = { success: [], failed: [] };
+    const results: { success: string[]; failed: Array<{ id: string; reason: string }> } = { success: [], failed: [] };
 
     for (const draftId of draftIds) {
       try {

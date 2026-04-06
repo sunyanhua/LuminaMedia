@@ -53,7 +53,9 @@
       "Read(//d D:/GitHub/LuminaMedia/**)",
       "Bash(npm install:*)",
       "mcp__ide__executeCode",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(tee /tmp/build.log)",
+      "Bash(docker build:*)"
     ]
   }
 }

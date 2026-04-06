@@ -138,10 +138,10 @@ export class TopicController {
   @ApiQuery({ name: 'limit', required: false, description: '每页数量', example: 20 })
   @ApiResponse({ status: 200, description: '成功获取选题列表' })
   async getTopics(
+    @Request() req: any,
     @Query('status') status?: TopicStatus,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
-    @Request() req: any,
   ): Promise<{ topics: Topic[]; total: number; page: number; limit: number }> {
     const userId = req.user.id;
     const tenantId = req.user.tenantId;

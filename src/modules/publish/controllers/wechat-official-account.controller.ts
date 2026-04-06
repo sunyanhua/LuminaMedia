@@ -27,7 +27,7 @@ import { Feature } from '../../auth/decorators/feature.decorator';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { WechatOfficialAccountService } from '../services/wechat-official-account.service';
-import { Request } from 'express';
+import type { Request } from 'express';
 
 /**
  * 微信公众号账号控制器
@@ -603,7 +603,7 @@ export class WechatOfficialAccountController {
       }
 
       // 根据类型排序
-      let sortedArticles = [];
+      let sortedArticles: any[] = [];
       if (type === 'like') {
         sortedArticles = allArticles
           .sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0))
