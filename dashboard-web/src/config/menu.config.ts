@@ -12,11 +12,13 @@ export interface MenuItem {
 
 // 动态菜单配置
 export const MENU_CONFIG: MenuItem[] = [
+  // ==================== 商务版菜单 ====================
   {
     key: 'dashboard',
     title: '仪表盘',
     icon: 'dashboard',
     path: '/business/dashboard',
+    tenantType: 'business',
   },
   {
     key: 'analytics',
@@ -32,7 +34,7 @@ export const MENU_CONFIG: MenuItem[] = [
     icon: 'ai',
     path: '/business/ai-strategy',
     featureKey: 'ai-strategy',
-    tenantType: 'all',
+    tenantType: 'business',
   },
   {
     key: 'matrix',
@@ -40,36 +42,52 @@ export const MENU_CONFIG: MenuItem[] = [
     icon: 'matrix',
     path: '/business/matrix',
     featureKey: 'matrix-publish',
-    tenantType: 'all',
+    tenantType: 'business',
   },
   {
-    key: 'governance',
-    title: '发稿审核',
-    icon: 'governance',
-    path: '/government/governance',
-    featureKey: 'government-publish',
-    tenantType: 'government',
+    key: 'demo',
+    title: '演示中心',
+    icon: 'demo',
+    path: '/business/demo',
+    tenantType: 'business',
   },
+
+  // ==================== 政务版菜单 ====================
   {
-    key: 'review',
-    title: '审核工作台',
-    icon: 'governance', // 使用相同的图标
-    path: '/government/review',
-    featureKey: 'government-publish',
+    key: 'gov-dashboard',
+    title: '工作台',
+    icon: 'dashboard',
+    path: '/government/dashboard',
     tenantType: 'government',
   },
   {
     key: 'smart-archive',
     title: '智慧档案',
-    icon: 'analytics',
+    icon: 'archive',
     path: '/government/smart-archive',
     featureKey: 'smart-archive',
     tenantType: 'government',
   },
   {
+    key: 'reference-info',
+    title: '参考信息',
+    icon: 'info',
+    path: '/government/reference-info',
+    featureKey: 'reference-info',
+    tenantType: 'government',
+  },
+  {
+    key: 'sentiment-monitor',
+    title: '舆情监测',
+    icon: 'sentiment',
+    path: '/government/sentiment-monitor',
+    featureKey: 'sentiment-analysis',
+    tenantType: 'government',
+  },
+  {
     key: 'wechat-mp',
     title: '公众号管理',
-    icon: 'wechat', // 需要添加图标
+    icon: 'wechat',
     tenantType: 'government',
     children: [
       {
@@ -78,9 +96,19 @@ export const MENU_CONFIG: MenuItem[] = [
         path: '/government/wechat-mp',
       },
       {
+        key: 'topic-selection',
+        title: '内容发布',
+        path: '/government/topic-selection',
+      },
+      {
         key: 'content-list',
         title: '内容列表',
         path: '/government/content-list',
+      },
+      {
+        key: 'publish-queue',
+        title: '一键发布',
+        path: '/government/publish-queue',
       },
       {
         key: 'wechat-dashboard',
@@ -90,36 +118,23 @@ export const MENU_CONFIG: MenuItem[] = [
     ],
   },
   {
-    key: 'reference-info',
-    title: '参考信息',
-    icon: 'info', // 可能需要添加图标
-    path: '/government/reference-info',
-    featureKey: 'reference-info',
+    key: 'review',
+    title: '三审三校',
+    icon: 'governance',
+    path: '/government/review',
+    featureKey: 'government-publish',
     tenantType: 'government',
   },
   {
-    key: 'sentiment-analysis',
-    title: '舆情监测',
-    icon: 'sentiment',
-    path: '/government/sentiment-analysis',
-    featureKey: 'sentiment-analysis',
+    key: 'intelligent-reports',
+    title: '一键报告',
+    icon: 'report',
+    path: '/government/intelligent-reports',
+    featureKey: 'smart-report',
     tenantType: 'government',
   },
-  {
-    key: 'geo-analysis',
-    title: 'GEO分析',
-    icon: 'geo',
-    path: '/government/geo-analysis',
-    featureKey: 'geo-analysis',
-    tenantType: 'government',
-  },
-  {
-    key: 'demo',
-    title: '演示中心',
-    icon: 'demo',
-    path: '/business/demo',
-    tenantType: 'business',
-  },
+
+  // ==================== 管理后台菜单 ====================
   {
     key: 'admin',
     title: '管理后台',

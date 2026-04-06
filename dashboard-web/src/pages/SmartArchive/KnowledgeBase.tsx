@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Upload, FileText, Globe, Search, Filter, Download, Trash2, Eye } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 // 文档类型定义
 interface KnowledgeDocument {
@@ -115,7 +115,7 @@ const KnowledgeBase: React.FC = () => {
       console.error('获取文档列表失败:', error);
       toast({
         title: '获取文档列表失败',
-        description: error.message,
+        description: error instanceof Error ? error.message : '未知错误',
         variant: 'destructive',
       });
     } finally {
@@ -173,7 +173,7 @@ const KnowledgeBase: React.FC = () => {
       console.error('上传文件失败:', error);
       toast({
         title: '上传失败',
-        description: error.message,
+        description: error instanceof Error ? error.message : '未知错误',
         variant: 'destructive',
       });
     } finally {
@@ -220,7 +220,7 @@ const KnowledgeBase: React.FC = () => {
       console.error('采集网页失败:', error);
       toast({
         title: '采集失败',
-        description: error.message,
+        description: error instanceof Error ? error.message : '未知错误',
         variant: 'destructive',
       });
     } finally {
@@ -247,7 +247,7 @@ const KnowledgeBase: React.FC = () => {
       console.error('删除文档失败:', error);
       toast({
         title: '删除失败',
-        description: error.message,
+        description: error instanceof Error ? error.message : '未知错误',
         variant: 'destructive',
       });
     }
@@ -269,7 +269,7 @@ const KnowledgeBase: React.FC = () => {
       console.error('预览文档失败:', error);
       toast({
         title: '预览失败',
-        description: error.message,
+        description: error instanceof Error ? error.message : '未知错误',
         variant: 'destructive',
       });
     } finally {

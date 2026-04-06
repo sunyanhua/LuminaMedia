@@ -12,7 +12,7 @@ export interface MobileCardProps {
   /**
    * 卡片标题
    */
-  title: string;
+  title?: string;
   /**
    * 卡片副标题
    */
@@ -106,36 +106,40 @@ export function MobileCard({
       onClick={onClick}
     >
       {/* 卡片头部 */}
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-base font-semibold text-foreground truncate">
-              {title}
-            </h3>
-            {showArrow && (
-              <RightOutline className="text-text-tertiary text-sm" />
+      {(title || subtitle || tags.length > 0) && (
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1">
+            {title && (
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-base font-semibold text-foreground truncate">
+                  {title}
+                </h3>
+                {showArrow && (
+                  <RightOutline className="text-text-tertiary text-sm" />
+                )}
+              </div>
+            )}
+            {subtitle && (
+              <p className="text-sm text-text-secondary truncate">{subtitle}</p>
             )}
           </div>
-          {subtitle && (
-            <p className="text-sm text-text-secondary truncate">{subtitle}</p>
+
+          {/* 标签 */}
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {tags.map((tag, index) => (
+                <Tag
+                  key={index}
+                  color="default"
+                  className="text-xs px-2 py-0.5"
+                >
+                  {tag}
+                </Tag>
+              ))}
+            </div>
           )}
         </div>
-
-        {/* 标签 */}
-        {tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {tags.map((tag, index) => (
-              <Tag
-                key={index}
-                color="default"
-                className="text-xs px-2 py-0.5"
-              >
-                {tag}
-              </Tag>
-            ))}
-          </div>
-        )}
-      </div>
+      )}
 
       {/* 卡片内容 */}
       {children && (

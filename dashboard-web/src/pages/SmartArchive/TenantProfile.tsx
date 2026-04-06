@@ -14,7 +14,7 @@ import {
   RefreshCw, Edit, Save, X, Target, MessageSquare, Palette, Tag, Clock,
   Sparkles
 } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 // 知识库文档类型
 interface KnowledgeDocument {
@@ -160,7 +160,7 @@ const TenantProfilePage: React.FC = () => {
       console.error('获取文档列表失败:', error);
       toast({
         title: '获取文档列表失败',
-        description: error.message,
+        description: error instanceof Error ? error.message : '未知错误',
         variant: 'destructive',
       });
     } finally {
@@ -273,7 +273,7 @@ const TenantProfilePage: React.FC = () => {
       console.error('生成画像失败:', error);
       toast({
         title: '生成失败',
-        description: error.message,
+        description: error instanceof Error ? error.message : '未知错误',
         variant: 'destructive',
       });
     } finally {
@@ -317,7 +317,7 @@ const TenantProfilePage: React.FC = () => {
       console.error('保存画像失败:', error);
       toast({
         title: '保存失败',
-        description: error.message,
+        description: error instanceof Error ? error.message : '未知错误',
         variant: 'destructive',
       });
     }
@@ -346,7 +346,7 @@ const TenantProfilePage: React.FC = () => {
       console.error('重新生成画像失败:', error);
       toast({
         title: '重新生成失败',
-        description: error.message,
+        description: error instanceof Error ? error.message : '未知错误',
         variant: 'destructive',
       });
     } finally {

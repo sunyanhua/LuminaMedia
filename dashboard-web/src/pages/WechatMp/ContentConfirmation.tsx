@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Input, TextArea, ImageUploader, Toast, Space } from 'antd-mobile';
-import { SaveOutline, SendOutline, EyeOutline } from 'antd-mobile-icons';
+import { SetOutline, SendOutline, EyeOutline } from 'antd-mobile-icons';
 import { ROUTE_PATHS } from '../../routes/index';
 import { useAuth } from '../../contexts/AuthContext';
-import { api } from '../../lib/axios';
+import api from '../../services/apiClient';
 
 // 富文本编辑器 - 暂时使用TextArea，后续替换为Quill
 // import ReactQuill from 'react-quill';
@@ -23,6 +23,20 @@ interface ContentDraftData {
   topicId?: string;
   status: 'draft' | 'pending_edit' | 'pending_manager' | 'pending_legal' | 'approved' | 'published' | 'rejected';
 }
+
+// 获取租户ID
+const getTenantId = () => {
+  const userStr = localStorage.getItem('lumina-user');
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      return user.tenantId;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+};
 
 export default function ContentConfirmation() {
   const { id } = useParams<{ id?: string }>(); // draftId 或 topicId
@@ -57,7 +71,7 @@ export default function ContentConfirmation() {
   const loadDraft = async (draftId: string) => {
     try {
       setLoading(true);
-      const response = await api.get(`/api/content-drafts/${draftId}`);
+      const response = await api.get(`/api/content-drafts/${draftId}`) as { data: ContentDraftData };
       setDraft(response.data);
       performContentCheck(response.data.content);
     } catch (error) {
@@ -96,18 +110,23 @@ export default function ContentConfirmation() {
   const handleSaveDraft = async () => {
     try {
       setSaving(true);
+      const tenantId = getTenantId();
       const payload = {
         ...draft,
         userId: user?.id,
-        tenantId: user?.tenantId,
+        tenantId: tenantId,
       };
 
       const url = draft.id
         ? `/api/content-drafts/${draft.id}`
         : '/api/content-drafts';
-      const method = draft.id ? 'put' : 'post';
 
-      const response = await api[method](url, payload);
+      let response;
+      if (draft.id) {
+        response = await api.put(url, payload) as { data: ContentDraftData };
+      } else {
+        response = await api.post(url, payload) as { data: ContentDraftData };
+      }
       setDraft(response.data);
       Toast.show('草稿保存成功');
     } catch (error) {
@@ -132,11 +151,12 @@ export default function ContentConfirmation() {
 
     try {
       setLoading(true);
+      const tenantId = getTenantId();
       const payload = {
         ...draft,
         status: 'pending_edit', // 进入初审
         userId: user?.id,
-        tenantId: user?.tenantId,
+        tenantId: tenantId,
       };
 
       const url = draft.id
@@ -155,7 +175,7 @@ export default function ContentConfirmation() {
   };
 
   // 图片上传处理
-  const handleCoverImageUpload = (file: File) => {
+  const handleCoverImageUpload = async (file: File): Promise<{ url: string }> => {
     // 模拟上传，实际应调用API
     const url = URL.createObjectURL(file);
     setDraft(prev => ({ ...prev, coverImage: url }));
@@ -221,13 +241,7 @@ export default function ContentConfirmation() {
               <h3 className="font-medium mb-3">封面图</h3>
               <ImageUploader
                 value={draft.coverImage ? [{ url: draft.coverImage }] : []}
-                onChange={files => {
-                  if (files.length > 0) {
-                    handleCoverImageUpload(files[0].file);
-                  } else {
-                    setDraft(prev => ({ ...prev, coverImage: '' }));
-                  }
-                }}
+                onChange={() => {}}
                 maxCount={1}
                 upload={handleCoverImageUpload}
                 preview={true}
@@ -273,9 +287,11 @@ export default function ContentConfirmation() {
                 color="primary"
                 loading={saving}
                 onClick={handleSaveDraft}
-                icon={<SaveOutline />}
               >
-                保存草稿
+                <Space>
+                  <SetOutline />
+                  <span>保存草稿</span>
+                </Space>
               </Button>
 
               <Button
@@ -283,20 +299,24 @@ export default function ContentConfirmation() {
                 color="success"
                 loading={loading}
                 onClick={handleSubmitReview}
-                icon={<SendOutline />}
                 disabled={!draft.title || !draft.content}
               >
-                提交审核
+                <Space>
+                  <SendOutline />
+                  <span>提交审核</span>
+                </Space>
               </Button>
 
               <Button
                 block
                 color="default"
                 onClick={handlePreview}
-                icon={<EyeOutline />}
                 disabled={!draft.content}
               >
-                预览
+                <Space>
+                  <EyeOutline />
+                  <span>预览</span>
+                </Space>
               </Button>
             </div>
 

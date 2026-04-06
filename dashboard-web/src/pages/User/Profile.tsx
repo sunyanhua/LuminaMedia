@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useDemoQuota } from '@/hooks/useDemoQuota';
 import { Progress } from '@/components/ui/progress';
-import { QuotaDisplay } from '@/components/QuotaDisplay';
+import QuotaDisplay from '@/components/QuotaDisplay';
 import { NotificationService } from '@/services/notification.service';
 import { RotateCcw, User, Shield, Activity } from 'lucide-react';
 

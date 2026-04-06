@@ -22,7 +22,7 @@ import {
   Download,
   Calendar
 } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import env from '@/config/env';
 

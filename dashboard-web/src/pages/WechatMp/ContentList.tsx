@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import env from '@/config/env';
 import {
@@ -95,12 +95,12 @@ interface FilterParams {
 }
 
 // 状态映射
-const statusMap: Record<ContentStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' }> = {
+const statusMap: Record<ContentStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; className?: string }> = {
   [ContentStatus.DRAFT]: { label: '草稿', variant: 'outline' },
   [ContentStatus.PENDING_EDIT]: { label: '初审中', variant: 'secondary' },
   [ContentStatus.PENDING_MANAGER]: { label: '复审中', variant: 'secondary' },
   [ContentStatus.PENDING_LEGAL]: { label: '终审中', variant: 'secondary' },
-  [ContentStatus.APPROVED]: { label: '已通过', variant: 'success' },
+  [ContentStatus.APPROVED]: { label: '已通过', variant: 'default', className: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
   [ContentStatus.PUBLISHED]: { label: '已发布', variant: 'default' },
   [ContentStatus.REJECTED]: { label: '已退回', variant: 'destructive' },
 };
@@ -488,7 +488,7 @@ const ContentList: React.FC = () => {
                             {draft.title}
                           </TableCell>
                           <TableCell>
-                            <Badge variant={statusInfo.variant}>
+                            <Badge variant={statusInfo.variant} className={statusInfo.className}>
                               {statusInfo.label}
                             </Badge>
                           </TableCell>

@@ -21,7 +21,7 @@ interface ReviewRecord {
   contentDraft?: {
     id: string;
     title: string;
-    content: string;
+    content?: string;
     summary?: string;
     coverImage?: string;
     status: string;
