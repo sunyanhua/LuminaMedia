@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Topic, TopicSource, TopicStatus } from '../../../entities/topic.entity';
 import { ReferenceInfo } from '../../../entities/reference-info.entity';
 import { GeminiService } from '../../data-analytics/services/gemini.service';
+import { Platform } from '../../../shared/enums/platform.enum';
 
 export interface TopicRecommendation {
   title: string;
@@ -45,7 +46,11 @@ export class TopicService {
 
     try {
       // 调用AI生成选题建议
-      const aiResponse = await this.geminiService.generateContent(prompt);
+      const result = await this.geminiService.generateContent({
+        prompt,
+        platform: Platform.ANALYSIS,
+      });
+      const aiResponse = result.content?.content || '';
 
       // 解析AI响应
       const recommendations = this.parseTopicRecommendations(aiResponse);
@@ -265,7 +270,11 @@ ${existingTopicTitles || '暂无'}
 ]`;
 
     try {
-      const aiResponse = await this.geminiService.generateContent(prompt);
+      const result = await this.geminiService.generateContent({
+        prompt,
+        platform: Platform.ANALYSIS,
+      });
+      const aiResponse = result.content?.content || '';
       return this.parseTopicRecommendations(aiResponse);
     } catch {
       // 如果失败，返回打乱顺序的推荐

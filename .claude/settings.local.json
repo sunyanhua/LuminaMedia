@@ -49,7 +49,11 @@
       "Bash(python -m json.tool)",
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'状态: {d[\\\\\"status\\\\\"]}\\\\\\\\n时间: {d[\\\\\"timestamp\\\\\"]}'\\)\")",
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('Health Status:', d['status']\\)\")",
-      "Bash(:)"
+      "Bash(:)",
+      "Read(//d D:/GitHub/LuminaMedia/**)",
+      "Bash(npm install:*)",
+      "mcp__ide__executeCode",
+      "Bash(git checkout:*)"
     ]
   }
 }

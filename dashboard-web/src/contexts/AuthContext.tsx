@@ -98,6 +98,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string, tenantType: 'business' | 'government' = 'business') => {
     try {
+      // DEMO模式：优先检查演示账号，无需后端API
+      const demoAccount = findDemoAccount(email, password);
+      if (demoAccount) {
+        const mockUser: User = {
+          id: demoAccount.email,
+          email: demoAccount.email,
+          user_metadata: {
+            name: demoAccount.name,
+            roles: tenantType === 'government'
+              ? ['editor', 'content_manager', 'legal_reviewer']
+              : ['admin']
+          },
+          app_metadata: {},
+          aud: 'authenticated',
+          created_at: new Date().toISOString(),
+          role: 'authenticated',
+          updated_at: new Date().toISOString(),
+        } as User;
+
+        setUser(mockUser);
+
+        // 同步到 store
+        storeLogin({
+          name: demoAccount.name,
+          email: demoAccount.email,
+        });
+
+        // 存储token和用户信息到localStorage
+        localStorage.setItem('lumina-auth', 'true');
+        localStorage.setItem('lumina-user', JSON.stringify({
+          name: demoAccount.name,
+          email: demoAccount.email,
+          tenantId: TENANT_IDS[tenantType],
+          tenantType: tenantType,
+          roles: tenantType === 'government'
+            ? ['editor', 'content_manager', 'legal_reviewer']
+            : ['admin']
+        }));
+        // 同时存储到store的demoVersion字段
+        localStorage.setItem('lumina-demo-version', tenantType);
+
+        return { error: null };
+      }
+
       const tenantId = TENANT_IDS[tenantType];
 
       // 调用后端登录API

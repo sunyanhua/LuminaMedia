@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader as Loader2, Sparkles, Building2, Landmark } from 'lucide-react';
+import { Loader as Loader2, Sparkles, Building2, Landmark, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSetDemoVersion } from '@/store/useAppStore';
 
 export function Login() {
   const [isLogin, setIsLogin] = useState(true);
@@ -17,6 +18,24 @@ export function Login() {
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const setDemoVersion = useSetDemoVersion();
+
+  // 从 URL 参数获取版本
+  useEffect(() => {
+    const version = searchParams.get('version');
+    if (version === 'business' || version === 'government') {
+      setTenantType(version);
+      // 根据版本自动填充演示账号
+      if (version === 'government') {
+        setEmail('admin@demo-gov');
+        setPassword('LuminaDemo2026');
+      } else {
+        setEmail('admin@demo.lumina.com');
+        setPassword('demo123');
+      }
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,12 +59,17 @@ export function Login() {
         });
         setIsLogin(true);
       } else {
-        // 登录成功，跳转到版本选择页
+        // 登录成功，设置版本并跳转到对应 dashboard
         toast({
           title: '登录成功',
           description: '欢迎回来！',
         });
-        navigate('/');
+        setDemoVersion(tenantType);
+        if (tenantType === 'government') {
+          navigate('/government/dashboard');
+        } else {
+          navigate('/business/dashboard');
+        }
       }
     } catch (error) {
       toast({
@@ -80,9 +104,23 @@ export function Login() {
     });
   };
 
+  // 返回版本选择
+  const handleBack = () => {
+    navigate('/');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(251,191,36,0.1),transparent_50%)]" />
+
+      {/* 返回按钮 */}
+      <button
+        onClick={handleBack}
+        className="absolute top-6 left-6 flex items-center gap-2 text-slate-400 hover:text-slate-200 transition-colors z-10"
+      >
+        <ArrowLeft className="w-5 h-5" />
+        <span>返回版本选择</span>
+      </button>
 
       <Card className="w-full max-w-md relative bg-slate-900/80 backdrop-blur-sm border-slate-800 shadow-2xl">
         <CardHeader className="space-y-3 text-center">

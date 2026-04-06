@@ -189,6 +189,26 @@ find test/temp -name "temp-*.ts" -mtime +7
 
 ---
 
+## Dashboard Web 前端开发规范
+
+### 站点地图 (Sitemap)
+
+**完整的前端页面结构定义参见**: [dashboard-web/SITEMAP.md](./dashboard-web/SITEMAP.md)
+
+该文档是前端开发的权威参考，定义了：
+- 政务版 (`/government/*`) 的完整菜单结构
+- 所有页面的路由路径、组件文件位置
+- 菜单配置和路由配置的规范
+
+### 开发原则
+
+1. **新增页面前**: 先查阅 SITEMAP.md，确认路径命名符合规范
+2. **菜单修改**: 必须同步更新 `src/config/menu.config.ts` 和 SITEMAP.md
+3. **路由修改**: 必须同步更新 `src/routes/index.tsx` 和 SITEMAP.md
+4. **版本控制**: SITEMAP.md 中的"变更记录"必须及时更新
+
+---
+
 ## 注意事项
 
 - 使用 Docker 保持开发环境一致性

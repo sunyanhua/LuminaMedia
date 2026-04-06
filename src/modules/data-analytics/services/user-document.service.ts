@@ -5,6 +5,7 @@ import { UserDocument, UserDocumentFileType, CustomReportType } from '../../../e
 import { Report, ReportType, ReportStatus } from '../../../entities/report.entity';
 import { User } from '../../../entities/user.entity';
 import { GeminiService } from './gemini.service';
+import { Platform } from '../../../shared/enums/platform.enum';
 
 export interface UserDocumentUploadDto {
   title: string;
@@ -170,9 +171,12 @@ export class UserDocumentService {
     updateDto: UserDocumentUpdateDto,
   ): Promise<UserDocument> {
     try {
-      const document = await this.userDocumentRepository.findOne({
-        where: { id: documentId, userId, deletedAt: null },
-      });
+      const document = await this.userDocumentRepository
+        .createQueryBuilder('doc')
+        .where('doc.id = :documentId', { documentId })
+        .andWhere('doc.userId = :userId', { userId })
+        .andWhere('doc.deletedAt IS NULL')
+        .getOne();
 
       if (!document) {
         throw new NotFoundException(`文档不存在或无权修改: ${documentId}`);
@@ -204,9 +208,12 @@ export class UserDocumentService {
    */
   async deleteDocument(documentId: string, userId: string): Promise<void> {
     try {
-      const document = await this.userDocumentRepository.findOne({
-        where: { id: documentId, userId, deletedAt: null },
-      });
+      const document = await this.userDocumentRepository
+        .createQueryBuilder('doc')
+        .where('doc.id = :documentId', { documentId })
+        .andWhere('doc.userId = :userId', { userId })
+        .andWhere('doc.deletedAt IS NULL')
+        .getOne();
 
       if (!document) {
         throw new NotFoundException(`文档不存在或无权删除: ${documentId}`);
@@ -278,9 +285,11 @@ export class UserDocumentService {
    */
   private async extractDocumentContent(documentId: string): Promise<void> {
     try {
-      const document = await this.userDocumentRepository.findOne({
-        where: { id: documentId, deletedAt: null },
-      });
+      const document = await this.userDocumentRepository
+        .createQueryBuilder('doc')
+        .where('doc.id = :documentId', { documentId })
+        .andWhere('doc.deletedAt IS NULL')
+        .getOne();
 
       if (!document) {
         throw new NotFoundException(`文档不存在: ${documentId}`);
@@ -335,9 +344,14 @@ export class UserDocumentService {
 
       // 使用AI生成报告内容
       const prompt = this.buildReportPrompt(document, generationDto);
-      const aiResponse = await this.geminiService.generateText(prompt);
+      const result = await this.geminiService.generateContent({
+        prompt,
+        platform: Platform.ANALYSIS,
+        temperature: 0.7,
+      });
 
       // 解析AI响应并生成报告结构
+      const aiResponse = result.content?.content || '';
       const reportContent = this.parseAIResponseToReport(aiResponse, generationDto.reportType);
 
       // 更新报告

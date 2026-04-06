@@ -91,80 +91,82 @@ const getInitialUser = (): AppState['user'] => {
   return null;
 };
 
+const storeCreator = (set: any): AppState => ({
+  // 初始状态
+  currentPage: 'dashboard',
+  setCurrentPage: (page) => set({ currentPage: page }),
+
+  sidebarCollapsed: false,
+  toggleSidebar: () => set((state: AppState) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
+  setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
+
+  theme: 'dark',
+  toggleTheme: () => set((state: AppState) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
+  setTheme: (theme) => set({ theme }),
+
+  user: getInitialUser(),
+  setUser: (user) => {
+    if (typeof window !== 'undefined') {
+      if (user) {
+        localStorage.setItem('lumina-user', JSON.stringify(user));
+      } else {
+        localStorage.removeItem('lumina-user');
+      }
+    }
+    set({ user });
+  },
+
+  loading: false,
+  setLoading: (loading) => set({ loading }),
+
+  // 演示模式初始从localStorage读取
+  demoMode: getInitialDemoMode(),
+  toggleDemoMode: () => set((state: AppState) => {
+    const newDemoMode = !state.demoMode;
+    localStorage.setItem('lumina-demo-mode', String(newDemoMode));
+    return { demoMode: newDemoMode };
+  }),
+  setDemoMode: (enabled) => {
+    localStorage.setItem('lumina-demo-mode', String(enabled));
+    set({ demoMode: enabled });
+  },
+
+  // 演示版本
+  demoVersion: getInitialDemoVersion(),
+  setDemoVersion: (version) => {
+    if (typeof window !== 'undefined') {
+      if (version) {
+        localStorage.setItem('lumina-demo-version', version);
+      } else {
+        localStorage.removeItem('lumina-demo-version');
+      }
+    }
+    set({ demoVersion: version });
+  },
+
+  // 认证状态
+  isAuthenticated: getInitialAuthState(),
+  login: (user) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('lumina-auth', 'true');
+      localStorage.setItem('lumina-user', JSON.stringify(user));
+    }
+    set({ isAuthenticated: true, user });
+  },
+  logout: () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('lumina-auth');
+      localStorage.removeItem('lumina-user');
+    }
+    set({ isAuthenticated: false, user: null });
+  },
+});
+
+// 根据环境决定是否启用 devtools
 export const useAppStore = create<AppState>()(
-  devtools(
-    (set) => ({
-      // 初始状态
-      currentPage: 'dashboard',
-      setCurrentPage: (page) => set({ currentPage: page }),
-
-      sidebarCollapsed: false,
-      toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
-      setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
-
-      theme: 'dark',
-      toggleTheme: () => set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
-      setTheme: (theme) => set({ theme }),
-
-      user: getInitialUser(),
-      setUser: (user) => {
-        if (typeof window !== 'undefined') {
-          if (user) {
-            localStorage.setItem('lumina-user', JSON.stringify(user));
-          } else {
-            localStorage.removeItem('lumina-user');
-          }
-        }
-        set({ user });
-      },
-
-      loading: false,
-      setLoading: (loading) => set({ loading }),
-
-      // 演示模式初始从localStorage读取
-      demoMode: getInitialDemoMode(),
-      toggleDemoMode: () => set((state) => {
-        const newDemoMode = !state.demoMode;
-        localStorage.setItem('lumina-demo-mode', String(newDemoMode));
-        return { demoMode: newDemoMode };
-      }),
-      setDemoMode: (enabled) => {
-        localStorage.setItem('lumina-demo-mode', String(enabled));
-        set({ demoMode: enabled });
-      },
-
-      // 演示版本
-      demoVersion: getInitialDemoVersion(),
-      setDemoVersion: (version) => {
-        if (typeof window !== 'undefined') {
-          if (version) {
-            localStorage.setItem('lumina-demo-version', version);
-          } else {
-            localStorage.removeItem('lumina-demo-version');
-          }
-        }
-        set({ demoVersion: version });
-      },
-
-      // 认证状态
-      isAuthenticated: getInitialAuthState(),
-      login: (user) => {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('lumina-auth', 'true');
-          localStorage.setItem('lumina-user', JSON.stringify(user));
-        }
-        set({ isAuthenticated: true, user });
-      },
-      logout: () => {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('lumina-auth');
-          localStorage.removeItem('lumina-user');
-        }
-        set({ isAuthenticated: false, user: null });
-      },
-    }),
-    { name: 'AppStore' }
-  )
+  process.env.NODE_ENV === 'development'
+    ? devtools(storeCreator, { name: 'AppStore' })
+    : storeCreator
 );
 
 // 导出一些常用的selector hooks

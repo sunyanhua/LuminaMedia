@@ -1,9 +1,11 @@
 import { LayoutDashboard, ChartBar as BarChart3, Network, Shield, Sparkles, ChevronLeft, ChevronRight, PlayCircle, FileText, AlertTriangle, Siren, ChevronLeft as ArrowLeft, Settings, Cpu, Activity } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useAppStore, useDemoVersion } from '@/store/useAppStore';
 import { useMenuPermissionService } from '@/services/permission.service';
 import { MENU_CONFIG, getFilteredMenu, getDefaultPath } from '@/config/menu.config';
+import { preloadComponent, preloadAllMenuPages } from '@/utils/preload';
 
 export function Sidebar() {
   const location = useLocation();
@@ -14,7 +16,13 @@ export function Sidebar() {
   const { menuItems: allMenuItems, isLoaded } = useMenuPermissionService();
 
   // 根据当前版本过滤菜单
-  const enabledFeatures = ['customer-analytics', 'ai-strategy', 'matrix-publish', 'government-publish']; // 模拟已启用的功能
+  // 政务版和商务版的功能键列表
+  const enabledFeatures = [
+    // 商务版功能
+    'customer-analytics', 'ai-strategy', 'matrix-publish', 'government-publish',
+    // 政务版功能
+    'smart-archive', 'reference-info', 'sentiment-analysis', 'smart-report'
+  ];
   const menuItems = getFilteredMenu(MENU_CONFIG, demoVersion || 'business', enabledFeatures).filter(
     item => item.key !== 'admin' // 管理菜单单独处理
   );
@@ -26,6 +34,13 @@ export function Sidebar() {
   const isActive = (path: string) => {
     return path && (location.pathname === path || location.pathname.startsWith(path + '/'));
   };
+
+  // 组件挂载后预加载所有菜单页面
+  useEffect(() => {
+    if (demoVersion && isLoaded) {
+      preloadAllMenuPages(demoVersion);
+    }
+  }, [demoVersion, isLoaded]);
 
   if (!isLoaded) {
     return (
@@ -91,21 +106,69 @@ export function Sidebar() {
       <nav className="flex-1 p-2 overflow-y-auto">
         {/* 主要菜单项 */}
         {menuItems.map((item) => {
-          if (item.path) {
-            let Icon: any;
-            switch (item.icon) {
-              case 'dashboard': Icon = LayoutDashboard; break;
-              case 'analytics': Icon = BarChart3; break;
-              case 'ai': Icon = Cpu; break;
-              case 'matrix': Icon = Network; break;
-              case 'governance': Icon = Shield; break;
-              case 'demo': Icon = PlayCircle; break;
-              case 'sentiment': Icon = Activity; break;
-              case 'geo': Icon = Activity; break;
-              case 'admin': Icon = Settings; break;
-              default: Icon = Sparkles;
-            }
+          // 获取图标
+          let Icon: any;
+          switch (item.icon) {
+            case 'dashboard': Icon = LayoutDashboard; break;
+            case 'analytics': Icon = BarChart3; break;
+            case 'ai': Icon = Cpu; break;
+            case 'matrix': Icon = Network; break;
+            case 'governance': Icon = Shield; break;
+            case 'demo': Icon = PlayCircle; break;
+            case 'sentiment': Icon = Activity; break;
+            case 'geo': Icon = Activity; break;
+            case 'admin': Icon = Settings; break;
+            case 'archive': Icon = FileText; break;
+            case 'info': Icon = Activity; break;
+            case 'wechat': Icon = Network; break;
+            case 'report': Icon = BarChart3; break;
+            default: Icon = Sparkles;
+          }
 
+          // 有子菜单的项
+          if (item.children && item.children.length > 0) {
+            return (
+              <div key={item.key} className="mb-2">
+                {/* 父菜单标题 */}
+                <div
+                  className={cn(
+                    'w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all mb-1',
+                    'text-slate-300 font-medium'
+                  )}
+                >
+                  <Icon className="w-5 h-5 flex-shrink-0" />
+                  {!sidebarCollapsed && <span className="text-sm">{item.title}</span>}
+                </div>
+                {/* 子菜单 */}
+                {!sidebarCollapsed && item.children.map((child) => {
+                  if (!child.path) return null;
+                  const active = isActive(child.path);
+
+                  return (
+                    <Link
+                      key={`${item.key}-${child.key}`}
+                      to={child.path}
+                      onClick={() => setCurrentPage(child.key)}
+                      onMouseEnter={() => child.path && preloadComponent(child.path)}
+                      className={cn(
+                        'w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all mb-1 ml-6',
+                        active
+                          ? demoVersion === 'government'
+                            ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                            : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                      )}
+                    >
+                      <span className="text-sm">{child.title}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            );
+          }
+
+          // 没有子菜单的项
+          if (item.path) {
             const active = isActive(item.path);
 
             return (
@@ -113,6 +176,7 @@ export function Sidebar() {
                 key={item.key}
                 to={item.path}
                 onClick={() => setCurrentPage(item.key)}
+                onMouseEnter={() => preloadComponent(item.path!)}
                 className={cn(
                   'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all mb-1',
                   active
@@ -126,51 +190,6 @@ export function Sidebar() {
                 {!sidebarCollapsed && <span className="text-sm font-medium">{item.title}</span>}
               </Link>
             );
-          }
-
-          // 对于有子菜单的项目，我们可以展开显示子菜单或显示主菜单项
-          if (item.children && item.children.length > 0) {
-            return item.children.map((child) => {
-              if (!child.path) return null;
-
-              let Icon: any;
-              switch (child.icon) {
-                case 'dashboard': Icon = LayoutDashboard; break;
-                case 'analytics': Icon = BarChart3; break;
-                case 'ai': Icon = Cpu; break;
-                case 'matrix': Icon = Network; break;
-                case 'governance': Icon = Shield; break;
-                case 'demo': Icon = PlayCircle; break;
-                case 'sentiment': Icon = Activity; break;
-                case 'geo': Icon = Activity; break;
-                case 'admin': Icon = Settings; break;
-                case 'feature-config': Icon = Settings; break;
-                case 'quota-management': Icon = Activity; break;
-                case 'tenant-feature': Icon = Activity; break;
-                default: Icon = Sparkles;
-              }
-
-              const active = isActive(child.path!);
-
-              return (
-                <Link
-                  key={`${item.key}-${child.key}`}
-                  to={child.path!}
-                  onClick={() => setCurrentPage(child.key)}
-                  className={cn(
-                    'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all mb-1 ml-2',
-                    active
-                      ? demoVersion === 'government'
-                        ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                        : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-                  )}
-                >
-                  <Icon className="w-5 h-5 flex-shrink-0" />
-                  {!sidebarCollapsed && <span className="text-sm font-medium">{child.title}</span>}
-                </Link>
-              );
-            });
           }
 
           return null;
@@ -200,6 +219,7 @@ export function Sidebar() {
                   key={`admin-${item.key}`}
                   to={item.path}
                   onClick={() => setCurrentPage(item.key)}
+                  onMouseEnter={() => item.path && preloadComponent(item.path)}
                   className={cn(
                     'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all mb-1',
                     active

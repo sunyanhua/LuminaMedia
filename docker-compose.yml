@@ -134,11 +134,7 @@ services:
       - lumina-media-network
 
   dashboard:
-    build:
-      context: ./dashboard-web
-      dockerfile: Dockerfile.frontend
-      args:
-        - VITE_API_BASE_URL=/
+    image: node:20-alpine
     container_name: lumina-media-dashboard
     restart: always
     ports:
@@ -147,14 +143,12 @@ services:
       - app
     volumes:
       - ./dashboard-web:/app
-      - /app/node_modules  # 防止覆盖容器内的node_modules
+      - /app/node_modules
+    working_dir: /app
     environment:
-      - HTTPS_PROXY=http://host.docker.internal:7897
-      - HTTP_PROXY=http://host.docker.internal:7897
-      - GOOGLE_CLOUD_HTTP_PROXY=http://host.docker.internal:7897
-      - GOOGLE_AUTH_HTTP_PROXY=http://host.docker.internal:7897
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - NODE_ENV=development
+      - CI=true
+    command: sh -c "npm install --legacy-peer-deps && npm run dev -- --port 5174 --host 0.0.0.0"
     networks:
       - lumina-media-network
 

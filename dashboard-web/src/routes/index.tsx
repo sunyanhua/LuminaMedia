@@ -2,50 +2,54 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import App from '../App';
 
-// 懒加载组件
-const DashboardOverview = lazy(() => import('../components/dashboard/DashboardOverview'));
-const RetailAnalytics = lazy(() => import('../components/analytics/RetailAnalytics'));
-const MatrixControl = lazy(() => import('../components/matrix/MatrixControl'));
-const AIStrategy = lazy(() => import('../components/ai/AIStrategy'));
-const Governance = lazy(() => import('../components/governance/Governance'));
-const DemoPage = lazy(() => import('../components/demo/DemoPage'));
-const Login = lazy(() => import('../components/auth/Login'));
+// 懒加载组件 - 使用 webpackChunkName 实现更好的代码分割
+const DashboardOverview = lazy(() => import(/* webpackChunkName: "dashboard" */ '../components/dashboard/DashboardOverview'));
+const RetailAnalytics = lazy(() => import(/* webpackChunkName: "analytics" */ '../components/analytics/RetailAnalytics'));
+const MatrixControl = lazy(() => import(/* webpackChunkName: "matrix" */ '../components/matrix/MatrixControl'));
+const AIStrategy = lazy(() => import(/* webpackChunkName: "ai" */ '../components/ai/AIStrategy'));
+const Governance = lazy(() => import(/* webpackChunkName: "governance" */ '../components/governance/Governance'));
+const DemoPage = lazy(() => import(/* webpackChunkName: "demo" */ '../components/demo/DemoPage'));
+const Login = lazy(() => import(/* webpackChunkName: "auth" */ '../components/auth/Login'));
 
-// 新版本组件
-const BusinessLayout = lazy(() => import('../components/layout/BusinessLayout'));
-const GovernmentLayout = lazy(() => import('../components/layout/GovernmentLayout'));
-const VersionSelector = lazy(() => import('../components/landing/VersionSelector'));
-const BusinessDashboard = lazy(() => import('../components/business/BusinessDashboard'));
-const BusinessAnalytics = lazy(() => import('../components/business/BusinessAnalytics'));
-const GovernmentDashboard = lazy(() => import('../components/government/GovernmentDashboard'));
-const GovernmentGovernance = lazy(() => import('../components/government/GovernmentGovernance'));
-const GovernmentPolicy = lazy(() => import('../components/government/GovernmentPolicy'));
-const GovernmentAntiFraud = lazy(() => import('../components/government/GovernmentAntiFraud'));
-const GovernmentEmergency = lazy(() => import('../components/government/GovernmentEmergency'));
+// 布局组件
+const BusinessLayout = lazy(() => import(/* webpackChunkName: "layout" */ '../components/layout/BusinessLayout'));
+const GovernmentLayout = lazy(() => import(/* webpackChunkName: "layout" */ '../components/layout/GovernmentLayout'));
+const VersionSelector = lazy(() => import(/* webpackChunkName: "landing" */ '../components/landing/VersionSelector'));
+
+// 商务版页面
+const BusinessDashboard = lazy(() => import(/* webpackChunkName: "business" */ '../components/business/BusinessDashboard'));
+const BusinessAnalytics = lazy(() => import(/* webpackChunkName: "business" */ '../components/business/BusinessAnalytics'));
+
+// 政务版页面
+const GovernmentDashboard = lazy(() => import(/* webpackChunkName: "government" */ '../components/government/GovernmentDashboard'));
+const GovernmentGovernance = lazy(() => import(/* webpackChunkName: "government" */ '../components/government/GovernmentGovernance'));
+const GovernmentPolicy = lazy(() => import(/* webpackChunkName: "government" */ '../components/government/GovernmentPolicy'));
+const GovernmentAntiFraud = lazy(() => import(/* webpackChunkName: "government" */ '../components/government/GovernmentAntiFraud'));
+const GovernmentEmergency = lazy(() => import(/* webpackChunkName: "government" */ '../components/government/GovernmentEmergency'));
 
 // 管理页面组件
-const FeatureConfigList = lazy(() => import('../pages/Admin/FeatureConfigList'));
-const TenantFeatureList = lazy(() => import('../pages/Admin/TenantFeatureList'));
-const QuotaOverview = lazy(() => import('../pages/Dashboard/QuotaOverview'));
-const QuotaConfig = lazy(() => import('../pages/Admin/QuotaConfig'));
+const FeatureConfigList = lazy(() => import(/* webpackChunkName: "admin" */ '../pages/Admin/FeatureConfigList'));
+const TenantFeatureList = lazy(() => import(/* webpackChunkName: "admin" */ '../pages/Admin/TenantFeatureList'));
+const QuotaOverview = lazy(() => import(/* webpackChunkName: "admin" */ '../pages/Dashboard/QuotaOverview'));
+const QuotaConfig = lazy(() => import(/* webpackChunkName: "admin" */ '../pages/Admin/QuotaConfig'));
 
 // 3.1 DEMO版新增页面
-const KnowledgeBase = lazy(() => import('../pages/SmartArchive/KnowledgeBase'));
-const ReferenceInfo = lazy(() => import('../pages/SmartArchive/ReferenceInfo'));
-const WechatAccountBinding = lazy(() => import('../pages/WechatMp/WechatAccountBinding'));
-const TopicSelection = lazy(() => import('../pages/WechatMp/TopicSelection'));
-const MaterialSupplement = lazy(() => import('../pages/WechatMp/MaterialSupplement'));
-const ContentConfirmation = lazy(() => import('../pages/WechatMp/ContentConfirmation'));
-const ContentList = lazy(() => import('../pages/WechatMp/ContentList'));
-const PublishQueue = lazy(() => import('../pages/Publish/PublishQueue'));
+const KnowledgeBase = lazy(() => import(/* webpackChunkName: "smart-archive" */ '../pages/SmartArchive/KnowledgeBase'));
+const ReferenceInfo = lazy(() => import(/* webpackChunkName: "smart-archive" */ '../pages/SmartArchive/ReferenceInfo'));
+const WechatAccountBinding = lazy(() => import(/* webpackChunkName: "wechat" */ '../pages/WechatMp/WechatAccountBinding'));
+const TopicSelection = lazy(() => import(/* webpackChunkName: "wechat" */ '../pages/WechatMp/TopicSelection'));
+const MaterialSupplement = lazy(() => import(/* webpackChunkName: "wechat" */ '../pages/WechatMp/MaterialSupplement'));
+const ContentConfirmation = lazy(() => import(/* webpackChunkName: "wechat" */ '../pages/WechatMp/ContentConfirmation'));
+const ContentList = lazy(() => import(/* webpackChunkName: "wechat" */ '../pages/WechatMp/ContentList'));
+const PublishQueue = lazy(() => import(/* webpackChunkName: "publish" */ '../pages/Publish/PublishQueue'));
 // 审核管理页面
-const MyPendingReviews = lazy(() => import('../pages/Review/MyPendingReviews'));
+const MyPendingReviews = lazy(() => import(/* webpackChunkName: "review" */ '../pages/Review/MyPendingReviews'));
 // 微信公众号数据看板
-const WechatDataDashboard = lazy(() => import('../pages/WechatMp/WechatDataDashboard'));
+const WechatDataDashboard = lazy(() => import(/* webpackChunkName: "wechat-dashboard" */ '../pages/WechatMp/WechatDataDashboard'));
 // 智能报告页面
-const IntelligentReports = lazy(() => import('../pages/Reports/IntelligentReports'));
+const IntelligentReports = lazy(() => import(/* webpackChunkName: "reports" */ '../pages/Reports/IntelligentReports'));
 // 舆情监测页面
-const SentimentMonitor = lazy(() => import('../pages/Sentiment/SentimentMonitor'));
+const SentimentMonitor = lazy(() => import(/* webpackChunkName: "sentiment" */ '../pages/Sentiment/SentimentMonitor'));
 
 // 加载中组件
 const LoadingFallback = () => (
@@ -66,15 +70,45 @@ const VersionGuard = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// 登录守卫组件 - 检查是否已登录
+const AuthGuard = ({ children }: { children: React.ReactNode }) => {
+  // 客户端检查
+  if (typeof window !== 'undefined') {
+    const isAuthenticated = localStorage.getItem('lumina-auth') === 'true';
+    if (!isAuthenticated) {
+      return <Navigate to="/login" replace />;
+    }
+  }
+  return <>{children}</>;
+};
+
+// 已登录用户重定向 - 已登录用户访问登录页时重定向到首页
+const AuthenticatedRedirect = ({ children }: { children: React.ReactNode }) => {
+  if (typeof window !== 'undefined') {
+    const isAuthenticated = localStorage.getItem('lumina-auth') === 'true';
+    if (isAuthenticated) {
+      const version = localStorage.getItem('lumina-demo-version');
+      if (version === 'government') {
+        return <Navigate to="/government/dashboard" replace />;
+      } else if (version === 'business') {
+        return <Navigate to="/business/dashboard" replace />;
+      }
+    }
+  }
+  return <>{children}</>;
+};
+
 // 定义路由配置
 export const router = createBrowserRouter([
   // 登录页
   {
     path: '/login',
     element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <Login />
-      </Suspense>
+      <AuthenticatedRedirect>
+        <Suspense fallback={<LoadingFallback />}>
+          <Login />
+        </Suspense>
+      </AuthenticatedRedirect>
     ),
   },
   // 版本选择入口
@@ -115,11 +149,13 @@ export const router = createBrowserRouter([
   {
     path: '/business',
     element: (
-      <VersionGuard>
-        <Suspense fallback={<LoadingFallback />}>
-          <BusinessLayout />
-        </Suspense>
-      </VersionGuard>
+      <AuthGuard>
+        <VersionGuard>
+          <Suspense fallback={<LoadingFallback />}>
+            <BusinessLayout />
+          </Suspense>
+        </VersionGuard>
+      </AuthGuard>
     ),
     children: [
       {
@@ -172,11 +208,13 @@ export const router = createBrowserRouter([
   {
     path: '/government',
     element: (
-      <VersionGuard>
-        <Suspense fallback={<LoadingFallback />}>
-          <GovernmentLayout />
-        </Suspense>
-      </VersionGuard>
+      <AuthGuard>
+        <VersionGuard>
+          <Suspense fallback={<LoadingFallback />}>
+            <GovernmentLayout />
+          </Suspense>
+        </VersionGuard>
+      </AuthGuard>
     ),
     children: [
       {
@@ -330,11 +368,13 @@ export const router = createBrowserRouter([
   {
     path: '/admin',
     element: (
-      <VersionGuard>
-        <Suspense fallback={<LoadingFallback />}>
-          <BusinessLayout />
-        </Suspense>
-      </VersionGuard>
+      <AuthGuard>
+        <VersionGuard>
+          <Suspense fallback={<LoadingFallback />}>
+            <BusinessLayout />
+          </Suspense>
+        </VersionGuard>
+      </AuthGuard>
     ),
     children: [
       {

@@ -160,40 +160,49 @@ export const MENU_CONFIG: MenuItem[] = [
 ];
 
 // 根据当前租户类型和功能配置过滤菜单
+// 注意：此函数会创建新的菜单项对象，不会修改原始 MENU_CONFIG
 export const getFilteredMenu = (
   menuItems: MenuItem[],
   tenantType: 'business' | 'government' | 'all',
   enabledFeatures: string[]
 ): MenuItem[] => {
-  return menuItems.filter(item => {
-    // 如果是管理后台，总是显示
-    if (item.key === 'admin') return true;
+  return menuItems
+    .filter(item => {
+      // 如果是管理后台，总是显示
+      if (item.key === 'admin') return true;
 
-    // 检查租户类型限制
-    if (item.tenantType && item.tenantType !== 'all' && item.tenantType !== tenantType) {
-      return false;
-    }
-
-    // 检查功能开关
-    if (item.featureKey && !enabledFeatures.includes(item.featureKey)) {
-      return false;
-    }
-
-    // 如果有子菜单，递归检查
-    if (item.children && item.children.length > 0) {
-      const filteredChildren = getFilteredMenu(item.children, tenantType, enabledFeatures);
-      if (filteredChildren.length > 0) {
-        // 如果子菜单中有可用项，返回带有过滤后子菜单的项
-        item.children = filteredChildren;
-        return true;
+      // 检查租户类型限制
+      if (item.tenantType && item.tenantType !== 'all' && item.tenantType !== tenantType) {
+        return false;
       }
-      // 如果子菜单没有可用项，则整个菜单项不可见
-      return false;
-    }
 
-    // 基本条件满足，返回true
-    return true;
-  });
+      // 检查功能开关
+      if (item.featureKey && !enabledFeatures.includes(item.featureKey)) {
+        return false;
+      }
+
+      return true;
+    })
+    .map(item => {
+      // 如果有子菜单，递归过滤并创建新对象
+      if (item.children && item.children.length > 0) {
+        const filteredChildren = getFilteredMenu(item.children, tenantType, enabledFeatures);
+        // 创建新的菜单项对象，避免修改原始配置
+        return {
+          ...item,
+          children: filteredChildren.length > 0 ? filteredChildren : undefined,
+        };
+      }
+      // 没有子菜单，返回原对象的副本
+      return { ...item };
+    })
+    .filter(item => {
+      // 对于有子菜单的项，如果子菜单被过滤空了，且该项本身没有 path，则不显示
+      if (item.children && item.children.length === 0 && !item.path) {
+        return false;
+      }
+      return true;
+    });
 };
 
 // 获取默认路径

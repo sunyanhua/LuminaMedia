@@ -49,7 +49,7 @@ export class UserDocumentRepository extends BaseRepository<UserDocument> {
    * 根据提取状态查询文档
    */
   async findByExtractionStatus(
-    status: string,
+    status: 'pending' | 'processing' | 'completed' | 'failed',
     limit?: number,
   ): Promise<UserDocument[]> {
     return this.createQueryBuilder('doc')

@@ -1,4 +1,4 @@
-import { Bell, Search, User, Menu, X, PlayCircle } from 'lucide-react';
+import { Bell, Search, User, Menu, X, PlayCircle, LogOut } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
@@ -12,7 +12,8 @@ import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import DemoModeIndicator from '@/components/demo/DemoModeIndicator';
 import { UserSwitcher } from '@/components/demo/UserSwitcher';
-import { useDemoMode, useToggleDemoMode, useUser, useDemoVersion } from '@/store/useAppStore';
+import { useDemoMode, useToggleDemoMode, useUser, useDemoVersion, useLogout } from '@/store/useAppStore';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   breadcrumbs: { label: string; active?: boolean }[];
@@ -38,6 +39,8 @@ export function Header({
   const toggleDemoMode = useToggleDemoMode();
   const user = useUser();
   const demoVersion = useDemoVersion();
+  const logout = useLogout();
+  const navigate = useNavigate();
 
   // 从localStorage读取用户角色
   useEffect(() => {
@@ -56,6 +59,19 @@ export function Header({
     const newState = !isMobileMenuOpen;
     setIsMobileMenuOpen(newState);
     onMobileMenuToggle?.(newState);
+  };
+
+  // 处理退出登录
+  const handleLogout = () => {
+    // 清除所有认证信息
+    logout();
+    localStorage.removeItem('lumina-auth');
+    localStorage.removeItem('lumina-user');
+    localStorage.removeItem('lumina-token');
+    localStorage.removeItem('lumina-demo-version');
+
+    // 跳转到登录页面
+    navigate('/login');
   };
 
   return (
@@ -174,7 +190,11 @@ export function Header({
                 安全设置
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-slate-800" />
-              <DropdownMenuItem className="hover:bg-slate-800 focus:bg-slate-800 text-red-400">
+              <DropdownMenuItem
+                className="hover:bg-slate-800 focus:bg-slate-800 text-red-400 cursor-pointer"
+                onClick={handleLogout}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
                 退出登录
               </DropdownMenuItem>
             </DropdownMenuContent>

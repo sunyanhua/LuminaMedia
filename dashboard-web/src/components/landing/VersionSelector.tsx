@@ -12,11 +12,8 @@ export function VersionSelector() {
 
   const handleSelectVersion = (version: 'business' | 'government') => {
     setDemoVersion(version);
-    if (version === 'business') {
-      navigate('/business/dashboard');
-    } else {
-      navigate('/government/dashboard');
-    }
+    // 跳转到登录页面，带上版本参数
+    navigate(`/login?version=${version}`);
   };
 
   const handleLogout = () => {

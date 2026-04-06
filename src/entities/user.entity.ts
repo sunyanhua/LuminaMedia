@@ -10,9 +10,11 @@ import {
 } from 'typeorm';
 import { SocialAccount } from './social-account.entity';
 import { ContentDraft } from './content-draft.entity';
-import { UserRole } from './user-role.entity';
+import { UserRole as UserRoleEntity } from './user-role.entity';
+export { UserRoleEntity as UserRole };
 import { TenantEntity } from '../shared/interfaces/tenant-entity.interface';
 import { Tenant } from './tenant.entity';
+import { UserRole } from '../shared/enums/user-role.enum';
 import { Topic } from './topic.entity';
 
 export enum UserStatus {
@@ -58,6 +60,13 @@ export class User implements TenantEntity {
   })
   status: UserStatus;
 
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    nullable: true,
+  })
+  role: UserRole;
+
   @ManyToOne(() => Tenant, (tenant) => tenant.users, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'tenant_id', referencedColumnName: 'id' })
   tenant: Tenant;
@@ -68,8 +77,8 @@ export class User implements TenantEntity {
   @OneToMany(() => ContentDraft, (draft) => draft.user)
   contentDrafts: Promise<ContentDraft[]>;
 
-  @OneToMany(() => UserRole, (userRole) => userRole.user)
-  userRoles: UserRole[];
+  @OneToMany(() => UserRoleEntity, (userRole) => userRole.user)
+  userRoles: UserRoleEntity[];
 
   @OneToMany(() => Topic, (topic) => topic.user)
   topics: Promise<Topic[]>;

@@ -25,6 +25,13 @@ export class TenantContextService {
   }
 
   /**
+   * 获取当前租户ID（别名方法，兼容旧代码）
+   */
+  getTenantId(): string {
+    return this.getCurrentTenantId();
+  }
+
+  /**
    * 获取当前租户ID（静态方法）
    */
   static getCurrentTenantIdStatic(): string {

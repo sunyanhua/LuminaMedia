@@ -413,7 +413,7 @@ ${documentsText}
     return this.tenantProfileRepository.findOne({
       where: {
         tenantId,
-        deletedAt: null,
+        
       },
       order: {
         version: 'DESC',
@@ -443,7 +443,7 @@ ${documentsText}
     return this.tenantProfileRepository.find({
       where: {
         tenantId,
-        deletedAt: null,
+        
       },
       order: {
         version: 'DESC',

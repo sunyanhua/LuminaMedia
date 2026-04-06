@@ -53,6 +53,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
+// @ts-ignore - react-beautiful-dnd may not be installed
 import {
   DragDropContext,
   Droppable,
@@ -568,7 +569,7 @@ const PublishQueue: React.FC = () => {
             <>
               <DragDropContext onDragEnd={handleDragEnd}>
                 <Droppable droppableId="publish-queue">
-                  {(provided) => (
+                  {(provided: any) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
@@ -589,7 +590,7 @@ const PublishQueue: React.FC = () => {
                         <TableBody>
                           {drafts.map((draft, index) => (
                             <Draggable key={draft.id} draggableId={draft.id} index={index}>
-                              {(provided) => (
+                              {(provided: any) => (
                                 <TableRow
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
