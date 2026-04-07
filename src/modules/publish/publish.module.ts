@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module'; // 导入AuthModule以使用FeatureGuard
@@ -47,7 +47,7 @@ import { TopicController } from './controllers/topic.controller';
     EventEmitterModule.forRoot(),
     TypeOrmModule.forFeature([SocialAccount, ContentDraft, Topic, ReferenceInfo]),
     AuthModule, // 添加AuthModule导入
-    ReviewModule, // 导入ReviewModule以使用ReviewService
+    forwardRef(() => ReviewModule), // 导入ReviewModule以使用ReviewService
     DataAnalyticsModule, // 导入DataAnalyticsModule以使用GeminiService
   ],
   controllers: [

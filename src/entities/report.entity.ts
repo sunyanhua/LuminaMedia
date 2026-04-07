@@ -82,7 +82,7 @@ export class Report implements TenantEntity {
   @Column({ name: 'file_url', nullable: true, comment: '导出文件URL（如Word文档）' })
   fileUrl: string;
 
-  @ManyToOne(() => Tenant, (tenant) => tenant.reports, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Tenant, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'tenant_id', referencedColumnName: 'id' })
   tenant: Tenant;
 }

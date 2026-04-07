@@ -53,19 +53,10 @@ class CustomReportGenerationRequestDto implements CustomReportGenerationDto {
 }
 
 class UserDocumentListQueryDto {
-  @ApiQuery({ name: 'reportType', required: false, enum: CustomReportType })
   reportType?: CustomReportType;
-
-  @ApiQuery({ name: 'fileType', required: false, enum: UserDocumentFileType })
   fileType?: UserDocumentFileType;
-
-  @ApiQuery({ name: 'limit', required: false, type: Number, default: 20 })
   limit?: number;
-
-  @ApiQuery({ name: 'offset', required: false, type: Number, default: 0 })
   offset?: number;
-
-  @ApiQuery({ name: 'includePublic', required: false, type: Boolean, default: false })
   includePublic?: boolean;
 }
 
@@ -83,6 +74,7 @@ export class UserDocumentController {
   @ApiBody({
     schema: {
       type: 'object',
+      required: ['file', 'title'],
       properties: {
         file: {
           type: 'string',
@@ -98,20 +90,17 @@ export class UserDocumentController {
           type: 'string',
           description: '文档描述',
           example: '包含部门第一季度的工作成果和下一步计划',
-          required: false,
         },
         reportType: {
           type: 'string',
           enum: Object.values(CustomReportType),
           description: '报告类型',
           example: CustomReportType.WORK_SUMMARY,
-          required: false,
         },
         isPublic: {
           type: 'boolean',
           description: '是否公开',
           example: false,
-          required: false,
         },
       },
     },

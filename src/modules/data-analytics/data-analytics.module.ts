@@ -113,6 +113,8 @@ import { GovernmentModule } from '../government/government.module';
     DemoResetService,
     TenantContextService,
     IntelligentReportService,
+    UserDocumentService,
+    ReportExportService,
   ],
   exports: [
     AnalyticsService,

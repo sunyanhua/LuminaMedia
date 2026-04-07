@@ -23,6 +23,7 @@ import { VectorSearchService } from '../../shared/vector/services/vector-search.
 import { VectorModule } from '../../shared/vector/vector.module';
 import { AIEngineModule } from '../ai-engine/ai-engine.module';
 import { DataAnalyticsModule } from '../data-analytics/data-analytics.module';
+import { TenantContextService } from '../../shared/services/tenant-context.service';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { DataAnalyticsModule } from '../data-analytics/data-analytics.module';
     ReferenceCrawlerService,
     KnowledgeRetrievalService,
     VectorSearchService,
+    TenantContextService,
   ],
   exports: [
     EnterpriseProfileAnalysisService,

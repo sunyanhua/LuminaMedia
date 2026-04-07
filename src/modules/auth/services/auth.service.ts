@@ -52,7 +52,9 @@ export class AuthService {
     ) {
       const { passwordHash: __, userRoles, ...result } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
       const roles = userRoles?.map(ur => ur.role.name) || [];
-      return { ...result, roles };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { userRoles: _, ...userWithoutRoles } = result as any;
+      return { ...userWithoutRoles, roles } as (Omit<User, 'passwordHash'> & { roles: string[] });
     }
     return null;
   }

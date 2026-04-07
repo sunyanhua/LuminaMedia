@@ -145,7 +145,7 @@ export class WechatContentGenerationService {
     }
 
     // 获取单位画像
-    let tenantProfile: TenantProfile = null;
+    let tenantProfile: TenantProfile | null = null;
     try {
       tenantProfile = await this.tenantProfileRepository.findOne({
         where: { tenantId: request.tenantId, status: 'generated' },
@@ -284,7 +284,7 @@ export class WechatContentGenerationService {
    */
   private buildContextSummary(context: ContentGenerationContext): string {
     const { topic, materials, tenantProfile } = context;
-    let summary = `选题："${topic.title}"`;
+    let summary = topic ? `选题："${topic.title}"` : '无选题';
 
     if (materials.length > 0) {
       summary += `，包含${materials.length}个素材`;
@@ -309,7 +309,7 @@ export class WechatContentGenerationService {
 
       // 使用默认AI引擎
       if (this.defaultAiEngine === 'gemini') {
-        const result = await this.geminiService.generateText({
+        const result = await this.geminiService.generateContent({
           prompt: fullPrompt,
           platform: Platform.WECHAT_MP,
           tone: options?.tone || 'professional',
@@ -321,15 +321,15 @@ export class WechatContentGenerationService {
         if (result.success && result.content) {
           return {
             success: true,
-            content: result.content.content,
-            modelUsed: result.modelUsed || 'gemini',
+            content: typeof result.content === 'string' ? result.content : result.content.content,
+            modelUsed: 'gemini',
           };
         } else {
           return {
             success: false,
             content: '',
             modelUsed: 'gemini',
-            error: result.error?.message || '生成失败',
+            error: '生成失败',
           };
         }
       } else {
@@ -372,7 +372,7 @@ export class WechatContentGenerationService {
           .filter((line) => line.startsWith('- ') || line.startsWith('• ') || line.match(/^\d\.\s/))
           .map((line) => line.replace(/^[-•\d\.\s]+/, '').trim())
           .filter((line) => line.length > 0)
-      : [`${context.topic.title} - 微信公众号文章`];
+      : [context.topic ? `${context.topic.title} - 微信公众号文章` : '微信公众号文章'];
 
     // 尝试提取正文
     const contentMatch = aiContent.match(/正文：([\s\S]*?)(?=\n\n摘要|$)/);
@@ -399,7 +399,7 @@ export class WechatContentGenerationService {
     const wordCount = content.length;
 
     return {
-      title: titleOptions[0] || context.topic.title,
+      title: titleOptions[0] || (context.topic ? context.topic.title : ''),
       content,
       summary,
       titleOptions: titleOptions.slice(0, 5), // 最多5个标题选项
@@ -410,9 +410,9 @@ export class WechatContentGenerationService {
       tone: context.options?.tone || 'professional',
       languageStyle: context.tenantProfile?.languageStyle || 'formal',
       metadata: {
-        topicId: context.topic.id,
-        tenantId: context.topic.tenantId,
-        userId: context.topic.userId,
+        topicId: context.topic?.id,
+        tenantId: context.topic?.tenantId,
+        userId: context.topic?.userId,
         generatedAt: new Date(),
         modelUsed: this.defaultAiEngine,
         profileInfluenced: !!context.tenantProfile,
@@ -436,7 +436,7 @@ export class WechatContentGenerationService {
     if (article.titleOptions && article.titleOptions.length >= 3) score += 10;
 
     // 内容质量
-    if (article.wordCount > 500 && article.wordCount < 2000) score += 15;
+    if (article.wordCount && article.wordCount > 500 && article.wordCount < 2000) score += 15;
     if (article.content.includes('\n\n')) score += 5; // 有段落结构
 
     // 摘要质量
@@ -500,11 +500,11 @@ export class WechatContentGenerationService {
       suggestions.push('使用更多段落提高可读性');
     }
 
-    if (article.wordCount < 500) {
+    if (article.wordCount && article.wordCount < 500) {
       suggestions.push('扩充内容，增加案例或数据支持');
     }
 
-    if (article.imageSuggestions.length < 2) {
+    if (article.imageSuggestions && article.imageSuggestions.length < 2) {
       suggestions.push('增加配图建议，增强视觉表现力');
     }
 
@@ -537,8 +537,18 @@ export class WechatContentGenerationService {
   /**
    * 生成视觉建议
    */
-  private generateVisualSuggestions(context: ContentGenerationContext) {
-    const suggestions = [];
+  private generateVisualSuggestions(context: ContentGenerationContext): Array<{
+    type: 'color' | 'layout';
+    description: string;
+    suggestion: string;
+    reason: string;
+  }> {
+    const suggestions: Array<{
+      type: 'color' | 'layout';
+      description: string;
+      suggestion: string;
+      reason: string;
+    }> = [];
     const { tenantProfile } = context;
 
     if (tenantProfile) {

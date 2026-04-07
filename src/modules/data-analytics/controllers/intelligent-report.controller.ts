@@ -32,16 +32,9 @@ class ReportGenerationRequestDto implements ReportGenerationOptions {
 }
 
 class ReportListQueryDto {
-  @ApiQuery({ name: 'type', required: false, enum: ReportType })
   type?: ReportType;
-
-  @ApiQuery({ name: 'status', required: false, enum: ReportStatus })
   status?: ReportStatus;
-
-  @ApiQuery({ name: 'limit', required: false, type: Number, default: 20 })
   limit?: number;
-
-  @ApiQuery({ name: 'offset', required: false, type: Number, default: 0 })
   offset?: number;
 }
 

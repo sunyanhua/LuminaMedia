@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { PublishModule } from '../publish/publish.module';
@@ -12,7 +12,7 @@ import { ReviewController } from './controllers/review.controller';
   imports: [
     TypeOrmModule.forFeature([ReviewRecord, ContentDraft, User]),
     AuthModule,
-    PublishModule,
+    forwardRef(() => PublishModule),
   ],
   controllers: [ReviewController],
   providers: [ReviewService],
