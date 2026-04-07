@@ -11,7 +11,7 @@ function App() {
   const getBreadcrumbs = () => {
     const breadcrumbMap: Record<string, { label: string; active?: boolean }[]> = {
       '/dashboard': [
-        { label: '灵曜智媒 [Lumina Nexus V1.0]' },
+        { label: '灵曜智媒 [Lumina Nexus V2.0 HMR]' },
         { label: '仪表盘', active: true },
       ],
       '/analytics': [

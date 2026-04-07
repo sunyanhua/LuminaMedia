@@ -26,9 +26,9 @@ services:
       --collation-server=utf8mb4_unicode_ci
       --default-authentication-plugin=mysql_native_password
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p123456"]
-      timeout: 10s
-      retries: 5
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p123456 || exit 1"]
+      timeout: 20s
+      retries: 15
     networks:
       - lumina-media-network
 
@@ -156,6 +156,7 @@ services:
       - /app/node_modules  # 🚀 这一行必须加回，用于屏蔽宿主机的 Windows 版依赖
     working_dir: /app
     environment:
+      - CHOKIDAR_USEPOLLING=true # 🚀 强制 Vite 使用轮询监听，破解 Windows 映射延迟
       - NODE_ENV=development
       - CI=true
     # 🚀 关键修改：删掉 npm install！
