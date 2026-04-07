@@ -80,27 +80,17 @@ LuminaMedia/
 
 ---
 
-## 开发环境
+## 🐳 LuminaMedia Docker Rules
+- **Project Name**: `lumina-media`
+- **Frontend (Dashboard)**: 
+  - Working Dir: `./dashboard-web`
+  - NO `npm install` inside Docker command. 
+  - Rebuild only if `./dashboard-web/package.json` changes.
+- **Backend (App)**: 
+  - NO `docker-compose down` for code changes.
+  - Nodemon is active; trust the auto-reload.
+- **APM & Services**: Skywalking and Qdrant are fixed infrastructure. DO NOT restart them unless config changes.
 
-### 🐳 Docker 环境管理
-- **所有运行环境都统一在 Docker 容器中**，禁止使用 PM2 托管或 `npm run dev`/`npm run start:dev` 等本地启动方式
-- **启动服务**: `docker-compose up -d`
-- **查看日志**: `docker-compose logs -f`
-- **停止服务**: `docker-compose down`
-
-### 🔧 代码修改与容器更新规则
-1. **环境配置文件修改** (.env, docker-compose.yml, Dockerfile):
-   - 修改后执行 `docker-compose up -d --build` 重启并重建容器
-   - 或分别执行 `docker-compose build --no-cache [服务名]` 和 `docker-compose up -d`
-
-2. **后端源代码修改** (src/目录下的文件):
-   - 检查 Docker 配置是否支持热重载（查看 docker-compose.yml 中是否有源代码卷映射和开发启动命令）
-   - **支持热重载**: 修改代码后开发服务器自动检测并重新编译，无需手动重启容器
-   - **不支持热重载**: 执行 `docker-compose build --no-cache app` 重新构建后端镜像，然后 `docker-compose up -d` 重启容器
-
-3. **前端源代码修改** (dashboard-web/目录下的文件):
-   - 执行 `docker-compose build --no-cache dashboard` 重新构建前端镜像
-   - 然后执行 `docker-compose up -d` 重启容器
 
 ### API 文档
 - Swagger UI: http://localhost:3003/api/docs

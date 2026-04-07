@@ -1,0 +1,13 @@
+# LuminaMedia Dashboard - AI 极速开发架构
+# 解决跨平台 node_modules 二进制冲突问题
+
+FROM node:20-slim
+
+WORKDIR /app
+
+# 安装依赖（在镜像构建阶段完成，避免容器启动时安装）
+COPY package*.json ./
+RUN npm install --legacy-peer-deps
+
+# 开发模式命令
+CMD ["npm", "run", "dev", "--", "--port", "5174", "--host", "0.0.0.0"]

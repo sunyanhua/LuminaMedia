@@ -1,3 +1,4 @@
+name: lumina-media  # 🚀 物理锚定项目名
 
 services:
   db-lumina:
@@ -88,16 +89,24 @@ services:
       - LOG_DIR=/app/logs           # 结构化日志目录
     ports:
       - "3003:3003"
-    command: nodemon
     depends_on:
       db-lumina:
         condition: service_healthy
       qdrant:
         condition: service_started
     volumes:
-      - .:/app                # 映射整个根目录
-      - /app/node_modules     # 匿名卷，防止容器内依赖不被本地覆盖
-      - ./logs:/app/logs      # 日志目录，供Filebeat收集
+      - .:/app
+      - /app/node_modules  # 保护容器依赖
+      - ./logs:/app/logs
+    # 🚀 新增：精准监听模式，告诉 CC 不要动不动就 Build
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app/src
+        - action: rebuild
+          path: package.json
+    command: nodemon  # 保持 nodemon 自动重启
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
@@ -134,21 +143,31 @@ services:
       - lumina-media-network
 
   dashboard:
-    image: node:20-alpine
+    # 🚀 AI 极速开发架构：使用 Dockerfile 构建，预装 Linux 依赖
+    build:
+      context: ./dashboard-web
+      dockerfile: ../Dockerfile.dashboard
     container_name: lumina-media-dashboard
     restart: always
     ports:
       - "5174:5174"
-    depends_on:
-      - app
     volumes:
       - ./dashboard-web:/app
-      - /app/node_modules
+      - /app/node_modules  # 🚀 这一行必须加回，用于屏蔽宿主机的 Windows 版依赖
     working_dir: /app
     environment:
       - NODE_ENV=development
       - CI=true
-    command: sh -c "npm install --legacy-peer-deps && npm run dev -- --port 5174 --host 0.0.0.0"
+    # 🚀 关键修改：删掉 npm install！
+    # 只有在你修改了依赖时，手动跑一次 npm install，不要让它每次启动都跑
+    command: npm run dev -- --port 5174 --host 0.0.0.0
+    develop:
+      watch:
+        - action: sync
+          path: ./dashboard-web/src
+          target: /app/src
+        - action: rebuild
+          path: ./dashboard-web/package.json
     networks:
       - lumina-media-network
 
