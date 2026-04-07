@@ -14,7 +14,7 @@ import { TrackBehaviorDto } from '../dto/track-behavior.dto';
 import { DateRange } from '../interfaces/date-range.interface';
 import { DateRangeDto } from '../dto/date-range.dto';
 
-@Controller('api/v1/analytics/behavior')
+@Controller('v1/analytics/behavior')
 export class UserBehaviorController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 

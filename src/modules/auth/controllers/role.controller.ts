@@ -27,7 +27,7 @@ import { Permission } from '../../../entities/permission.entity';
 
 @ApiTags('roles')
 @ApiBearerAuth()
-@Controller('api/roles')
+@Controller('roles')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}

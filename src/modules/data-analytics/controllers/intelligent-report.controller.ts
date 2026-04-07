@@ -40,7 +40,7 @@ class ReportListQueryDto {
 
 @ApiTags('intelligent-reports')
 @ApiBearerAuth()
-@Controller('api/v1/analytics/intelligent-reports')
+@Controller('v1/analytics/intelligent-reports')
 @UseGuards(JwtAuthGuard, FeatureGuard)
 @Feature('intelligent-reports')
 export class IntelligentReportController {

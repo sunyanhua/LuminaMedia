@@ -25,7 +25,7 @@ import { SegmentationRequestDto } from '../dto/segmentation-request.dto';
 
 @ApiTags('customer-data')
 @ApiBearerAuth()
-@Controller('api/v1/customer-data')
+@Controller('v1/customer-data')
 @UseGuards(JwtAuthGuard, FeatureGuard)
 @Feature('customer-analytics')
 export class CustomerAnalyticsController {

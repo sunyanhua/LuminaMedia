@@ -15,7 +15,7 @@ import { GenerateTextDto } from '../dto/generate-text.dto';
 import { GenerateMarketingContentDto } from '../dto/generate-marketing-content.dto';
 import { Platform } from '../../../shared/enums/platform.enum';
 
-@Controller('api/v1/content-generation')
+@Controller('v1/content-generation')
 export class ContentGenerationController {
   constructor(
     private readonly contentGenerationService: ContentGenerationService,

@@ -62,7 +62,7 @@ class UserDocumentListQueryDto {
 
 @ApiTags('user-documents')
 @ApiBearerAuth()
-@Controller('api/v1/analytics/user-documents')
+@Controller('v1/analytics/user-documents')
 @UseGuards(JwtAuthGuard, FeatureGuard)
 @Feature('custom-reports')
 export class UserDocumentController {

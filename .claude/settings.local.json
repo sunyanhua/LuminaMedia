@@ -55,7 +55,12 @@
       "mcp__ide__executeCode",
       "Bash(git checkout:*)",
       "Bash(tee /tmp/build.log)",
-      "Bash(docker build:*)"
+      "Bash(docker build:*)",
+      "Bash(docker top:*)",
+      "Bash(docker container:*)",
+      "Read(//dev/**)",
+      "Bash(kill %1)",
+      "Bash(wait)"
     ]
   }
 }

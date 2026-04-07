@@ -29,7 +29,7 @@ import {
 } from '../interfaces/dashboard.interface';
 
 @ApiTags('dashboard')
-@Controller('api/v1/dashboard')
+@Controller('v1/dashboard')
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 

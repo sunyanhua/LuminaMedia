@@ -18,7 +18,7 @@ import { CreateCampaignDto } from '../dto/create-campaign.dto';
 import { CampaignStatus } from '../../../shared/enums/campaign-status.enum';
 import { MarketingCampaignRepository } from '../../../shared/repositories/marketing-campaign.repository';
 
-@Controller('api/v1/analytics/campaigns')
+@Controller('v1/analytics/campaigns')
 export class MarketingCampaignController {
   constructor(
     @InjectRepository(MarketingCampaignRepository)

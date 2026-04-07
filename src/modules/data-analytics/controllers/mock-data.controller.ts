@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { MockDataService } from '../services/mock-data.service';
 
-@Controller('api/v1/analytics/mock')
+@Controller('v1/analytics/mock')
 export class MockDataController {
   constructor(private readonly mockDataService: MockDataService) {}
 

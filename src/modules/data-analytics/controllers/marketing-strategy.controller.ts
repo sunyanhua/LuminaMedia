@@ -15,7 +15,7 @@ import { GenerateStrategyDto } from '../dto/generate-strategy.dto';
 import { GenerateStrategyContentDto } from '../dto/generate-strategy-content.dto';
 import { Platform } from '../../../shared/enums/platform.enum';
 
-@Controller('api/v1/analytics/strategies')
+@Controller('v1/analytics/strategies')
 export class MarketingStrategyController {
   constructor(
     private readonly marketingStrategyService: MarketingStrategyService,

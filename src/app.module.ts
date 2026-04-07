@@ -30,6 +30,8 @@ import { MarketingStrategy } from './modules/data-analytics/entities/marketing-s
 import { Sentiment } from './entities/sentiment.entity';
 import { Report } from './entities/report.entity';
 import { UserDocument } from './entities/user-document.entity';
+import { Topic } from './entities/topic.entity';
+import { Material } from './entities/material.entity';
 import { DataAnalyticsModule } from './modules/data-analytics/data-analytics.module';
 import { CustomerDataModule } from './modules/customer-data/customer-data.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
@@ -90,6 +92,8 @@ import { HealthModule } from './health/health.module';
           Sentiment,
           Report,
           UserDocument,
+          Topic,
+          Material,
         ],
         synchronize:
           configService.get('TYPEORM_SYNCHRONIZE', 'false') === 'true',

@@ -26,7 +26,7 @@ import { CustomerType } from '../../../shared/enums/customer-type.enum';
 import { Industry } from '../../../shared/enums/industry.enum';
 
 @ApiTags('customer-data')
-@Controller('api/v1/customer-data/profiles')
+@Controller('v1/customer-data/profiles')
 export class CustomerProfileController {
   constructor(
     private readonly customerProfileService: CustomerProfileService,

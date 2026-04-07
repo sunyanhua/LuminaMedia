@@ -22,7 +22,7 @@ import { EnterpriseProfileAnalysisService } from '../services/enterprise-profile
 import { EnterpriseProfile } from '../../../entities/enterprise-profile.entity';
 
 @ApiTags('knowledge')
-@Controller('api/v1/knowledge/enterprise-profiles')
+@Controller('v1/knowledge/enterprise-profiles')
 export class EnterpriseProfileController {
   constructor(
     private readonly enterpriseProfileAnalysisService: EnterpriseProfileAnalysisService,

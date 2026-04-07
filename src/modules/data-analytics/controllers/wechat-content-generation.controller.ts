@@ -11,7 +11,7 @@ import { WechatContentGenerationService } from '../services/wechat-content-gener
 import { GenerateWechatArticleDto } from '../dto/generate-wechat-article.dto';
 
 @ApiTags('微信公众号内容生成')
-@Controller('api/v1/wechat-content-generation')
+@Controller('v1/wechat-content-generation')
 export class WechatContentGenerationController {
   constructor(
     private readonly wechatContentGenerationService: WechatContentGenerationService,

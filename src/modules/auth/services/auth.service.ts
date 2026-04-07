@@ -35,9 +35,10 @@ export class AuthService {
     username: string,
     password: string,
   ): Promise<(Omit<User, 'passwordHash'> & { roles: string[] }) | null> {
-    const tenantId = this.tenantContextService.getCurrentTenantId();
+    // 登录时先不限制tenantId，根据用户名查找用户
+    // 这样可以支持跨租户登录（用户输入用户名和密码，系统自动识别所属租户）
     const user = await this.userRepository.findOne({
-      where: { username, tenantId },
+      where: { username },
       select: ['id', 'username', 'passwordHash', 'email', 'tenantId'],
       relations: ['userRoles', 'userRoles.role'],
     });

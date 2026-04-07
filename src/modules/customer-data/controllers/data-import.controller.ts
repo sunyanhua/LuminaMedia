@@ -27,7 +27,7 @@ import { SourceType } from '../../../shared/enums/source-type.enum';
 import { DataImportStatus } from '../../../shared/enums/data-import-status.enum';
 
 @ApiTags('customer-data')
-@Controller('api/v1/customer-data')
+@Controller('v1/customer-data')
 export class DataImportController {
   constructor(private readonly dataImportService: DataImportService) {}
 

@@ -98,50 +98,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string, tenantType: 'business' | 'government' = 'business') => {
     try {
-      // DEMO模式：优先检查演示账号，无需后端API
-      const demoAccount = findDemoAccount(email, password);
-      if (demoAccount) {
-        const mockUser: User = {
-          id: demoAccount.email,
-          email: demoAccount.email,
-          user_metadata: {
-            name: demoAccount.name,
-            roles: tenantType === 'government'
-              ? ['editor', 'content_manager', 'legal_reviewer']
-              : ['admin']
-          },
-          app_metadata: {},
-          aud: 'authenticated',
-          created_at: new Date().toISOString(),
-          role: 'authenticated',
-          updated_at: new Date().toISOString(),
-        } as User;
-
-        setUser(mockUser);
-
-        // 同步到 store
-        storeLogin({
-          name: demoAccount.name,
-          email: demoAccount.email,
-        });
-
-        // 存储token和用户信息到localStorage
-        localStorage.setItem('lumina-auth', 'true');
-        localStorage.setItem('lumina-user', JSON.stringify({
-          name: demoAccount.name,
-          email: demoAccount.email,
-          tenantId: TENANT_IDS[tenantType],
-          tenantType: tenantType,
-          roles: tenantType === 'government'
-            ? ['editor', 'content_manager', 'legal_reviewer']
-            : ['admin']
-        }));
-        // 同时存储到store的demoVersion字段
-        localStorage.setItem('lumina-demo-version', tenantType);
-
-        return { error: null };
-      }
-
       const tenantId = TENANT_IDS[tenantType];
 
       // 调用后端登录API
@@ -200,36 +156,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         return { error: null };
       } else {
-        // 如果后端登录失败，尝试使用演示账号作为回退
-        const demoAccount = findDemoAccount(email, password);
-
-        if (demoAccount) {
-          // 演示账号登录成功
-          const mockUser: User = {
-            id: demoAccount.email,
-            email: demoAccount.email,
-            user_metadata: {
-              name: demoAccount.name,
-              roles: [] // 演示账号暂无角色信息
-            },
-            app_metadata: {},
-            aud: 'authenticated',
-            created_at: new Date().toISOString(),
-            role: 'authenticated',
-            updated_at: new Date().toISOString(),
-          } as User;
-
-          setUser(mockUser);
-
-          // 同步到 store
-          storeLogin({
-            name: demoAccount.name,
-            email: demoAccount.email,
-          });
-
-          return { error: null };
-        }
-
         // 尝试从错误响应中获取错误信息
         let errorMessage = '登录失败';
         try {
@@ -242,36 +168,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: new Error(errorMessage) };
       }
     } catch (error) {
-      // 网络错误或其他异常，尝试使用演示账号作为回退
-      const demoAccount = findDemoAccount(email, password);
-
-      if (demoAccount) {
-        // 演示账号登录成功
-        const mockUser: User = {
-          id: demoAccount.email,
-          email: demoAccount.email,
-          user_metadata: {
-            name: demoAccount.name,
-            roles: [] // 演示账号暂无角色信息
-          },
-          app_metadata: {},
-          aud: 'authenticated',
-          created_at: new Date().toISOString(),
-          role: 'authenticated',
-          updated_at: new Date().toISOString(),
-        } as User;
-
-        setUser(mockUser);
-
-        // 同步到 store
-        storeLogin({
-          name: demoAccount.name,
-          email: demoAccount.email,
-        });
-
-        return { error: null };
-      }
-
       return { error: error as Error };
     }
   };

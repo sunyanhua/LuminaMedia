@@ -140,7 +140,7 @@ class MergeTagsDto {
 }
 
 @ApiTags('knowledge')
-@Controller('api/v1/knowledge/documents')
+@Controller('v1/knowledge/documents')
 export class KnowledgeDocumentController {
   constructor(
     private readonly knowledgeDocumentService: KnowledgeDocumentService,
