@@ -8,6 +8,7 @@ const componentImports: Record<string, () => Promise<any>> = {
   // 政务版核心页面
   '/government/dashboard': () => import('../components/government/GovernmentDashboard'),
   '/government/smart-archive': () => import('../pages/SmartArchive/KnowledgeBase'),
+  '/government/tenant-profile': () => import('../pages/SmartArchive/TenantProfile'),
   '/government/reference-info': () => import('../pages/SmartArchive/ReferenceInfo'),
   '/government/sentiment-monitor': () => import('../pages/Sentiment/SentimentMonitor'),
   '/government/wechat-mp': () => import('../pages/WechatMp/WechatAccountBinding'),

@@ -35,6 +35,7 @@ const QuotaConfig = lazy(() => import(/* webpackChunkName: "admin" */ '../pages/
 
 // 3.1 DEMO版新增页面
 const KnowledgeBase = lazy(() => import(/* webpackChunkName: "smart-archive" */ '../pages/SmartArchive/KnowledgeBase'));
+const TenantProfile = lazy(() => import(/* webpackChunkName: "smart-archive" */ '../pages/SmartArchive/TenantProfile'));
 const ReferenceInfo = lazy(() => import(/* webpackChunkName: "smart-archive" */ '../pages/SmartArchive/ReferenceInfo'));
 const WechatAccountBinding = lazy(() => import(/* webpackChunkName: "wechat" */ '../pages/WechatMp/WechatAccountBinding'));
 const TopicSelection = lazy(() => import(/* webpackChunkName: "wechat" */ '../pages/WechatMp/TopicSelection'));
@@ -270,6 +271,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: 'tenant-profile',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <TenantProfile />
+          </Suspense>
+        ),
+      },
+      {
         path: 'reference-info',
         element: (
           <Suspense fallback={<LoadingFallback />}>
@@ -438,6 +447,7 @@ export const ROUTE_PATHS = {
   GOVERNMENT_ANTI_FRAUD: '/government/anti-fraud',
   GOVERNMENT_EMERGENCY: '/government/emergency',
   GOVERNMENT_SMART_ARCHIVE: '/government/smart-archive',
+  GOVERNMENT_TENANT_PROFILE: '/government/tenant-profile',
   GOVERNMENT_REFERENCE_INFO: '/government/reference-info',
   GOVERNMENT_WECHAT_MP: '/government/wechat-mp',
   GOVERNMENT_TOPIC_SELECTION: '/government/topic-selection',
@@ -465,7 +475,8 @@ export const PAGE_TITLES: Record<string, string> = {
   '/government/policy': '政策解读',
   '/government/anti-fraud': '防诈骗宣传',
   '/government/emergency': '应急响应',
-  '/government/smart-archive': '智慧档案',
+  '/government/smart-archive': '知识库',
+  '/government/tenant-profile': '单位画像',
   '/government/wechat-mp': '公众号管理',
   '/government/topic-selection': '选题策划',
   '/government/material-supplement': '资料补充',

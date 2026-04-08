@@ -64,9 +64,20 @@ export const MENU_CONFIG: MenuItem[] = [
     key: 'smart-archive',
     title: '智慧档案',
     icon: 'archive',
-    path: '/government/smart-archive',
     featureKey: 'smart-archive',
     tenantType: 'government',
+    children: [
+      {
+        key: 'knowledge-base',
+        title: '知识库',
+        path: '/government/smart-archive',
+      },
+      {
+        key: 'tenant-profile',
+        title: '单位画像',
+        path: '/government/tenant-profile',
+      },
+    ],
   },
   {
     key: 'reference-info',
