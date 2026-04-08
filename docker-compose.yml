@@ -78,6 +78,8 @@ services:
       - APM_SERVICE_INSTANCE=${APM_SERVICE_INSTANCE:-lumina-media-instance-1}
       - APM_OAP_SERVER=${APM_OAP_SERVER:-http://skywalking-oap:12800}
       - APM_SAMPLE_RATE=${APM_SAMPLE_RATE:-1.0}
+      - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-key-for-development-only}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-24h}
       - ALERT_EMAIL_ENABLED=${ALERT_EMAIL_ENABLED:-false}
       - ALERT_EMAIL_SMTP_HOST=${ALERT_EMAIL_SMTP_HOST:-smtp.example.com}
       - ALERT_EMAIL_SMTP_PORT=${ALERT_EMAIL_SMTP_PORT:-587}
@@ -95,9 +97,10 @@ services:
       qdrant:
         condition: service_started
     volumes:
-      - .:/app
+      # - .:/app  # 🚫 注释掉：避免覆盖容器内构建好的 dist/
       - /app/node_modules  # 保护容器依赖
       - ./logs:/app/logs
+      # 开发时如需热重载，请手动复制代码到容器或使用 docker cp
     # 🚀 新增：精准监听模式，告诉 CC 不要动不动就 Build
     develop:
       watch:
@@ -106,7 +109,7 @@ services:
           target: /app/src
         - action: rebuild
           path: package.json
-    command: nodemon  # 保持 nodemon 自动重启
+    command: node dist/main.js  # 直接运行编译后的代码（生产模式）
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:

@@ -69,31 +69,12 @@ export function preloadComponents(paths: string[]): void {
 /**
  * 根据当前版本预加载所有菜单页面
  * @param version 'business' | 'government'
+ * @deprecated 预加载所有页面会导致首屏加载极慢，已禁用
  */
-export function preloadAllMenuPages(version: 'business' | 'government'): void {
-  if (version === 'government') {
-    const govPaths = [
-      '/government/dashboard',
-      '/government/smart-archive',
-      '/government/reference-info',
-      '/government/sentiment-monitor',
-      '/government/wechat-mp',
-      '/government/topic-selection',
-      '/government/content-list',
-      '/government/publish-queue',
-      '/government/wechat-dashboard',
-      '/government/review',
-      '/government/intelligent-reports',
-    ];
-    // 延迟2秒后开始预加载，优先保证当前页面渲染
-    setTimeout(() => preloadComponents(govPaths), 2000);
-  } else {
-    const bizPaths = [
-      '/business/dashboard',
-      '/business/analytics',
-    ];
-    setTimeout(() => preloadComponents(bizPaths), 2000);
-  }
+export function preloadAllMenuPages(_version: 'business' | 'government'): void {
+  // 禁用全量预加载 - 改为按需懒加载
+  // 仅在用户hover菜单项时触发单组件预加载
+  console.log('[Preload] 全量预加载已禁用，改为按需加载');
 }
 
 /**

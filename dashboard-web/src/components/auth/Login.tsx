@@ -21,15 +21,27 @@ export function Login() {
   const [searchParams] = useSearchParams();
   const setVersion = useSetVersion();
 
-  // 从 URL 参数获取版本
+  // 从 URL 参数或 localStorage 获取版本
   useEffect(() => {
     const version = searchParams.get('version');
+    const storedVersion = localStorage.getItem('lumina-version') as 'business' | 'government' | null;
+
     if (version === 'business' || version === 'government') {
+      // URL 参数优先级最高
       setTenantType(version);
-      // 根据版本自动填充演示账号
       if (version === 'government') {
         setEmail('admin@demo-gov');
-        setPassword('LuminaDemo2026');
+        setPassword('demo123');
+      } else {
+        setEmail('admin@demo.lumina.com');
+        setPassword('demo123');
+      }
+    } else if (storedVersion === 'business' || storedVersion === 'government') {
+      // 从 localStorage 恢复版本
+      setTenantType(storedVersion);
+      if (storedVersion === 'government') {
+        setEmail('admin@demo-gov');
+        setPassword('demo123');
       } else {
         setEmail('admin@demo.lumina.com');
         setPassword('demo123');
@@ -96,7 +108,7 @@ export function Login() {
   // 填充政务版演示账号
   const fillGovernmentAccount = () => {
     setEmail('admin@demo-gov');
-    setPassword('LuminaDemo2026');
+    setPassword('demo123');
     setTenantType('government');
     toast({
       title: '已填充',
@@ -173,7 +185,7 @@ export function Login() {
                   {tenantType === 'business' ? (
                     <>演示账号: admin@demo.lumina.com / demo123</>
                   ) : (
-                    <>演示账号: editor@demo-gov (编辑), manager@demo-gov (主管), legal@demo-gov (法务), admin@demo-gov (管理员) / LuminaDemo2026</>
+                    <>演示账号: editor@demo-gov (编辑), manager@demo-gov (主管), legal@demo-gov (法务), admin@demo-gov (管理员) / demo123</>
                   )}
                 </p>
               </div>
@@ -237,26 +249,24 @@ export function Login() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Button
+              <button
                 type="button"
-                variant="outline"
                 onClick={fillBusinessAccount}
                 disabled={loading}
-                className="border-slate-700 hover:border-amber-500/50 hover:bg-amber-500/5 text-slate-300"
+                className="flex items-center justify-center px-4 py-2.5 rounded-lg border border-slate-700 bg-slate-800/50 hover:bg-amber-500/10 hover:border-amber-500/50 text-slate-300 hover:text-amber-400 transition-all duration-200 disabled:opacity-50"
               >
                 <Building2 className="w-4 h-4 mr-2 text-amber-500" />
                 商务版账号
-              </Button>
-              <Button
+              </button>
+              <button
                 type="button"
-                variant="outline"
                 onClick={fillGovernmentAccount}
                 disabled={loading}
-                className="border-slate-700 hover:border-blue-500/50 hover:bg-blue-500/5 text-slate-300"
+                className="flex items-center justify-center px-4 py-2.5 rounded-lg border border-slate-700 bg-slate-800/50 hover:bg-blue-500/10 hover:border-blue-500/50 text-slate-300 hover:text-blue-400 transition-all duration-200 disabled:opacity-50"
               >
                 <Landmark className="w-4 h-4 mr-2 text-blue-500" />
                 政务版账号
-              </Button>
+              </button>
             </div>
 
             <div className="relative my-6">
@@ -283,7 +293,7 @@ export function Login() {
           <div className="mt-6 p-3 bg-slate-800/50 rounded-lg border border-slate-700">
             <p className="text-xs text-slate-500 text-center">
               商务版: admin@demo.lumina.com / demo123<br />
-              政务版: admin@demo-gov, editor@demo-gov, manager@demo-gov, legal@demo-gov / LuminaDemo2026
+              政务版: admin@demo-gov, editor@demo-gov, manager@demo-gov, legal@demo-gov / demo123
             </p>
           </div>
         </CardContent>

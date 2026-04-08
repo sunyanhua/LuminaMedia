@@ -51,14 +51,24 @@ LuminaMedia/
 │   ├── shared/           # 共享代码（CloudProvider、Repository等）
 │   └── config/           # 配置管理
 ├── dashboard-web/         # 前端Dashboard (React + Mobile-First)
+├── test/                 # 测试文件（唯一合法位置）
+│   ├── modules/          # 单元测试
+│   ├── integration/      # 集成测试
+│   ├── e2e/              # E2E测试
+│   ├── fixtures/         # 测试夹具
+│   ├── coverage/         # 覆盖率报告
+│   └── archive/          # 归档测试文件
 ├── scripts/              # 数据库脚本和工具
-├── docs/                 # 项目文档
+├── docs/                 # 项目文档（唯一合法位置）
 │   ├── tasks/           # 实施任务清单（按版本分目录）
 │   │   ├── 3.1-demo/   # 3.1 DEMO版任务清单（当前）
-│   │   ├── 3.0-demo/   # 3.0 DEMO版任务清单（已归档）
 │   │   └── archive/    # 历史版本归档
+│   ├── architecture/   # 架构文档
+│   ├── database/       # 数据库文档
+│   ├── Audit_Report/   # 质量检查报告
 │   ├── README.md       # 文档索引
 │   └── ...
+├── _archive/             # 项目归档（旧版本备份）
 ├── docker-compose.yml    # Docker编排配置
 ├── Dockerfile.backend    # 后端Dockerfile
 └── CLAUDE.md            # 本文件
@@ -80,6 +90,11 @@ LuminaMedia/
 
 ---
 
+### API 文档
+- Swagger UI: http://localhost:3003/api/docs
+- 健康检查: http://localhost:3003/health
+
+
 ## 🐳 LuminaMedia Docker Rules
 - **Project Name**: `lumina-media`
 - **Frontend (Dashboard)**: 
@@ -90,11 +105,16 @@ LuminaMedia/
   - NO `docker-compose down` for code changes.
   - Nodemon is active; trust the auto-reload.
 - **APM & Services**: Skywalking and Qdrant are fixed infrastructure. DO NOT restart them unless config changes.
-
-
-### API 文档
-- Swagger UI: http://localhost:3003/api/docs
-- 健康检查: http://localhost:3003/health
+## 🐳 LuminaMedia Docker Rules
+- **Project Name**: `lumina-media`
+- **Frontend (Dashboard)**: 
+  - Working Dir: `./dashboard-web`
+  - NO `npm install` inside Docker command. 
+  - Rebuild only if `./dashboard-web/package.json` changes.
+- **Backend (App)**: 
+  - NO `docker-compose down` for code changes.
+  - Nodemon is active; trust the auto-reload.
+- **APM & Services**: Skywalking and Qdrant are fixed infrastructure. DO NOT restart them unless config changes.
 
 ---
 
@@ -151,34 +171,6 @@ LuminaMedia/
 
 ---
 
-## 测试文件管理规范
-
-### 核心原则（强制）
-**所有测试文件必须统一存放在 `test/` 目录下，严禁在 `src/` 或根目录创建测试文件。**
-
-### 详细规范
-完整测试文件管理制度参见：
-- 📄 [Test_File_Management_Policy.md](./docs/Test_File_Management_Policy.md) - 测试文件存放位置、命名规范、归档流程
-
-### 关键要点速查
-| 测试类型 | 命名规范 | 存放位置 | 临时文件期限 |
-|----------|----------|----------|--------------|
-| 单元测试 | `*.spec.ts` | `test/modules/` | - |
-| 集成测试 | `*.integration.spec.ts` | `test/integration/` | - |
-| E2E测试 | `*.e2e-spec.ts` | `test/e2e/` | - |
-| 临时文件 | `temp-*.ts` | `test/temp/` | **7天** |
-
-### 检查命令
-```bash
-# 检查src目录是否有测试文件（结果应为0）
-find src -name "*.spec.ts" -o -name "*.test.ts" 2>/dev/null | wc -l
-
-# 检查临时文件是否超期
-find test/temp -name "temp-*.ts" -mtime +7
-```
-
----
-
 ## Dashboard Web 前端开发规范
 
 ### 站点地图 (Sitemap)
@@ -203,4 +195,4 @@ find test/temp -name "temp-*.ts" -mtime +7
 
 - 使用 Docker 保持开发环境一致性
 - 提交前使用 Swagger UI 测试 API 变更
-- 严格遵守测试文件管理规范，保持项目整洁
+- 严格遵守文档管理与测试文件管理规范，保持项目整洁

@@ -32,6 +32,7 @@ import { Report } from './entities/report.entity';
 import { UserDocument } from './entities/user-document.entity';
 import { Topic } from './entities/topic.entity';
 import { Material } from './entities/material.entity';
+import { ReferenceInfo } from './entities/reference-info.entity';
 import { DataAnalyticsModule } from './modules/data-analytics/data-analytics.module';
 import { CustomerDataModule } from './modules/customer-data/customer-data.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
@@ -94,6 +95,7 @@ import { HealthModule } from './health/health.module';
           UserDocument,
           Topic,
           Material,
+          ReferenceInfo,
         ],
         synchronize:
           configService.get('TYPEORM_SYNCHRONIZE', 'false') === 'true',

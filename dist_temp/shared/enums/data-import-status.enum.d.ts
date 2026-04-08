@@ -1,8 +1,0 @@
-export declare enum DataImportStatus {
-    PENDING = "PENDING",
-    PROCESSING = "PROCESSING",
-    SUCCESS = "SUCCESS",
-    FAILED = "FAILED",
-    PARTIAL_SUCCESS = "PARTIAL_SUCCESS",
-    CANCELLED = "CANCELLED"
-}
