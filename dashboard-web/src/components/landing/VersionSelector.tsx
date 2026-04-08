@@ -1,17 +1,17 @@
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useSetDemoVersion, useIsAuthenticated } from '@/store/useAppStore';
+import { useSetVersion, useIsAuthenticated } from '@/store/useAppStore';
 import { Building2, Landmark, Sparkles, ArrowRight, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function VersionSelector() {
   const navigate = useNavigate();
-  const setDemoVersion = useSetDemoVersion();
+  const setVersion = useSetVersion();
   const isAuthenticated = useIsAuthenticated();
 
   const handleSelectVersion = (version: 'business' | 'government') => {
-    setDemoVersion(version);
+    setVersion(version);
     // 跳转到登录页面，带上版本参数
     navigate(`/login?version=${version}`);
   };
@@ -20,7 +20,8 @@ export function VersionSelector() {
     // 清除认证状态
     localStorage.removeItem('lumina-auth');
     localStorage.removeItem('lumina-user');
-    localStorage.removeItem('lumina-demo-version');
+    localStorage.removeItem('lumina-token');
+    localStorage.removeItem('lumina-version');
     navigate('/login');
   };
 
@@ -45,7 +46,7 @@ export function VersionSelector() {
         </p>
         {isAuthenticated && (
           <p className="text-slate-500 text-sm mt-2">
-            请选择要体验的演示版本
+            请选择要体验的版本
           </p>
         )}
       </div>

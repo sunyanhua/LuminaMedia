@@ -37,16 +37,10 @@ interface AppState {
   loading: boolean;
   setLoading: (loading: boolean) => void;
 
-  // 演示模式状态
-  demoMode: boolean;
-  // 切换演示模式
-  toggleDemoMode: () => void;
-  setDemoMode: (enabled: boolean) => void;
-
-  // 演示版本：商务版 / 政务版
-  demoVersion: DemoVersion;
-  // 设置演示版本
-  setDemoVersion: (version: DemoVersion) => void;
+  // 版本：商务版 / 政务版
+  version: DemoVersion;
+  // 设置版本
+  setVersion: (version: DemoVersion) => void;
 
   // 认证状态
   isAuthenticated: boolean;
@@ -56,16 +50,10 @@ interface AppState {
   logout: () => void;
 }
 
-// 从localStorage获取初始状态
-const getInitialDemoMode = (): boolean => {
-  if (typeof window === 'undefined') return false;
-  const stored = localStorage.getItem('lumina-demo-mode');
-  return stored === 'true';
-};
-
-const getInitialDemoVersion = (): DemoVersion => {
+// 从localStorage获取初始版本
+const getInitialVersion = (): DemoVersion => {
   if (typeof window === 'undefined') return null;
-  const stored = localStorage.getItem('lumina-demo-version');
+  const stored = localStorage.getItem('lumina-version');
   if (stored === 'business' || stored === 'government') {
     return stored;
   }
@@ -119,29 +107,17 @@ const storeCreator = (set: any): AppState => ({
   loading: false,
   setLoading: (loading) => set({ loading }),
 
-  // 演示模式初始从localStorage读取
-  demoMode: getInitialDemoMode(),
-  toggleDemoMode: () => set((state: AppState) => {
-    const newDemoMode = !state.demoMode;
-    localStorage.setItem('lumina-demo-mode', String(newDemoMode));
-    return { demoMode: newDemoMode };
-  }),
-  setDemoMode: (enabled) => {
-    localStorage.setItem('lumina-demo-mode', String(enabled));
-    set({ demoMode: enabled });
-  },
-
-  // 演示版本
-  demoVersion: getInitialDemoVersion(),
-  setDemoVersion: (version) => {
+  // 版本
+  version: getInitialVersion(),
+  setVersion: (version) => {
     if (typeof window !== 'undefined') {
       if (version) {
-        localStorage.setItem('lumina-demo-version', version);
+        localStorage.setItem('lumina-version', version);
       } else {
-        localStorage.removeItem('lumina-demo-version');
+        localStorage.removeItem('lumina-version');
       }
     }
-    set({ demoVersion: version });
+    set({ version });
   },
 
   // 认证状态
@@ -180,11 +156,8 @@ export const useUser = () => useAppStore((state) => state.user);
 export const useSetUser = () => useAppStore((state) => state.setUser);
 export const useLoading = () => useAppStore((state) => state.loading);
 export const useSetLoading = () => useAppStore((state) => state.setLoading);
-export const useDemoMode = () => useAppStore((state) => state.demoMode);
-export const useToggleDemoMode = () => useAppStore((state) => state.toggleDemoMode);
-export const useSetDemoMode = () => useAppStore((state) => state.setDemoMode);
-export const useDemoVersion = () => useAppStore((state) => state.demoVersion);
-export const useSetDemoVersion = () => useAppStore((state) => state.setDemoVersion);
+export const useVersion = () => useAppStore((state) => state.version);
+export const useSetVersion = () => useAppStore((state) => state.setVersion);
 export const useIsAuthenticated = () => useAppStore((state) => state.isAuthenticated);
 export const useLogin = () => useAppStore((state) => state.login);
 export const useLogout = () => useAppStore((state) => state.logout);

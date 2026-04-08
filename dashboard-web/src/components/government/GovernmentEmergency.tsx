@@ -29,10 +29,6 @@ function GovernmentEmergency() {
   const [publishing, setPublishing] = useState(false);
   const [published, setPublished] = useState(false);
 
-  // 确保演示模式开启
-  useEffect(() => {
-    localStorage.setItem('lumina-demo-mode', 'true');
-  }, []);
 
   const handlePublish = () => {
     setPublishing(true);

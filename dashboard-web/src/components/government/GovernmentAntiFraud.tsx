@@ -19,10 +19,6 @@ function GovernmentAntiFraud() {
   const [showCreator, setShowCreator] = useState(false);
   const [generated, setGenerated] = useState(false);
 
-  // 确保演示模式开启
-  useEffect(() => {
-    localStorage.setItem('lumina-demo-mode', 'true');
-  }, []);
 
   const handleGenerate = () => {
     setTimeout(() => setGenerated(true), 2000);

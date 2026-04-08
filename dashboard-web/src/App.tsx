@@ -2,7 +2,6 @@ import './App.css';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { Outlet, useLocation } from 'react-router-dom';
-import DemoBanner from './components/DemoBanner';
 import QuotaDisplay from './components/QuotaDisplay';
 
 function App() {
@@ -70,9 +69,6 @@ function App() {
 
   return (
     <div className="flex h-screen bg-slate-950 overflow-hidden flex-col">
-      {!isVersionSelector && !isLoginPage && (
-        <DemoBanner />
-      )}
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
 

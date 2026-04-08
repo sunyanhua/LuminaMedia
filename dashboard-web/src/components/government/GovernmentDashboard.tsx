@@ -1,18 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  Landmark, 
-  Shield, 
-  FileText, 
-  AlertTriangle, 
+import {
+  Landmark,
+  Shield,
+  FileText,
+  AlertTriangle,
   Siren,
   Clock,
   CheckCircle2,
   AlertCircle,
   ArrowRight
 } from 'lucide-react';
-import { useEffect } from 'react';
 
 // 模拟数据
 const stats = [
@@ -29,11 +28,6 @@ const recentTasks = [
 ];
 
 function GovernmentDashboard() {
-  // 确保演示模式开启
-  useEffect(() => {
-    localStorage.setItem('lumina-demo-mode', 'true');
-  }, []);
-
   const getStatusBadge = (status: string) => {
     const variants: Record<string, string> = {
       reviewer: 'bg-blue-500/10 text-blue-500 border-blue-500/30',
@@ -54,7 +48,7 @@ function GovernmentDashboard() {
       <div className="flex items-center justify-between">
         <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/30 px-3 py-1">
           <Landmark className="w-3 h-3 mr-1" />
-          政务版演示
+          政务版
         </Badge>
       </div>
 

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
-import { useLogin, useLogout } from '@/store/useAppStore';
+import { useLogin, useLogout, useSetVersion } from '@/store/useAppStore';
 import env from '@/config/env';
 
 interface AuthContextType {
@@ -148,8 +148,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           tenantType: tenantType, // 存储租户类型
           roles: data.user?.roles || []
         }));
-        // 同时存储到store的demoVersion字段
-        localStorage.setItem('lumina-demo-version', tenantType);
+        // 存储版本信息
+        localStorage.setItem('lumina-version', tenantType);
 
         // 存储token用于后续API调用
         localStorage.setItem('lumina-token', data.access_token);

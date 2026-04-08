@@ -21,67 +21,8 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    VitePWA({
-      registerType: 'prompt',
-      includeAssets: [],
-      manifest: {
-        name: '灵曜智媒 - 企业级内容营销平台',
-        short_name: '灵曜智媒',
-        description: '基于AI驱动的企业级内容营销平台',
-        theme_color: '#0f172a',
-        background_color: '#0f172a',
-        display: 'standalone',
-        scope: '/',
-        start_url: '/',
-        icons: [
-          {
-            src: '/pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-          },
-          {
-            src: '/pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-          },
-          {
-            src: '/pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable',
-          },
-        ],
-      },
-      workbox: {
-        // 减少预缓存的文件类型和大小
-        globPatterns: ['*.{js,css,html,ico}'],
-        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-cache',
-              expiration: {
-                maxEntries: 5,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30天
-              },
-            },
-          },
-          {
-            urlPattern: /\/api\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 5, // 5分钟
-              },
-            },
-          },
-        ],
-      },
-    }),
+    // PWA已禁用 - 避免Service Worker缓存冲突
+    // VitePWA({...})
   ],
   resolve: {
     alias: {

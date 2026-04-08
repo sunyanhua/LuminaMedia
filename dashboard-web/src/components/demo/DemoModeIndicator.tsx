@@ -1,102 +1,30 @@
 import React from 'react';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { useDemoMode, useToggleDemoMode, useDemoVersion } from '@/store/useAppStore';
-import { cn } from '@/lib/utils';
+import { useVersion } from '@/store/useAppStore';
 import { Building2, Landmark } from 'lucide-react';
 
+// DemoModeIndicator 已修改为仅显示当前版本，无切换功能
 const DemoModeIndicator: React.FC = () => {
-  const isDemoMode = useDemoMode();
-  const demoVersion = useDemoVersion();
-  const toggleDemoMode = useToggleDemoMode();
+  const version = useVersion();
 
-  const handleToggle = () => {
-    // 添加确认提示
-    if (!isDemoMode) {
-      const confirmed = window.confirm('切换至演示模式？在演示模式下，所有数据操作将被模拟，不会影响真实数据。');
-      if (confirmed) {
-        toggleDemoMode();
-      }
-    } else {
-      const confirmed = window.confirm('切换至生产模式？在生产模式下，将使用真实数据操作。');
-      if (confirmed) {
-        toggleDemoMode();
-      }
-    }
-  };
-
-  // 版本标签显示
-  const getVersionLabel = () => {
-    if (!isDemoMode) return null;
-    
-    if (demoVersion === 'business') {
-      return (
-        <span className="flex items-center gap-1 text-amber-400">
-          <Building2 className="w-3 h-3" />
-          商务版
-        </span>
-      );
-    }
-    if (demoVersion === 'government') {
-      return (
-        <span className="flex items-center gap-1 text-blue-400">
-          <Landmark className="w-3 h-3" />
-          政务版
-        </span>
-      );
-    }
-    return null;
-  };
-
-  return (
-    <div className={cn(
-      "flex items-center gap-2 px-3 py-2 rounded-md border",
-      isDemoMode
-        ? "bg-yellow-50/10 border-yellow-500/30 text-yellow-400"
-        : "bg-green-50/10 border-green-500/30 text-green-400"
-    )}>
-      <div className="flex items-center gap-2">
-        <Switch
-          id="demo-mode-switch"
-          checked={isDemoMode}
-          onCheckedChange={handleToggle}
-          className={isDemoMode ? "data-[state=checked]:bg-yellow-600" : ""}
-        />
-        <Label htmlFor="demo-mode-switch" className="cursor-pointer flex items-center gap-2">
-          {isDemoMode ? (
-            <span className="flex items-center gap-1">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-600"></span>
-              </span>
-              <span className="font-medium">演示模式</span>
-            </span>
-          ) : (
-            <span className="flex items-center gap-1">
-              <span className="relative flex h-2 w-2">
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-600"></span>
-              </span>
-              <span className="font-medium">生产模式</span>
-            </span>
-          )}
-        </Label>
+  if (version === 'business') {
+    return (
+      <div className="flex items-center gap-2 px-3 py-2 rounded-md border bg-amber-50/10 border-amber-500/30 text-amber-400">
+        <Building2 className="w-4 h-4" />
+        <span className="text-sm font-medium">商务版</span>
       </div>
-      
-      {/* 版本标签 */}
-      {getVersionLabel() && (
-        <>
-          <span className="text-slate-600">|</span>
-          <div className="text-xs font-medium">
-            {getVersionLabel()}
-          </div>
-        </>
-      )}
-      
-      <div className="text-xs opacity-70 ml-1">
-        {isDemoMode ? '数据操作将被模拟' : '使用真实数据'}
+    );
+  }
+
+  if (version === 'government') {
+    return (
+      <div className="flex items-center gap-2 px-3 py-2 rounded-md border bg-blue-50/10 border-blue-500/30 text-blue-400">
+        <Landmark className="w-4 h-4" />
+        <span className="text-sm font-medium">政务版</span>
       </div>
-    </div>
-  );
+    );
+  }
+
+  return null;
 };
 
 export default DemoModeIndicator;

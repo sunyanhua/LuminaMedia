@@ -3,16 +3,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Upload, Sparkles, Download, Share2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 function GovernmentPolicy() {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [analysisComplete, setAnalysisComplete] = useState(false);
 
-  // 确保演示模式开启
-  useEffect(() => {
-    localStorage.setItem('lumina-demo-mode', 'true');
-  }, []);
 
   // 模拟文件选择
   const handleFileSelect = () => {

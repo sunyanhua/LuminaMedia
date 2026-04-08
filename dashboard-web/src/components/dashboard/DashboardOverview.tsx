@@ -146,20 +146,10 @@ function DashboardOverview() {
         console.error('Failed to fetch dashboard data:', error);
         const errorMsg = error instanceof Error ? error.message : '数据加载失败，请稍后重试';
         setError(`API连接失败: ${errorMsg}`);
-        // API调用失败，检查是否为演示模式，演示模式下使用模拟数据作为fallback
-        const isDemoMode = localStorage.getItem('lumina-demo-mode') === 'true';
-        if (isDemoMode) {
-          console.log('[DEMO] 演示模式下使用模拟数据作为fallback');
-          const mockData = generateMockChartData(timeRange);
-          setRevenueData(mockData);
-          setStats(generateMockStats());
-          setContentPerformance(generateMockContentPerformance());
-        } else {
-          // 生产模式API失败，保持空状态，显示错误信息
-          setRevenueData([]);
-          setStats(null);
-          setContentPerformance([]);
-        }
+        // API调用失败，保持错误状态
+        setRevenueData([]);
+        setStats(null);
+        setContentPerformance([]);
       } finally {
         setLoading(false);
       }
@@ -219,16 +209,6 @@ function DashboardOverview() {
                   onClick={() => window.location.reload()}
                 >
                   重新加载
-                </button>
-                <button
-                  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg transition-colors border border-slate-600"
-                  onClick={() => {
-                    // 切换到演示模式并重试
-                    localStorage.setItem('lumina-demo-mode', 'true');
-                    window.location.reload();
-                  }}
-                >
-                  切换到演示模式
                 </button>
               </div>
             </div>

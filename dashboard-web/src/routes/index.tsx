@@ -62,7 +62,7 @@ const LoadingFallback = () => (
 const VersionGuard = ({ children }: { children: React.ReactNode }) => {
   // 客户端检查
   if (typeof window !== 'undefined') {
-    const version = localStorage.getItem('lumina-demo-version');
+    const version = localStorage.getItem('lumina-version');
     if (!version) {
       return <Navigate to="/" replace />;
     }
@@ -87,7 +87,7 @@ const AuthenticatedRedirect = ({ children }: { children: React.ReactNode }) => {
   if (typeof window !== 'undefined') {
     const isAuthenticated = localStorage.getItem('lumina-auth') === 'true';
     if (isAuthenticated) {
-      const version = localStorage.getItem('lumina-demo-version');
+      const version = localStorage.getItem('lumina-version');
       if (version === 'government') {
         return <Navigate to="/government/dashboard" replace />;
       } else if (version === 'business') {

@@ -14,11 +14,23 @@ const apiClient = axios.create({
 // 请求拦截器 - 添加认证token等
 apiClient.interceptors.request.use(
   (config) => {
-    // 这里可以添加认证token
-    // const token = localStorage.getItem('token');
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    // 添加认证token
+    const token = localStorage.getItem('lumina-token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    // 添加租户ID
+    const userStr = localStorage.getItem('lumina-user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user.tenantId) {
+          config.headers['x-tenant-id'] = user.tenantId;
+        }
+      } catch {
+        // 忽略解析错误
+      }
+    }
     return config;
   },
   (error) => {

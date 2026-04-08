@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Loader as Loader2, Sparkles, Building2, Landmark, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useSetDemoVersion } from '@/store/useAppStore';
+import { useSetVersion } from '@/store/useAppStore';
 
 export function Login() {
   const [isLogin, setIsLogin] = useState(true);
@@ -19,7 +19,7 @@ export function Login() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const setDemoVersion = useSetDemoVersion();
+  const setVersion = useSetVersion();
 
   // 从 URL 参数获取版本
   useEffect(() => {
@@ -64,7 +64,7 @@ export function Login() {
           title: '登录成功',
           description: '欢迎回来！',
         });
-        setDemoVersion(tenantType);
+        setVersion(tenantType);
         if (tenantType === 'government') {
           navigate('/government/dashboard');
         } else {

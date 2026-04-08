@@ -2,18 +2,17 @@ import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useSetDemoVersion } from '@/store/useAppStore';
-import DemoBanner from '@/components/DemoBanner';
+import { useSetVersion } from '@/store/useAppStore';
 import QuotaDisplay from '@/components/QuotaDisplay';
 
 function GovernmentLayout() {
   const location = useLocation();
-  const setDemoVersion = useSetDemoVersion();
+  const setVersion = useSetVersion();
 
   // 设置当前版本为政务版
   useEffect(() => {
-    setDemoVersion('government');
-  }, [setDemoVersion]);
+    setVersion('government');
+  }, [setVersion]);
 
   const getBreadcrumbs = () => {
     const breadcrumbMap: Record<string, { label: string; active?: boolean }[]> = {
@@ -54,7 +53,6 @@ function GovernmentLayout() {
 
   return (
     <div className="flex h-screen bg-slate-950 overflow-hidden flex-col">
-      <DemoBanner />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
         <div className="flex-1 flex flex-col overflow-hidden">

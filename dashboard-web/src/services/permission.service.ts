@@ -203,7 +203,7 @@ export const useMenuPermissionService = (): MenuConfig => {
         setError(null);
 
         // 从本地存储获取版本信息
-        const demoVersion = localStorage.getItem('lumina-demo-version') as 'business' | 'government' || 'business';
+        const demoVersion = localStorage.getItem('lumina-version') as 'business' | 'government' || 'business';
 
         // 获取功能配置
         const service = MenuPermissionService.getInstance();

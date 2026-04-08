@@ -1,4 +1,4 @@
-import { Bell, Search, User, Menu, X, PlayCircle, LogOut } from 'lucide-react';
+import { Bell, Search, User, Menu, X, LogOut } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
@@ -10,9 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import DemoModeIndicator from '@/components/demo/DemoModeIndicator';
-import { UserSwitcher } from '@/components/demo/UserSwitcher';
-import { useDemoMode, useToggleDemoMode, useUser, useDemoVersion, useLogout } from '@/store/useAppStore';
+import { useUser, useLogout } from '@/store/useAppStore';
 import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
@@ -35,10 +33,7 @@ export function Header({
 }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(showMobileMenu);
   const [userRoles, setUserRoles] = useState<string[]>([]);
-  const isDemoMode = useDemoMode();
-  const toggleDemoMode = useToggleDemoMode();
   const user = useUser();
-  const demoVersion = useDemoVersion();
   const logout = useLogout();
   const navigate = useNavigate();
 
@@ -68,7 +63,7 @@ export function Header({
     localStorage.removeItem('lumina-auth');
     localStorage.removeItem('lumina-user');
     localStorage.removeItem('lumina-token');
-    localStorage.removeItem('lumina-demo-version');
+    localStorage.removeItem('lumina-version');
 
     // 跳转到登录页面
     navigate('/login');
@@ -130,11 +125,6 @@ export function Header({
             />
           </div>
 
-          {/* 演示模式指示器 - 桌面端显示 */}
-          <div className="hidden md:flex">
-            <DemoModeIndicator />
-          </div>
-
           {/* 移动端搜索按钮 - 代替搜索框 */}
           <button className="md:hidden p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-amber-500 transition-colors touch-target">
             <Search className="w-5 h-5" />
@@ -146,23 +136,10 @@ export function Header({
             <span className="absolute top-1 right-1 w-2 h-2 bg-amber-500 rounded-full" />
           </button>
 
-          {/* 用户切换器 - 仅限演示模式且用户已登录时显示 */}
-          {isDemoMode && user?.email && demoVersion && (
-            <div className="hidden md:flex items-center gap-2">
-              <UserSwitcher
-                currentUserEmail={user.email}
-                tenantType={demoVersion}
-                onUserSwitch={(email) => {
-                  console.log('用户切换至:', email);
-                  // 这里可以更新store中的用户信息
-                }}
-              />
-              {/* 当前角色提示 */}
-              {userRoles.length > 0 && (
-                <div className="px-2 py-1 text-xs rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                  {userRoles.map(role => role.replace(/_/g, ' ')).join(', ')}
-                </div>
-              )}
+          {/* 当前角色提示 */}
+          {userRoles.length > 0 && (
+            <div className="hidden md:flex px-2 py-1 text-xs rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+              {userRoles.map(role => role.replace(/_/g, ' ')).join(', ')}
             </div>
           )}
 
@@ -223,26 +200,6 @@ export function Header({
                   {userRoles[0].replace(/_/g, ' ')}
                 </span>
               )}
-            </div>
-            <div
-              className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700 transition-colors cursor-pointer"
-              onClick={() => {
-                if (isDemoMode) {
-                  const confirmed = window.confirm('切换至生产模式？在生产模式下，将使用真实数据操作。');
-                  if (confirmed) toggleDemoMode();
-                } else {
-                  const confirmed = window.confirm('切换至演示模式？在演示模式下，所有数据操作将被模拟，不会影响真实数据。');
-                  if (confirmed) toggleDemoMode();
-                }
-              }}
-            >
-              <PlayCircle className={cn("w-5 h-5", isDemoMode ? "text-yellow-500" : "text-green-500")} />
-              <span className="text-slate-300">
-                {isDemoMode ? '演示模式' : '生产模式'}
-              </span>
-              <span className="ml-auto text-xs px-2 py-1 rounded-full bg-slate-700 text-slate-300">
-                {isDemoMode ? '模拟数据' : '真实数据'}
-              </span>
             </div>
           </div>
         </div>

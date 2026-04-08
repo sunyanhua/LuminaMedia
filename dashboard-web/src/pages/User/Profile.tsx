@@ -41,7 +41,7 @@ const UserProfilePage: React.FC = () => {
                 演示账户
               </Badge>
               <Badge variant="secondary" className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                {localStorage.getItem('lumina-demo-version') === 'government' ? '政务版' : '商务版'}
+                {localStorage.getItem('lumina-version') === 'government' ? '政务版' : '商务版'}
               </Badge>
             </div>
             <p className="text-sm text-slate-500 mb-4">
