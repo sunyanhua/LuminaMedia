@@ -1,12 +1,18 @@
 import path from 'path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
-import { VitePWA } from 'vite-plugin-pwa';
+// import { VitePWA } from 'vite-plugin-pwa'; // PWA已禁用
 
 export default defineConfig({
   server: {
     port: 5174,
     strictPort: true, // 🚀 设为 true 彻底禁止端口自动偏移
+    host: '0.0.0.0',
+    hmr: {
+      host: 'localhost',
+      port: 5174, // 与映射到主机的端口一致
+      clientPort: 5174, // 浏览器连接的端口
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:3003',

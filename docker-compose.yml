@@ -156,6 +156,7 @@ services:
       - /app/node_modules  # 🚀 这一行必须加回，用于屏蔽宿主机的 Windows 版依赖
     working_dir: /app
     environment:
+      - VITE_PORT=5174
       - CHOKIDAR_USEPOLLING=true # 🚀 强制 Vite 使用轮询监听，破解 Windows 映射延迟
       - NODE_ENV=development
       - CI=true

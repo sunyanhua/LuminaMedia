@@ -50,3 +50,16 @@ declare module '@ant-design/icons' {
   export const SyncOutlined: any;
   export const RiseOutlined: any;
 }
+
+declare module 'vite-plugin-pwa' {
+  import { Plugin } from 'vite';
+
+  interface VitePWAOptions {
+    registerType?: 'autoUpdate' | 'prompt';
+    workbox?: any;
+    includeAssets?: string[];
+    manifest?: any;
+  }
+
+  export function VitePWA(options?: VitePWAOptions): Plugin;
+}

@@ -10,7 +10,9 @@ import { User, Session } from '@supabase/supabase-js';
 export const supabase = {
   auth: {
     getSession: async () => ({ data: { session: null as Session | null }, error: null }),
-    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+    onAuthStateChange: (callback: (event: string, session: Session | null) => void) => ({
+      data: { subscription: { unsubscribe: () => {} } }
+    }),
     signInWithPassword: async () => ({ data: { user: null, session: null }, error: new Error('请使用 AuthContext 登录') }),
     signUp: async () => ({ data: { user: null, session: null }, error: new Error('请使用 AuthContext 注册') }),
     signOut: async () => ({ error: null }),
