@@ -54,6 +54,9 @@ import { TenantContextService } from '../../shared/services/tenant-context.servi
     KnowledgeRetrievalService,
     VectorSearchService,
     TenantContextService,
+    KnowledgeDocumentRepository,
+    EnterpriseProfileRepository,
+    CustomerProfileRepository,
   ],
   exports: [
     EnterpriseProfileAnalysisService,
@@ -61,6 +64,9 @@ import { TenantContextService } from '../../shared/services/tenant-context.servi
     TenantProfileService,
     ReferenceInfoService,
     ReferenceCrawlerService,
+    KnowledgeDocumentRepository,
+    EnterpriseProfileRepository,
+    CustomerProfileRepository,
   ],
 })
 export class KnowledgeModule {}

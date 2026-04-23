@@ -56,16 +56,16 @@ const KnowledgeBase: React.FC = () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      params.append('page', '1');
+      params.append('offset', '0');
       params.append('limit', '50');
-      if (searchQuery) params.append('keyword', searchQuery);
+      if (searchQuery) params.append('query', searchQuery);
       if (selectedCategory && selectedCategory !== 'all') params.append('category', selectedCategory);
 
       const response = await fetch(`/api/v1/knowledge/documents?${params}`);
       if (!response.ok) throw new Error('获取文档列表失败');
 
       const data = await response.json();
-      setDocuments(data.items || []);
+      setDocuments(data.documents || []);
       setTotal(data.total || 0);
     } catch (error) {
       console.error('获取文档列表失败:', error);

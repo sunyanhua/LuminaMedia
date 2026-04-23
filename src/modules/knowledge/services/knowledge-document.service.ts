@@ -359,7 +359,7 @@ export class KnowledgeDocumentService {
         where: whereConditions,
         take: limit,
         skip: offset,
-        order: { updatedAt: 'DESC' },
+        order: { updated_at: 'DESC' },
       });
     }
 

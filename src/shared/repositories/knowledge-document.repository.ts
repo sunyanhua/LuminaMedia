@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { TenantRepository } from './tenant.repository';
 import {
   KnowledgeDocument,
@@ -5,12 +6,22 @@ import {
   DocumentProcessingStatus,
   DocumentSourceType,
 } from '../../entities/knowledge-document.entity';
+import { DataSource } from 'typeorm';
 
 /**
  * KnowledgeDocument实体的租户感知Repository
  * 提供知识库文档的特定查询方法
  */
+@Injectable()
 export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocument> {
+  constructor(private dataSource: DataSource) {
+    super(
+      KnowledgeDocument,
+      dataSource.createEntityManager(),
+      dataSource.createQueryRunner(),
+    );
+  }
+
   /**
    * 根据状态查找文档
    */
