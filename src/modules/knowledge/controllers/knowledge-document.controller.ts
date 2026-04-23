@@ -18,6 +18,7 @@ import {
   NotFoundException,
   Res,
 } from '@nestjs/common';
+import { IsString, IsOptional, IsNotEmpty, IsBoolean, IsArray } from 'class-validator';
 import type { Response } from 'express';
 import * as fs from 'fs/promises';
 import { createReadStream } from 'fs';
@@ -93,11 +94,28 @@ class ImportFileDto {
 }
 
 class ImportUrlDto {
+  @IsString()
+  @IsNotEmpty()
   url: string;
+
+  @IsString()
+  @IsOptional()
   category?: string;
+
+  @IsArray()
+  @IsOptional()
   tags?: string[];
+
+  @IsString()
+  @IsOptional()
   language?: string;
+
+  @IsBoolean()
+  @IsOptional()
   isPublic?: boolean;
+
+  @IsArray()
+  @IsOptional()
   accessControl?: string[];
 }
 
