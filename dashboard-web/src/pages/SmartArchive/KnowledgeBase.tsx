@@ -55,62 +55,18 @@ const KnowledgeBase: React.FC = () => {
   const fetchDocuments = async () => {
     setLoading(true);
     try {
-      // 这里应该调用实际的API
-      // const response = await fetch('/api/v1/knowledge/documents');
-      // const data = await response.json();
+      const params = new URLSearchParams();
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+      if (searchQuery) params.append('keyword', searchQuery);
+      if (selectedCategory && selectedCategory !== 'all') params.append('category', selectedCategory);
 
-      // 模拟数据
-      const mockData: KnowledgeDocument[] = [
-        {
-          id: '1',
-          title: '2026年政务信息公开工作要点',
-          summary: '关于2026年政务信息公开工作的指导文件',
-          sourceType: 'file',
-          fileType: 'pdf',
-          category: '政策文件',
-          tags: ['政务', '信息公开', '2026'],
-          createdAt: '2026-04-05 14:30:00',
-          status: 'active',
-          processingStatus: 'vectorized',
-        },
-        {
-          id: '2',
-          title: '智慧城市建设典型案例',
-          summary: '全国智慧城市建设优秀案例汇编',
-          sourceType: 'url',
-          fileType: 'web_page',
-          category: '参考资料',
-          tags: ['智慧城市', '案例', '建设'],
-          createdAt: '2026-04-04 09:15:00',
-          status: 'active',
-          processingStatus: 'vectorized',
-        },
-        {
-          id: '3',
-          title: '单位年度工作总结报告',
-          summary: '2025年度工作总结及2026年工作计划',
-          sourceType: 'file',
-          fileType: 'word',
-          category: '历史文章',
-          tags: ['总结', '报告', '年度'],
-          createdAt: '2026-04-03 16:45:00',
-          status: 'active',
-          processingStatus: 'analyzed',
-        },
-        {
-          id: '4',
-          title: '新媒体运营规范指南',
-          summary: '政务新媒体运营规范与注意事项',
-          sourceType: 'manual',
-          category: '参考资料',
-          tags: ['新媒体', '运营', '规范'],
-          createdAt: '2026-04-02 11:20:00',
-          status: 'draft',
-          processingStatus: 'pending',
-        },
-      ];
+      const response = await fetch(`/api/v1/knowledge/documents?${params}`);
+      if (!response.ok) throw new Error('获取文档列表失败');
 
-      setDocuments(mockData);
+      const data = await response.json();
+      setDocuments(data.items || []);
+      setTotal(data.total || 0);
     } catch (error) {
       console.error('获取文档列表失败:', error);
       toast({
@@ -146,19 +102,21 @@ const KnowledgeBase: React.FC = () => {
       formData.append('file', selectedFile);
       formData.append('category', selectedCategory !== 'all' ? selectedCategory : '');
 
-      // 这里应该调用实际的API
-      // const response = await fetch('/api/v1/knowledge/documents/import/file', {
-      //   method: 'POST',
-      //   body: formData,
-      // });
-      // const result = await response.json();
+      const response = await fetch('/api/v1/knowledge/documents/import/file', {
+        method: 'POST',
+        body: formData,
+      });
 
-      // 模拟上传成功
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || '上传失败');
+      }
+
+      const result = await response.json();
 
       toast({
         title: '上传成功',
-        description: `文件 "${selectedFile.name}" 已成功上传`,
+        description: result.title ? `已上传: ${result.title}` : '文件上传完成',
       });
 
       // 重置表单
@@ -194,20 +152,25 @@ const KnowledgeBase: React.FC = () => {
 
     setUploading(true);
     try {
-      // 这里应该调用实际的API
-      // const response = await fetch('/api/v1/knowledge/documents/import/url', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ url: urlInput }),
-      // });
-      // const result = await response.json();
+      const response = await fetch('/api/v1/knowledge/documents/import/url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: urlInput,
+          category: selectedCategory !== 'all' ? selectedCategory : undefined,
+        }),
+      });
 
-      // 模拟采集成功
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || '采集失败');
+      }
+
+      const result = await response.json();
 
       toast({
         title: '采集成功',
-        description: `网页 "${urlInput}" 已成功采集`,
+        description: result.title ? `已采集: ${result.title}` : '网页采集完成',
       });
 
       // 重置表单
@@ -233,16 +196,21 @@ const KnowledgeBase: React.FC = () => {
     if (!confirm('确定要删除这个文档吗？')) return;
 
     try {
-      // 这里应该调用实际的API
-      // await fetch(`/api/v1/knowledge/documents/${id}`, { method: 'DELETE' });
+      const response = await fetch(`/api/v1/knowledge/documents/${id}`, {
+        method: 'DELETE',
+      });
 
-      // 模拟删除成功
-      setDocuments(documents.filter(doc => doc.id !== id));
+      if (!response.ok) {
+        throw new Error('删除失败');
+      }
 
       toast({
         title: '删除成功',
         description: '文档已删除',
       });
+
+      // 刷新列表
+      fetchDocuments();
     } catch (error) {
       console.error('删除文档失败:', error);
       toast({
