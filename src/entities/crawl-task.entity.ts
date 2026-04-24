@@ -69,4 +69,7 @@ export class CrawlTask implements TenantEntity {
 
   @Column({ name: 'category', type: 'varchar', length: 255, nullable: true })
   category: string | null;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 }
