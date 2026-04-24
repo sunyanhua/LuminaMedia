@@ -34,6 +34,13 @@ const KnowledgeBase: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [urlInput, setUrlInput] = useState('');
+  const [crawlMode, setCrawlMode] = useState<'SINGLE' | 'PROJECT' | 'SITE'>('SINGLE');
+  const [crawlProgress, setCrawlProgress] = useState<{
+    taskId: string;
+    status: string;
+    crawledCount: number;
+    failedCount: number;
+  } | null>(null);
   const [activeTab, setActiveTab] = useState<'upload' | 'list'>('list');
   // 预览相关状态
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -143,21 +150,18 @@ const KnowledgeBase: React.FC = () => {
   // 采集网页
   const handleCrawl = async () => {
     if (!urlInput.trim()) {
-      toast({
-        title: '请输入URL',
-        description: '请先输入要采集的网页URL',
-        variant: 'destructive',
-      });
+      toast({ title: '请输入URL', description: '请先输入要采集的网页URL', variant: 'destructive' });
       return;
     }
 
     setUploading(true);
     try {
-      const response = await fetch('/api/v1/knowledge/documents/import/url', {
+      const response = await fetch('/api/v1/crawl/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           url: urlInput,
+          mode: crawlMode,
           category: selectedCategory !== 'all' ? selectedCategory : undefined,
         }),
       });
@@ -168,18 +172,17 @@ const KnowledgeBase: React.FC = () => {
       }
 
       const result = await response.json();
-
-      toast({
-        title: '采集成功',
-        description: result.title ? `已采集: ${result.title}` : '网页采集完成',
+      setCrawlProgress({
+        taskId: result.taskId,
+        status: 'PENDING',
+        crawledCount: 0,
+        failedCount: 0,
       });
 
-      // 重置表单
-      setUrlInput('');
+      pollCrawlProgress(result.taskId);
 
-      // 刷新列表
-      fetchDocuments();
-      setActiveTab('list');
+      toast({ title: '采集任务已启动', description: `开始抓取，请稍候查看进度` });
+      setUrlInput('');
     } catch (error) {
       console.error('采集网页失败:', error);
       toast({
@@ -190,6 +193,33 @@ const KnowledgeBase: React.FC = () => {
     } finally {
       setUploading(false);
     }
+  };
+
+  // 轮询采集进度
+  const pollCrawlProgress = async (taskId: string) => {
+    const poll = async () => {
+      try {
+        const response = await fetch(`/api/v1/crawl/${taskId}/status`);
+        if (response.ok) {
+          const status = await response.json();
+          setCrawlProgress({
+            taskId,
+            status: status.status,
+            crawledCount: status.crawledCount,
+            failedCount: status.failedCount,
+          });
+
+          if (status.status === 'RUNNING' || status.status === 'PENDING') {
+            setTimeout(poll, 5000);
+          } else {
+            fetchDocuments();
+          }
+        }
+      } catch {
+        // 忽略轮询错误
+      }
+    };
+    poll();
   };
 
   // 删除文档
@@ -605,6 +635,44 @@ const KnowledgeBase: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label className="text-slate-300">采集模式</Label>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        value="SINGLE"
+                        checked={crawlMode === 'SINGLE'}
+                        onChange={(e) => setCrawlMode('SINGLE')}
+                        className="accent-amber-500"
+                      />
+                      <span className="text-slate-300">单页</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        value="PROJECT"
+                        checked={crawlMode === 'PROJECT'}
+                        onChange={(e) => setCrawlMode('PROJECT')}
+                        className="accent-amber-500"
+                      />
+                      <span className="text-slate-300">专题</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        value="SITE"
+                        checked={crawlMode === 'SITE'}
+                        onChange={(e) => setCrawlMode('SITE')}
+                        className="accent-amber-500"
+                      />
+                      <span className="text-slate-300">整站</span>
+                    </label>
+                  </div>
+                  {crawlMode !== 'SINGLE' && (
+                    <p className="text-xs text-slate-500">（无上限抓取，请谨慎使用）</p>
+                  )}
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="crawl-category" className="text-slate-300">分类（可选）</Label>
                   <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                     <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-200">
@@ -638,6 +706,26 @@ const KnowledgeBase: React.FC = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* 抓取进度显示 */}
+          {crawlProgress && (
+            <Card className="bg-slate-900/50 border-slate-800">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-slate-300">抓取进度</span>
+                  <span className="text-slate-400 text-sm">
+                    {crawlProgress.status === 'RUNNING' ? '采集中...' :
+                     crawlProgress.status === 'COMPLETED' ? '已完成' :
+                     crawlProgress.status === 'CANCELLED' ? '已取消' : '处理中'}
+                  </span>
+                </div>
+                <div className="flex gap-4 text-sm">
+                  <span className="text-slate-400">已抓取: {crawlProgress.crawledCount}</span>
+                  <span className="text-red-400">失败: {crawlProgress.failedCount}</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* 使用说明 */}
           <Card className="bg-slate-900/50 border-slate-800">
