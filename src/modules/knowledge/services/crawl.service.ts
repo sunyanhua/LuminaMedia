@@ -104,13 +104,14 @@ export class CrawlService {
             category: task.category,
           });
           queueItem.status = CrawlQueueStatus.COMPLETED;
+          task.crawledCount++;
         } else {
           queueItem.status = CrawlQueueStatus.FAILED;
           queueItem.error = 'Failed to fetch HTML';
         }
-      } catch (error) {
+      } catch (error: unknown) {
         queueItem.status = CrawlQueueStatus.FAILED;
-        queueItem.error = error.message;
+        queueItem.error = error instanceof Error ? error.message : 'Unknown error';
       }
 
       await this.crawlQueueRepository.save(queueItem);
