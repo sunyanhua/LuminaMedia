@@ -13,6 +13,9 @@ import { Repository, In } from 'typeorm';
 import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import axios from 'axios';
+import * as cheerio from 'cheerio';
+import { htmlToText } from 'html-to-text';
 
 import {
   KnowledgeDocument,
