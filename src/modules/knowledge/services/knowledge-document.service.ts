@@ -917,54 +917,119 @@ export class KnowledgeDocumentService {
     try {
       this.logger.log(`开始抓取网页内容: ${url}`);
 
-      // 在实际应用中，这里应该使用专业的网页抓取库（如puppeteer、cheerio等）
-      // DEMO版本中，我们模拟抓取过程，返回结构化数据
-
-      // 模拟网络延迟
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // 模拟不同URL返回不同的内容
-      let title = `网页标题: ${url}`;
-      let content = `这是从 ${url} 抓取的网页内容示例。\n\n在实际应用中，系统会使用网页抓取技术提取网页的正文内容，去除广告、导航等无关元素，保留核心信息用于知识库建设。\n\n抓取功能支持大多数新闻网站、政府门户、博客等公开可访问的网页。`;
-      let keywords = ['网页', '抓取', '示例'];
-
-      // 根据URL模拟一些不同的内容
-      if (url.includes('gov.cn') || url.includes('government')) {
-        title = `政策文件: ${url}`;
-        content = `【政策文件示例】\n\n关于进一步优化政务服务工作的通知\n\n各省、自治区、直辖市人民政府，国务院各部委、各直属机构：\n\n为进一步优化政务服务，提升企业和群众办事便利度，现就有关事项通知如下：\n\n一、全面推进“一网通办”\n1. 加快政务服务事项标准化建设，实现同一事项无差别受理、同标准办理。\n2. 推动更多政务服务事项网上办理，提高全程网办比例。\n\n二、加强数据共享和业务协同\n1. 打破信息孤岛，实现政府部门间数据共享。\n2. 推进跨部门、跨层级业务协同办理。\n\n三、优化线下服务体验\n1. 完善政务服务大厅功能布局，推行“综合窗口”服务模式。\n2. 加强工作人员培训，提升服务质量和效率。\n\n各地区、各部门要高度重视，切实加强组织领导，确保各项措施落到实处。`;
-        keywords = ['政策', '政务', '服务', '优化'];
-      } else if (url.includes('news') || url.includes('article')) {
-        title = `新闻报道: ${url}`;
-        content = `【新闻报道示例】\n\n智慧城市建设取得新进展\n\n近日，我市智慧城市建设领导小组召开工作会议，总结前期工作成效，部署下一步重点任务。\n\n会议指出，今年以来，我市智慧城市建设在多个领域取得显著进展：\n\n1. 城市大脑平台初步建成，接入各类数据资源超过500项，初步实现城市运行态势感知。\n2. “一网统管”体系不断完善，城市管理问题的发现、处置效率提升40%。\n3. 惠民服务应用持续丰富，新增“指尖办”服务事项200余项。\n\n下一步，我市将重点推进以下工作：\n- 深化数据资源共享利用，打破数据壁垒\n- 拓展智慧应用场景，提升市民获得感\n- 加强网络安全保障，确保系统稳定运行\n\n市智慧城市建设领导小组全体成员单位负责同志参加会议。`;
-        keywords = ['智慧城市', '建设', '进展', '新闻'];
+      // 验证URL格式
+      let parsedUrl: URL;
+      try {
+        parsedUrl = new URL(url);
+      } catch {
+        throw new Error('无效的URL格式');
       }
+
+      // 发送HTTP请求
+      const response = await axios.get(url, {
+        timeout: 30000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        },
+        maxRedirects: 5,
+        validateStatus: (status) => status < 500,
+      });
+
+      if (response.status !== 200) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const html = response.data as string;
+      const $ = cheerio.load(html);
+
+      // 提取标题
+      let title = $('title').text().trim() ||
+                  $('meta[property=”og:title”]').attr('content') ||
+                  $('meta[name=”title”]').attr('content') ||
+                  `网页标题: ${url}`;
+
+      // 提取主要内容
+      let content = '';
+      const articleElement = $('article').first();
+      const mainElement = $('main').first();
+      const contentElement = articleElement.length > 0 ? articleElement : mainElement;
+
+      if (contentElement.length > 0) {
+        content = htmlToText(contentElement.html() || '', {
+          wordwrap: false,
+          selectors: [
+            { selector: 'a', options: { ignoreImage: true, ignoreHref: true } },
+            { selector: 'img', format: 'skip' },
+            { selector: 'script', format: 'skip' },
+            { selector: 'style', format: 'skip' },
+          ],
+        });
+      } else {
+        // 回退：查找最大的文本段落
+        content = htmlToText(html, {
+          wordwrap: false,
+          selectors: [
+            { selector: 'a', options: { ignoreImage: true, ignoreHref: true } },
+            { selector: 'img', format: 'skip' },
+            { selector: 'script', format: 'skip' },
+            { selector: 'style', format: 'skip' },
+            { selector: 'nav', format: 'skip' },
+            { selector: 'header', format: 'skip' },
+            { selector: 'footer', format: 'skip' },
+            { selector: 'aside', format: 'skip' },
+          ],
+        });
+      }
+
+      // 提取作者
+      const author = $('meta[name=”author”]').attr('content') ||
+                     $('meta[property=”article:author”]').attr('content') ||
+                     $('[rel=”author”]').text().trim() ||
+                     undefined;
+
+      // 提取发布日期
+      const publishDateStr = $('meta[property=”article:published_time”]').attr('content') ||
+                            $('meta[name=”publishdate”]').attr('content') ||
+                            $('meta[name=”date”]').attr('content') ||
+                            undefined;
+      const publishDate = publishDateStr ? new Date(publishDateStr) : undefined;
+
+      // 提取关键词
+      const keywordsStr = $('meta[name=”keywords”]').attr('content');
+      const keywords = keywordsStr
+        ? keywordsStr.split(',').map(k => k.trim()).filter(Boolean)
+        : undefined;
 
       const wordCount = this.countWords(content);
       const readingTime = Math.ceil(wordCount / 200);
 
+      this.logger.log(`网页抓取成功: ${url}, 字数: ${wordCount}`);
+
       return {
         url,
         title,
-        content,
+        content: content.trim(),
         metadata: {
+          author,
+          publishDate,
           wordCount,
           readingTime,
           keywords,
-          publishDate: new Date(), // 模拟发布日期
-          author: '系统抓取',
         },
       };
     } catch (error) {
       this.logger.error(`抓取网页内容失败: ${error.message}`, error.stack);
-      // 如果抓取失败，返回基本的占位内容
+      // 降级保存：返回基本信息，不影响文档创建
       return {
         url,
         title: `抓取自: ${url}`,
-        content: `网页内容抓取失败，原因为: ${error.message}\n\nURL: ${url}\n\n这是网页抓取功能的DEMO版本，实际应用中需要配置专业的网页抓取服务。`,
+        content: '',
         metadata: {
-          wordCount: 50,
-          readingTime: 1,
-          keywords: ['抓取失败', '网页', '示例'],
+          wordCount: 0,
+          readingTime: 0,
+          keywords: [],
         },
       };
     }
