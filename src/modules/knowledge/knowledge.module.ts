@@ -6,6 +6,10 @@ import { EnterpriseProfile } from '../../entities/enterprise-profile.entity';
 import { KnowledgeDocument } from '../../entities/knowledge-document.entity';
 import { TenantProfile } from '../../entities/tenant-profile.entity';
 import { ReferenceInfo } from '../../entities/reference-info.entity';
+import { CrawlTask } from '../../entities/crawl-task.entity';
+import { CrawlQueue } from '../../entities/crawl-queue.entity';
+import { CrawlService } from './services/crawl.service';
+import { CrawlController } from './controllers/crawl.controller';
 import { EnterpriseProfileRepository } from '../../shared/repositories/enterprise-profile.repository';
 import { KnowledgeDocumentRepository } from '../../shared/repositories/knowledge-document.repository';
 import { CustomerProfileRepository } from '../../shared/repositories/customer-profile.repository';
@@ -32,6 +36,8 @@ import { TenantContextService } from '../../shared/services/tenant-context.servi
       KnowledgeDocument,
       TenantProfile,
       ReferenceInfo,
+      CrawlTask,
+      CrawlQueue,
     ]),
     HttpModule,
     ScheduleModule.forRoot(),
@@ -44,6 +50,7 @@ import { TenantContextService } from '../../shared/services/tenant-context.servi
     KnowledgeDocumentController,
     TenantProfileController,
     ReferenceInfoController,
+    CrawlController,
   ],
   providers: [
     EnterpriseProfileAnalysisService,
@@ -57,6 +64,7 @@ import { TenantContextService } from '../../shared/services/tenant-context.servi
     KnowledgeDocumentRepository,
     EnterpriseProfileRepository,
     CustomerProfileRepository,
+    CrawlService,
   ],
   exports: [
     EnterpriseProfileAnalysisService,
