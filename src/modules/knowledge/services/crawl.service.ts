@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as cheerio from 'cheerio';
 import axios from 'axios';
-import { CrawlTask, CrawlMode, CrawlTaskStatus } from '../../entities/crawl-task.entity';
-import { CrawlQueue, CrawlQueueStatus } from '../../entities/crawl-queue.entity';
+import { CrawlTask, CrawlMode, CrawlTaskStatus } from '../../../entities/crawl-task.entity';
+import { CrawlQueue, CrawlQueueStatus } from '../../../entities/crawl-queue.entity';
 import { KnowledgeDocumentService } from './knowledge-document.service';
 
 @Injectable()
