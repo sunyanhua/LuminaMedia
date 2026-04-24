@@ -929,8 +929,10 @@ export class KnowledgeDocumentService {
       const response = await axios.get(url, {
         timeout: 30000,
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          Accept:
+            'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
           'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
         },
         maxRedirects: 5,
@@ -945,16 +947,18 @@ export class KnowledgeDocumentService {
       const $ = cheerio.load(html);
 
       // 提取标题
-      let title = $('title').text().trim() ||
-                  $('meta[property=”og:title”]').attr('content') ||
-                  $('meta[name=”title”]').attr('content') ||
-                  `网页标题: ${url}`;
+      let title =
+        $('title').text().trim() ||
+        $('meta[property=”og:title”]').attr('content') ||
+        $('meta[name=”title”]').attr('content') ||
+        `网页标题: ${url}`;
 
       // 提取主要内容
       let content = '';
       const articleElement = $('article').first();
       const mainElement = $('main').first();
-      const contentElement = articleElement.length > 0 ? articleElement : mainElement;
+      const contentElement =
+        articleElement.length > 0 ? articleElement : mainElement;
 
       if (contentElement.length > 0) {
         content = htmlToText(contentElement.html() || '', {
@@ -984,22 +988,27 @@ export class KnowledgeDocumentService {
       }
 
       // 提取作者
-      const author = $('meta[name=”author”]').attr('content') ||
-                     $('meta[property=”article:author”]').attr('content') ||
-                     $('[rel=”author”]').text().trim() ||
-                     undefined;
+      const author =
+        $('meta[name=”author”]').attr('content') ||
+        $('meta[property=”article:author”]').attr('content') ||
+        $('[rel=”author”]').text().trim() ||
+        undefined;
 
       // 提取发布日期
-      const publishDateStr = $('meta[property=”article:published_time”]').attr('content') ||
-                            $('meta[name=”publishdate”]').attr('content') ||
-                            $('meta[name=”date”]').attr('content') ||
-                            undefined;
+      const publishDateStr =
+        $('meta[property=”article:published_time”]').attr('content') ||
+        $('meta[name=”publishdate”]').attr('content') ||
+        $('meta[name=”date”]').attr('content') ||
+        undefined;
       const publishDate = publishDateStr ? new Date(publishDateStr) : undefined;
 
       // 提取关键词
       const keywordsStr = $('meta[name=”keywords”]').attr('content');
       const keywords = keywordsStr
-        ? keywordsStr.split(',').map(k => k.trim()).filter(Boolean)
+        ? keywordsStr
+            .split(',')
+            .map((k) => k.trim())
+            .filter(Boolean)
         : undefined;
 
       const wordCount = this.countWords(content);

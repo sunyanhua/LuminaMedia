@@ -406,12 +406,15 @@ const KnowledgeBase: React.FC = () => {
                     {filteredDocuments.map((doc) => (
                       <TableRow key={doc.id} className="border-slate-800 hover:bg-slate-800/30">
                         <TableCell>
-                          <div>
+                          <button
+                            onClick={() => handlePreview(doc.id)}
+                            className="text-left hover:text-amber-400 transition-colors"
+                          >
                             <div className="font-medium text-slate-200">{doc.title}</div>
                             {doc.summary && (
                               <div className="text-sm text-slate-400 mt-1 line-clamp-1">{doc.summary}</div>
                             )}
-                          </div>
+                          </button>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
