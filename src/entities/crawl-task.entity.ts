@@ -26,9 +26,12 @@ export enum CrawlTaskStatus {
 @Entity('crawl_tasks')
 @Index(['tenantId', 'status'])
 @Index(['tenantId', 'createdAt'])
-export class CrawlTask extends TenantEntity {
+export class CrawlTask implements TenantEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ name: 'tenant_id', type: 'varchar', length: 36 })
+  tenantId: string;
 
   @Column({ name: 'source_url', type: 'varchar', length: 2000 })
   sourceUrl: string;
