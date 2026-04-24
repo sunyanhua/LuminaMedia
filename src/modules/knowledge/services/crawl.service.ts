@@ -6,6 +6,7 @@ import axios from 'axios';
 import { CrawlTask, CrawlMode, CrawlTaskStatus } from '../../../entities/crawl-task.entity';
 import { CrawlQueue, CrawlQueueStatus } from '../../../entities/crawl-queue.entity';
 import { KnowledgeDocumentService } from './knowledge-document.service';
+import { TenantContextService } from '../../../shared/services/tenant-context.service';
 
 @Injectable()
 export class CrawlService {
@@ -24,11 +25,13 @@ export class CrawlService {
     mode: CrawlMode,
     category?: string,
   ): Promise<{ taskId: string; totalUrls: number }> {
+    const tenantId = TenantContextService.getCurrentTenantIdStatic();
     const task = this.crawlTaskRepository.create({
       sourceUrl: url,
       mode,
       status: CrawlTaskStatus.PENDING,
       category: category || null,
+      tenantId,
     });
     await this.crawlTaskRepository.save(task);
 
