@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CrawlService } from '../services/crawl.service';
-import { CrawlMode } from '../../entities/crawl-task.entity';
+import { StartCrawlDto } from '../dto/start-crawl.dto';
 
 @ApiTags('Crawl')
 @Controller('crawl')
@@ -19,14 +19,11 @@ export class CrawlController {
   @Post('start')
   @ApiOperation({ summary: '启动抓取任务' })
   @ApiResponse({ status: 201, description: '任务启动成功' })
-  async startCrawl(
-    @Body() body: { url: string; mode: string; category?: string },
-  ) {
-    const mode = body.mode as CrawlMode;
+  async startCrawl(@Body() dto: StartCrawlDto) {
     const result = await this.crawlService.startCrawlTask(
-      body.url,
-      mode,
-      body.category,
+      dto.url,
+      dto.mode,
+      dto.category,
     );
     return result;
   }
@@ -54,9 +51,11 @@ export class CrawlController {
     @Query('offset') offset: string = '0',
     @Query('limit') limit: string = '20',
   ) {
+    const parsedOffset = parseInt(offset, 10);
+    const parsedLimit = parseInt(limit, 10);
     const result = await this.crawlService.getTaskList(
-      parseInt(offset, 10),
-      parseInt(limit, 10),
+      isNaN(parsedOffset) ? 0 : parsedOffset,
+      isNaN(parsedLimit) ? 20 : parsedLimit,
     );
     return result;
   }
