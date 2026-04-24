@@ -18,7 +18,13 @@ import {
   NotFoundException,
   Res,
 } from '@nestjs/common';
-import { IsString, IsOptional, IsNotEmpty, IsBoolean, IsArray } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNotEmpty,
+  IsBoolean,
+  IsArray,
+} from 'class-validator';
 import type { Response } from 'express';
 import * as fs from 'fs/promises';
 import { createReadStream } from 'fs';
@@ -221,7 +227,10 @@ export class KnowledgeDocumentController {
       properties: {
         documentId: { type: 'string' },
         title: { type: 'string' },
-        fileType: { type: 'string', enum: ['word', 'pdf', 'markdown', 'web_page', 'other'] },
+        fileType: {
+          type: 'string',
+          enum: ['word', 'pdf', 'markdown', 'web_page', 'other'],
+        },
         contentType: { type: 'string', enum: ['text', 'file'] },
         content: { type: 'string', nullable: true },
         downloadUrl: { type: 'string', nullable: true },
@@ -242,12 +251,15 @@ export class KnowledgeDocumentController {
     const document = await this.knowledgeDocumentService.getDocument(id);
 
     // 确定预览类型
-    const isTextBased = document.fileType === 'markdown' || document.fileType === 'web_page' ||
-                       (document.sourceType === DocumentSourceType.URL) ||
-                       (document.sourceType === DocumentSourceType.MANUAL) ||
-                       (document.sourceType === DocumentSourceType.API);
+    const isTextBased =
+      document.fileType === 'markdown' ||
+      document.fileType === 'web_page' ||
+      document.sourceType === DocumentSourceType.URL ||
+      document.sourceType === DocumentSourceType.MANUAL ||
+      document.sourceType === DocumentSourceType.API;
 
-    const isFileBased = document.fileType === 'pdf' || document.fileType === 'word';
+    const isFileBased =
+      document.fileType === 'pdf' || document.fileType === 'word';
 
     if (isTextBased) {
       // 文本类型文档，返回内容
@@ -970,7 +982,8 @@ export class KnowledgeDocumentController {
   @Get(':id/download')
   @ApiOperation({
     summary: '下载文档文件',
-    description: '下载文档的原始文件（仅适用于文件上传类型的文档），支持预览模式',
+    description:
+      '下载文档的原始文件（仅适用于文件上传类型的文档），支持预览模式',
   })
   @ApiParam({ name: 'id', description: '文档ID' })
   @ApiQuery({
@@ -997,7 +1010,10 @@ export class KnowledgeDocumentController {
     const document = await this.knowledgeDocumentService.getDocument(id);
 
     // 检查是否是文件类型
-    if (document.sourceType !== DocumentSourceType.FILE || !document.fileInfo?.storagePath) {
+    if (
+      document.sourceType !== DocumentSourceType.FILE ||
+      !document.fileInfo?.storagePath
+    ) {
       throw new BadRequestException('该文档没有可下载的文件');
     }
 

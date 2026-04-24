@@ -28,7 +28,7 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
   async findByStatus(status: DocumentStatus): Promise<KnowledgeDocument[]> {
     return this.createQueryBuilder('doc')
       .where('doc.status = :status', { status })
-      .orderBy('doc.updatedAt', 'DESC')
+      .orderBy('doc.updated_at', 'DESC')
       .getMany();
   }
 
@@ -40,7 +40,7 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
   ): Promise<KnowledgeDocument[]> {
     return this.createQueryBuilder('doc')
       .where('doc.processingStatus = :processingStatus', { processingStatus })
-      .orderBy('doc.updatedAt', 'DESC')
+      .orderBy('doc.updated_at', 'DESC')
       .getMany();
   }
 
@@ -52,7 +52,7 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
   ): Promise<KnowledgeDocument[]> {
     return this.createQueryBuilder('doc')
       .where('doc.sourceType = :sourceType', { sourceType })
-      .orderBy('doc.createdAt', 'DESC')
+      .orderBy('doc.created_at', 'DESC')
       .getMany();
   }
 
@@ -62,7 +62,7 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
   async findByCategory(category: string): Promise<KnowledgeDocument[]> {
     return this.createQueryBuilder('doc')
       .where('doc.category = :category', { category })
-      .orderBy('doc.createdAt', 'DESC')
+      .orderBy('doc.created_at', 'DESC')
       .getMany();
   }
 
@@ -72,7 +72,7 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
   async findByTag(tag: string): Promise<KnowledgeDocument[]> {
     return this.createQueryBuilder('doc')
       .where('JSON_CONTAINS(doc.tags, :tag)', { tag: JSON.stringify(tag) })
-      .orderBy('doc.createdAt', 'DESC')
+      .orderBy('doc.created_at', 'DESC')
       .getMany();
   }
 
@@ -124,7 +124,7 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
       .andWhere('doc.status = :activeStatus', {
         activeStatus: DocumentStatus.ACTIVE,
       })
-      .orderBy('doc.createdAt', 'ASC');
+      .orderBy('doc.created_at', 'ASC');
 
     if (limit) {
       queryBuilder.take(limit);
@@ -153,7 +153,7 @@ export class KnowledgeDocumentRepository extends TenantRepository<KnowledgeDocum
       .andWhere('doc.status = :activeStatus', {
         activeStatus: DocumentStatus.ACTIVE,
       })
-      .orderBy('doc.updatedAt', 'DESC');
+      .orderBy('doc.updated_at', 'DESC');
 
     if (category) {
       queryBuilder.andWhere('doc.category = :category', { category });

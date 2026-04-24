@@ -121,7 +121,10 @@ export class KnowledgeDocumentService {
       const currentUserId = TenantContextService.getCurrentTenantIdStatic(); // TODO: 需要获取当前用户ID
 
       // 确定文件类型
-      const fileType = this.determineFileTypeFromSource(data.sourceType, data.fileInfo?.mimeType);
+      const fileType = this.determineFileTypeFromSource(
+        data.sourceType,
+        data.fileInfo?.mimeType,
+      );
 
       // 创建文档实体
       const document = this.knowledgeDocumentRepository.create({
@@ -915,7 +918,7 @@ export class KnowledgeDocumentService {
       // DEMO版本中，我们模拟抓取过程，返回结构化数据
 
       // 模拟网络延迟
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // 模拟不同URL返回不同的内容
       let title = `网页标题: ${url}`;
@@ -1233,7 +1236,11 @@ export class KnowledgeDocumentService {
       return FileType.WORD;
     } else if (mime.includes('pdf')) {
       return FileType.PDF;
-    } else if (mime.includes('markdown') || mime.includes('md') || mime.includes('text/markdown')) {
+    } else if (
+      mime.includes('markdown') ||
+      mime.includes('md') ||
+      mime.includes('text/markdown')
+    ) {
       return FileType.MARKDOWN;
     } else if (mime.includes('text/plain') || mime.includes('txt')) {
       return FileType.MARKDOWN; // 纯文本视为Markdown
@@ -1245,7 +1252,10 @@ export class KnowledgeDocumentService {
   /**
    * 根据sourceType确定文件类型
    */
-  private determineFileTypeFromSource(sourceType: DocumentSourceType, mimeType?: string): FileType | null {
+  private determineFileTypeFromSource(
+    sourceType: DocumentSourceType,
+    mimeType?: string,
+  ): FileType | null {
     switch (sourceType) {
       case DocumentSourceType.FILE:
         return mimeType ? this.determineFileType(mimeType) : FileType.OTHER;

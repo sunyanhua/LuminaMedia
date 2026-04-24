@@ -15,7 +15,8 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:3003',
+        // Use Docker service name 'app' when inside Docker, localhost for local dev
+        target: process.env.VITE_API_BASE_URL || 'http://app:3003',
         changeOrigin: true,
         secure: false,
       },

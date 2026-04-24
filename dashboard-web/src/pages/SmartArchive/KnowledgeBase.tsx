@@ -27,6 +27,7 @@ interface KnowledgeDocument {
 const KnowledgeBase: React.FC = () => {
   const { toast } = useToast();
   const [documents, setDocuments] = useState<KnowledgeDocument[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
