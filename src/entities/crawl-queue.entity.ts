@@ -11,10 +11,10 @@ import { CrawlTask } from './crawl-task.entity';
 
 // 队列项状态
 export enum CrawlQueueStatus {
-  PENDING = 'PENDING',        // 待处理
-  PROCESSING = 'PROCESSING',  // 处理中
-  COMPLETED = 'COMPLETED',    // 已完成
-  FAILED = 'FAILED',         // 失败
+  PENDING = 'PENDING', // 待处理
+  PROCESSING = 'PROCESSING', // 处理中
+  COMPLETED = 'COMPLETED', // 已完成
+  FAILED = 'FAILED', // 失败
 }
 
 @Entity('crawl_queues')

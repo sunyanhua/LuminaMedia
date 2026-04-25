@@ -9,18 +9,18 @@ import { TenantEntity } from '../shared/interfaces/tenant-entity.interface';
 
 // 抓取模式
 export enum CrawlMode {
-  SINGLE = 'SINGLE',    // 单页抓取
-  PROJECT = 'PROJECT',  // 专题抓取
-  SITE = 'SITE',        // 整站抓取
+  SINGLE = 'SINGLE', // 单页抓取
+  PROJECT = 'PROJECT', // 专题抓取
+  SITE = 'SITE', // 整站抓取
 }
 
 // 任务状态
 export enum CrawlTaskStatus {
-  PENDING = 'PENDING',      // 待处理
-  RUNNING = 'RUNNING',      // 运行中
-  COMPLETED = 'COMPLETED',  // 已完成
-  CANCELLED = 'CANCELLED',  // 已取消
-  FAILED = 'FAILED',        // 失败
+  PENDING = 'PENDING', // 待处理
+  RUNNING = 'RUNNING', // 运行中
+  COMPLETED = 'COMPLETED', // 已完成
+  CANCELLED = 'CANCELLED', // 已取消
+  FAILED = 'FAILED', // 失败
 }
 
 @Entity('crawl_tasks')

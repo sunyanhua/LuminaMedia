@@ -3,8 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as cheerio from 'cheerio';
 import axios from 'axios';
-import { CrawlTask, CrawlMode, CrawlTaskStatus } from '../../../entities/crawl-task.entity';
-import { CrawlQueue, CrawlQueueStatus } from '../../../entities/crawl-queue.entity';
+import {
+  CrawlTask,
+  CrawlMode,
+  CrawlTaskStatus,
+} from '../../../entities/crawl-task.entity';
+import {
+  CrawlQueue,
+  CrawlQueueStatus,
+} from '../../../entities/crawl-queue.entity';
 import { KnowledgeDocumentService } from './knowledge-document.service';
 import { TenantContextService } from '../../../shared/services/tenant-context.service';
 
@@ -36,7 +43,10 @@ export class CrawlService {
     await this.crawlTaskRepository.save(task);
 
     this.executeCrawlTask(task.id, url, mode).catch((err) => {
-      this.logger.error(`Crawl task ${task.id} failed: ${err.message}`, err.stack);
+      this.logger.error(
+        `Crawl task ${task.id} failed: ${err.message}`,
+        err.stack,
+      );
     });
 
     return { taskId: task.id, totalUrls: 0 };
@@ -47,7 +57,9 @@ export class CrawlService {
     startUrl: string,
     mode: CrawlMode,
   ): Promise<void> {
-    const task = await this.crawlTaskRepository.findOne({ where: { id: taskId } });
+    const task = await this.crawlTaskRepository.findOne({
+      where: { id: taskId },
+    });
     if (!task) return;
 
     task.status = CrawlTaskStatus.RUNNING;
@@ -86,7 +98,9 @@ export class CrawlService {
   }
 
   private async processQueue(taskId: string): Promise<void> {
-    const task = await this.crawlTaskRepository.findOne({ where: { id: taskId } });
+    const task = await this.crawlTaskRepository.findOne({
+      where: { id: taskId },
+    });
     if (!task) return;
 
     while (true) {
@@ -114,7 +128,8 @@ export class CrawlService {
         }
       } catch (error: unknown) {
         queueItem.status = CrawlQueueStatus.FAILED;
-        queueItem.error = error instanceof Error ? error.message : 'Unknown error';
+        queueItem.error =
+          error instanceof Error ? error.message : 'Unknown error';
       }
 
       await this.crawlQueueRepository.save(queueItem);
@@ -144,11 +159,18 @@ export class CrawlService {
           const baseUrl = new URL(item.url);
           const basePath = this.getBasePath(task.sourceUrl);
           const newUrls = this.extractLinks(html, baseUrl.origin);
-          const filtered = this.filterUrls(newUrls, task.sourceUrl, task.mode, basePath);
+          const filtered = this.filterUrls(
+            newUrls,
+            task.sourceUrl,
+            task.mode,
+            basePath,
+          );
 
           for (const url of filtered) {
             const normalized = this.normalizeUrls([url])[0];
-            const exists = await this.crawlQueueRepository.findOne({ where: { taskId: task.id, url: normalized } });
+            const exists = await this.crawlQueueRepository.findOne({
+              where: { taskId: task.id, url: normalized },
+            });
             if (!exists) {
               const queueItem = this.crawlQueueRepository.create({
                 taskId: task.id,
@@ -174,8 +196,9 @@ export class CrawlService {
       const response = await axios.get(url, {
         timeout: 30000,
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          'Accept': 'text/html',
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          Accept: 'text/html',
         },
         maxRedirects: 5,
         validateStatus: (status) => status < 500,
@@ -207,7 +230,12 @@ export class CrawlService {
     return links;
   }
 
-  private filterUrls(urls: string[], sourceUrl: string, mode: CrawlMode, basePath: string): string[] {
+  private filterUrls(
+    urls: string[],
+    sourceUrl: string,
+    mode: CrawlMode,
+    basePath: string,
+  ): string[] {
     const sourceOrigin = new URL(sourceUrl).origin;
 
     return urls.filter((url) => {
@@ -216,12 +244,28 @@ export class CrawlService {
 
         if (parsed.origin !== sourceOrigin) return false;
 
-        if (mode === CrawlMode.PROJECT && !parsed.pathname.startsWith(basePath)) {
+        if (
+          mode === CrawlMode.PROJECT &&
+          !parsed.pathname.startsWith(basePath)
+        ) {
           return false;
         }
 
         const ext = parsed.pathname.split('.').pop()?.toLowerCase();
-        if (['jpg', 'jpeg', 'png', 'gif', 'svg', 'css', 'js', 'ico', 'woff', 'woff2'].includes(ext || '')) {
+        if (
+          [
+            'jpg',
+            'jpeg',
+            'png',
+            'gif',
+            'svg',
+            'css',
+            'js',
+            'ico',
+            'woff',
+            'woff2',
+          ].includes(ext || '')
+        ) {
           return false;
         }
 
@@ -273,7 +317,9 @@ export class CrawlService {
   }
 
   async getTaskStatus(taskId: string) {
-    const task = await this.crawlTaskRepository.findOne({ where: { id: taskId } });
+    const task = await this.crawlTaskRepository.findOne({
+      where: { id: taskId },
+    });
     if (!task) return null;
 
     return {
@@ -287,7 +333,9 @@ export class CrawlService {
   }
 
   async cancelTask(taskId: string): Promise<boolean> {
-    const task = await this.crawlTaskRepository.findOne({ where: { id: taskId } });
+    const task = await this.crawlTaskRepository.findOne({
+      where: { id: taskId },
+    });
     if (!task) return false;
 
     task.status = CrawlTaskStatus.CANCELLED;
